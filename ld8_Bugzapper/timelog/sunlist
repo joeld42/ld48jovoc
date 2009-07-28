@@ -1,0 +1,15 @@
+graphics priority list
+------------------------
+
+- load background scene model (2.0)
+- zapper model (1.0)
+- skybox (0.5)
+- particle fx + glowing bugs (1.0)
+- baked lightmaps per zapper (1.0, incl authoring)
+- full screen glow effect (1.5) or fake zapper glow w/particles (<0.5)
+- change controls to "instant" w/charge (0.5)
+- bugbombs (1.0)
+- sounds (1.0)
+
+
+

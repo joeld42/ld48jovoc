@@ -1,0 +1,14 @@
+# config file for ld14wall
+
+# General options, same as available on cmd line
+screenw = 1024
+screenh = 768
+#fullscreen=1
+
+# Tuneable gameplay params
+[gameplay]
+travel_speed = 1.5
+
+# Critter tuning
+[mammoth]
+delay=10  

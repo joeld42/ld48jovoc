@@ -1,0 +1,122 @@
+mapsize 10 10
+blocksize 70 70
+num_floes 2
+floe 1.000000 0.050000 0 1 Ice 7
+0.857143 8.500000
+0.857143 7.914286
+1.214286 7.628571
+2.228571 7.800000
+2.342857 9.071429
+2.100000 9.628571
+0.857143 9.171429
+floe 1.000000 0.050000 0 1 Land 8
+7.828571 1.828571
+7.742857 2.571429
+7.785714 3.257143
+8.542857 3.342857
+9.085714 3.157143
+9.200000 2.728571
+9.271429 1.842857
+8.342857 1.514286
+road_tiles 100
+road 0 0 0 0
+road 1 0 0 0
+road 2 0 0 0
+road 3 0 0 0
+road 4 0 0 0
+road 5 0 0 0
+road 6 0 0 0
+road 7 0 0 0
+road 8 0 0 0
+road 9 0 0 0
+road 0 1 0 0
+road 1 1 0 0
+road 2 1 1 0
+road 3 1 0 0
+road 4 1 0 0
+road 5 1 0 0
+road 6 1 0 0
+road 7 1 0 0
+road 8 1 0 0
+road 9 1 0 0
+road 0 2 0 0
+road 1 2 0 0
+road 2 2 1 0
+road 3 2 1 0
+road 4 2 1 0
+road 5 2 0 0
+road 6 2 1 0
+road 7 2 1 0
+road 8 2 1 1
+road 9 2 0 0
+road 0 3 0 0
+road 1 3 0 0
+road 2 3 0 0
+road 3 3 0 0
+road 4 3 1 0
+road 5 3 0 0
+road 6 3 1 0
+road 7 3 0 0
+road 8 3 0 0
+road 9 3 0 0
+road 0 4 0 0
+road 1 4 1 0
+road 2 4 1 0
+road 3 4 1 0
+road 4 4 1 0
+road 5 4 1 0
+road 6 4 1 0
+road 7 4 1 0
+road 8 4 1 0
+road 9 4 0 0
+road 0 5 0 0
+road 1 5 1 0
+road 2 5 0 0
+road 3 5 0 0
+road 4 5 1 0
+road 5 5 0 0
+road 6 5 0 0
+road 7 5 0 0
+road 8 5 1 0
+road 9 5 0 0
+road 0 6 0 0
+road 1 6 1 0
+road 2 6 0 0
+road 3 6 0 0
+road 4 6 1 0
+road 5 6 1 0
+road 6 6 1 0
+road 7 6 1 0
+road 8 6 1 0
+road 9 6 0 0
+road 0 7 0 0
+road 1 7 1 0
+road 2 7 0 0
+road 3 7 1 0
+road 4 7 1 0
+road 5 7 0 0
+road 6 7 0 0
+road 7 7 0 0
+road 8 7 1 0
+road 9 7 0 0
+road 0 8 0 0
+road 1 8 1 1
+road 2 8 0 0
+road 3 8 0 0
+road 4 8 0 0
+road 5 8 0 0
+road 6 8 0 0
+road 7 8 0 0
+road 8 8 0 0
+road 9 8 0 0
+road 0 9 0 0
+road 1 9 0 0
+road 2 9 0 0
+road 3 9 0 0
+road 4 9 0 0
+road 5 9 0 0
+road 6 9 0 0
+road 7 9 0 0
+road 8 9 0 0
+road 9 9 0 0
+location 8.657143 1.814286 StartPos

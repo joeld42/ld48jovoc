@@ -1,0 +1,128 @@
+# road tiles
+# 0 empty
+#
+# 0x01 west
+# 0x02 east
+# 0x04 south
+# 0x08 north
+#
+# 0 empty
+# 1 west
+# 2 east
+# 3 east west
+# 4 south
+# 5 south west
+# 6 south east
+# 7 south east west
+# 8 north
+# 9 north west
+# A north east
+# B north east west
+# C north south
+# D north south west
+# E north south east
+# F north south east west
+#
+# North is this way -->
+#
+tile 
+count 6
+000
+000
+
+tile 
+count 1 
+9E5
+030
+
+tile 
+count 1 
+0A5
+A50
+
+tile
+count 1
+960
+096
+
+tile
+count 1
+030
+030
+
+tile 
+count 1
+0AC
+C50
+
+tile 
+count 1
+C60
+09C
+
+tile 
+count 2
+CEC
+030
+
+tile
+count 2
+CFC
+030
+
+tile
+count 2
+CCC
+000
+
+tile
+count 2
+300
+300
+
+tile 
+count 2
+C60
+C50
+
+tile
+count 1
+500
+00A
+
+tile
+count 1
+009
+600
+
+tile 
+count 1
+003
+CCF
+
+tile
+count 1
+300
+FCC
+
+tile 
+count 1
+C70
+0BC
+
+tile
+count 1
+0BC
+C70
+
+tile 
+count 1
+CEC
+C50
+
+tile 
+count 1
+C60
+CDC
+
+

@@ -1,0 +1,165 @@
+README for ID3.py, version 1.2
+
+Copyright (C) 1999, 2000, 2002 Ben Gertzfield <che@debian.org>
+--------------------------------------------------------------
+
+This is a simple Python module for retrieving and setting so-called
+ID3 tags on MP3 compressed audio files through an object-oriented
+interface. MP3 players generally use this simple information for
+display track title, artist name, and album title while playing
+the sound file.
+
+ID3.py supports ID3 version 1.1, including the track number field.
+I have no current plans to code up the monstrosity that is ID3v2
+(http://www.id3.org/id3v2.3.0.html) but if someone wants to add
+that functionality, feel free!
+
+ID3.py is hosted by SourceForge.Net, and the latest release will
+always be available from:
+
+http://id3-py.sourceforge.net/
+
+To install ID3.py, either simply copy the ID3.py file to your
+site-wide Python module installation directory
+(/usr/local/lib/python/site-python, for instance) or, if you have
+Python v1.6 or later (or have Distutils installed), you can simply
+run:
+
+# python setup.py install
+
+from the command-line.
+
+Here's a simple example of using the ID3 module. This example prints
+the current ID3 information (nicely formatted) of a given MP3, changes
+the title and artist tags, and then (implicitly, when the object is
+destroyed) writes out the changes to the file.
+
+    from ID3 import *
+    try:
+	filename = '/some/path/moxy.mp3'
+        id3info = ID3(filename)
+
+        # alternatively, can pass in a file or equivalent if opened in r+b mode
+	# id3info = ID3(open(filename, 'r+b'), filename)
+
+        print id3info
+        id3info.title = "Green Eggs and Ham"
+        id3info.artist = "Moxy Früvous"
+    except InvalidTagError, message:
+        print "Invalid ID3 tag:", message
+
+Notice that simply changing the value of the fields is enough; no
+special functions need to be called.
+
+NEW DICTIONARY-BASED INTERFACE
+------------------------------
+
+As of ID3.py version 1.2, a new dictionary-based interface compatible
+with ogg.vorbis is available.  You can now use ID3 objects just like
+a dictionary:
+
+    from ID3 import *
+    try:
+	filename = '/some/path/moxy.mp3'
+	id3info = ID3(filename)
+
+	id3info['TITLE'] = "Green Eggs and Ham"
+	id3info['ARTIST'] = "Moxy Früvous"
+
+	for k, v in id3info.items():
+            print k, ":", v
+    except InvalidTagError, message:
+	print "Invalid ID3 tag:", message
+
+Note that ID3.py (by default) stores just a string in each value in
+the dictionary-based interface.  ogg.vorbis uses a *list*, not a
+single string, so if you want compatibility with ogg.vorbis, call the
+ID3 constructor with as_tuple=1:
+
+    from ID3 import *
+    try:
+        id3info = ID3("moxy.mp3", as_tuple=1)
+        for k, v in id3info.items()
+            print k, ":", v[0]
+    except InvalidTagError, message:
+        print "Invalid ID3 tag:", message
+
+Of course, all the tuples will only have one string value inside them,
+as that's all the ID3 version 1.1 standard supports.
+
+ID3 OBJECT FIELDS
+-----------------
+
+Here's a list of all the fields in an ID3 object that are interesting.
+Note that all ID3 fields, unless otherwise specified, are a maximum of
+30 characters in length. If a field is set to a string longer than the
+maximum, it will be truncated when it's written to disk.
+
+If any of the fields are not defined in the ID3 tag, the dictionary
+based interface will not contain a key for that field!  Test with
+ID3.has_key('ARTIST') etc. first.
+
+    ID3.title or ID3['TITLE']
+      Title of the song.
+    ID3.artist or ID3['ARTIST']
+      Artist/creator of the song.
+    ID3.album or ID3['ALBUM']
+      Title of the album the song is from.
+    ID3.year or ID3['YEAR']
+      Year the song was released. Maximum of 4 characters (Y10K bug!)
+    ID3.genre
+      Genre of the song. Integer value from 0 to 255. Genre specification
+      comes from (sorry) WinAMP. http://mp3.musichall.cz/id3master/faq.htm
+      has a list of current genres; I spell-checked this list against
+      WinAMP's by running strings(1) on the file Winamp/Plugins/in_mp3.dll 
+      and made a few corrections.
+    ID3['GENRE']
+      String value corresponding to the integer in ID3.genre.  If there
+      is no genre string available for the ID3.genre number, this will
+      be set to "Unknown Genre".
+    ID3.comment or ID3['COMMENT']
+      Comment about the song.
+    ID3.track or ID3['TRACKNUMBER']
+      Track number of the song. None if undefined.
+      NOTE: ID3['TRACKNUMBER'] will return a *string* containing the
+      track number, for compatibility with ogg.vorbis.
+
+This field shouldn't be changed, but might be of use:
+
+   ID3.genres
+     List of all genres. ID3.genre above is used to index into this
+     list. ID3.genres is current as of WinAMP 1.92.
+
+Here are the methods of interest that the ID3 module contains:
+
+   write()
+     If the class data above have changed, opens the file given
+     to the constructor read-write and writes out the new header.
+     If the header is flagged for deletion (see delete() below)
+     truncates the last 128 bytes of the file to remove the header.
+
+     NOTE: write() is called from ID3's deconstructor, so it's technically
+     unnecessary to call it. However, write() can raise an InvalidTagError,
+     which can't be caught during deconstruction, so generally it's 
+     nicer to call it when writing is desired.
+   
+   delete()
+     Flags the ID3 tag for deletion upon destruction of the object
+   
+   find_genre(genre_string)
+     Searches for the numerical value of the given genre string in the
+     ID3.genres table. The search is performed case-insensitively. Returns
+     an integer from 0 to len(ID3.genres).
+
+   legal_genre(genre_number)
+     Checks if genre_number is a legal index into ID3.genres.  Returns
+     true if so, false otherwise.
+
+   as_dict()
+     Returns just the dictionary containing the ID3 tag fields.
+     See the notes above for the dictionary interface.
+
+The only exception is ID3.InvalidTagError; this exception will be
+raised from the constructor when the given file cannot be opened, when
+an IOError is raised while reading the file, and when an IOError occurs
+during a write, after the tag has been modified.

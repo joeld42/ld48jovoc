@@ -1,0 +1,18 @@
+<HeadlineFeeds>
+	<Feed name="Google News" url="http://news.google.com?output=rss" format="dash"/>
+	<Feed name="LA Times" url="http://feeds.latimes.com/latimes/news/local/" format="plain"/>
+	
+	<!-- Yahoo news -->
+	<Feed name="Yahoo News" url="http://rss.news.yahoo.com/rss/topstories/" format="paren"/>	
+	<Feed name="Yahoo News - Technology " url="http://rss.news.yahoo.com/rss/tech/" format="paren"/>
+	<Feed name="Yahoo News - Science" url="http://rss.news.yahoo.com/rss/science/" format="paren"/>
+	<Feed name="Yahoo News - Linux" url="http://rss.news.yahoo.com/rss/linux/" format="paren"/>
+	<Feed name="Yahoo News - Video Games" url="http://rss.news.yahoo.com/rss/videogames/" format="paren"/>
+	<Feed name="Yahoo News - Oddly Enough" url="http://rss.news.yahoo.com/rss/oddlyenough/" format="paren"/>
+	
+	<Feed name="Washington Post" url="http://www.washingtonpost.com/wp-dyn/rss/world/index.xml" format="plain"/>
+	<Feed name="Washington Post" url="http://www.washingtonpost.com/wp-dyn/rss/nation/index.xml" format="plain"/>
+	<Feed name="Washington Post" url="http://www.washingtonpost.com/wp-dyn/rss/technology/index.xml" format="plain"/>
+	
+	
+</HeadlineFeeds>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<buttonset>
+
+      <buttonman name="Gobling" pic="pic_goblin.jpg"
+			ctop="0,10,50" cbot="200,80,20">
+
+            <die sides="4" />
+            <die sides="6" />
+            <die sides="10"/>
+            <die sides="10"/>
+            <die sides="12" />
+	    <bio>Gobling is all about the bling-bling. He likes
+		   pets, brushing his teeth, and beating people up.
+		</bio>
+      </buttonman>
+
+      <buttonman name="Orky" pic="pic_goblin.jpg"
+			ctop="0,10,50" cbot="150,250,20">
+
+            <die sides="4" type="shadow"/>
+            <die sides="8" />
+            <die sides="8"/>
+            <die sides="10"/>
+            <die sides="20" />
+	    <bio> Orky is best know for a minor role in a 
+		 recent hobbit-porn film. He likes gnashing of teeth,
+		rock climbing, and beating people up.
+		</bio>
+      </buttonman>
+
+      <buttonman name="Evilor" pic="pic_knight.jpg"
+			ctop="0,210,50" cbot="200,0,0">
+
+            <die sides="6" />
+            <die sides="6" />
+            <die sides="8"/>
+            <die sides="10"/>
+            <die sides="12" />
+	    <bio>
+		Evilor was good, but now he isn't. He likes treachary,
+		betrayal, and beating people up.
+      	</bio>
+      </buttonman>
+
+      <buttonman name="Vampy" pic="pic_hoody.jpg"
+			ctop="0,0,200" cbot="0,0,150">
+
+            <die sides="6" type="shadow"/>
+            <die sides="12" type="shadow"/>
+            <die sides="12"/>
+            <die sides="12"/>
+            <die sides="12" />
+	    <bio>
+		Vampy is a bloodsucking fiend. He likes blood, sucking,
+		playing FFT:Advance, and beating people up.
+      	</bio>
+      </buttonman>
+
+      <buttonman name="Sluggo" pic="pic_goblin.jpg"
+			ctop="200,200,200" cbot="100,100,100">
+
+            <die sides="8"/>
+            <die sides="8"/>
+            <die sides="8"/>
+            <die sides="8"/>
+            <die sides="8" />
+	    <bio>
+		Slugo strong. Sluggo smack people. Sluggo like beat people up.
+      	</bio>
+      </buttonman>
+
+      <buttonman name="Dargon" pic="pic_goblin.jpg"
+			ctop="30, 100, 40" cbot="100,200,100">
+
+            <die sides="6"/>
+            <die sides="12"/>
+            <die sides="12"/>
+            <die sides="20"/>
+            <die sides="20" />
+	    <bio>
+		Dargon is a powerful dragon. He like jazz flute, pizza,
+		and beating people up.
+      	</bio>
+      </buttonman>
+
+      <buttonman name="Ratty" pic="pic_hoody.jpg"
+			ctop="100,90,80" cbot="30,0,0">
+
+            <die sides="4"/>
+            <die sides="4"/>
+            <die sides="8"/>
+            <die sides="8"/>
+            <die sides="20" />
+	    <bio>
+		Ratty is a rat. He likes old food, bubonic plague, and
+		beating people up.
+      	</bio>
+      </buttonman>
+
+      <buttonman name="Captian Shabb" pic="pic_hoody.jpg"
+			ctop="60,150,180" cbot="30,180,150">
+
+            <die sides="6"/>
+            <die sides="6"/>
+            <die sides="8" type="shadow"/>
+            <die sides="12"/>
+            <die sides="20" />
+	    <bio>
+		Cpt. Shabb misses the briney sea, and takes out his frustration on
+		whomever happens by. He likes boats, sailing, sea creatures, and
+		beating people up.
+      	</bio>
+      </buttonman>
+
+      <buttonman name="Slug" pic="pic_goblin.jpg"
+			ctop="200,250,200" cbot="0,50,0">
+
+            <die sides="8" type="shadow"/>
+            <die sides="8"  type="shadow"/>
+            <die sides="10"/>
+            <die sides="12"/>
+            <die sides="12" />
+	    <bio>
+		Slug is a large invertabrate. He lacks higher brain functions, yet
+		still likes beating people up.
+      	</bio>
+      </buttonman>
+
+      <buttonman name="Panda" pic="pic_hoody.jpg"
+			ctop="200,255,200" cbot="200,200,200">
+
+            <die sides="10"/>
+            <die sides="10" />
+            <die sides="10"/>
+            <die sides="10"/>
+            <die sides="12" />
+	    <bio>
+		Panda is, well, a giant panda. He likes eucalyptus shoots, spring rainfall,
+		and beating people up.
+      	</bio>
+      </buttonman>
+
+</buttonset>

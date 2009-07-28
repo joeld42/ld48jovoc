@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<buttonset>
+      <buttonman name="Sir Shinay" pic="pic_knight.jpg" 
+		ctop="181,201,252" cbot="231,198,15" >
+
+            <die sides="8" />
+            <die sides="8" type="shadow"/>
+            <die sides="4" altsides="12"/>
+            <die sides="8" altsides="20"/>
+            <die sides="12" altsides="20"/>
+	    <bio>Sir Shinay is a well-respected and
+	 	well-equipped prince. He likes polishing his
+		armour, long walks on the beach, and beating
+		people up.		
+		</bio>
+      </buttonman>
+
+      <buttonman name="Man-At-Arms" pic="pic_knight.jpg" 
+		ctop="250, 230, 40" cbot="0,0,50" >
+
+            <die sides="8" />
+            <die sides="10" type="shadow"/>
+            <die sides="4" altsides="20"/>
+            <die sides="X" />
+            <die sides="12"/>
+
+	    <bio>
+		Man-At-Arms is an alcoholic sailer who happened
+		across some armour at a garage sale. He likes drinking,
+		swearing, and beating people up.
+		</bio>
+      </buttonman>
+
+      <buttonman name="Trogdor" pic="pic_goblin.jpg" 
+		ctop="100, 230, 40" cbot="0,80,40" >
+
+            <die sides="10" />
+            <die sides="10" />
+            <die sides="6" altsides="20"/>
+            <die sides="12" />
+            <die sides="X"/>
+
+	    <bio>
+		Trogdor was a man. He was a dragon man. He likes to
+		beat people up.
+		</bio>
+      </buttonman>
+
+      <buttonman name="Frodo" pic="pic_knight.jpg" 
+		ctop="100, 250, 230" cbot="0,0,100" >
+
+            <die sides="4" type="shadow" />
+            <die sides="6" />
+            <die sides="6" altsides="10"/>
+            <die sides="8" altsides="10"/>
+            <die sides="12"/>
+
+	    <bio>
+		Swift and kind hearted, Frodo likes butter, the one ring, 
+		and beating people up.
+		</bio>
+      </buttonman>
+
+      <buttonman name="Lancet" pic="pic_knight.jpg" 
+		ctop="250, 250, 100" cbot="255,255,255" >
+
+            <die sides="8" />
+            <die sides="8" />
+            <die sides="10" />
+            <die sides="10" />
+            <die sides="20"/>
+
+	    <bio>
+		A noble, yet simple, man, Lancet's knighting days
+		are near an end. He likes the Allman Bros., good 
+		French cheese, and beating people up.
+	   </bio>
+      </buttonman>
+
+      <buttonman name="Sneaky Pete" pic="pic_hoody.jpg" 
+		ctop="0,0,80" cbot="60,0,0" >
+
+            <die sides="8" type="shadow"/>
+            <die sides="8" type="shadow"/>
+            <die sides="6" altsides="12" />
+            <die sides="6" altsides="12" />
+            <die sides="12"/>
+
+	    <bio>
+		Sneaky Pete tries to use his theving skills only for
+		good. He doesn't always succeed. He likes stealing, 
+		punk rock, and beating people up.
+	   </bio>
+      </buttonman>
+
+      <buttonman name="Goodgulf" pic="pic_hoody.jpg" 
+		ctop="0,0,80" cbot="200,200,255" >
+
+            <die sides="4" altsides="8"/>
+            <die sides="8" />
+            <die sides="10" type="shadow" />
+            <die sides="12"/>
+            <die sides="20"/>
+
+	    <bio>
+		A kind wizard, Goodgulf want to use his magic to bring good
+		to the world. He like peace, loose women, and beating people up.
+	   </bio>
+      </buttonman>
+
+      <buttonman name="Jovoc" pic="pic_knight.jpg" 
+		ctop="100,150,160" cbot="0,0,60" >
+
+            <die sides="6" altsides="8"/>
+            <die sides="4" altsides="10"/>
+            <die sides="10" type="shadow" />
+            <die sides="20"/>
+            <die sides="20"/>
+
+	    <bio>
+		A hero in a time of need, Jovoc likes 48 hour game contests,		
+		roast beef, and beating people up.
+	   </bio>
+      </buttonman>
+
+      <buttonman name="Dumple" pic="pic_knight.jpg" 
+		ctop="100, 150, 30" cbot="250,4,250" >
+
+            <die sides="8" />
+            <die sides="8" />
+            <die sides="10"/>
+            <die sides="10"/>
+            <die sides="12"/>
+
+	    <bio>
+		Dumple the Malevolent is a swarthy warrior. He likes snakes, space battles,
+		and beating people up.
+	   </bio>
+      </buttonman>
+
+      <buttonman name="Deepflame" pic="pic_hoody.jpg" 
+		ctop="255,255,0" cbot="200, 0, 0" >
+
+            <die sides="6" altsides="12"/>
+            <die sides="10" />
+            <die sides="10"/>
+            <die sides="12" type="shadow" />
+            <die sides="12" type="shadow"/>
+
+	    <bio>
+		Deepflame is a mysterious wanderer. He likes tanks, ping pong,
+		and beating people up.
+	   </bio>
+      </buttonman>
+
+      <buttonman name="Richard" pic="pic_knight.jpg" 
+		ctop="0,0,0" cbot="100, 200, 100" >
+
+            <die sides="6"/>
+            <die sides="6" />
+            <die sides="10" type="shadow" />
+            <die sides="10"/>
+            <die sides="20"/>
+
+	    <bio>
+		Richard is a benevolent ruler. He likes zombies, more zombies
+		and beating people up.
+	   </bio>
+      </buttonman>
+
+</buttonset>

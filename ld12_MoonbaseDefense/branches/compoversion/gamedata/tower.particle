@@ -1,0 +1,62 @@
+// A jet engine (of sorts)
+Tower/Flamethrower
+{
+	material 		Tower/Flame
+	particle_width 	5
+	particle_height	5
+	cull_each		false
+	quota			100
+	billboard_type	point
+
+	emitter Point
+	{
+		angle 5
+		emission_rate 100
+        time_to_live    0.5
+        direction       0 -1 0
+        velocity_min    50
+        velocity_max    70
+        colour_range_start  1 1 0.5
+        colour_range_end    1 0.8 0.3
+		
+	}
+	affector ColourFader
+	{
+		red -0.5
+		green -2
+		blue -2
+	}
+	
+	affector Rotator
+    {
+        rotation_range_start 0
+        rotation_range_end 360
+        rotation_speed_range_start 0
+        rotation_speed_range_end 180
+    }
+	
+}
+
+Tower/TracerFire
+{
+	material        Tower/TracerBullet
+    particle_width  6
+    particle_height 30
+    cull_each       true
+	
+	quota			20
+	billboard_type	oriented_self
+
+	emitter Point
+	{
+		angle 1
+		emission_rate 6
+        time_to_live    1
+        direction       0 -1 0
+        velocity_min    350
+        velocity_max    350
+        colour_range_start  0.5 1 1
+        colour_range_end    0.3 0.8 1
+		
+	}
+}

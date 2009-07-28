@@ -1,0 +1,16 @@
+Tower/GameOver
+{	
+	container Panel(Tower/GameOverPanel)
+	{
+		metrics_mode pixels
+		vert_align center
+		horz_align center
+		left -200 
+		top -45
+		width 400
+		height 80
+		material Tower/GameOver
+	}
+}
+
+

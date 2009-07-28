@@ -1,0 +1,190 @@
+material groundMtl
+{
+	technique
+	{
+		pass
+		{
+			//ambient 1.0 1.0 1.0
+
+			texture_unit
+			{
+				texture ground.png
+			}
+		}
+	}
+}
+
+material mtlTube
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.0 0.0 1.0
+			diffuse 0.0 0.0 1.0
+		}
+	}
+}
+
+material mtlBricks
+{
+	technique
+	{
+		pass
+		{
+			ambient 1.0 1.0 1.0
+
+			texture_unit
+			{
+				texture bricks.png
+			}
+		}
+	}
+}
+
+material lambert2
+{
+	technique
+	{
+		pass
+		{
+			ambient 1.0 1.0 1.0
+
+			texture_unit
+			{
+				scale 0.2 0.2
+				texture plates.png
+			}
+		}
+	}
+}
+
+material lambert1
+{
+	technique
+	{
+		pass
+		{
+			ambient 1.0 1.0 1.0
+
+			texture_unit
+			{
+				scale 0.2 0.2
+				texture plates.png
+			}
+		}
+	}
+}
+
+material crawler
+{
+	technique
+	{
+		pass
+		{
+			ambient 1.0 1.0 1.0
+			specular 1.0 1.0 1.0 10.0
+			
+			texture_unit
+			{				
+				texture crawler_green.png
+			}
+		}
+	}
+}
+
+material Tower/Flame
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend add
+			depth_write off
+
+			texture_unit
+			{			
+				texture flame.png
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+material Tower/TracerBullet
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend add
+			depth_write off
+
+			texture_unit
+			{			
+				texture tracer.png
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+material Tower/Cursor
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			cull_hardware off
+			scene_blend alpha_blend
+			
+			depth_check on
+			depth_write off
+
+			texture_unit
+			{
+				texture indicator.png
+			}
+		}
+	}
+}
+
+material Tower/InterfaceMtl
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture guiBorder.png
+			}
+		}
+	}
+}
+
+material Tower/GameOver
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture gameover.png
+			}
+		}
+	}
+}
+

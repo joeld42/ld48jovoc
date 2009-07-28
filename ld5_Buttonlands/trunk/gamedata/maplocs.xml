@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<locations>
+	<loc name="Swarthdale" bg="town">
+	A hub of theivery and body odor, Swarthdale is listed in Frodor's
+	travel guide as "A place you'd only want to visit if you had family
+	there. And maybe not even then."</loc>
+
+	<loc name="Fnord's Tower" bg="ruins">
+	Once the seat of power for a dark necromancer, Fnord's tower has
+	since become a mediocre Starbucks.</loc>
+
+	<loc name="Vale of Lager" bg="forest">
+	The vale of lager is an enchanted forest, filled with surly, unpleasently
+	drunken elves. Only worth visiting for the 2-for-1 Dewdrop and
+	Jaegermiester shooters.</loc>
+
+	<loc name="Lice Crossing" bg="town">
+	Most travellers leave Lice Crossing with a bit more than they bargained
+	for. Stay away from the tavern wenches.
+	</loc>
+
+	<loc name="Podunk" bg="town">
+	A charming hamlet, if by "charming" you mean "depressing rathole".
+	</loc>
+
+	<loc name="Boueffdale" bg="town">
+	Boueffdale supplies the tasty hamburgers for miles around. And you
+	can smell it from miles around, as well.
+	</loc>
+
+	<loc name="Fetidville" bg="town">
+	Of all the towns in this glorious land, none live up to their
+	name quite so well as this little gem.
+	</loc>
+
+	<loc name="Strogue" bg="town">
+	Not much going for Strogue other than a mediocre college football team. 
+	</loc>
+
+	<loc name="Agoronia" bg="town">
+	This was a pleasant resort town until an epidemic of zombism caused some 
+	rather messy consequences. Customer service, however, seems to have improved.
+	</loc>
+
+	<loc name="The Dark Shambles" bg="ruins">
+	A local landmark, every since the Barker twins got themselves killed out there.
+	</loc>
+
+	<loc name="Meager Dungeon" bg="ruins">
+	Lots of rats, very little treasure.
+	</loc>
+
+	<loc name="Cthulhu's Nest" bg="ruins">
+	Just stay the hell away. Seriously.
+	</loc>
+
+	<loc name="Rathaven" bg="town">
+	Not the best place to spend the night, but there is plenty to eat at least.
+	</loc>
+
+	<loc name="Shallow Hole" bg="ruins">
+	A rather uninspired dungeon.
+	</loc>
+
+	<loc name="Moria" bg="ruins">
+	No, not *THAT* Moria. The other, boring one.
+	</loc>
+
+	<loc name="Raistlin's Outhouse" bg="ruins">
+	It's pretty much what the name implies.
+	</loc>
+
+	<loc name="Mines of Foo" bg="ruins">
+	When the ancient dwarves abandoned the mines, the took pretty much
+	anything of value.
+	</loc>
+
+	<loc name="Mines of Bar" bg="ruins">
+	Legend has it that somehow the labyrinthine mines connect with the
+	far-away mines of Foo. Care to find out??
+	</loc>
+
+	<loc name="Badnamia" bg="ruins">
+	I'm really running out of names for things.
+	</loc>
+
+	<loc name="Itchy Clearing" bg="forest">
+	Nowhere in the land boasts more Orcs or poison Oak.
+	</loc>
+
+	<loc name="The Rottwood" bg="forest">
+	An ancient and soggy woodland.
+	</loc>
+
+	<loc name="Grove of Gold" bg="forest">
+	Figuratively, of course. There's nothing really of value here.
+	</loc>
+
+	<loc name="Elfmating Pond" bg="forest">
+	This scenic lake is popular with sightseers. 
+	</loc>
+
+	<loc name="Mirkwood" bg="forest">
+	A rather boring woodland filled with angry trees and
+	old hippies.
+	</loc>
+
+	<loc name="Sherwood Forest" bg="forest">
+	You may catch a glimpse of the famous Robin of Hood, who 
+	steals from the rich and gives to the tavern.
+	</loc>
+
+</locations>
