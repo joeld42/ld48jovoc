@@ -1,0 +1,13 @@
+import os, sys
+
+Import('baseEnv')
+env = baseEnv.Clone( tools=['allegro'], CPPPATH=["."] )
+
+SOURCES = ['wander_main.cpp', 'tilemap.cpp', 'pixbot.cpp', 'game_obj.cpp' ]
+bin_wander = env.Program( 'wander', SOURCES )
+
+exp_wander = Install( os.path.join( "#", "miniLD11_wander", "trunk"  ), bin_wander )
+
+Default( exp_wander )
+Return( 'exp_wander' )
+

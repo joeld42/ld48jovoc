@@ -2,11 +2,17 @@
 #include <math.h>
 #include <deque>
 #include <vector>
+#include <string>
 #include <algorithm>
 
 #include <allegro.h>
-#ifndef NDEBUG
-# include <winalleg.h>
+
+// Use winalleg on windows to get
+// ConsoleAlloc and friends
+#ifdef WIN32 
+#  ifndef NDEBUG
+#    include <winalleg.h>
+#  endif
 #endif
 
 #include <tilemap.h>
@@ -38,7 +44,7 @@ float lerp( float t, float a, float b );
 
 void message( const char *message )
 {
-	messageQueue.push_back( message );
+	messageQueue.push_back( std::string(message) );
 }
 
 volatile int ticks = 0;
@@ -169,13 +175,16 @@ int main( int argc, char *argv[] )
     BITMAP *lobuf;
     BITMAP *backbuf;    
 
-#ifndef NDEBUG
+#ifdef WIN32
+#  ifndef NDEBUG
     // Create a win32 console for printfing
 	AllocConsole();
 
 	freopen("CONIN$","rb",stdin);   // reopen stdin handle as console window input
 	freopen("CONOUT$","wb",stdout);  // reopen stout handle as console window output
-	freopen("CONOUT$","wb",stderr); // reopen stderr handle as console window output
+	freopen("CONOUT$","wb",stderr); // reopen stderr handle as console
+                                    // window output
+#  endif
 #endif
 
     //----- Game stuff ---------------
