@@ -1,336 +1,221 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="wander"
-	ProjectGUID="{C07EAB36-949F-477A-81BE-65D6C6F4F062}"
-	SccProjectName=""
-	SccLocalPath=""
-	Keyword="Win32Proj">
+	ProjectGUID="{A69CF42E-FF18-43B8-A514-B330E0046F28}"
+	RootNamespace="wander"
+	Keyword="Win32Proj"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="wander.dir\Debug"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			CharacterSet="1"
+			>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /DWIN32 /D_WINDOWS  /Zm1000   /D_DEBUG        -DCMAKE_INTDIR=\&quot;Debug\&quot;"
-				AdditionalIncludeDirectories="\.;c:\toolkits\allegro-4.2.0\include;"
-				BasicRuntimeChecks="3"
-				CompileAs="2"
-				DebugInformationFormat="3"
-				ExceptionHandling="TRUE"
-				InlineFunctionExpansion="0"
-				Optimization="0"
-				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
-				WarningLevel="3"
-				PreprocessorDefinitions=""
-				AssemblerListingLocation="Debug"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="$(OutDir)/wander.pdb"
-/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="\.;c:\toolkits\allegro-4.2.0\include;"
-				PreprocessorDefinitions="" />
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions=""
-				MkTypLibCompatible="FALSE"
-				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
-				TypeLibraryName="$(InputName).tlb"
-				OutputDirectory="$(IntDir)"
-				HeaderFileName="$(InputName).h"
-				DLLDataFileName=""
-				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"/>
-			<Tool
-				Name="VCManifestTool"
-				UseFAT32Workaround="true"
+				Name="VCPreBuildEventTool"
 			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;C:\Toolkits\allegro-4.2.0\include&quot;;c:\projects\wander;c:\projects\wander\tinyxml"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="   /STACK:10000000 /machine:I386 /debug "
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  "
-				OutputFile="Debug\wander.exe"
-				Version="0.0"
-				GenerateManifest="TRUE"
+				AdditionalDependencies="alld.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="c:\Toolkits\allegro-4.2.0\lib\$(OutDir),c:\Toolkits\allegro-4.2.0\lib"
-				ProgramDataBaseFile="$(OutDir)\wander.pdb"
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"
-				StackReserveSize="10000000"/>
+				AdditionalLibraryDirectories="&quot;c:\toolkits\allegro-4.2.0\lib&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="wander.dir\Release"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
 			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /DWIN32 /D_WINDOWS  /Zm1000      /D NDEBUG   -DCMAKE_INTDIR=\&quot;Release\&quot;"
-				AdditionalIncludeDirectories="\.;c:\toolkits\allegro-4.2.0\include;"
-				CompileAs="2"
-				ExceptionHandling="TRUE"
-				InlineFunctionExpansion="2"
-				Optimization="2"
-				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
-				WarningLevel="3"
-				PreprocessorDefinitions=""
-				AssemblerListingLocation="Release"
-				ObjectFile="$(IntDir)\"
-/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="\.;c:\toolkits\allegro-4.2.0\include;"
-				PreprocessorDefinitions="" />
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions=""
-				MkTypLibCompatible="FALSE"
-				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
-				TypeLibraryName="$(InputName).tlb"
-				OutputDirectory="$(IntDir)"
-				HeaderFileName="$(InputName).h"
-				DLLDataFileName=""
-				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"/>
-			<Tool
-				Name="VCManifestTool"
-				UseFAT32Workaround="true"
+				Name="VCPreBuildEventTool"
 			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="   /STACK:10000000 /machine:I386 "
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  "
-				OutputFile="Release\wander.exe"
-				Version="0.0"
-				GenerateManifest="TRUE"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="c:\Toolkits\allegro-4.2.0\lib\$(OutDir),c:\Toolkits\allegro-4.2.0\lib"
-				ProgramDataBaseFile="$(OutDir)\wander.pdb"
-				SubSystem="1"
-				StackReserveSize="10000000"/>
-		</Configuration>
-		<Configuration
-			Name="MinSizeRel|Win32"
-			OutputDirectory="MinSizeRel"
-			IntermediateDirectory="wander.dir\MinSizeRel"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions=" /DWIN32 /D_WINDOWS  /Zm1000      /D NDEBUG   -DCMAKE_INTDIR=\&quot;MinSizeRel\&quot;"
-				AdditionalIncludeDirectories="\.;c:\toolkits\allegro-4.2.0\include;"
-				CompileAs="2"
-				ExceptionHandling="TRUE"
-				InlineFunctionExpansion="1"
-				Optimization="1"
-				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
-				WarningLevel="3"
-				PreprocessorDefinitions=""
-				AssemblerListingLocation="MinSizeRel"
-				ObjectFile="$(IntDir)\"
-/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="\.;c:\toolkits\allegro-4.2.0\include;"
-				PreprocessorDefinitions="" />
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions=""
-				MkTypLibCompatible="FALSE"
-				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
-				TypeLibraryName="$(InputName).tlb"
-				OutputDirectory="$(IntDir)"
-				HeaderFileName="$(InputName).h"
-				DLLDataFileName=""
-				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"/>
-			<Tool
-				Name="VCManifestTool"
-				UseFAT32Workaround="true"
+				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="   /STACK:10000000 /machine:I386 "
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  "
-				OutputFile="MinSizeRel\wander.exe"
-				Version="0.0"
-				GenerateManifest="TRUE"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="c:\Toolkits\allegro-4.2.0\lib\$(OutDir),c:\Toolkits\allegro-4.2.0\lib"
-				ProgramDataBaseFile="$(OutDir)\wander.pdb"
-				SubSystem="1"
-				StackReserveSize="10000000"/>
-		</Configuration>
-		<Configuration
-			Name="RelWithDebInfo|Win32"
-			OutputDirectory="RelWithDebInfo"
-			IntermediateDirectory="wander.dir\RelWithDebInfo"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" /DWIN32 /D_WINDOWS  /Zm1000       /D NDEBUG   -DCMAKE_INTDIR=\&quot;RelWithDebInfo\&quot;"
-				AdditionalIncludeDirectories="\.;c:\toolkits\allegro-4.2.0\include;"
-				CompileAs="2"
+				AdditionalIncludeDirectories="&quot;C:\Toolkits\allegro-4.2.0\include&quot;;c:\projects\wander;c:\projects\wander\tinyxml"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
-				ExceptionHandling="TRUE"
-				InlineFunctionExpansion="1"
-				Optimization="2"
-				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
-				WarningLevel="3"
-				PreprocessorDefinitions=""
-				AssemblerListingLocation="RelWithDebInfo"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="$(OutDir)/wander.pdb"
-/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="\.;c:\toolkits\allegro-4.2.0\include;"
-				PreprocessorDefinitions="" />
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions=""
-				MkTypLibCompatible="FALSE"
-				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
-				TypeLibraryName="$(InputName).tlb"
-				OutputDirectory="$(IntDir)"
-				HeaderFileName="$(InputName).h"
-				DLLDataFileName=""
-				InterfaceIdentifierFileName="$(InputName)_i.c"
-				ProxyFileName="$(InputName)_p.c"/>
-			<Tool
-				Name="VCManifestTool"
-				UseFAT32Workaround="true"
 			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCResourceCompilerTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="   /STACK:10000000 /machine:I386 /debug "
-				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  "
-				OutputFile="RelWithDebInfo\wander.exe"
-				Version="0.0"
-				GenerateManifest="TRUE"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="c:\Toolkits\allegro-4.2.0\lib\$(OutDir),c:\Toolkits\allegro-4.2.0\lib"
-				ProgramDataBaseFile="$(OutDir)\wander.pdb"
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"
-				StackReserveSize="10000000"/>
+				AdditionalDependencies="alleg.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;c:\toolkits\allegro-4.2.0\lib&quot;;c:\toolkits\tinyxml\Release"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
-			<File
-				RelativePath="C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeLists.txt">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-					Name="VCCustomBuildTool"
-					Description="Building Custom Rule C:/Projects/ld48jovoc/miniLD11_wander/trunk/CMakeLists.txt"
-					CommandLine="&quot;c:\Program Files\CMake 2.4\bin\cmake.exe&quot; -HC:/Projects/ld48jovoc/miniLD11_wander/trunk -BC:/Projects/ld48jovoc/miniLD11_wander/trunk"
-					AdditionalDependencies="C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeLists.txt;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeSystem.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCCompiler.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXCompiler.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeGenericSystem.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\gcc.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows-cl.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeRCCompiler.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeRCInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\WindowsPaths.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCXXInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows-cl.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXPlatform.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\WindowsPaths.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Templates\CMakeWindowsSystemConfig.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeLists.txt;"
-					Outputs="wander.vcproj.cmake"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-					Name="VCCustomBuildTool"
-					Description="Building Custom Rule C:/Projects/ld48jovoc/miniLD11_wander/trunk/CMakeLists.txt"
-					CommandLine="&quot;c:\Program Files\CMake 2.4\bin\cmake.exe&quot; -HC:/Projects/ld48jovoc/miniLD11_wander/trunk -BC:/Projects/ld48jovoc/miniLD11_wander/trunk"
-					AdditionalDependencies="C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeLists.txt;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeSystem.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCCompiler.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXCompiler.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeGenericSystem.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\gcc.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows-cl.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeRCCompiler.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeRCInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\WindowsPaths.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCXXInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows-cl.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXPlatform.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\WindowsPaths.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Templates\CMakeWindowsSystemConfig.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeLists.txt;"
-					Outputs="wander.vcproj.cmake"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MinSizeRel|Win32">
-					<Tool
-					Name="VCCustomBuildTool"
-					Description="Building Custom Rule C:/Projects/ld48jovoc/miniLD11_wander/trunk/CMakeLists.txt"
-					CommandLine="&quot;c:\Program Files\CMake 2.4\bin\cmake.exe&quot; -HC:/Projects/ld48jovoc/miniLD11_wander/trunk -BC:/Projects/ld48jovoc/miniLD11_wander/trunk"
-					AdditionalDependencies="C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeLists.txt;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeSystem.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCCompiler.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXCompiler.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeGenericSystem.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\gcc.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows-cl.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeRCCompiler.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeRCInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\WindowsPaths.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCXXInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows-cl.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXPlatform.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\WindowsPaths.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Templates\CMakeWindowsSystemConfig.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeLists.txt;"
-					Outputs="wander.vcproj.cmake"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="RelWithDebInfo|Win32">
-					<Tool
-					Name="VCCustomBuildTool"
-					Description="Building Custom Rule C:/Projects/ld48jovoc/miniLD11_wander/trunk/CMakeLists.txt"
-					CommandLine="&quot;c:\Program Files\CMake 2.4\bin\cmake.exe&quot; -HC:/Projects/ld48jovoc/miniLD11_wander/trunk -BC:/Projects/ld48jovoc/miniLD11_wander/trunk"
-					AdditionalDependencies="C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeLists.txt;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeSystem.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCCompiler.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXCompiler.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeSystemSpecificInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeGenericSystem.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\gcc.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows-cl.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeRCCompiler.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeRCInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\WindowsPaths.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCXXInformation.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\Windows-cl.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCPlatform.cmake;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeFiles\CMakeCXXPlatform.cmake;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\Platform\WindowsPaths.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Modules\CMakeCommonLanguageInclude.cmake&quot;;&quot;c:\Program Files\CMake 2.4\share\cmake-2.4\Templates\CMakeWindowsSystemConfig.cmake&quot;;C:\Projects\ld48jovoc\miniLD11_wander\trunk\CMakeLists.txt;"
-					Outputs="wander.vcproj.cmake"/>
-				</FileConfiguration>
-			</File>
 		<Filter
 			Name="Source Files"
-			Filter="">
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath="C:\Projects\ld48jovoc\miniLD11_wander\trunk\game_obj.cpp">
+				RelativePath=".\game_obj.cpp"
+				>
 			</File>
 			<File
-				RelativePath="C:\Projects\ld48jovoc\miniLD11_wander\trunk\pixbot.cpp">
+				RelativePath=".\pixbot.cpp"
+				>
 			</File>
 			<File
-				RelativePath="C:\Projects\ld48jovoc\miniLD11_wander\trunk\tilemap.cpp">
+				RelativePath=".\tilemap.cpp"
+				>
 			</File>
 			<File
-				RelativePath="C:\Projects\ld48jovoc\miniLD11_wander\trunk\wander_main.cpp">
+				RelativePath=".\wander_main.cpp"
+				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
+			<File
+				RelativePath=".\game_obj.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tilemap.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 	</Files>
 	<Globals>
