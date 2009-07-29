@@ -16,8 +16,13 @@ import os, sys
 buildDir = "build"
 BuildDir( buildDir, '.', duplicate=0 )
 
-baseEnv = Environment( CPPDEFINES="-DNDEBUG" )
+baseEnv = Environment( CPPDEFINES="NDEBUG" )
 Export( 'baseEnv' )
+
+# Stuff I had to add to get this to work on windows
+if sys.platform=='win32':
+    baseEnv.AppendUnique( CFLAGS="/EHsc /Wp64 /Zi /TP" )
+    baseEnv.AppendUnique( LINKFLAGS = "/SUBSYSTEM:WINDOWS" )
 
 allTargets = list()
 

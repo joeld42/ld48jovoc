@@ -1,7 +1,8 @@
 import os, sys
 
 Import('baseEnv')
-env = baseEnv.Clone( tools=['allegro'], CPPPATH=["."] )
+env = baseEnv.Clone( tools=['allegro'] )
+env.AppendUnique( CPPPATH=["."] );
 
 SOURCES = ['wander_main.cpp', 'tilemap.cpp', 'pixbot.cpp', 'game_obj.cpp' ]
 bin_wander = env.Program( 'wander', SOURCES )
