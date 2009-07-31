@@ -1,4 +1,6 @@
-#include <windows.h>
+#ifdef WIN32
+# include <windows.h>
+#endif
 
 #include <assert.h>
 #include <vector>
@@ -278,3 +280,4 @@ bool KLevel::getSimInfo( vec2f kpos, float heading,
 	// node went off the reservation
 	return false;
 }
+

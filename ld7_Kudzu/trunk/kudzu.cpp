@@ -1,4 +1,7 @@
-#include <windows.h>
+#ifdef WIN32
+#   include <windows.h>
+#endif
+
 #include <math.h>
 
 #include <SDL.h>
@@ -837,8 +840,8 @@ int main( int argc, char *argv[] )
 					printf("Init level\n");
 					g_game.currLevel = new KLevel();
 					// TODO: load this from a level info file
-					g_game.currLevel->loadSimMesh( ".\\gamedata\\house_sim.obj" );
-					//g_game.currLevel->loadSimMesh( ".\\gamedata\\grid_sim.obj" );
+					g_game.currLevel->loadSimMesh( "./gamedata/house_sim.obj" );
+					//g_game.currLevel->loadSimMesh( "./gamedata/grid_sim.obj" );
 
 					// staring node
 					KNode n;

@@ -36,7 +36,7 @@ ENDIF (UNIX)
 
 # ==================================================
 # LD1 - Zillagame
-#     Depdencies: Glut, OpenGL, Plib
+#     Depdencies: Glut, OpenGL, PNG
 # 
 # ==================================================
 if (OPENGL_FOUND AND GLUT_FOUND)
@@ -50,6 +50,15 @@ endif (OPENGL_FOUND AND GLUT_FOUND)
 #if (ALLEGRO_FOUND)
 #   ADD_SUBDIRECTORY( ld4_BadFood/trunk )
 #endif (ALLEGRO_FOUND)
+
+# ==================================================
+# LD7 - Kudzu
+#     Depdencies: SDL, OpenGL
+# 
+# ==================================================
+if (OPENGL_FOUND AND SDL_FOUND)
+  ADD_SUBDIRECTORY( ld7_Kudzu/trunk )
+endif (OPENGL_FOUND AND SDL_FOUND)
 
 # ==================================================
 # LD10 - ChainGuy
