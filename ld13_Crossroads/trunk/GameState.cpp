@@ -76,7 +76,7 @@ void GameState::loadWordList( const char *wordlist )
 	m_wordList["LUDUM"] = true;
 	m_wordList["JOVOC"] = true;
 
-	_RPT1( _CRT_WARN, "Loaded %d words\n", m_wordList.size() );
+	printf( "Loaded %d words\n", m_wordList.size() );
 }
 
 void GameState::makeSymmetric()
@@ -294,7 +294,7 @@ void GameState::drawDbgDisplay()
 
 struct CandidateTile
 {
-	bool operator< ( CandidateTile &other )
+	bool operator< ( const CandidateTile &other ) const
 	{
 		return value > other.value;
 	}
@@ -347,7 +347,7 @@ void GameState::updateRoute()
 		int destX = tilebag.front().x;
 		int destY = tilebag.front().y;
 
-		_RPT2( _CRT_WARN, "dest tile %d %d\n", destX, destY );
+		printf( "dest tile %d %d\n", destX, destY );
 
 		// clear visited in preperation to route
 		foreach_tile
@@ -419,7 +419,7 @@ void GameState::updateRoute()
 				}
 			}
 #if 0			
-			_RPT1( _CRT_WARN, "===== iter %d ======\n", count );
+			printf( "===== iter %d ======\n", count );
 			count++;			
 
 			for (int j=0; j < m_boardSizeY; ++j)
@@ -678,7 +678,7 @@ void GameState::commitWord()
 	for (int i=0; i < checkwords.size(); ++i )
 	{		
 		WordList::iterator wi = m_wordList.find( checkwords[i].word );
-		_RPT2( _CRT_WARN, "Word: %s Found: %s\n", checkwords[i].word.c_str(), (wi!=m_wordList.end()?"TRUE":"FALSE") );
+		printf( "Word: %s Found: %s\n", checkwords[i].word.c_str(), (wi!=m_wordList.end()?"TRUE":"FALSE") );
 
 		if (wi==m_wordList.end())
 		{

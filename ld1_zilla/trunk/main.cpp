@@ -9,8 +9,10 @@
 #include <time.h>
 #include <math.h>
 
-#include <windows.h>
-#include <crtdbg.h>
+#ifdef WIN32
+# include <windows.h>
+# include <crtdbg.h>
+#endif
 
 #include <math.h>
 #include <GL/glut.h>
@@ -212,7 +214,7 @@ ZillaGame::Special( int key, int x, int y ) {
 	sgSetVec3( camPos,  
 			camLookat[0] + cos( SG_DEGREES_TO_RADIANS * currAngle) * currZoom,
 			currHeight, camLookat[2] + sin( SG_DEGREES_TO_RADIANS * currAngle) * currZoom );
-	_RPT3( _CRT_WARN, "camPos is %f %f %f\n", camPos[0], camPos[1], camPos[2] );
+	//_RPT3( _CRT_WARN, "camPos is %f %f %f\n", camPos[0], camPos[1], camPos[2] );
 
 }
 
@@ -246,7 +248,7 @@ ZillaGame::Mouse( int button, int state, int mx, int my ) {
 void
 ZillaGame::Key( unsigned char key, int x, int y )
 {
-	_RPT1( _CRT_WARN, "Key pressed: %c\n", key );
+//	_RPT1( _CRT_WARN, "Key pressed: %c\n", key );
 
 	switch( key ) {
 	case 27:

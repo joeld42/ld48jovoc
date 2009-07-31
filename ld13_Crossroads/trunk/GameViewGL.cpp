@@ -1,5 +1,8 @@
 #include <assert.h>
 
+#include <IL/il.h>
+#include <IL/ilu.h>
+#include <IL/ilut.h>
 
 #define M_PI (3.1415926535897932384626433832795)
 #define D2R (M_PI/180.0)
@@ -491,7 +494,7 @@ GLuint GameViewGL::loadTexture( const char *filename )
 	
 	if (!ilLoadImage( (ILstring)filename )) 	
 	{
-		_RPT1( _CRT_WARN, "Loading texture %s failed\n", filename);
+		printf( "Loading texture %s failed\n", filename);
 		assert(0);
 	}
 	

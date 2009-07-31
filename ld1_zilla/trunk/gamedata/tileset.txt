@@ -1,0 +1,17 @@
+#model      symbol   passable  destructable  isRoad
+powerplant   P          0           0           0
+house        h          0           1           0
+roadbendUL   /          1           0           1
+roadbendUR   \          1           0           1
+roadbendLL   (          1           0           1
+roadbendLR   )          1           0           1
+roadxwalkLL  +          1           0           1
+roadhorizUR  -          1           0           1
+roadvertUL   |          1           0           1
+oceanLR      ~          0           0           0
+ground1      .          1           0           0
+ground2      .          1           0           0
+ground1      .          1           0           0
+ground1      .          1           0           0
+onetree      t          1           1           0
+threetree    T          0           1           0

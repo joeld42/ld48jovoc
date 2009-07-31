@@ -11,8 +11,10 @@
 #include <assert.h>
 #include <time.h>
 
-#include <windows.h>
-#include <crtdbg.h>
+#ifdef WIN32
+# include <windows.h>
+# include <crtdbg.h>
+#endif
 
 #include <math.h>
 #include <GL/glut.h>

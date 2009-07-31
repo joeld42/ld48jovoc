@@ -1,0 +1,94 @@
+
+  =======================
+  contributions
+  =======================
+  
+  Jukka Liimatta ( jukka.liimatta@twilight3d.com )
+    lead programmer
+
+  Thomas M. Carlsson ( thomas.carlsson@twilight3d.com )
+    window system
+    original string implementation
+
+  Ilkka Pelkonen
+    additional bitmap codecs
+    
+  Mikael "codenator" Kalms
+    blitter module
+    
+  Joseph Mocanu
+    beos implementation
+    
+  Timo Saarinen
+    file system
+    microsoft visual studio 6 optimizing guru
+    
+  Edmond Cote
+    linux implementation
+
+  Rune Vendler
+    Quake III Arena .bsp importer
+    
+  Mikko Nurmi ( mikko.nurmi@twilight3d.com )
+    .klx importer, debugging
+
+  Francesco Montecuccoli
+    WindowBase::EventKeyboard ascii charcode
+    Surface::FlipYImage method
+    Quake2 model reader
+    recursive FileStream system
+    bugfixes & improvements
+    
+  Mats Byggmastar
+    vigorous bug hunting ;-)
+    
+  Juhani Honkala
+    conformance testing / beta testing slave
+
+  Daniel Kolakowski
+    JPEG2000 codec
+    simd_memcpy()
+    improved AMD CPU caps detection
+
+  Philip Wyett
+    Visual Studio 6 workspaces, fixes
+
+  Andrew Griffiths  
+    prmath::Matrix4x4<>::RotateXYZ() bugfix
+    
+  Mikko "skoopperi" Lehtonen
+    helpful feedback and bugfixes..
+
+  Stefan Karlsson ( stefan@mirrorgate.se )
+    OSX version of the library
+
+  And a big thanks for everyone who has submitted bugfixes and suggestions!
+
+  
+  =======================
+  technology
+  =======================
+
+  Portable Network Graphics
+    http://www.libpng.org/pub/png/
+    .png fileformat codec
+
+  zlib
+    http://www.gzip.org/zlib/
+    .png fileformat codec uses zlib for compression
+
+  Independent JPEG Group
+    http://www.ijg.org/
+    .jpg fileformat codec
+
+  Jasper
+    http://www.ece.uvic.ca/~mdadams/jasper/
+    .jp2 fileformat codec
+
+  DXTC decompression code
+    http://developer.nvidia.com/view.asp?IO=dxtc_decompression_code
+    .dds fileformat codec
+
+  OpenEXR
+    http://www.openexr.net
+    Industrial Light & Magic library for .exr fileformat support
