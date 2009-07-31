@@ -2,20 +2,15 @@
 include_directories( . )
 
 # Source files
-SET( wander_SRCS 
-     game_obj.cpp
-     pixbot.cpp
-     tilemap.cpp
-     wander_main.cpp 
+SET( chains_SRCS 
+     chain_main.cpp 
      )
 
 # Add Header files to Visual Studio project
-IF (WIN32)
-   SET( wander_SRCS ${wander_SRCS} 
-        game_obj.h
-        tilemap.h 
-        )
-ENDIF( WIN32 )
+#IF (WIN32)
+#   SET( chains_SRCS ${wander_SRCS} 
+#        )
+#ENDIF( WIN32 )
 
 # Use allegro
 include_directories( ${ALLEGRO_INCLUDE_DIRS} ${X11_INCLUDE_DIRS} )
@@ -36,8 +31,8 @@ endif (UNIX)
 
 
 # The executable
-ADD_EXECUTABLE( wander ${wander_SRCS} )
-target_link_libraries( wander ${LIBS} )
-set_target_properties( wander
+ADD_EXECUTABLE( chains ${chains_SRCS} )
+target_link_libraries( chains ${LIBS} )
+set_target_properties( chains
                        PROPERTIES
-                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/miniLD11_wander/trunk )
+                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/ld10_chains/trunk )

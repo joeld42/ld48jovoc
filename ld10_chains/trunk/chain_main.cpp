@@ -71,10 +71,10 @@ int main( int argc, char *argv[] )
 	//=========================
 	// load map
 	unsigned char map2[100][100];
-	FILE *fp = fopen( "gamedata\\testmap.dat", "rb" );
+	FILE *fp = fopen( "gamedata/testmap.dat", "rb" );
 	if (!fp) 
 	{
-		allegro_message("Can't open gamedata\\testmap.dat!" );		
+		allegro_message("Can't open gamedata/testmap.dat!" );		
 		exit(1);
 	}
 	size_t sz = fread( map2, 100*100, 1, fp );	
@@ -143,8 +143,8 @@ int main( int argc, char *argv[] )
 	pframe = 0;
 	pxx = 3.5; pyy = 97.5; // start pos	
 	
-	tiles = load_bitmap( "gamedata\\tiles.bmp", NULL );
-	playerStrip = load_bitmap( "gamedata\\hero.bmp", NULL );	
+	tiles = load_bitmap( "gamedata/tiles.bmp", NULL );
+	playerStrip = load_bitmap( "gamedata/hero.bmp", NULL );	
 	if ((!tiles) || (!playerStrip))
 	{
 		allegro_message("Can't open graphics!" );		
