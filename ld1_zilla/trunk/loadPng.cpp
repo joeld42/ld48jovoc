@@ -20,7 +20,7 @@ void Texture::loadPngRGBA(const char * filename )
 	png_structp png_ptr = 0;
     png_infop info_ptr = 0;
 
-	_RPT1( _CRT_WARN, "in loadPngRGBA %s\n",filename );
+	printf( "in loadPngRGBA %s\n",filename );
 
     // open the PNG input file
     if (!filename) return;
@@ -121,11 +121,11 @@ void Texture::loadPngRGBA(const char * filename )
 	hasAlpha = true;
 	data = (unsigned char *)malloc( w * h * 4 );
 
-	_RPT2( _CRT_WARN, "Loading texture width %d height %d\n", w, h );
+	printf( "Loading texture width %d height %d\n", w, h );
 	
 	unsigned long ndx;
 	for(unsigned int j=0; j < h; j++) { 
-		for(i=0; i < w; i++) {		
+		for(int i=0; i < w; i++) {		
 			ndx = (j*w*4)+(i*4);
 			data[ndx] = row[j][i*4];
 			data[ndx+1] = row[j][i*4+1];

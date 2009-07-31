@@ -1,5 +1,6 @@
 # Include this directory in the CPPPATH
 include_directories( . )
+include_directories( ${CMAKE_SOURCE_DIR}/extern )
 
 # Source files
 SET( zilla_SRCS 
@@ -17,16 +18,16 @@ ENDIF( WIN32 )
 # Use GLUT/OpenGL
 include_directories( 
     ${OPENGL_INCLUDE_DIR} 
-    ${GLUT_INCLUDE_DIR} )
+    ${GLUT_INCLUDE_DIR} 
+    ${PNG_INCLUDE_DIR}
+    )
 
 #include_directories( ${ALLEGRO_INCLUDE_DIRS} ${X11_INCLUDE_DIRS} )
 set ( LIBS ${LIBS} 
     ${OPENGL_LIBRARIES} 
     ${GLUT_LIBRARIES}
-    ${
+    ${PNG_LIBRARIES}
      )
-
-# Use SDL
 
 
 # === Additional dependancies to build on unix
@@ -41,6 +42,7 @@ if (UNIX)
 
 endif (UNIX)
 
+ADD_DEFINITIONS( ${PNG_DEFINITIONS} )
 
 # The executable
 ADD_EXECUTABLE( zilla ${zilla_SRCS} )

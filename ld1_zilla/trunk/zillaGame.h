@@ -19,8 +19,8 @@
 #include <math.h>
 #include <GL/glut.h>
 
-#include <plib/sg.h>
-#include <plib/fnt.h>
+#include <prmath/vector2.hpp>
+#include <prmath/vector3.hpp>
 
 #include <png.h>
 
@@ -29,6 +29,8 @@ typedef int Tri[3];
 
 #define MAX_TEXTURES (50)
 #define ID_UNASSIGNED (0xFFFF)
+
+#define ENABLE_FONT (0)
 
 struct MapPos {
 	MapPos() {}
@@ -74,10 +76,10 @@ public:
 	void draw();
 
 protected:
-	sgVec3 *vtx;
-	sgVec3 *nrm;
+	vec3f *vtx;
+	vec3f *nrm;
 
-	sgVec2 *st;
+	vec2f *st;
 	Texture *tex;
 
 	int nVtx;
@@ -142,7 +144,7 @@ struct Level {
 	bool pathTo( int startx, int starty, 
 				 int targx,  int targy,
 				 PathMode mode, 
-				 std::list<sgVec2*> &waypoints );
+				 std::list<vec2f*> &waypoints );
 					 
 
 	Tile *map[MAX_LEVEL_DIM][MAX_LEVEL_DIM];
@@ -153,7 +155,7 @@ struct Level {
 protected:
 	void buildPath( int startx, int starty, 
 					int targx,  int targy,				 
-					std::list<sgVec2*> &waypoints );
+					std::list<vec2f*> &waypoints );
 
 	// pathfinding map
 	TileInfo pathMap[MAX_LEVEL_DIM][MAX_LEVEL_DIM];
@@ -161,7 +163,7 @@ protected:
 
 class Actor {
 public:
-	Actor( Mesh *mesh, sgVec2 pos );
+	Actor( Mesh *mesh, vec2f pos );
 
 	enum State {
 		Idle,
@@ -177,7 +179,7 @@ public:
 	Mesh *mesh;
 
 	// info
-	sgVec2 pos;
+	vec2f pos;
 	float heading;
 	State state;
 	
@@ -186,15 +188,15 @@ public:
 	float speed;
 
 	// moving
-	sgVec2 target;
+	vec2f target;
 	float targetRad;
 
-	std::list<sgVec2*> waypoints;
+	std::list<vec2f*> waypoints;
 };
 
 class Godzilla : public Actor {
 public:
-	Godzilla( Mesh *mesh, sgVec2 pos ) : Actor( mesh, pos ) { start=true; }
+	Godzilla( Mesh *mesh, vec2f pos ) : Actor( mesh, pos ) { start=true; }
 
 	virtual void update( Level *lvl, float t );
 
@@ -234,9 +236,9 @@ protected:
 	void loadLevels( const char *filename );
 
 	// dir is in screen space (kind of)
-	void moveCamera( sgVec2 dir );
+	void moveCamera( vec2f dir );
 
-	sgVec3 camPos, camLookat;
+	vec3f camPos, camLookat;
 	std::list<Tile*> tileset;
 	std::vector<Level*> levels;
 
@@ -251,14 +253,16 @@ protected:
 	GLint viewport[4];
 	
 	// mouse stuff
-	sgVec3 cursor3d;
-	sgVec2 cursor2d;
+	vec3f cursor3d;
+	vec2f cursor2d;
 	int mapcursorX, mapcursorY;
 	bool onMap;
 
+#if ENABLE_FONT
 	// fontstuff
 	fntRenderer *fnt;
 	fntTexFont *fntHand, *fntHelv, *fntHelvBold;
+#endif
 
 	// skybox
 	Mesh *skybox;

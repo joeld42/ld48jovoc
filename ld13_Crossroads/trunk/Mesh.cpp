@@ -18,6 +18,15 @@ GLuint LoadObjFile( const char *objfile )
 	glNewList( id, GL_COMPILE );
 
 	FILE *fp = fopen( objfile, "rt" );
+
+    printf("Loading file %s\n", objfile );
+    
+    if (!fp) {
+        printf( "ERROR: Can't open file %s\n", objfile );
+        return 0;        
+    }
+            
+
 	char line[1024];
 	char tok[32];
 	while (!feof(fp))

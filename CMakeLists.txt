@@ -17,12 +17,14 @@ FIND_PACKAGE( SDL )
 FIND_PACKAGE( SDL_image )
 FIND_PACKAGE( SDL_ttf )
 FIND_PACKAGE( DevIL )
+FIND_PACKAGE( PNG )
 
 message( "Allegro  : " ${ALLEGRO_FOUND} )
 message( "OpenGL   : " ${OPENGL_FOUND} )
 message( "GLUT     : " ${GLUT_FOUND} )
 message( "SDL      : " ${SDL_FOUND} )
 message( "OpenIL   : " ${IL_FOUND} )
+message( "PNG      : " ${PNG_FOUND} )
 
 # ==================================================
 # Find X11 on unix
@@ -37,9 +39,9 @@ ENDIF (UNIX)
 #     Depdencies: Glut, OpenGL, Plib
 # 
 # ==================================================
-#if (OPENGL_FOUND AND GLUT_FOUND)
-#  ADD_SUBDIRECTORY( ld1_zilla/trunk )
-#endif (OPENGL_FOUND AND GLUT_FOUND)
+if (OPENGL_FOUND AND GLUT_FOUND)
+  ADD_SUBDIRECTORY( ld1_zilla/trunk )
+endif (OPENGL_FOUND AND GLUT_FOUND)
 
 # ==================================================
 # LD4 - Bad Food

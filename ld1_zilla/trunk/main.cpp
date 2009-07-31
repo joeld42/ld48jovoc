@@ -1,6 +1,7 @@
 #include <deque>
 #include <vector>
 #include <list>
+#include <algorithm>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,11 +18,18 @@
 #include <math.h>
 #include <GL/glut.h>
 
-#include <plib/sg.h>
-#include <plib/fnt.h>
+#include <prmath/vector3.hpp>
 
 #include <png.h>
 #include "zillaGame.h"
+
+using namespace prmath;
+
+#ifndef M_PI
+#  define M_PI (3.1415926535897932384626433832795)
+#endif
+#define D2R (M_PI/180.0)
+#define R2D (180.0/M_PI)
 
 // quasi-globals
 ZillaGame *ZillaGame::theGame = NULL;
@@ -49,8 +57,8 @@ ZillaGame::ZillaGame()
 	theGame = this;
 
 	// camera init
-	sgSetVec3( camPos, 8.0, 4.0, 0.0 );
-	sgSetVec3( camLookat, 0, 1.2, 0 );
+	camPos = vec3f( 8.0, 4.0, 0.0 );
+    camLookat = vec3f( 0, 1.2, 0 );
 
 	currAngle = 0.0;
 	currHeight = 1.5;
@@ -58,8 +66,9 @@ ZillaGame::ZillaGame()
 
 	dataLoaded = false;
 
+#if ENABLE_FONT
 	fnt = NULL;
-
+#endif
 	levelNdx = 0;
 	follow = true;
 	drawpath = false;
@@ -86,12 +95,12 @@ ZillaGame::Update( float timeDelta )
 		//_RPT1( _CRT_WARN, "currangle %f\n", currAngle );
 
 		if (follow){
-			sgSetVec3( camLookat, godzilla->pos[0], 1.0, godzilla->pos[1] );
+			camLookat = vec3f( godzilla->pos[0], 1.0, godzilla->pos[1] );
 		}
 
-		sgSetVec3( camPos,  
-				 camLookat[0] + cos( SG_DEGREES_TO_RADIANS * currAngle) * currZoom,
-			currHeight, camLookat[2] + sin( SG_DEGREES_TO_RADIANS * currAngle) * currZoom );
+		camPos = vec3f( 
+				 camLookat[0] + cos( D2R * currAngle) * currZoom,
+			currHeight, camLookat[2] + sin( D2R * currAngle) * currZoom );
 
 		glutPostRedisplay();
 	}
@@ -112,15 +121,14 @@ ZillaGame::Update( float timeDelta )
 	gluUnProject( sx, sy, 0.5, modelview, proj, viewport,  &x2, &y2, &z2 );
         
 	// make a ray from cam pos and the point        
-	sgVec3 dir;
+	vec3f dir;
 	float t;
-	sgSetVec3( dir, x-x2, y-y2, z-z2 );
-	sgNormalizeVec3( dir );
-        
+	dir = vec3f( x-x2, y-y2, z-z2 );
+    dir.Normalize();
+    
 	// find out where it hits the ground    
 	t = y2 / dir[1];        
-	sgSetVec3( cursor3d, x2 - (dir[0]*t), y2-(dir[1]*t), z2-(dir[2])*t );   
-
+    cursor3d = vec3f( x2 - (dir[0]*t), y2-(dir[1]*t), z2-(dir[2])*t );
 
 	// is the cursor on the map?
 	int tx, ty;
@@ -138,23 +146,23 @@ ZillaGame::Update( float timeDelta )
 
 
 	// mouse scroll
-	sgVec2 camdir;
+	vec2f camdir;
 	float moveAmt = 5.0*timeDelta;
 
 	if (cursor2d[0] < 10) {
-		sgSetVec2( camdir, -moveAmt, 0.0 );
+		camdir = vec2f( -moveAmt, 0.0 );
 		moveCamera( camdir );
 	} else if (cursor2d[0] > 790 ) {
-		sgSetVec2( camdir, moveAmt, 0.0 );
+		camdir = vec2f( moveAmt, 0.0 );
 		moveCamera( camdir );
 	}
 
 
 	if (cursor2d[1] < 10) {
-		sgSetVec2( camdir, 0.0, moveAmt );
+		camdir = vec2f( 0.0, moveAmt );
 		moveCamera( camdir );
 	} else if (cursor2d[1] > 590 ) {
-		sgSetVec2( camdir, 0.0, -moveAmt );
+		camdir = vec2f( 0.0, -moveAmt );
 		moveCamera( camdir );
 	}	
 
@@ -167,62 +175,60 @@ ZillaGame::UpdateTitle( float timeDelta )
 }
 
 void 
-ZillaGame::moveCamera( sgVec2 dir ) 
+ZillaGame::moveCamera( vec2f dir ) 
 {
-	sgVec3 front, right, up;	
+	vec3f front, right, up;	
 
-	sgSubVec3( front, camLookat, camPos );
+    front = camLookat - camPos;    
 	front[1] = 0.0;
-	sgNormalizeVec3( front );
-	
-	sgSetVec3( up, 0.0, 1.0, 0.0 );
-	sgVectorProductVec3( right, front, up  );
-	sgNormalizeVec3( right );
+    front.Normalize();
+    up = vec3f( 0.0, 1.0, 0.0 );    
+    right = CrossProduct( front, up );
+    
+    right.Normalize();
+    
+    front *= dir[1];
+    right *= dir[0];
 
-	sgScaleVec3( front, dir[1] );
-	sgScaleVec3( right, dir[0] );
-
-	sgAddVec3( camLookat, camLookat, front );
-	sgAddVec3( camLookat, camLookat, right );
+    camLookat = camLookat + front;
+    camLookat = camLookat + right;
 }
 
 void
 ZillaGame::Special( int key, int x, int y ) {
-	sgVec2 camdir;
+	vec2f camdir;
 	float moveAmt = 0.2;
 
 	switch( key ) {
 		case GLUT_KEY_UP:			
-			sgSetVec2( camdir, 0.0, moveAmt );
+			camdir = vec2f( 0.0, moveAmt );
 			moveCamera( camdir );
 			break;
 		case GLUT_KEY_DOWN:
-			sgSetVec2( camdir, 0.0, -moveAmt );
+			camdir = vec2f( 0.0, -moveAmt );
 			moveCamera( camdir );			
 			break;
 		case GLUT_KEY_RIGHT:
-			sgSetVec2( camdir, moveAmt, 0.0 );
+			camdir = vec2f(moveAmt, 0.0 );
 			moveCamera( camdir );
 			break;
 		case GLUT_KEY_LEFT:
-			sgSetVec2( camdir, -moveAmt, 0.0 );
+			camdir = vec2f( -moveAmt, 0.0 );
 			moveCamera( camdir );
 			break;
 	}
 
 	// DBG
-	sgSetVec3( camPos,  
-			camLookat[0] + cos( SG_DEGREES_TO_RADIANS * currAngle) * currZoom,
-			currHeight, camLookat[2] + sin( SG_DEGREES_TO_RADIANS * currAngle) * currZoom );
+    camPos = vec3f(
+			camLookat[0] + cos( D2R * currAngle) * currZoom,
+			currHeight, camLookat[2] + sin( D2R * currAngle) * currZoom );
 	//_RPT3( _CRT_WARN, "camPos is %f %f %f\n", camPos[0], camPos[1], camPos[2] );
 
 }
 
 void
 ZillaGame::Motion( int mx, int my ) {
-	sgSetVec2( cursor2d, mx, my );
-
-
+    cursor2d = vec2f( mx, my );
 }
 
 void
@@ -232,15 +238,15 @@ ZillaGame::Mouse( int button, int state, int mx, int my ) {
 
 		if (level->map[mapcursorX][mapcursorY]->tankpassable) {
 			// add a tank
-			sgVec2 tankPos;
-			sgSetVec2( tankPos, cursor3d[0], cursor3d[2] );
+			vec2f tankPos ( cursor3d[0], cursor3d[2] );
+
 			Godzilla *tank = new Godzilla( tankMesh, tankPos );
 			tank->speed = 0.3;
 			tank->start = false;
 			actors.push_back( tank );		
 		}
 	} else if ((button == GLUT_RIGHT_BUTTON) && (state == GLUT_DOWN)) {
-		sgSetVec2( godzilla->target, cursor3d[0], cursor3d[2] );
+        godzilla->target = vec2f( cursor3d[0], cursor3d[2] );
 	}
 
 }
@@ -403,9 +409,10 @@ ZillaGame::DisplayTitle2D()
 	glAlphaFunc( GL_GREATER, 0.1 ) ;
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
 	
+#if ENABLE_FONT
 	fnt->setFont( fntHelvBold ) ;
 	fnt->setPointSize ( 20 ) ;
-	
+
 	fnt->begin();
 	glColor3f ( 1, 1, 1 ) ;
     fnt->start2f ( 20, 400 ) ;	
@@ -444,6 +451,7 @@ ZillaGame::DisplayTitle2D()
 	fnt->puts( "by Joel Davis (joeld42@yahoo.com) for the ludumdare 48 hour game contest" ) ;
 	fnt->end();	
 	
+#endif
 
 	glColor3f ( 1, 1, 0 ) ;
 
@@ -552,7 +560,7 @@ ZillaGame::Display3D()
 	glBegin( GL_LINE_STRIP );
 	float px, py;
 	if (drawpath) {		
-		for (std::list<sgVec2*>::iterator pi = godzilla->waypoints.begin();
+		for (std::list<vec2f*>::iterator pi = godzilla->waypoints.begin();
 				pi != godzilla->waypoints.end(); *pi++) {
 	
 				px = (*(*pi))[0];
@@ -595,7 +603,8 @@ ZillaGame::Display2D()
 	glEnable( GL_BLEND ) ;
 	glAlphaFunc( GL_GREATER, 0.1 ) ;
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ) ;
-	
+
+#if ENABLE_FONT	
 	fnt->setFont( fntHelv ) ;
 	fnt->setPointSize ( 20 ) ;
 	
@@ -611,6 +620,7 @@ ZillaGame::Display2D()
     fnt->puts( s ) ;
 
 	fnt->end();	
+#endif
 
 	glColor3f ( 1, 1, 0 ) ;
 
@@ -661,7 +671,7 @@ void
 ZillaGame::cbIdle()
 {
 	assert(theGame);
-	clock_t curTick = GetTickCount();
+    long curTick = glutGet( GLUT_ELAPSED_TIME );
 	float t;
 
 	// get the elaspsed time
@@ -692,12 +702,14 @@ ZillaGame::cbIdle()
 void 
 ZillaGame::loadGameData()
 {	
+#if ENABLE_FONT
 	fnt = new fntRenderer();
 
 	fntHand = new fntTexFont( "gamedata/fonts/sorority.txf");
 	fntHelv = new fntTexFont( "gamedata/fonts/helvetica_bold.txf");
 	fntHelvBold = new fntTexFont( "gamedata/fonts/helvetica_bold.txf");
-	
+#endif	
+
 /*
 	testMesh = new Mesh( "gamedata/models/tile_basic_split.am");
 	testMesh2 = new Mesh( "gamedata/models/tile_lightForest_split.am");
@@ -712,10 +724,12 @@ ZillaGame::loadGameData()
 	cursor = new Texture( "gamedata/textures/cursor.png", true );
 	btntank = new Texture( "gamedata/textures/btntank.png", true );
 
-	tankMesh = new Mesh( "gamedata/models/tank.am");
+    // FIXME: missing tank mesh
+	//tankMesh = new Mesh( "gamedata/models/tank.am");
+    tankMesh = new Mesh( "gamedata/models/house.am");
 
-	sgVec2 startpos;
-	sgSetVec2( startpos, 0.0, 0.0 );
+	vec2f startpos;
+	startpos = vec2f( 0.0, 0.0 );
 	godzilla = new Godzilla( new Mesh( "gamedata/models/godzilla.am"), startpos );
 	godzilla->speed = 3.0;
 	actors.push_back( godzilla );
@@ -851,7 +865,7 @@ bool
 Level::pathTo( int startx, int starty, 
 				int targx,  int targy,
 				PathMode mode, 
-				std::list<sgVec2*> &waypoints )
+				std::list<vec2f*> &waypoints )
 {
 	int i, j;
 
@@ -880,7 +894,7 @@ Level::pathTo( int startx, int starty,
 		mapq.pop_front();
 		
 		assert( mapq.size() < (w*h) );
-		//_RPT3( _CRT_WARN, "Queuesize %d Curr %d %d\n", mapq.size(), curr.x, curr.y );
+		printf( "Queuesize %d Curr %d %d\n", mapq.size(), curr.x, curr.y );
 
 		pathMap[curr.x][curr.y].visited = true;
 		if ((curr.x==targx)&&(curr.y==targy)) {
@@ -888,12 +902,12 @@ Level::pathTo( int startx, int starty,
 			for (j = 0; j < h;  j++) {
 				for (i = 0; i < w; i++) {
 					if (pathMap[i][j].visited) {
-						_RPT1( _CRT_WARN, " %02.0f", pathMap[i][j].pathcost );
+						printf( " %02.0f", pathMap[i][j].pathcost );
 					} else {
-						_RPT0( _CRT_WARN, " --" );
+						printf(" --" );
 					}
 				}
-				_RPT0( _CRT_WARN, "\n" );
+				printf("\n" );
 			}
 			
 			// build path			
@@ -903,7 +917,7 @@ Level::pathTo( int startx, int starty,
 		}
 
 		// add reachable neighbors
-		//_RPT2( _CRT_WARN, "at %d %d\n", curr.x, curr.y );
+		printf( "at %d %d\n", curr.x, curr.y );
 		for (i=-1; i <= 1; i++) {
 			for (j=-1; j <= 1; j++) {
 				
@@ -914,7 +928,7 @@ Level::pathTo( int startx, int starty,
 					ny = curr.y+j;
 					if ((!pathMap[nx][ny].visited)&&(pathMap[nx][ny].pass)) {
 
-						//_RPT2( _CRT_WARN, "Adding %d %d\n", nx, ny );
+						printf( "Adding %d %d\n", nx, ny );
 
 						pathMap[nx][ny].visited = true;
 						pathMap[nx][ny].pathcost = pathMap[curr.x][curr.y].pathcost + 
@@ -925,6 +939,7 @@ Level::pathTo( int startx, int starty,
 				}
 			}
 		}
+
 	}
 
 	// not reachable
@@ -933,12 +948,12 @@ Level::pathTo( int startx, int starty,
 
 void Level::buildPath( int startx, int starty, 
 			   int targx,  int targy,				 
-			   std::list<sgVec2*> &waypoints )
+			   std::list<vec2f*> &waypoints )
 {
 	// trace path backward
 	int i,j,currx, curry,nx,ny;
 	currx = targx; curry = targy;
-	sgVec2 *p;
+	vec2f *p;
 
 	waypoints.erase( waypoints.begin(), waypoints.end() );
 
@@ -965,9 +980,9 @@ void Level::buildPath( int startx, int starty,
 			}
 		}
 
-		p = new sgVec2[1];		
+		p = new vec2f[1];		
 		mapToWorld( currx, curry, (*p)[0], (*p)[1] );
-		_RPT4( _CRT_WARN, "path %d %d %f %f\n", currx, curry, (*p)[0], (*p)[1] );
+		printf( "path %d %d %f %f\n", currx, curry, (*p)[0], (*p)[1] );
 
 		waypoints.push_front( p );
 	}
@@ -992,14 +1007,14 @@ Level::pickRandomMatch( const char *syms, int &resultx, int &resulty )
 	if (ntile==0) return false;
 
 	// pick a random number and find that occurance of the tile
-	pick = ((float)rand()/(float)RAND_MAX)*ntile;
-	_RPT1( _CRT_WARN, "pick is %d\n", pick );
+	pick = int( ((float)rand()/(float)RAND_MAX)*float(ntile) );
+	printf( "pick is %d\n", pick );
 	ntile = 0;
 	done = false;
-	for ( j = 0; j < h; j++) {
+	for ( int j = 0; j < h; j++) {
 		for (int i=0; i < w; i++) {
 			if (strchr(syms,map[i][j]->symbol) ) {				
-				_RPT4( _CRT_WARN, "at %d %d (%c) ntile %d\n", i, j, map[i][j]->symbol, ntile );
+				printf("at %d %d (%c) ntile %d\n", i, j, map[i][j]->symbol, ntile );
 				if (ntile==pick) {					
 					resultx = i;
 					resulty = j;
@@ -1012,15 +1027,16 @@ Level::pickRandomMatch( const char *syms, int &resultx, int &resulty )
 		if (done) break;
 	}
 
-	_RPT3( _CRT_WARN, "pick sym %s found %d %d\n", syms, resultx, resulty );
+	printf( "pick sym %s found %d %d\n", syms, resultx, resulty );
 	return true;
 }
 
 /////////////////////////////////////////////
-Actor::Actor(Mesh *_mesh, sgVec2 _pos )
+Actor::Actor(Mesh *_mesh, vec2f _pos )
 {
 	mesh = _mesh;	
-	sgCopyVec2( pos, _pos );
+    pos = _pos;
+    
 	state = Actor::Idle;
 
 	speed = 1.0; // units/sec
@@ -1030,7 +1046,7 @@ void Actor::draw()
 {
 	glPushMatrix();	
 	glTranslated( pos[0], 0.0, pos[1] );	
-	glRotated( SG_RADIANS_TO_DEGREES * heading, 0.0, 1.0, 0.0 );
+	glRotated( R2D * heading, 0.0, 1.0, 0.0 );
 	mesh->draw();
 	glPopMatrix();
 }
@@ -1041,10 +1057,10 @@ void Actor::update( Level *lvl, float t )
 	case Actor::Idle:
 		// pick the next waypoint
 		if (waypoints.size()) {
-			//sgSetVec2( target, (((float)rand() / (float)RAND_MAX) * (1.5*lvl->w)) - (0.75*lvl->w),
+			//sgSetVec2f( target, (((float)rand() / (float)RAND_MAX) * (1.5*lvl->w)) - (0.75*lvl->w),
 			//(((float)rand() / (float)RAND_MAX) * (1.5*lvl->h)) - (0.75*lvl->h) );
 
-			sgSetVec2( target, (*(*waypoints.begin()))[0], (*(*waypoints.begin()))[1] );
+            target = vec2f ( (*(*waypoints.begin()))[0], (*(*waypoints.begin()))[1] ) ;
 			waypoints.pop_front();
 
 			state = Actor::Moving;
@@ -1082,23 +1098,25 @@ Godzilla::update( Level *lvl, float t )
 			// find a path to the powerplant.
 			int px, py;
 			if (lvl->pickRandomMatch( "P", px, py )) {
+                printf("Px py %d, %d\n", px, py );                
 				
-				assert(lvl->pathTo( x, y, px, py, Level::ModeZilla, waypoints ));
-
-			
-				//lvl->mapToWorld( px, py, target[0], target[1] );
-				sgSetVec2( target, (*(*waypoints.begin()))[0], (*(*waypoints.begin()))[1] );
-				waypoints.pop_front();
+                if (lvl->pathTo( x, y, px, py, Level::ModeZilla, waypoints ) )
+                {
+                    //lvl->mapToWorld( px, py, target[0], target[1] );
+                    target = vec2f( (*(*waypoints.begin()))[0], (*(*waypoints.begin()))[1] );
+                    waypoints.pop_front();
+                }
+                
 
 			} else {
-				_RPT0( _CRT_WARN, "No powerplants\n" );
+				printf( "No powerplants\n" );
 			}
 
 
 		} else {
 
 			if (!waypoints.empty()) {
-				sgSetVec2( target, (*(*waypoints.begin()))[0], (*(*waypoints.begin()))[1] );
+				target = vec2f ( *(*waypoints.begin())[0], (*(*waypoints.begin()))[1] );
 				waypoints.pop_front();
 
 				if (moveTowardTarget( t ) ) {
@@ -1112,7 +1130,7 @@ Godzilla::update( Level *lvl, float t )
 				lvl->mapToWorld( x, y, target[0], target[1] );
 
 			}
-			//sgSetVec2( target, (((float)rand() / (float)RAND_MAX) * (1.5*lvl->w)) - (0.75*lvl->w),
+			//sgSetVec2f( target, (((float)rand() / (float)RAND_MAX) * (1.5*lvl->w)) - (0.75*lvl->w),
 			//	(((float)rand() / (float)RAND_MAX) * (1.5*lvl->h)) - (0.75*lvl->h) );
 
 		}
@@ -1134,11 +1152,12 @@ Godzilla::update( Level *lvl, float t )
 bool
 Actor::moveTowardTarget( float t )
 {
-	sgVec2 dir;
+	vec2f dir;
 	float dist, amt;
-	sgSubVec2( dir, target, pos );
+    dir = target - pos;    
 
-	dist = sgLengthSquaredVec2( dir );
+    dist = LengthSquared( dir );
+    
 	if (dist < 0.001) {
 		return true;
 	}
@@ -1148,17 +1167,17 @@ Actor::moveTowardTarget( float t )
 	_RPT3( _CRT_WARN, "pos %f %f dist %f\n", pos[0], pos[1], dist );
 	*/
 
-	sgNormalizeVec2( dir );
-
-	heading = SG_PI + atan2( dir[0], dir[1] );
+    dir.Normalize();
+    
+	heading = M_PI + atan2( dir[0], dir[1] );
 
 	// don't overshoot the target
-	amt = min( dist, t*speed );
+	amt = std::min( dist, t*speed );
 	
 
-	sgScaleVec2( dir, amt );
-	sgAddVec2( pos, pos, dir );
-
+    dir *= amt;
+    pos = pos + dir;
+    
 	return false;
 }
 
@@ -1234,6 +1253,12 @@ void Mesh::loadFile( const char *filename )
 	char section[1024];
 	int num;
 	bool done = false;
+
+    if (!fp)
+    {
+        printf("Can't load mesh %s\n", filename );        
+    }
+    
 	
 	// SE_MESH 0.1;
 	fscanf( fp, "%*s %*s" );
@@ -1263,7 +1288,7 @@ void Mesh::skaReadVertexSection( FILE *fp, int num )
 {
 	char sx[100], sy[100], sz[100];
 
-	vtx = new sgVec3[num];
+	vtx = new vec3f[num];
 	nVtx = num;
 
 	fscanf( fp, "%*s" ); // {
@@ -1277,7 +1302,7 @@ void Mesh::skaReadVertexSection( FILE *fp, int num )
 		sy[strlen(sy)-1] = 0;
 		sz[strlen(sz)-1] = 0;
 
-		sgSetVec3( vtx[i], atof( sx ), atof( sy ), atof( sz ) );
+		vtx[i] = vec3f( atof( sx ), atof( sy ), atof( sz ) );
 	}
 
 	fscanf( fp, "%*s" ); // }
@@ -1287,7 +1312,7 @@ void Mesh::skaReadNormalSection( FILE *fp, int num )
 {
 	char sx[100], sy[100], sz[100];
 
-	nrm = new sgVec3[num];
+	nrm = new vec3f[num];
 
 	fscanf( fp, "%*s" ); // {
 
@@ -1300,7 +1325,7 @@ void Mesh::skaReadNormalSection( FILE *fp, int num )
 		sy[strlen(sy)-1] = 0;
 		sz[strlen(sz)-1] = 0;
 
-		sgSetVec3( nrm[i], atof( sx ), atof( sy ), atof( sz ) );
+		nrm[i] = vec3f( atof( sx ), atof( sy ), atof( sz ) );
 	}
 
 	fscanf( fp, "%*s" ); // }
@@ -1323,7 +1348,7 @@ void Mesh::skaReadUVmapSection( FILE *fp, int num )
 	fscanf( fp, "%*s %d", &numcoord); 
 
 	assert( numcoord== nVtx );
-	st = new sgVec2[nVtx];
+	st = new vec2f[nVtx];
 
 	// remove "; from end of mapname
 	mapname[ strlen(mapname)-2 ] = 0;
@@ -1334,14 +1359,14 @@ void Mesh::skaReadUVmapSection( FILE *fp, int num )
 	for (std::list<Texture*>::iterator ti = texCache.begin(); 
 		ti != texCache.end(); ti++ ) {
 			if ( !strcmp( (*ti)->name, texname ) ) {
-				_RPT1( _CRT_WARN, "Found %s in the texture cache\n", texname );
+				printf( "Found %s in the texture cache\n", texname );
 				tex = (*ti);
 				break;
 			}
 	}
 
 	if (!tex) {
-		_RPT1( _CRT_WARN, "Loading %s\n", texname );
+		printf("Loading %s\n", texname );
 		tex = new Texture( texname, alpha );	
 		texCache.push_front( tex );
 	}
@@ -1356,7 +1381,7 @@ void Mesh::skaReadUVmapSection( FILE *fp, int num )
 		ss[strlen(ss)-1] = 0;
 		stt[strlen(stt)-1] = 0;		
 		
-		sgSetVec2( st[i], atof( ss ), atof( stt ) );
+		st[i] = vec2f( atof( ss ), atof( stt ) );
 	}
 	
 	fscanf( fp, "%*s" ); // }
@@ -1521,7 +1546,7 @@ Texture::bindTexture()
 }
 
 ////////////////////////////////////////////
-void main( int argc, char *argv[]) {
+int main( int argc, char *argv[]) {
 	ZillaGame *game;
 
 	glutInitWindowPosition ( 0, 0 ) ;
@@ -1551,4 +1576,6 @@ void main( int argc, char *argv[]) {
 	game = new ZillaGame();
 
 	glutMainLoop () ;	
+    return 1;
+    
 }
