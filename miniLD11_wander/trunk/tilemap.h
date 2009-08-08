@@ -32,6 +32,8 @@ enum {
 struct Tile
 {
 	Tile( const char *filename, unsigned char code );
+    Tile( const Tile &other );
+    
 	
 	BITMAP *m_bitmap;
 	BITMAP *m_mask;

@@ -17,15 +17,13 @@
 
 #include <tilemap.h>
 #include <game_obj.h>
+#include <mkterrain.h>
 
 enum 
 {
 	Tool_WALK,
 	Tool_FISH
 };
-
-
-
 
 std::vector<TileMap*> bubbles;
 std::vector<GameObj*> npcs;
@@ -36,7 +34,7 @@ std::vector<BITMAP*> critterBmps;
 char messageText[256] = "";
 int messageTime = 0;
 
-bool cheatsEnabled = false;
+bool cheatsEnabled = true;
 
 std::deque<std::string> messageQueue;
 
@@ -169,6 +167,31 @@ void loadLandChunks( const char *mapfile, std::vector<TileMap*> &landChunks )
 		}
 	}
 }
+
+
+void dbgRecolorTileset()
+{
+    static std::vector<Tile*> origTiles;
+
+    // copy orig tiles
+    if (origTiles.empty())
+    {        
+        for (int i=0; i < TileMap::m_tileset.size(); ++i)
+        {
+            origTiles.push_back( TileMap::m_tileset[i] );            
+        }
+    }
+
+    // make recolored tiles
+    TerrainPally pal;
+    
+    for (int i=0; i < TileMap::m_tileset.size(); ++i )
+    {
+        TileMap::m_tileset[i] = makeTileVariant( origTiles[i], pal );        
+        printf("Updated tile %d\n", i )
+    }
+}
+
 
 int main( int argc, char *argv[] )
 {
@@ -351,6 +374,11 @@ int main( int argc, char *argv[] )
 					case KEY_F7:
 						bubbles.push_back( create_bubble( landChunks ) );
 						break;
+                    case KEY_F8:
+                        dbgRecolorTileset();                        
+                        break;
+                    
+                    
 				}				
 			}
 

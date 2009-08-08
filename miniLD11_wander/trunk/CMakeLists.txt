@@ -6,6 +6,7 @@ SET( wander_SRCS
      game_obj.cpp
      pixbot.cpp
      tilemap.cpp
+     mkterrain.cpp
      wander_main.cpp 
      )
 
@@ -14,6 +15,7 @@ IF (WIN32)
    SET( wander_SRCS ${wander_SRCS} 
         game_obj.h
         tilemap.h 
+        mkterrain.h
         )
 ENDIF( WIN32 )
 

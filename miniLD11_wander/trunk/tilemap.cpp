@@ -28,6 +28,40 @@ Tile::Tile( const char *filename, unsigned char code )
 	}
 }
 
+Tile::Tile( const Tile &other )
+{
+    m_code = other.m_code;
+
+    // Copy other bitmap
+    if (other.m_bitmap)
+    {
+        m_bitmap = create_bitmap( other.m_bitmap->w, other.m_bitmap->h );
+        blit( other.m_bitmap, m_bitmap,
+              0, 0, 0, 0,
+              other.m_bitmap->w, other.m_bitmap->h );        
+    }
+    else
+    {
+        m_bitmap = NULL;        
+    }
+
+    // copy other mask
+    if (other.m_mask)
+    {
+        m_mask = create_bitmap( other.m_mask->w, other.m_mask->h );
+        blit( other.m_mask, m_mask,
+              0, 0, 0, 0,
+              other.m_mask->w, other.m_mask->h );        
+    }
+    else
+    {
+        m_mask = NULL;        
+    }
+    
+    
+}
+
+
 MapCell::MapCell()
 {
     m_hite = 0;   
