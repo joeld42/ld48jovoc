@@ -147,23 +147,6 @@ void ReloadTweakableFile( TweakableSourceFile &srcFile )
 	fclose( fp );
 }
 
-void ReloadChangedTweakableValues()
-{
-	// Go through the list of Tweakable Files and see if any
-	// have changed since their last modification time
-	for( TweakFileList::iterator ti = g_tweakableFile.begin();
-		  ti != g_tweakableFile.end(); ++ti )
-	{
-		TweakableSourceFile &src = (*ti);
-		time_t currModTime = GetFileModTime( src.filename );
-		if (currModTime > src.modTime)
-		{			
-			ReloadTweakableFile( src );
-			src.modTime = currModTime;
-		}
-	}
-}
-
 } // namespace tweakval
 
 using namespace tweakval;
@@ -199,6 +182,23 @@ int _TweakValue( const char *file, size_t counter, int origVal )
 	}
 }
 
+void ReloadChangedTweakableValues()
+{
+	// Go through the list of Tweakable Files and see if any
+	// have changed since their last modification time
+	for( TweakFileList::iterator ti = g_tweakableFile.begin();
+		  ti != g_tweakableFile.end(); ++ti )
+	{
+		TweakableSourceFile &src = (*ti);
+		time_t currModTime = GetFileModTime( src.filename );
+		if (currModTime > src.modTime)
+		{			
+			ReloadTweakableFile( src );
+			src.modTime = currModTime;
+		}
+	}
+}
+
 //===================================================================
 // Example/test
 //===================================================================
@@ -210,15 +210,18 @@ int main( int argc, char *argv[] )
 {
     while (1)
     {
-        int val = _TV( 5 );
+        int val = _TV( 50 ), val2 = _TV( 19 );
         float fval = _TV( 3.14152f );
+
         
-        printf("value is %d, valuef is %f\n", val, fval );
+        printf("value is %d, %d, valuef is %f\n", val, val2, fval );
         Sleep( 1000 );
         
         // call this once per frame (or whatever interval you want to 
 		// check for updates)
+#ifndef NDEBUG
         ReloadChangedTweakableValues();        
+#endif
     }
     
 }

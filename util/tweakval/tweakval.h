@@ -50,6 +50,8 @@
 float _TweakValue( const char *file, size_t counter, float origVal );
 int _TweakValue( const char *file, size_t counter, int origVal );
 
+void ReloadChangedTweakableValues();
+
 #else
 #  define _TV(Val) Val
 #endif
