@@ -5,7 +5,8 @@
 
 BeneathGame::BeneathGame() :
 	m_isInit( false ),
-		m_gameState( GameState_MENU )
+	m_editor( NULL ),
+	m_gameState( GameState_MENU )
 {
 }
 
@@ -30,7 +31,6 @@ void BeneathGame::game_updateSim( float dt )
 {
 	vec2f playerDir( 0.0f, 0.0f );
 
-	printf("UpdateSim %3.2f\n", dt );
 	// Continuous (key state) keys
 	Uint8 *keyState = SDL_GetKeyState( NULL );
 	if ((keyState[SDLK_LEFT]) && (!keyState[SDLK_RIGHT]))
@@ -57,7 +57,7 @@ void BeneathGame::game_updateSim( float dt )
 // "as fast as possible" update for effects and stuff
 void BeneathGame::game_update( float dt )
 {
-	printf("Update %3.2f\n", dt );
+//	printf("Update %3.2f\n", dt );
 }
 
 void BeneathGame::init()
@@ -187,7 +187,7 @@ void BeneathGame::keypress( SDL_KeyboardEvent &key )
 				m_gameState = GameState_EDITOR;
 				if (!m_editor)
 				{
-					m_editor = new Editor();
+					m_editor = new Editor( m_fntFontId );
 				}
 			}
 			break;

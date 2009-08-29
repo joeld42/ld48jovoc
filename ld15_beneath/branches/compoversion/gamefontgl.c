@@ -402,9 +402,11 @@ void gfDrawString( const char *s )
 
 			glTexCoord2f( g->xpos, g->ypos );
 			glVertex2f( curr_x, bl + g->h );
+			
+			curr_x += g->w;
 			}
 
-			curr_x += g->w;
+			
 		}		
 	}
 	glEnd();

@@ -38,6 +38,7 @@ public:
 //protected:
 	vec2f m_mapSize;
 	std::vector<Shape*> m_shapes;	
+	vec3f m_bgColor;
 };
 
 #endif
