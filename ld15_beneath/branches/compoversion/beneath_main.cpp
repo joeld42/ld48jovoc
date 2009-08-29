@@ -103,6 +103,11 @@ int main( int argc, char *argv[] )
 							done = true;
 							break;
 					}
+
+					// let the game handle it
+					game->keypress( event.key );
+					break;
+
 				case SDL_MOUSEMOTION:					
 					break;
 

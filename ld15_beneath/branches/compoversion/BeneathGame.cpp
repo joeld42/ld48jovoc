@@ -4,12 +4,29 @@
 #include <BeneathGame.h>
 
 BeneathGame::BeneathGame() :
-	m_isInit( false )
+	m_isInit( false ),
+		m_gameState( GameState_MENU )
 {
 }
 
-// fixed update, for gameplay stuff
+
+void BeneathGame::update( float dt )
+{
+	if (m_gameState==GameState_GAME)
+	{
+		game_update( dt );
+	}
+}
+
 void BeneathGame::updateSim( float dt )
+{
+	if (m_gameState==GameState_GAME)
+	{
+		game_updateSim( dt );
+	}
+}
+
+void BeneathGame::game_updateSim( float dt )
 {
 	vec2f playerDir( 0.0f, 0.0f );
 
@@ -38,7 +55,7 @@ void BeneathGame::updateSim( float dt )
 }
 
 // "as fast as possible" update for effects and stuff
-void BeneathGame::update( float dt )
+void BeneathGame::game_update( float dt )
 {
 	printf("Update %3.2f\n", dt );
 }
@@ -71,10 +88,7 @@ void BeneathGame::init()
 }
 	
 void BeneathGame::redraw()
-{
-	glClearColor( _TV( 0.1f ), _TV(0.2f), _TV( 0.4f ), 1.0 );
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
+{	
 	if (!m_isInit)
 	{
 		m_isInit = true;
@@ -87,6 +101,44 @@ void BeneathGame::redraw()
 
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
+
+	if (m_gameState == GameState_GAME )
+	{
+		game_redraw();
+	}
+	else if (m_gameState == GameState_EDITOR )
+	{
+		if (m_editor)
+		{
+			m_editor->redraw();
+		}
+	}
+	else if (m_gameState == GameState_MENU )
+	{
+		glClearColor( _TV( 0.1f ), _TV(0.2f), _TV( 0.4f ), 1.0 );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+		
+		// Title text
+		gfEnableFont( m_fntFontId, 32 );	
+		gfBeginText();
+		glTranslated( _TV(260), _TV(500), 0 );
+		gfDrawString( "The World Beneath" );
+		gfEndText();
+
+		// Bottom text
+		gfEnableFont( m_fntFontId, 20 );	
+		gfBeginText();
+		glTranslated( _TV(180), _TV(10), 0 );
+		gfDrawString( "LudumDare 15 - Joel Davis (joeld42@yahoo.com)" );
+		gfEndText();
+	}
+}
+
+void BeneathGame::game_redraw()
+{
+	glClearColor( _TV( 0.2f ), _TV(0.2f), _TV( 0.3f ), 1.0 );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	// Draw player shape
 	glEnable( GL_TEXTURE_2D );
@@ -102,25 +154,47 @@ void BeneathGame::redraw()
 
 	glTexCoord2d( m_player->st0.x, m_player->st0.y  ); 
 	glVertex3f( m_player->pos.x, m_player->pos.y + 32, 0.0 );
-	
+
 	glTexCoord2d( m_player->st1.x, m_player->st0.y );
 	glVertex3f( m_player->pos.x+32, m_player->pos.y + 32, 0.0 );
 
 	glTexCoord2d( m_player->st1.x, m_player->st1.y  ); 
 	glVertex3f( m_player->pos.x+32, m_player->pos.y, 0.0 );
 	glEnd();
+}
 
-	// Title text
-	gfEnableFont( m_fntFontId, 32 );	
-	gfBeginText();
-	glTranslated( _TV(260), _TV(500), 0 );
-	gfDrawString( "The World Beneath" );
-	gfEndText();
+void BeneathGame::keypress( SDL_KeyboardEvent &key )
+{
+	if (m_gameState==GameState_GAME)
+	{
+		game_keypress( key );
+	}
+	else if (m_gameState==GameState_EDITOR)
+	{
+		if (m_editor) m_editor->keypress( key );		
+	}
+	else if (m_gameState==GameState_MENU)
+	{
+		switch( key.keysym.sym )
+		{
+		case SDLK_SPACE:
+			m_gameState = GameState_GAME;
+			break;
 
-	// Bottom text
-	gfEnableFont( m_fntFontId, 20 );	
-	gfBeginText();
-	glTranslated( _TV(180), _TV(10), 0 );
-	gfDrawString( "LudumDare 15 - Joel Davis (joeld42@yahoo.com)" );
-	gfEndText();
+		case SDLK_F8:
+			{
+				// switch to editor
+				m_gameState = GameState_EDITOR;
+				if (!m_editor)
+				{
+					m_editor = new Editor();
+				}
+			}
+			break;
+		}
+	}
+}
+
+void BeneathGame::game_keypress( SDL_KeyboardEvent &key )
+{
 }
