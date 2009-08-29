@@ -1,6 +1,9 @@
+#include <map>
+
 #include <tweakval.h>
 #include <gamefontgl.h>
 
+#include <Common.h>
 #include <BeneathGame.h>
 
 BeneathGame::BeneathGame() :
@@ -16,6 +19,10 @@ void BeneathGame::update( float dt )
 	if (m_gameState==GameState_GAME)
 	{
 		game_update( dt );
+	}
+	else if (m_gameState==GameState_EDITOR)
+	{
+		if (m_editor) m_editor->update( dt );
 	}
 }
 
@@ -188,6 +195,7 @@ void BeneathGame::keypress( SDL_KeyboardEvent &key )
 				if (!m_editor)
 				{
 					m_editor = new Editor( m_fntFontId );
+					m_editor->loadShapes( "gamedata/shapes_Test.xml" );
 				}
 			}
 			break;
@@ -197,4 +205,52 @@ void BeneathGame::keypress( SDL_KeyboardEvent &key )
 
 void BeneathGame::game_keypress( SDL_KeyboardEvent &key )
 {
+}
+
+
+// don't call this every frame or nothin'..
+typedef std::map<std::string,GLuint> TextureDB;
+TextureDB g_textureDB;
+GLuint getTexture( const std::string &filename, int *xsize, int *ysize )
+{
+	GLuint texId;
+
+	// See if the texture is already loaded
+	TextureDB::iterator ti;
+	ti = g_textureDB.find( filename );
+	if (ti == g_textureDB.end() )
+	{
+		// Load the font image
+		ILuint ilImgId;
+		ilGenImages( 1, &ilImgId );
+		ilBindImage( ilImgId );		
+	
+		if (!ilLoadImage( (ILstring)filename.c_str() )) {
+			printf("Loading font image failed\n");
+		}
+		printf("Loaded Texture %s\n", filename.c_str() );
+	
+		// Make a GL texture for it
+		texId = ilutGLBindTexImage();		
+
+		// and remember it
+		g_textureDB[ filename ] = texId;
+	}
+	else
+	{
+		printf("Texture %s already loaded\n", filename.c_str() );
+
+		// found the texture
+		texId = (*ti).second;
+	}
+
+	// now get the size if they asked for it
+	if ((xsize) && (ysize))
+	{
+		glBindTexture( GL_TEXTURE_2D, texId );
+		glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, xsize );
+		glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, ysize );
+	}
+
+	return texId;
 }

@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;&quot;C:\Toolkits\Devil-SDK-1.6.7\include&quot;;&quot;c:\toolkits\SDL-1.2.4\include&quot;"
+				AdditionalIncludeDirectories="..;&quot;C:\Toolkits\Devil-SDK-1.6.7\include&quot;;&quot;c:\toolkits\SDL-1.2.4\include&quot;;c:\toolkits\tinyxml"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,9 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DevIL.lib ILU.lib ILUT.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib"
+				AdditionalDependencies="tinyxml.lib DevIL.lib ILU.lib ILUT.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;c:\toolkits\SDL-1.2.4\lib&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\lib&quot;"
+				AdditionalLibraryDirectories="&quot;c:\toolkits\SDL-1.2.4\lib&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\lib&quot;;c:\toolkits\tinyxml\Release"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -118,7 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..;&quot;C:\Toolkits\Devil-SDK-1.6.7\include&quot;;&quot;c:\toolkits\SDL-1.2.4\include&quot;"
+				AdditionalIncludeDirectories="..;&quot;C:\Toolkits\Devil-SDK-1.6.7\include&quot;;&quot;c:\toolkits\SDL-1.2.4\include&quot;;c:\toolkits\tinyxml"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -218,6 +218,10 @@
 			</File>
 			<File
 				RelativePath="..\Cavern.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Common.h"
 				>
 			</File>
 			<File

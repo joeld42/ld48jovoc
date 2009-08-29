@@ -8,10 +8,13 @@ class Editor
 public:
 	Editor( GLuint fntID );
 
+	void update( float dt );
 	void redraw();
 	void keypress( SDL_KeyboardEvent &key );
 
 	void newLevel( vec2f size );
+
+	void loadShapes( const char *filename );
 
 //protected:
 	void frameView();
@@ -27,7 +30,7 @@ public:
 	// fixed game size view
 	vec2f m_gameview;
 
-
+	std::vector<Shape*> m_shapes;
 };
 
 #endif

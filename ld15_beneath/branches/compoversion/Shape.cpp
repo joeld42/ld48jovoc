@@ -20,7 +20,9 @@
 #include <il/ilu.h>
 #include <il/ilut.h>
 
+#include <Common.h>
 #include <Shape.h>
+
 
 using namespace prmath;
 
@@ -31,10 +33,11 @@ Shape::Shape()
 	pos = vec2f( 0, 0 );
 }
 
-Shape *Shape::simpleShape( const char *texname )
+Shape *Shape::simpleShape(const std::string &texname )
 {
 	Shape *shp = new Shape();
 
+#if 0
 	ILuint ilImgId;
 	ilGenImages( 1, &ilImgId );
 	ilBindImage( ilImgId );		
@@ -45,6 +48,13 @@ Shape *Shape::simpleShape( const char *texname )
 	
 	// Make a GL texture for it
 	shp->m_texId = ilutGLBindTexImage();
+#endif
+	
+	int w, h;
+	shp->m_texId = getTexture( texname, &w, &h );
+	shp->m_size = vec2f( w, h );
+	printf("LOADED %s, %d x %d\n", texname.c_str(), w, h );
+
 	return shp;
 }
 	
