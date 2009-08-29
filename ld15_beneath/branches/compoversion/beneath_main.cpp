@@ -24,6 +24,8 @@
 #include <tweakval.h>
 #include <gamefontgl.h>
 
+#include <BeneathGame.h>
+
 using namespace std;
 
 // 30 ticks per sim frame
@@ -80,6 +82,9 @@ int main( int argc, char *argv[] )
 	ilInit();
 	ilutRenderer( ILUT_OPENGL );
 
+	// init game object
+	BeneathGame *game = new BeneathGame();
+
 	//=====[ Main loop ]======
 	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;
 	bool done = false;
@@ -129,18 +134,25 @@ int main( int argc, char *argv[] )
 			sim_ticks -= STEPTIME;						
 
 			printf("update sim_ticks %d ticks_elapsed %d\n", sim_ticks, ticks_elapsed );						
-			//game->update( (float)STEPTIME / 1000.0f );			
+			game->updateSim( (float)STEPTIME / 1000.0f );			
 		}	
 
 		// redraw as fast as possible		
 		float dtRaw = (float)(ticks_elapsed) / 1000.0f;
 				
-		//update( dtRaw ); 
-		//redraw( g_state );
+		game->update( dtRaw ); 
+		game->redraw();
 		
 
 		SDL_GL_SwapBuffers();
+
+#ifndef NDEBUG
+        ReloadChangedTweakableValues();        
+#endif
+
 	}
+
+	delete game;
 
 	return 1;
 }

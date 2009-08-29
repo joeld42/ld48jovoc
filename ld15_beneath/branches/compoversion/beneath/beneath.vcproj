@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\BeneathGame.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\gamefontgl.c"
 				>
 			</File>
@@ -196,6 +200,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\BeneathGame.h"
+				>
+			</File>
 			<File
 				RelativePath="..\gamefontgl.h"
 				>
