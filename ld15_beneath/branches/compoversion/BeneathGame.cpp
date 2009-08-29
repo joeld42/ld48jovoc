@@ -11,7 +11,30 @@ BeneathGame::BeneathGame() :
 // fixed update, for gameplay stuff
 void BeneathGame::updateSim( float dt )
 {
+	vec2f playerDir( 0.0f, 0.0f );
+
 	printf("UpdateSim %3.2f\n", dt );
+	// Continuous (key state) keys
+	Uint8 *keyState = SDL_GetKeyState( NULL );
+	if ((keyState[SDLK_LEFT]) && (!keyState[SDLK_RIGHT]))
+	{
+		playerDir.x = -1.0;
+	}
+	else if ((!keyState[SDLK_LEFT]) && (keyState[SDLK_RIGHT]))
+	{
+		playerDir.x = 1.0;
+	}
+	if ((keyState[SDLK_UP]) && (!keyState[SDLK_DOWN]))
+	{
+		playerDir.y = 1.0;
+	}
+	else if ((!keyState[SDLK_UP]) && (keyState[SDLK_DOWN]))
+	{
+		playerDir.y = -1.0;
+	}
+
+	// update player
+	m_player->pos += playerDir * _TV( 100.0f ) * dt;
 }
 
 // "as fast as possible" update for effects and stuff
@@ -42,6 +65,9 @@ void BeneathGame::init()
 	printf("font has %d chars\n", 
 		gfGetFontMetric( m_fntFontId, GF_FONT_NUMCHARS ) );					
 
+	// Now load game shapes
+	m_player = Shape::simpleShape( "gamedata/player.png" );
+	m_player->pos = vec2f( 300, 200 );
 }
 	
 void BeneathGame::redraw()
@@ -61,6 +87,28 @@ void BeneathGame::redraw()
 
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
+
+	// Draw player shape
+	glEnable( GL_TEXTURE_2D );
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );		
+
+	glBindTexture( GL_TEXTURE_2D, m_player->m_texId );	
+
+	glColor3f( 1.0, 1.0, 1.0 );
+	glBegin( GL_QUADS );
+	glTexCoord2d( m_player->st0.x, m_player->st1.y ); 
+	glVertex3f( m_player->pos.x, m_player->pos.y, 0.0 );
+
+	glTexCoord2d( m_player->st0.x, m_player->st0.y  ); 
+	glVertex3f( m_player->pos.x, m_player->pos.y + 32, 0.0 );
+	
+	glTexCoord2d( m_player->st1.x, m_player->st0.y );
+	glVertex3f( m_player->pos.x+32, m_player->pos.y + 32, 0.0 );
+
+	glTexCoord2d( m_player->st1.x, m_player->st1.y  ); 
+	glVertex3f( m_player->pos.x+32, m_player->pos.y, 0.0 );
+	glEnd();
 
 	// Title text
 	gfEnableFont( m_fntFontId, 32 );	

@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Shape.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\tweakval.cpp"
 				>
 			</File>
@@ -206,6 +210,10 @@
 			</File>
 			<File
 				RelativePath="..\gamefontgl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Shape.h"
 				>
 			</File>
 			<File

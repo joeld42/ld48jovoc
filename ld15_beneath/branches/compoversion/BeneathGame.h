@@ -23,6 +23,7 @@
 #include <il/ilu.h>
 #include <il/ilut.h>
 
+#include <Shape.h>
 
 class BeneathGame
 {
@@ -41,6 +42,8 @@ public:
 
 protected:
 	bool m_isInit;
+
+	Shape *m_player;
 
 	// debug/info font
 	GLuint m_glFontTexId;

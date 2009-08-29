@@ -117,11 +117,7 @@ int main( int argc, char *argv[] )
 					break;
 			}
 		}
-
-		// Continuous (key state) keys
-		Uint8 *keyState = SDL_GetKeyState( NULL );
-
-		//if (keyState[ SDLK_LEFT])
+		
 		
 		// Timing
 		ticks_elapsed = SDL_GetTicks() - ticks;
