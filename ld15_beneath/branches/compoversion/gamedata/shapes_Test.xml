@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <ShapeList>
+      <Shape blend="False" collide="True" map="Test_shapes.png" name="block" pattern="False" rect="0,0,32,32" relief="none"/>
+      <Shape blend="False" collide="True" map="dirtpat_CP.png" name="dirtpat" pattern="True" rect="0,0,64,64" relief="none"/>
+      <Shape blend="True" collide="True" map="Test_blend.png" name="dirt" pattern="False" rect="0,0,256,256" relief="none"/>
+      <Shape blend="False" collide="True" map="Test_shapes.png" name="rock" pattern="False" rect="0,32,64,64" relief="none"/>
+      <Shape blend="False" collide="True" map="sandpat_PC.png" name="sandpat" pattern="True" rect="0,0,32,32" relief="none"/>
+      <Shape blend="True" collide="True" map="Test_blend.png" name="sand" pattern="False" rect="256,0,256,256" relief="none"/>
+    </ShapeList>
