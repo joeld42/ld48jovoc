@@ -21,6 +21,8 @@ Editor::Editor( GLuint fntID )
 	m_useEditView = true;
 	m_tool = Tool_PLACE;
 	m_sort = 1000;
+	
+	isInit = false;
 }
 
 void Editor::frameView()
@@ -34,8 +36,24 @@ void Editor::frameView()
 	m_viewsize = vec2f( w, m_level->m_mapSize.y );									
 }
 
+void Editor::initEditor()
+{
+	float iconHite = 32.0 / 512.0;
+	iconSpawnPoint = Shape::simpleShape( "gamedata/ed_icons.png" );
+	iconSpawnPoint->m_size = vec2f( 32, 32 );
+	iconSpawnPoint->st0.y = iconHite;
+	iconSpawnPoint->st1.y = 0;
+}
+
 void Editor::redraw()
 {
+
+	if (!isInit)
+	{
+		initEditor();
+		isInit = true;
+	}
+
 	vec3f bgColor, gridColor;
 	glColor3f( 1.0, 1.0, 1.0 );
 	if (!m_level)
@@ -58,6 +76,135 @@ void Editor::redraw()
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}
 
+
+	// at this point we need a level to draw
+	if (m_level)
+	{
+		// reset the view to be map space
+		glMatrixMode( GL_PROJECTION );
+		glLoadIdentity();
+
+		if (m_useEditView)
+		{
+			gluOrtho2D( m_viewport.x, m_viewport.x + m_viewsize.x, 
+				m_viewport.y, m_viewport.y + m_viewsize.y ) ;
+		}
+		else
+		{
+			pseudoOrtho2D( m_gameview.x, m_gameview.x + 800,
+				m_gameview.y, m_gameview.y + 600 );
+		}
+
+		glMatrixMode( GL_MODELVIEW );
+		glLoadIdentity();
+		
+		// Draw the level grid
+		float zval = _TV( -0.5f );
+		glColor3f( gridColor.r, gridColor.g, gridColor.b );
+		glDisable( GL_TEXTURE );
+
+		glLineWidth( 2.0f );
+		glBegin( GL_LINE_LOOP );
+		glVertex3f( 0.0, 0.0, zval );
+		glVertex3f( m_level->m_mapSize.x, 0.0, zval );
+		glVertex3f( m_level->m_mapSize.x, m_level->m_mapSize.y, zval );
+		glVertex3f( 0.0, m_level->m_mapSize.y, zval );	
+		glEnd();
+
+
+		// draw grid lines
+		glLineWidth( 1.0f );
+		glBegin( GL_LINES );
+		for (float xpos=800; xpos < m_level->m_mapSize.x; xpos += 800.0)
+		{
+			glVertex3f( xpos, 0.0, zval );
+			glVertex3f( xpos, m_level->m_mapSize.y, zval );
+		}
+
+		for (float ypos = 600; ypos < m_level->m_mapSize.y; ypos += 600.0)
+		{
+			glVertex3f( 0.0, ypos, zval);
+			glVertex3f( m_level->m_mapSize.x, ypos, zval );
+		}
+		glEnd();
+
+		glLineWidth( 1.0f );
+		glEnable( GL_LINE_STIPPLE );
+		glLineStipple( 1, 0xAAAAAAAA );
+		glBegin( GL_LINES );
+		for (float xpos=100; xpos < m_level->m_mapSize.x; xpos += 100.0)
+		{
+			glVertex3f( xpos, 0.0, zval );
+			glVertex3f( xpos, m_level->m_mapSize.y, zval );
+		}
+
+		for (float ypos = 100; ypos < m_level->m_mapSize.y; ypos += 100.0)
+		{
+			glVertex3f( 0.0, ypos,zval );
+			glVertex3f( m_level->m_mapSize.x, ypos, zval );
+		}
+		glEnd();
+		glDisable( GL_LINE_STIPPLE );		
+
+		// draw the "game view" extents
+		if (m_useEditView)
+		{
+			glLineWidth( 2.0f );
+			glColor3f( 1.0f, 0.0f, 0.0f );
+
+			glPushMatrix();
+			glTranslated( m_gameview.x, m_gameview.y, 0.0 );
+
+			glBegin( GL_LINE_LOOP );
+			glVertex3f( 0.0, 0.0, 0.0 );
+			glVertex3f( 800, 0.0, 0.0 );
+			glVertex3f( 800, 600, 0.0 );
+			glVertex3f( 0.0, 600, 0.0 );			
+			glEnd();
+
+			glPopMatrix();
+		}
+
+		
+
+		// draw the level
+		m_level->draw();
+	
+		// draw icons		
+		glEnable( GL_TEXTURE_2D );
+		glDisable( GL_BLEND );
+		glEnable( GL_ALPHA_TEST );		
+		glAlphaFunc( GL_GREATER, 0.5 );
+
+		iconSpawnPoint->pos = m_level->m_spawnPoint;
+		iconSpawnPoint->pos.y += 16.0;
+		iconSpawnPoint->drawBraindead();
+								
+
+		// draw the active shape (aka "cursor")
+		if (m_activeShape)
+		{
+			glEnable( GL_TEXTURE_2D );
+			if (m_activeShape->blendMode == Blend_OFF)
+			{
+				glDisable( GL_BLEND );
+				glEnable( GL_ALPHA_TEST );
+				glAlphaFunc( GL_GREATER, 0.5 );
+			}
+			else
+			{
+				glEnable( GL_BLEND );
+				glDisable( GL_ALPHA_TEST );
+				glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );		
+			}
+
+			m_activeShape->sortNum = m_sort;
+			m_activeShape->drawBraindead();			
+		}				
+	
+	}
+
+	// now draw any text overlay		
 	if (m_showHelp)
 	{
 		gfEnableFont( m_fntFontId, 20 );	
@@ -98,121 +245,6 @@ void Editor::redraw()
 		
 		glDisable( GL_TEXTURE_2D );
 	}
-
-	// at this point we need a level to draw
-	if (!m_level) return;
-
-	// reset the view to be map space
-	glMatrixMode( GL_PROJECTION );
-	glLoadIdentity();
-
-	if (m_useEditView)
-	{
-		gluOrtho2D( m_viewport.x, m_viewport.x + m_viewsize.x, 
-					m_viewport.y, m_viewport.y + m_viewsize.y ) ;
-	}
-	else
-	{
-		pseudoOrtho2D( m_gameview.x, m_gameview.x + 800,
-					   m_gameview.y, m_gameview.y + 600 );
-	}
-
-	glMatrixMode( GL_MODELVIEW );
-	glLoadIdentity();
-
-	// Draw the level grid
-	float zval = _TV( -0.5f );
-	glColor3f( gridColor.r, gridColor.g, gridColor.b );
-	glDisable( GL_TEXTURE );
-
-	glLineWidth( 2.0f );
-	glBegin( GL_LINE_LOOP );
-	glVertex3f( 0.0, 0.0, zval );
-	glVertex3f( m_level->m_mapSize.x, 0.0, zval );
-	glVertex3f( m_level->m_mapSize.x, m_level->m_mapSize.y, zval );
-	glVertex3f( 0.0, m_level->m_mapSize.y, zval );	
-	glEnd();
-
-	
-	// draw grid lines
-	glLineWidth( 1.0f );
-	glBegin( GL_LINES );
-	for (float xpos=800; xpos < m_level->m_mapSize.x; xpos += 800.0)
-	{
-		glVertex3f( xpos, 0.0, zval );
-		glVertex3f( xpos, m_level->m_mapSize.y, zval );
-	}
-
-	for (float ypos = 600; ypos < m_level->m_mapSize.y; ypos += 600.0)
-	{
-		glVertex3f( 0.0, ypos, zval);
-		glVertex3f( m_level->m_mapSize.x, ypos, zval );
-	}
-	glEnd();
-
-	glLineWidth( 1.0f );
-	glEnable( GL_LINE_STIPPLE );
-	glLineStipple( 1, 0xAAAAAAAA );
-	glBegin( GL_LINES );
-	for (float xpos=100; xpos < m_level->m_mapSize.x; xpos += 100.0)
-	{
-		glVertex3f( xpos, 0.0, zval );
-		glVertex3f( xpos, m_level->m_mapSize.y, zval );
-	}
-
-	for (float ypos = 100; ypos < m_level->m_mapSize.y; ypos += 100.0)
-	{
-		glVertex3f( 0.0, ypos,zval );
-		glVertex3f( m_level->m_mapSize.x, ypos, zval );
-	}
-	glEnd();
-	glDisable( GL_LINE_STIPPLE );
-
-	// draw the "game view" extents
-	if (m_useEditView)
-	{
-		glLineWidth( 2.0f );
-		glColor3f( 1.0f, 0.0f, 0.0f );
-		
-		glPushMatrix();
-		glTranslated( m_gameview.x, m_gameview.y, 0.0 );
-		
-		glBegin( GL_LINE_LOOP );
-		glVertex3f( 0.0, 0.0, 0.0 );
-		glVertex3f( 800, 0.0, 0.0 );
-		glVertex3f( 800, 600, 0.0 );
-		glVertex3f( 0.0, 600, 0.0 );			
-		glEnd();
-
-		glPopMatrix();
-	}
-
-	// draw the level
-	m_level->draw();
-		
-	// draw the active shape (aka "cursor")
-	if (m_activeShape)
-	{
-		glEnable( GL_TEXTURE_2D );
-		if (m_activeShape->blendMode == Blend_OFF)
-		{
-			glDisable( GL_BLEND );
-			glEnable( GL_ALPHA_TEST );
-			glAlphaFunc( GL_GREATER, 0.5 );
-		}
-		else
-		{
-			glEnable( GL_BLEND );
-			glDisable( GL_ALPHA_TEST );
-			glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );		
-		}
-
-		m_activeShape->sortNum = m_sort;
-		m_activeShape->drawBraindead();
-		
-		glDisable( GL_TEXTURE_2D );
-	}	
-
 }
 
 void Editor::keypress( SDL_KeyboardEvent &key )
@@ -269,6 +301,16 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 
 	case SDLK_x:
 		m_sort -= 1;
+		break;
+
+	case SDLK_0:
+		if (m_level) 
+		{
+			m_level->m_spawnPoint = m_mousePos;
+			printf("Spawn Pos: %f %f\n", 
+				m_level->m_spawnPoint.x,
+				m_level->m_spawnPoint.y );
+		}
 		break;
 
 	case SDLK_COMMA:
@@ -400,13 +442,18 @@ void Editor::update( float dt )
 		if (m_useEditView)
 		{
 			m_activeShape->pos.x = m_viewport.x + ((float)mx / 800.0)*m_viewsize.x;
-			m_activeShape->pos.y = m_viewport.y + ((float)my / 600.0)*m_viewsize.y;
+			m_activeShape->pos.y = m_viewport.y + ((float)my / 600.0)*m_viewsize.y;			
 		}
 		else
 		{
 			m_activeShape->pos.x = mx + m_gameview.x;
 			m_activeShape->pos.y = my + m_gameview.y;
 		}
+		
+		// remember this pos for otehr use
+		m_mousePos = m_activeShape->pos;
+
+		// offset so active shape is centered
 		m_activeShape->pos.x -= m_activeShape->m_size.x/2;
 		m_activeShape->pos.y -= m_activeShape->m_size.y/2;
 	}

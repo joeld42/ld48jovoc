@@ -28,11 +28,12 @@
 using namespace prmath;
 
 Shape::Shape()
-{
+{	
 	st0 = vec2f( 0.0, 0.0 );
 	st1 = vec2f( 1.0, 1.0 );
 	pos = vec2f( 0, 0 );
 	blendMode = Blend_OFF;
+	m_pattern = false;
 
 	angle = 0;
 	sortNum = 1000;

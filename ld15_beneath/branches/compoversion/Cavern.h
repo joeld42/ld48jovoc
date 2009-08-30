@@ -45,6 +45,8 @@ public:
 	vec2f m_mapSize;
 	std::vector<Shape*> m_shapes;	
 	vec3f m_bgColor;
+
+	vec2f m_spawnPoint;
 };
 
 #endif

@@ -51,6 +51,13 @@ public:
 
 	size_t m_actShapeIndex;
 	Shape *m_activeShape;
+
+	// icons
+	Shape *iconSpawnPoint,
+		  *iconRedGem, *iconRedGemBig;
+
+	void initEditor();
+	bool isInit;
 };
 
 #endif

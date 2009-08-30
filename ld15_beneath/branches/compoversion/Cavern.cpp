@@ -9,9 +9,9 @@ const char *BlendModeNames[] =
 
 Cavern::Cavern():
 	m_mapSize( 2400, 4800 ),
-	m_bgColor( 0.2, 0.2, 0.2 )
-{
-
+	m_bgColor( 0.2, 0.2, 0.2 ),
+	m_spawnPoint( 0.0f, 0.0f )
+{	
 }
 
 bool cmp_Shapes( Shape *a, Shape *b)
