@@ -73,6 +73,8 @@ void BeneathGame::init()
 	ILuint ilFontId;
 	ilGenImages( 1, &ilFontId );
 	ilBindImage( ilFontId );		
+
+	glEnable( GL_DEPTH_TEST );
 	
 	if (!ilLoadImage( (ILstring)"gamedata/andelemo.png" )) {
 		printf("Loading font image failed\n");

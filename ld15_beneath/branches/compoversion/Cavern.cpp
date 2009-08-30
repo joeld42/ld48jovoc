@@ -12,11 +12,30 @@ void Cavern::loadLevel( const char *levelFile )
 	// TODO
 }
 
+bool cmp_Shapes( Shape *a, Shape *b)
+{
+	// first sort by blend Mode
+	if (a->blendMode != b->blendMode)
+	{
+		return a->blendMode > b->blendMode;
+	}
+	// then by texture
+	else if (a->m_texId != b->m_texId)
+	{
+		return a->m_texId > b->m_texId;
+	}
+	else
+	{
+		return a->sortNum < b->sortNum;
+	}
+}
+
 void Cavern::addShape( Shape *s )
 {
 	m_shapes.push_back( s );
 
 	// here ... sort shapes
+	std::sort( m_shapes.begin(), m_shapes.end(), cmp_Shapes );
 }
 
 void Cavern::draw()

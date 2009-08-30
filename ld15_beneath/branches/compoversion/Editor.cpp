@@ -201,6 +201,7 @@ void Editor::redraw()
 			glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );		
 		}
 
+		m_activeShape->sortNum = m_sort;
 		m_activeShape->drawBraindead();
 		
 		glDisable( GL_TEXTURE_2D );

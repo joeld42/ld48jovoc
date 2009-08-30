@@ -71,7 +71,7 @@ void Shape::drawBraindead()
 
 void Shape::drawBraindeadQuad()
 {
-	float zval = _TV( 0.0f );
+	float zval = -sortNum / 10000.0f;
 
 	float sv = sin( angle * D2R ) * m_size.x;
 	float cv = cos( angle * D2R ) * m_size.y;	
