@@ -24,6 +24,7 @@ Editor::Editor( GLuint fntID )
 	
 	isInit = false;
 	drawLine = false;
+	currSegType = SegType_COLLIDE;
 }
 
 void Editor::frameView()
@@ -151,7 +152,7 @@ void Editor::redraw()
 		if (m_useEditView)
 		{
 			glLineWidth( 2.0f );
-			glColor3f( 1.0f, 0.0f, 0.0f );
+			glColor3f( 0.7f, 0.4f, 0.7f );
 
 			glPushMatrix();
 			glTranslated( m_gameview.x, m_gameview.y, 0.0 );
@@ -186,7 +187,10 @@ void Editor::redraw()
 		{
 			// drawing a line (for collision)
 			glDisable( GL_TEXTURE_2D );
-			glColor3f( 1.0f, 1.0f, 0.0f );
+			
+			vec3f col = segColor( currSegType );
+			glColor3f( col.r, col.g, col.b );
+
 			glLineWidth( 5 );
 			glBegin( GL_LINES );
 			glVertex3f( m_dragStart.x, m_dragStart.y, 0.0 );
@@ -224,12 +228,17 @@ void Editor::redraw()
 		glDisable( GL_TEXTURE_2D );
 		glColor3f( 1.0f, 1.0f, 0.5f );
 		glLineWidth( 3 );
-		glBegin( GL_LINES );		
+			
+		glBegin( GL_LINES );
 		for (int i=0; i < m_level->m_collision.size(); i++)
 		{
 			Segment &s = m_level->m_collision[i];
+			vec3f col = segColor( s.segType );
+			glColor3f( col.r, col.g, col.b );
+
 			glVertex3f( s.a.x, s.a.y, 0.0 );
 			glVertex3f( s.b.x, s.b.y, 0.0 );		
+			
 		}		
 		glEnd();
 	}
@@ -237,6 +246,7 @@ void Editor::redraw()
 	// now draw any text overlay		
 	if (m_showHelp)
 	{
+		glColor3f( 1.0f, 1.0f, 1.0f );
 		gfEnableFont( m_fntFontId, 20 );	
 		gfBeginText();
 		glTranslated( _TV(50), _TV(500), 0 );
@@ -253,8 +263,10 @@ void Editor::redraw()
 					  "a,z,s,x - change sort\n"
 					  "o,p,brackets - brush size\n"
 					  "k,l - zoom view\n" 
+					  "8,9 - segment type\n"
 					  "mousewheel - rotate brush\n"
-					  "SPC, BTN1 - stamp brush\n"
+					  "SPC, LMB - stamp brush\n"
+					  "Drag RMB - draw segment\n"
 					  );			
 		gfEndText();
 	}	
@@ -264,6 +276,8 @@ void Editor::redraw()
 	{
 		glEnable( GL_TEXTURE_2D );		
 
+		glColor3f( 1.0f, 1.0f, 1.0f );
+
 		gfEnableFont( m_fntFontId, 20 );	
 		gfBeginText();
 		glTranslated( _TV(650), _TV(570), 0 );		
@@ -271,6 +285,15 @@ void Editor::redraw()
 		gfDrawStringFmt( "%s (%d)",
 				m_activeShape->name.c_str(),
 				m_sort );
+		gfEndText();
+
+		vec3f col = segColor( currSegType );
+		glColor3f( col.r, col.g, col.b );
+		gfBeginText();
+		glTranslated( _TV(650), _TV(550), 0 );		
+				
+		gfDrawString( SegTypeNames[ currSegType ] );
+
 		gfEndText();
 		
 		glDisable( GL_TEXTURE_2D );
@@ -315,6 +338,16 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 
 	case SDLK_3:
 		newLevel( vec2f( 9600, 12000 ) );		
+		break;
+
+	case SDLK_8:
+		if (currSegType == SegType_COLLIDE) currSegType = SegType_KILL;
+		else currSegType--;
+		break;
+	
+	case SDLK_9:
+		if (currSegType == SegType_KILL) currSegType = SegType_COLLIDE;
+		else currSegType++;
 		break;
 
 	case SDLK_a:
@@ -432,7 +465,7 @@ void Editor::mousepress( SDL_MouseButtonEvent &mouse )
 	{
 		if (( mouse.button == 3) && (drawLine))
 		{
-			m_level->addSegment( m_dragStart, m_mousePos );
+			m_level->addSegment( m_dragStart, m_mousePos, currSegType );
 			drawLine = false;
 		}
 	}
@@ -578,5 +611,21 @@ void Editor::stampActiveShape()
 		*mapShape = *m_activeShape;
 		mapShape->sortNum = m_sort;
 		m_level->addShape( mapShape );
+	}
+}
+
+vec3f Editor::segColor( int type )
+{
+	switch (type)
+	{
+	case SegType_COLLIDE:
+		return vec3f( 1.0, 1.0, 0.0 );
+		break;
+	case SegType_DIALOGUE:
+		return vec3f( 0.0, 0.0, 1.0 );
+		break;
+	case SegType_KILL:
+		return vec3f( 1.0, 0.0, 0.0 );
+		break;
 	}
 }

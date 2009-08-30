@@ -7,6 +7,10 @@ const char *BlendModeNames[] =
 	"off", "normal", "add"
 };
 
+const char *SegTypeNames[] = { 
+	"collide", "dialogue", "kill", NULL 
+};
+
 Cavern::Cavern():
 	m_mapSize( 2400, 4800 ),
 	m_bgColor( 0.2, 0.2, 0.2 ),
@@ -158,6 +162,8 @@ void Cavern::saveLevel( const char *levelFile )
 		sprintf(buff, "%f,%f", s.b.x, s.b.y );
 		xSegment->SetAttribute( "end", buff );
 
+		xSegment->SetAttribute( "type", SegTypeNames[ s.segType ] );
+
 		xCavern->LinkEndChild( xSegment );
 	}
 
@@ -249,6 +255,32 @@ void Cavern::loadLevel( const char *levelFile, std::vector<Shape*> &shapeList )
 		xShape = xShape->NextSiblingElement( "Shape" );
 	}
 
+	TiXmlElement *xSegment = xCavern->FirstChildElement( "Segment" );
+	while (xSegment) 
+	{
+		vec2f a, b;
+		sscanf( xSegment->Attribute( "start" ), "%f,%f", &(a.x), &(a.y) );
+		sscanf( xSegment->Attribute( "end" ), "%f,%f", &(b.x), &(b.y) );
+		const char *szType = xSegment->Attribute("type");
+		if (!szType) szType = "collide";
+
+		int type = SegType_COLLIDE;
+		for (int i=SegType_COLLIDE; i < SegType_LAST; ++i )
+		{
+			if (!stricmp( SegTypeNames[i], szType ))
+			{
+				type = i;
+				break;
+			}
+		}
+
+		addSegment( a, b, type );
+
+		// next segment
+		xSegment = xSegment->NextSiblingElement( "Segment" );
+	}
+
+	// sort
 	sortShapes();
 
 	// done
@@ -256,10 +288,11 @@ void Cavern::loadLevel( const char *levelFile, std::vector<Shape*> &shapeList )
 	delete xmlDoc;
 }
 
-void Cavern::addSegment( vec2f a, vec2f b )
+void Cavern::addSegment( vec2f a, vec2f b, int type )
 {
 	Segment s;
 	s.a = a;
 	s.b = b;
+	s.segType = type;
 	m_collision.push_back( s );
 }

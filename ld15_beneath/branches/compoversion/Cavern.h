@@ -29,9 +29,20 @@
 #include <Shape.h>
 
 // line segment for collision
+enum {
+	SegType_COLLIDE,
+	SegType_DIALOGUE,
+	SegType_KILL,
+
+	SegType_LAST
+};
+
+const char *SegTypeNames[];
+
 struct Segment
 {
 	vec2f a, b;
+	int segType;
 };
 
 class Cavern
@@ -47,7 +58,7 @@ public:
 
 	void draw();
 
-	void addSegment( vec2f a, vec2f b );
+	void addSegment( vec2f a, vec2f b, int type );
 
 //protected:
 	vec2f m_mapSize;

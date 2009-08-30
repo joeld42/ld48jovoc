@@ -26,6 +26,8 @@ public:
 //protected:
 	void frameView();
 
+	vec3f segColor( int type );
+
 	int m_tool;
 	int m_sort;
 
@@ -43,6 +45,7 @@ public:
 	// mouse stuff
 	vec2f m_mousePos;
 	vec2f m_dragStart;
+	int currSegType;
 	bool drawLine;
 
 	// selected shapes we're currently editing)	
