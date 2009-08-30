@@ -42,6 +42,8 @@ public:
 	
 	// mouse stuff
 	vec2f m_mousePos;
+	vec2f m_dragStart;
+	bool drawLine;
 
 	// selected shapes we're currently editing)	
 	std::vector<Shape*> m_selShapes;

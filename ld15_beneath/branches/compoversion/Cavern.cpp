@@ -115,6 +115,10 @@ void Cavern::saveLevel( const char *levelFile )
 	xCavern->SetAttribute( "height", m_mapSize.y );
 
 	char buff[1024];
+
+	sprintf(buff, "%f,%f", m_spawnPoint.x,  m_spawnPoint.y ); 
+	xCavern->SetAttribute( "spawnPoint", buff );
+
 	for (int i=0; i < m_shapes.size(); i++)
 	{
 		Shape *shp = m_shapes[i];
@@ -144,6 +148,19 @@ void Cavern::saveLevel( const char *levelFile )
 		xCavern->LinkEndChild( xShape );
 	}
 
+	for (int i=0; i < m_collision.size(); i++)
+	{
+		Segment &s = m_collision[i];
+		
+		TiXmlElement *xSegment = new TiXmlElement( "Segment" );
+		sprintf(buff, "%f,%f", s.a.x, s.a.y );
+		xSegment->SetAttribute( "start", buff );
+		sprintf(buff, "%f,%f", s.b.x, s.b.y );
+		xSegment->SetAttribute( "end", buff );
+
+		xCavern->LinkEndChild( xSegment );
+	}
+
 	//xmlDoc->LinkEndChild( decl );
 	xmlDoc->LinkEndChild( xCavern );
 	xmlDoc->SaveFile( levelFile );
@@ -169,6 +186,8 @@ void Cavern::loadLevel( const char *levelFile, std::vector<Shape*> &shapeList )
 	m_mapSize = vec2f( atof( xCavern->Attribute("width") ),
 					   atof( xCavern->Attribute("height") ) );
 
+	sscanf( xCavern->Attribute("spawnPoint"), "%f,%f",
+				&(m_spawnPoint.x), &(m_spawnPoint.y) );
 
 	xShape = xCavern->FirstChildElement( "Shape" );
 	while (xShape) 
@@ -235,4 +254,12 @@ void Cavern::loadLevel( const char *levelFile, std::vector<Shape*> &shapeList )
 	// done
 	xmlDoc->Clear();
 	delete xmlDoc;
+}
+
+void Cavern::addSegment( vec2f a, vec2f b )
+{
+	Segment s;
+	s.a = a;
+	s.b = b;
+	m_collision.push_back( s );
 }

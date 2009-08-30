@@ -23,6 +23,7 @@ Editor::Editor( GLuint fntID )
 	m_sort = 1000;
 	
 	isInit = false;
+	drawLine = false;
 }
 
 void Editor::frameView()
@@ -180,10 +181,23 @@ void Editor::redraw()
 		iconSpawnPoint->pos.y += 16.0;
 		iconSpawnPoint->drawBraindead();
 								
-
-		// draw the active shape (aka "cursor")
-		if (m_activeShape)
+		
+		if (drawLine)
 		{
+			// drawing a line (for collision)
+			glDisable( GL_TEXTURE_2D );
+			glColor3f( 1.0f, 1.0f, 0.0f );
+			glLineWidth( 5 );
+			glBegin( GL_LINES );
+			glVertex3f( m_dragStart.x, m_dragStart.y, 0.0 );
+			glVertex3f( m_mousePos.x, m_mousePos.y, 0.0 );
+			glEnd();
+
+			glColor3f( 1.0f, 1.0f, 1.0f );
+		} 
+		else if (m_activeShape)
+		{
+			// draw the active shape (aka "cursor")		
 			glEnable( GL_TEXTURE_2D );
 			if (m_activeShape->blendMode == Blend_OFF)
 			{
@@ -202,6 +216,22 @@ void Editor::redraw()
 			m_activeShape->drawBraindead();			
 		}				
 	
+	}
+
+	// draw regular collision lines
+	if (m_level)
+	{
+		glDisable( GL_TEXTURE_2D );
+		glColor3f( 1.0f, 1.0f, 0.5f );
+		glLineWidth( 3 );
+		glBegin( GL_LINES );		
+		for (int i=0; i < m_level->m_collision.size(); i++)
+		{
+			Segment &s = m_level->m_collision[i];
+			glVertex3f( s.a.x, s.a.y, 0.0 );
+			glVertex3f( s.b.x, s.b.y, 0.0 );		
+		}		
+		glEnd();
 	}
 
 	// now draw any text overlay		
@@ -374,20 +404,38 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 
 void Editor::mousepress( SDL_MouseButtonEvent &mouse )
 {
-	if ( mouse.button == 1)
+	if (mouse.type == SDL_MOUSEBUTTONDOWN)
 	{
-		stampActiveShape();
+		if ( mouse.button == 1)
+		{
+			stampActiveShape();
+		}
+		else if (mouse.button == 4)
+		{
+			// wheel up
+			m_activeShape->angle += 15.0;
+		}	
+		else if (mouse.button == 5)
+		{
+			// wheel down
+			m_activeShape->angle -= 15.0;
+		} 
+		
+		if ( mouse.button == 3)
+		{
+			
+			m_dragStart = m_mousePos;
+			drawLine = true;
+		}
 	}
-	else if (mouse.button == 4)
+	else // mouse up
 	{
-		// wheel up
-		m_activeShape->angle += 15.0;
-	} 
-	else if (mouse.button == 5)
-	{
-		// wheel down
-		m_activeShape->angle -= 15.0;
-	} 
+		if (( mouse.button == 3) && (drawLine))
+		{
+			m_level->addSegment( m_dragStart, m_mousePos );
+			drawLine = false;
+		}
+	}
 
 }
 

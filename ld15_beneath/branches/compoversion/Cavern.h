@@ -28,6 +28,12 @@
 
 #include <Shape.h>
 
+// line segment for collision
+struct Segment
+{
+	vec2f a, b;
+};
+
 class Cavern
 {
 public:
@@ -41,9 +47,12 @@ public:
 
 	void draw();
 
+	void addSegment( vec2f a, vec2f b );
+
 //protected:
 	vec2f m_mapSize;
 	std::vector<Shape*> m_shapes;	
+	std::vector<Segment> m_collision;
 	vec3f m_bgColor;
 
 	vec2f m_spawnPoint;

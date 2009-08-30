@@ -9,7 +9,9 @@
 BeneathGame::BeneathGame() :
 	m_isInit( false ),
 	m_editor( NULL ),
-	m_gameState( GameState_MENU )
+	m_gameState( GameState_MENU ),
+	m_playtest( false ),
+	m_level( NULL )
 {
 }
 
@@ -151,6 +153,19 @@ void BeneathGame::game_redraw()
 	glClearColor( _TV( 0.2f ), _TV(0.2f), _TV( 0.3f ), 1.0 );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+	glMatrixMode( GL_PROJECTION );
+	glLoadIdentity();
+
+	vec2f gameview(m_player->pos.x - 400, m_player->pos.y -100 );
+	pseudoOrtho2D( gameview.x, gameview.x + 800,
+					gameview.y, gameview.y + 600 );
+
+	glMatrixMode( GL_MODELVIEW );
+	glLoadIdentity();
+
+	// draw level
+	m_level->draw();
+
 	// Draw player shape
 	glEnable( GL_TEXTURE_2D );
 	glEnable( GL_BLEND );
@@ -167,13 +182,29 @@ void BeneathGame::keypress( SDL_KeyboardEvent &key )
 	}
 	else if (m_gameState==GameState_EDITOR)
 	{
-		if (m_editor) m_editor->keypress( key );		
+		if (m_editor) 
+		{
+			if ( (key.keysym.sym == SDLK_RETURN) && (m_editor->m_level))
+			{
+				// test a copy of level
+				m_playtest = true;
+				m_level = new Cavern();
+				*m_level = *(m_editor->m_level);
+
+				m_player->pos = m_level->m_spawnPoint;
+				m_gameState = GameState_GAME;				
+			}
+			else
+			{
+				m_editor->keypress( key );		
+			}
+		}
 	}
 	else if (m_gameState==GameState_MENU)
 	{
 		switch( key.keysym.sym )
 		{
-		case SDLK_SPACE:
+		case SDLK_SPACE:			
 			m_gameState = GameState_GAME;
 			break;
 

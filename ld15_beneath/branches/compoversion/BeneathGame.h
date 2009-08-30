@@ -59,11 +59,14 @@ public:
 
 protected:
 	bool m_isInit;
+	bool m_playtest; // testing a level in editor?
 
 	GameState m_gameState;
 	Editor *m_editor;
 
 	Shape *m_player;
+
+	Cavern *m_level;
 
 	// debug/info font
 	GLuint m_glFontTexId;
