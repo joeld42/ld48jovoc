@@ -33,6 +33,9 @@ Shape::Shape()
 	st1 = vec2f( 1.0, 1.0 );
 	pos = vec2f( 0, 0 );
 	blendMode = Blend_OFF;
+
+	angle = 0;
+	sortNum = 1000;
 }
 
 Shape *Shape::simpleShape(const std::string &texname )
@@ -68,20 +71,41 @@ void Shape::drawBraindead()
 
 void Shape::drawBraindeadQuad()
 {
-	float zval = _TV( -0.1f );
+	float zval = _TV( 0.0f );
+
+	float sv = sin( angle * D2R ) * m_size.x;
+	float cv = cos( angle * D2R ) * m_size.y;	
 
 	glColor3f( 1.0, 1.0, 1.0 );
+	
 	glBegin( GL_QUADS );
-	glTexCoord2d( st0.x, st1.y ); 
-	glVertex3f( pos.x, pos.y, zval);
+	
+	doVert( vec2f( st0.x, st1.y ),
+			vec3f( pos.x - (cv-sv), pos.y + (sv+cv), zval) );
 
-	glTexCoord2d( st0.x, st0.y  ); 
-	glVertex3f( pos.x, pos.y + m_size.y,zval );
+	doVert( vec2f( st0.x, st0.y  ),
+			vec3f( pos.x - (cv+sv), pos.y + (sv-cv), zval) );
 
-	glTexCoord2d( st1.x, st0.y );
-	glVertex3f( pos.x+m_size.x, pos.y + m_size.y, zval);
+	doVert( vec2f( st1.x, st0.y ),
+			vec3f( pos.x - (-cv+sv), pos.y + (-sv-cv), zval) );
 
-	glTexCoord2d( st1.x, st1.y  ); 
-	glVertex3f( pos.x+m_size.x, pos.y, zval );
+	doVert( vec2f( st1.x, st1.y  ),
+			vec3f( pos.x - (-cv-sv), pos.y + (-sv+cv), zval) );
+	
 	glEnd();
+}
+
+void Shape::doVert( vec2f &st, vec3f &pos )
+{
+	if (m_pattern)
+	{
+		// patterns use pos as ST (repeating)
+		glTexCoord2d( pos.x / m_origSize.x, -pos.y / m_origSize.y  ); 	
+		glVertex3f( pos.x, pos.y, pos.z );
+	}
+	else
+	{
+		glTexCoord2d( st.x, st.y  ); 	
+		glVertex3f( pos.x, pos.y, pos.z );
+	}
 }

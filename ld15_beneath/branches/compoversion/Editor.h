@@ -14,6 +14,7 @@ public:
 	void mousepress( SDL_MouseButtonEvent &mouse );
 
 	void newLevel( vec2f size );
+	void stampActiveShape();
 
 	void loadShapes( const char *filename );
 
@@ -26,6 +27,7 @@ public:
 	void frameView();
 
 	int m_tool;
+	int m_sort;
 
 	Cavern *m_level;
 	bool m_showHelp;

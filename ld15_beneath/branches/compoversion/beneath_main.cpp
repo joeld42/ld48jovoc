@@ -112,6 +112,7 @@ int main( int argc, char *argv[] )
 					break;
 
 				case SDL_MOUSEBUTTONDOWN:					
+					game->mouse( event.button );
 					break;
 
 				case SDL_MOUSEBUTTONUP:					

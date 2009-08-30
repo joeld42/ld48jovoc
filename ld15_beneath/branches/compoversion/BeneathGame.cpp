@@ -189,6 +189,14 @@ void BeneathGame::keypress( SDL_KeyboardEvent &key )
 	}
 }
 
+void BeneathGame::mouse( SDL_MouseButtonEvent &mouse )
+{
+	if (m_gameState == GameState_EDITOR)
+	{
+		if (m_editor) m_editor->mousepress( mouse );
+	}
+}
+
 void BeneathGame::game_keypress( SDL_KeyboardEvent &key )
 {
 }
@@ -243,7 +251,7 @@ GLuint getTexture( const std::string &filename, int *xsize, int *ysize )
 
 void pseudoOrtho2D( double left, double right, double bottom, double top )
 {
-#if 0
+#if 1
 	// for now, real ortho
 	gluOrtho2D( left, right, bottom, top );
 #else	

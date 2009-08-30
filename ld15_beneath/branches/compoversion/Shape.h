@@ -20,16 +20,20 @@ public:
 	// simple drawing, for cards and stuff.. 
 	void drawBraindead();	
 	void drawBraindeadQuad();	
+	
+	void doVert( vec2f &st, vec3f &p );
 
 //protected:
 	Shape();
 
 	GLuint m_texId;
 	int blendMode;
+	int sortNum;
 	
 	// corners of shape on texture
 	vec2f st0, st1;
 	vec2f pos;
+	float angle;
 
 	// Some of this is redundant, should have shape
 	// and shapeInstances, but keep it simple for the compoversion
@@ -37,6 +41,7 @@ public:
 	bool m_collide;
 	bool m_pattern;
 	vec2f m_size;
+	vec2f m_origSize;
 };
 
 #endif

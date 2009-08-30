@@ -20,6 +20,7 @@ Editor::Editor( GLuint fntID )
 	m_gameview = vec2f( 0, 0 );
 	m_useEditView = true;
 	m_tool = Tool_PLACE;
+	m_sort = 1000;
 }
 
 void Editor::frameView()
@@ -70,6 +71,7 @@ void Editor::redraw()
 					  "<,> - select shape\n" 
 					  "TAB - toggle editor/closeup\n" 
 					  "ARROWS - move view\n"
+					  "a,z,s,x - change sort\n"
 					  );			
 		gfEndText();
 	}	
@@ -83,7 +85,9 @@ void Editor::redraw()
 		gfBeginText();
 		glTranslated( _TV(650), _TV(570), 0 );		
 		
-		gfDrawString(m_activeShape->name.c_str() );
+		gfDrawStringFmt( "%s (%d)",
+				m_activeShape->name.c_str(),
+				m_sort );
 		gfEndText();
 		
 		glDisable( GL_TEXTURE_2D );
@@ -111,15 +115,16 @@ void Editor::redraw()
 	glLoadIdentity();
 
 	// Draw the level grid
+	float zval = _TV( -0.001f );
 	glColor3f( gridColor.r, gridColor.g, gridColor.b );
 	glDisable( GL_TEXTURE );
 
 	glLineWidth( 2.0f );
 	glBegin( GL_LINE_LOOP );
-	glVertex3f( 0.0, 0.0, 0.0 );
-	glVertex3f( m_level->m_mapSize.x, 0.0, 0.0 );
-	glVertex3f( m_level->m_mapSize.x, m_level->m_mapSize.y, 0.0 );
-	glVertex3f( 0.0, m_level->m_mapSize.y, 0.0 );	
+	glVertex3f( 0.0, 0.0, zval );
+	glVertex3f( m_level->m_mapSize.x, 0.0, zval );
+	glVertex3f( m_level->m_mapSize.x, m_level->m_mapSize.y, zval );
+	glVertex3f( 0.0, m_level->m_mapSize.y, zval );	
 	glEnd();
 
 	
@@ -162,18 +167,24 @@ void Editor::redraw()
 	{
 		glLineWidth( 2.0f );
 		glColor3f( 1.0f, 0.0f, 0.0f );
-		glTranslated( m_gameview.x, m_gameview.y, 0.0 );
+		
 		glPushMatrix();
+		glTranslated( m_gameview.x, m_gameview.y, 0.0 );
+		
 		glBegin( GL_LINE_LOOP );
 		glVertex3f( 0.0, 0.0, 0.0 );
 		glVertex3f( 800, 0.0, 0.0 );
 		glVertex3f( 800, 600, 0.0 );
-		glVertex3f( 0.0, 600, 0.0 );	
-		glPopMatrix();
+		glVertex3f( 0.0, 600, 0.0 );			
 		glEnd();
+
+		glPopMatrix();
 	}
+
+	// draw the level
+	m_level->draw();
 		
-	// draw the active shape
+	// draw the active shape (aka "cursor")
 	if (m_activeShape)
 	{
 		glEnable( GL_TEXTURE_2D );
@@ -193,10 +204,7 @@ void Editor::redraw()
 		m_activeShape->drawBraindead();
 		
 		glDisable( GL_TEXTURE_2D );
-	}
-
-	// draw the level
-	m_level->draw();
+	}	
 
 }
 
@@ -230,6 +238,22 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 		newLevel( vec2f( 9600, 12000 ) );		
 		break;
 
+	case SDLK_a:
+		m_sort += 10;
+		break;
+
+	case SDLK_z:
+		m_sort -= 10;
+		break;
+
+	case SDLK_s:
+		m_sort += 1;
+		break;
+
+	case SDLK_x:
+		m_sort -= 1;
+		break;
+
 	case SDLK_COMMA:
 		{
 			delete m_activeShape;
@@ -256,28 +280,53 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 		}
 		break;	
 	case SDLK_SPACE:
-		// drop a copy of the shape on the map
-		if ((m_level) && (m_activeShape))
-		{
-			Shape *mapShape = new Shape();
-			*mapShape = *m_activeShape;
-			
-			m_level->addShape( mapShape );
-		}
+		stampActiveShape();		
 		break;	
 	
-	case SDLK_RIGHTBRACKET:
+	case SDLK_RIGHTBRACKET:		
 		m_activeShape->m_size *= 2.0;
 		break;
 
 	case SDLK_LEFTBRACKET:
 		m_activeShape->m_size *= 0.5;
 		break;
+
+	case SDLK_o:
+		m_activeShape->m_size *= 0.9;
+		break;
+
+	case SDLK_p:		
+		m_activeShape->m_size *= 1.1;
+		break;
+
+	case SDLK_k:
+		m_viewsize *= 0.75;
+		break;
+
+	case SDLK_l:
+		m_viewsize *= 1.25;
+		break;
+
 	}
 }
 
 void Editor::mousepress( SDL_MouseButtonEvent &mouse )
 {
+	if ( mouse.button == 1)
+	{
+		stampActiveShape();
+	}
+	else if (mouse.button == 4)
+	{
+		// wheel up
+		m_activeShape->angle += 15.0;
+	} 
+	else if (mouse.button == 5)
+	{
+		// wheel down
+		m_activeShape->angle -= 15.0;
+	} 
+
 }
 
 void Editor::newLevel( vec2f size )
@@ -376,6 +425,7 @@ void Editor::loadShapes( const char *filename )
 				&(sz.x), &(sz.y) );		
 	
 		shp->m_size = sz;
+		shp->m_origSize = sz;
 
 		// get texture and adjust sts
 		int texw, texh;
@@ -398,4 +448,16 @@ void Editor::loadShapes( const char *filename )
 	// done
 	xmlDoc->Clear();
 	delete xmlDoc;
+}
+
+void Editor::stampActiveShape()
+{
+	// drop a copy of the shape on the map
+	if ((m_level) && (m_activeShape))
+	{
+		Shape *mapShape = new Shape();
+		*mapShape = *m_activeShape;
+		mapShape->sortNum = m_sort;
+		m_level->addShape( mapShape );
+	}
 }

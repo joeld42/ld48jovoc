@@ -48,6 +48,7 @@ public:
 	void redraw();
 	void init();
 	void keypress( SDL_KeyboardEvent &key );
+	void mouse( SDL_MouseButtonEvent &mouse );
 
 	// game state
 	enum GameState {
