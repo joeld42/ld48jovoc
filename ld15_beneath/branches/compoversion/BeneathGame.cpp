@@ -104,7 +104,8 @@ void BeneathGame::redraw()
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 
-	gluOrtho2D( 0, 800, 0, 600 ) ;
+	pseudoOrtho2D( 0, 800, 0, 600 ) ;
+
 
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
@@ -152,22 +153,7 @@ void BeneathGame::game_redraw()
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );		
 
-	glBindTexture( GL_TEXTURE_2D, m_player->m_texId );	
-
-	glColor3f( 1.0, 1.0, 1.0 );
-	glBegin( GL_QUADS );
-	glTexCoord2d( m_player->st0.x, m_player->st1.y ); 
-	glVertex3f( m_player->pos.x, m_player->pos.y, 0.0 );
-
-	glTexCoord2d( m_player->st0.x, m_player->st0.y  ); 
-	glVertex3f( m_player->pos.x, m_player->pos.y + 32, 0.0 );
-
-	glTexCoord2d( m_player->st1.x, m_player->st0.y );
-	glVertex3f( m_player->pos.x+32, m_player->pos.y + 32, 0.0 );
-
-	glTexCoord2d( m_player->st1.x, m_player->st1.y  ); 
-	glVertex3f( m_player->pos.x+32, m_player->pos.y, 0.0 );
-	glEnd();
+	m_player->drawBraindead();
 }
 
 void BeneathGame::keypress( SDL_KeyboardEvent &key )
@@ -253,4 +239,21 @@ GLuint getTexture( const std::string &filename, int *xsize, int *ysize )
 	}
 
 	return texId;
+}
+
+void pseudoOrtho2D( double left, double right, double bottom, double top )
+{
+#if 0
+	// for now, real ortho
+	gluOrtho2D( left, right, bottom, top );
+#else	
+	float w2, h2;
+	w2 = (right - left) /2;
+	h2 = (top - bottom) /2;
+	float nv = _TV( 1.0f );
+	glFrustum( -w2, w2, -h2, h2, nv, _TV(5.0f) );
+	gluLookAt( left + w2, bottom + h2, nv,
+			   left + w2, bottom + h2, 0.0,
+			   0.0, 1.0, 0.0 );
+#endif
 }

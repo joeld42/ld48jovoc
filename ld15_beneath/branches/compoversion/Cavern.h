@@ -35,6 +35,10 @@ public:
 
 	void loadLevel( const char *levelFile );
 
+	void addShape( Shape *s );
+
+	void draw();
+
 //protected:
 	vec2f m_mapSize;
 	std::vector<Shape*> m_shapes;	

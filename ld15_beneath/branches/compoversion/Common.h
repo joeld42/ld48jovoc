@@ -26,4 +26,7 @@
 // lookup textureID or load if not exist
 GLuint getTexture( const std::string &filename, int *xsize=NULL, int *ysize=NULL );
 
+// Makes a perspective camera that matches the ortho camera on the Z=0 plane
+void pseudoOrtho2D( double left, double right, double bottom, double top );
+
 #endif

@@ -15,8 +15,11 @@ Editor::Editor( GLuint fntID )
 	m_viewport = vec2f( 0, 0 );
 	m_viewsize = vec2f( 800, 600 );
 
+	m_activeShape = NULL;
+
 	m_gameview = vec2f( 0, 0 );
 	m_useEditView = true;
+	m_tool = Tool_PLACE;
 }
 
 void Editor::frameView()
@@ -62,14 +65,29 @@ void Editor::redraw()
 		
 		gfDrawString( "------[ EDITOR KEYS ]------\n" 
 			          "h - toggle this help\n" 
-	    			  "1 - New Level (small)\n" 
-					  "2 - New Level (medium)\n" 
-					  "3 - New Level (large)\n"  
+	    			  "1,2,3 - New Level (small, med, large)\n" 					  
 					  "f - frame view\n" 
-					  "TAB - toggle editor/closeup\n"  
+					  "<,> - select shape\n" 
+					  "TAB - toggle editor/closeup\n" 
+					  "ARROWS - move view\n"
 					  );			
 		gfEndText();
 	}	
+
+	// draw the active shape info
+	if (m_activeShape)
+	{
+		glEnable( GL_TEXTURE_2D );		
+
+		gfEnableFont( m_fntFontId, 20 );	
+		gfBeginText();
+		glTranslated( _TV(650), _TV(570), 0 );		
+		
+		gfDrawString(m_activeShape->name.c_str() );
+		gfEndText();
+		
+		glDisable( GL_TEXTURE_2D );
+	}
 
 	// at this point we need a level to draw
 	if (!m_level) return;
@@ -85,8 +103,8 @@ void Editor::redraw()
 	}
 	else
 	{
-		gluOrtho2D( m_gameview.x, m_gameview.x + 800,
-				   m_gameview.y, m_gameview.y + 600 );
+		pseudoOrtho2D( m_gameview.x, m_gameview.x + 800,
+					   m_gameview.y, m_gameview.y + 600 );
 	}
 
 	glMatrixMode( GL_MODELVIEW );
@@ -111,7 +129,7 @@ void Editor::redraw()
 	for (float xpos=800; xpos < m_level->m_mapSize.x; xpos += 800.0)
 	{
 		glVertex3f( xpos, 0.0, 0.0 );
-		glVertex3f( xpos, m_level->m_mapSize.y, 0.0 );
+		glVertex3f( xpos, m_level->m_mapSize.y, -0.0 );
 	}
 
 	for (float ypos = 600; ypos < m_level->m_mapSize.y; ypos += 600.0)
@@ -154,6 +172,31 @@ void Editor::redraw()
 		glPopMatrix();
 		glEnd();
 	}
+		
+	// draw the active shape
+	if (m_activeShape)
+	{
+		glEnable( GL_TEXTURE_2D );
+		if (m_activeShape->blendMode == Blend_OFF)
+		{
+			glDisable( GL_BLEND );
+			glEnable( GL_ALPHA_TEST );
+			glAlphaFunc( GL_GREATER, 0.5 );
+		}
+		else
+		{
+			glEnable( GL_BLEND );
+			glDisable( GL_ALPHA_TEST );
+			glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );		
+		}
+
+		m_activeShape->drawBraindead();
+		
+		glDisable( GL_TEXTURE_2D );
+	}
+
+	// draw the level
+	m_level->draw();
 
 }
 
@@ -186,7 +229,55 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 	case SDLK_3:
 		newLevel( vec2f( 9600, 12000 ) );		
 		break;
+
+	case SDLK_COMMA:
+		{
+			delete m_activeShape;
+
+			if (m_actShapeIndex > 0 ) m_actShapeIndex--;
+			else m_actShapeIndex = m_shapes.size()-1;						
+
+			Shape *newShape = new Shape();
+			*newShape = *m_shapes[ m_actShapeIndex ];
+			m_activeShape = newShape;
+		}
+		break;
+	
+	case SDLK_PERIOD:
+		{
+			delete m_activeShape;
+			
+			if (m_actShapeIndex < m_shapes.size()-1 ) m_actShapeIndex++;
+			else m_actShapeIndex = 0;
+			
+			Shape *newShape = new Shape();
+			*newShape = *m_shapes[ m_actShapeIndex ];
+			m_activeShape = newShape;
+		}
+		break;	
+	case SDLK_SPACE:
+		// drop a copy of the shape on the map
+		if ((m_level) && (m_activeShape))
+		{
+			Shape *mapShape = new Shape();
+			*mapShape = *m_activeShape;
+			
+			m_level->addShape( mapShape );
+		}
+		break;	
+	
+	case SDLK_RIGHTBRACKET:
+		m_activeShape->m_size *= 2.0;
+		break;
+
+	case SDLK_LEFTBRACKET:
+		m_activeShape->m_size *= 0.5;
+		break;
 	}
+}
+
+void Editor::mousepress( SDL_MouseButtonEvent &mouse )
+{
 }
 
 void Editor::newLevel( vec2f size )
@@ -230,6 +321,26 @@ void Editor::update( float dt )
 	{
 		m_gameview += scrollDir * _TV( 200.0f ) * dt;
 	}
+
+	// update mouse
+	int mx, my;
+	SDL_GetMouseState( &mx, &my );
+	my = 600-my;
+	if (m_activeShape)
+	{
+		if (m_useEditView)
+		{
+			m_activeShape->pos.x = m_viewport.x + ((float)mx / 800.0)*m_viewsize.x;
+			m_activeShape->pos.y = m_viewport.y + ((float)my / 600.0)*m_viewsize.y;
+		}
+		else
+		{
+			m_activeShape->pos.x = mx + m_gameview.x;
+			m_activeShape->pos.y = my + m_gameview.y;
+		}
+		m_activeShape->pos.x -= m_activeShape->m_size.x/2;
+		m_activeShape->pos.y -= m_activeShape->m_size.y/2;
+	}
 }
 
 void Editor::loadShapes( const char *filename )
@@ -254,25 +365,36 @@ void Editor::loadShapes( const char *filename )
 		shp->name = xShape->Attribute("name");
 		shp->m_collide = (!stricmp( xShape->Attribute("collide"), "true" ));
 		shp->m_pattern = (!stricmp( xShape->Attribute("pattern"), "true" ));
+		if (!stricmp( xShape->Attribute("blend"), "true" ))
+		{
+			shp->blendMode = Blend_NORMAL;
+		}
 
-		vec2f st0, st1;
+		vec2f st0, sz;
 		sscanf( xShape->Attribute("rect"), "%f,%f,%f,%f", 
 				&(st0.x), &(st0.y),
-				&(st1.x), &(st1.y) );		
+				&(sz.x), &(sz.y) );		
 	
-		shp->m_size = vec2f( st1.x - st0.y, st1.y - st0.y );
+		shp->m_size = sz;
 
 		// get texture and adjust sts
 		int texw, texh;
 		shp->m_texId = getTexture( std::string("gamedata/") + std::string(xShape->Attribute("map")),
 						&texw, &texh );
+
 		shp->st0 = st0 / (float)texw;
-		shp->st1 = st1 / (float)texh;
+		shp->st1 = (st0 + sz) / (float)texh;
 
 		m_shapes.push_back( shp );
 		xShape = xShape->NextSiblingElement( "Shape" );
 	}
 	
+	if (m_shapes.size())
+	{
+		m_activeShape = m_shapes[0];
+		m_actShapeIndex = 0;
+	}
+
 	// done
 	xmlDoc->Clear();
 	delete xmlDoc;

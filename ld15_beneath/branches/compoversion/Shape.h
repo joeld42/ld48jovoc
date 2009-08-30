@@ -3,6 +3,12 @@
 
 #include <prmath/prmath.hpp>
 
+enum {
+	Blend_OFF,
+	Blend_NORMAL,
+	Blend_ADD
+};
+
 class Shape
 {
 public:
@@ -11,11 +17,15 @@ public:
 	// takes a whole texture
 	static Shape *simpleShape( const std::string &texname );
 
+	// simple drawing, for cards and stuff.. 
+	void drawBraindead();	
+	void drawBraindeadQuad();	
 
 //protected:
 	Shape();
 
 	GLuint m_texId;
+	int blendMode;
 	
 	// corners of shape on texture
 	vec2f st0, st1;

@@ -20,6 +20,7 @@
 #include <il/ilu.h>
 #include <il/ilut.h>
 
+#include <tweakval.h>
 #include <Common.h>
 #include <Shape.h>
 
@@ -31,12 +32,13 @@ Shape::Shape()
 	st0 = vec2f( 0.0, 0.0 );
 	st1 = vec2f( 1.0, 1.0 );
 	pos = vec2f( 0, 0 );
+	blendMode = Blend_OFF;
 }
 
 Shape *Shape::simpleShape(const std::string &texname )
 {
 	Shape *shp = new Shape();
-
+	
 #if 0
 	ILuint ilImgId;
 	ilGenImages( 1, &ilImgId );
@@ -58,3 +60,28 @@ Shape *Shape::simpleShape(const std::string &texname )
 	return shp;
 }
 	
+void Shape::drawBraindead()
+{
+	glBindTexture( GL_TEXTURE_2D, m_texId );	
+	drawBraindeadQuad();
+}
+
+void Shape::drawBraindeadQuad()
+{
+	float zval = _TV( -0.1f );
+
+	glColor3f( 1.0, 1.0, 1.0 );
+	glBegin( GL_QUADS );
+	glTexCoord2d( st0.x, st1.y ); 
+	glVertex3f( pos.x, pos.y, zval);
+
+	glTexCoord2d( st0.x, st0.y  ); 
+	glVertex3f( pos.x, pos.y + m_size.y,zval );
+
+	glTexCoord2d( st1.x, st0.y );
+	glVertex3f( pos.x+m_size.x, pos.y + m_size.y, zval);
+
+	glTexCoord2d( st1.x, st1.y  ); 
+	glVertex3f( pos.x+m_size.x, pos.y, zval );
+	glEnd();
+}
