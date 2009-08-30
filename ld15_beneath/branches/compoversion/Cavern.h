@@ -34,6 +34,7 @@ public:
 	Cavern();
 
 	void loadLevel( const char *levelFile );
+	void saveLevel( const char *levelFile );
 
 	void addShape( Shape *s );
 

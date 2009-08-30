@@ -1,3 +1,4 @@
+#include <tinyxml.h>
 #include <Cavern.h>
 
 Cavern::Cavern():
@@ -5,11 +6,6 @@ Cavern::Cavern():
 	m_bgColor( 0.2, 0.2, 0.2 )
 {
 	
-}
-
-void Cavern::loadLevel( const char *levelFile )
-{
-	// TODO
 }
 
 bool cmp_Shapes( Shape *a, Shape *b)
@@ -80,4 +76,29 @@ void Cavern::draw()
 
 	}
 	glEnd();
+}
+
+void Cavern::saveLevel( const char *levelFile )
+{
+	TiXmlDocument *xmlDoc = new TiXmlDocument();
+	//TiXmlDeclarion *decl = new TiXmlDeclarion( "1.0", "", "" );
+
+	TiXmlElement *xCavern = new TiXmlElement( "Cavern" );
+
+	char bgcolorstr[1024];
+	sprintf( bgcolorstr, "%f,%f,%f", 
+			 m_bgColor.r, m_bgColor.g, m_bgColor.b );
+
+	xCavern->SetAttribute( "bgcolor", bgcolorstr );
+	xCavern->SetAttribute( "width", m_mapSize.x );
+	xCavern->SetAttribute( "height", m_mapSize.y );
+
+	//xmlDoc->LinkEndChild( decl );
+	xmlDoc->LinkEndChild( xCavern );
+	xmlDoc->SaveFile( levelFile );
+}
+
+void Cavern::loadLevel( const char *levelFile )
+{
+	// TODO
 }

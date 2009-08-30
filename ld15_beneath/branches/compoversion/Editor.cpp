@@ -66,12 +66,18 @@ void Editor::redraw()
 		
 		gfDrawString( "------[ EDITOR KEYS ]------\n" 
 			          "h - toggle this help\n" 
+					  "F2 - save level\n"
+					  "F3 - load level\n"
 	    			  "1,2,3 - New Level (small, med, large)\n" 					  
 					  "f - frame view\n" 
-					  "<,> - select shape\n" 
+					  "<,> - select brush\n" 
 					  "TAB - toggle editor/closeup\n" 
 					  "ARROWS - move view\n"
 					  "a,z,s,x - change sort\n"
+					  "o,p,brackets - brush size\n"
+					  "k,l - zoom view\n" 
+					  "mousewheel - rotate brush\n"
+					  "SPC, BTN1 - stamp brush\n"
 					  );			
 		gfEndText();
 	}	
@@ -115,7 +121,7 @@ void Editor::redraw()
 	glLoadIdentity();
 
 	// Draw the level grid
-	float zval = _TV( -0.001f );
+	float zval = _TV( -0.5f );
 	glColor3f( gridColor.r, gridColor.g, gridColor.b );
 	glDisable( GL_TEXTURE );
 
@@ -133,14 +139,14 @@ void Editor::redraw()
 	glBegin( GL_LINES );
 	for (float xpos=800; xpos < m_level->m_mapSize.x; xpos += 800.0)
 	{
-		glVertex3f( xpos, 0.0, 0.0 );
-		glVertex3f( xpos, m_level->m_mapSize.y, -0.0 );
+		glVertex3f( xpos, 0.0, zval );
+		glVertex3f( xpos, m_level->m_mapSize.y, zval );
 	}
 
 	for (float ypos = 600; ypos < m_level->m_mapSize.y; ypos += 600.0)
 	{
-		glVertex3f( 0.0, ypos, 0.0 );
-		glVertex3f( m_level->m_mapSize.x, ypos, 0.0 );
+		glVertex3f( 0.0, ypos, zval);
+		glVertex3f( m_level->m_mapSize.x, ypos, zval );
 	}
 	glEnd();
 
@@ -150,14 +156,14 @@ void Editor::redraw()
 	glBegin( GL_LINES );
 	for (float xpos=100; xpos < m_level->m_mapSize.x; xpos += 100.0)
 	{
-		glVertex3f( xpos, 0.0, 0.0 );
-		glVertex3f( xpos, m_level->m_mapSize.y, 0.0 );
+		glVertex3f( xpos, 0.0, zval );
+		glVertex3f( xpos, m_level->m_mapSize.y, zval );
 	}
 
 	for (float ypos = 100; ypos < m_level->m_mapSize.y; ypos += 100.0)
 	{
-		glVertex3f( 0.0, ypos, 0.0 );
-		glVertex3f( m_level->m_mapSize.x, ypos, 0.0 );
+		glVertex3f( 0.0, ypos,zval );
+		glVertex3f( m_level->m_mapSize.x, ypos, zval );
 	}
 	glEnd();
 	glDisable( GL_LINE_STIPPLE );
@@ -216,6 +222,16 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 	case SDLK_h:
 		m_showHelp = !m_showHelp;		
 		break;
+	case SDLK_F2:
+		if (m_level) m_level->saveLevel( "_editorLevel.xml" );
+		break;
+
+	case SDLK_F3:
+		delete m_level;
+		m_level = new Cavern();
+		m_level->loadLevel( "_editorLevel.xml" );
+		break;
+
 	case SDLK_f:
 		{
 			if (!m_level) return;
