@@ -38,6 +38,7 @@ public:
 	// Some of this is redundant, should have shape
 	// and shapeInstances, but keep it simple for the compoversion
 	std::string name;
+	std::string mapname;
 	bool m_collide;
 	bool m_pattern;
 	vec2f m_size;

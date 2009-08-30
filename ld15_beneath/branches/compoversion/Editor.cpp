@@ -229,7 +229,7 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 	case SDLK_F3:
 		delete m_level;
 		m_level = new Cavern();
-		m_level->loadLevel( "_editorLevel.xml" );
+		m_level->loadLevel( "_editorLevel.xml", m_shapes );
 		break;
 
 	case SDLK_f:
@@ -280,6 +280,8 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 
 			Shape *newShape = new Shape();
 			*newShape = *m_shapes[ m_actShapeIndex ];
+			printf("Current shape: %d %s\n", m_actShapeIndex, newShape->name.c_str() );
+
 			m_activeShape = newShape;
 		}
 		break;
@@ -293,6 +295,7 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 			
 			Shape *newShape = new Shape();
 			*newShape = *m_shapes[ m_actShapeIndex ];
+			printf("Current shape: %d %s\n", m_actShapeIndex, newShape->name.c_str() );
 			m_activeShape = newShape;
 		}
 		break;	
@@ -446,8 +449,8 @@ void Editor::loadShapes( const char *filename )
 
 		// get texture and adjust sts
 		int texw, texh;
-		shp->m_texId = getTexture( std::string("gamedata/") + std::string(xShape->Attribute("map")),
-						&texw, &texh );
+		shp->mapname = std::string("gamedata/") + std::string(xShape->Attribute("map"));
+		shp->m_texId = getTexture( shp->mapname, &texw, &texh );
 
 		shp->st0 = st0 / (float)texw;
 		shp->st1 = (st0 + sz) / (float)texh;
@@ -458,8 +461,12 @@ void Editor::loadShapes( const char *filename )
 	
 	if (m_shapes.size())
 	{
-		m_activeShape = m_shapes[0];
 		m_actShapeIndex = 0;
+
+		Shape *newShape = new Shape();
+		*newShape = *m_shapes[ m_actShapeIndex ];
+		m_activeShape = newShape;
+		
 	}
 
 	// done
