@@ -627,5 +627,8 @@ vec3f Editor::segColor( int type )
 	case SegType_KILL:
 		return vec3f( 1.0, 0.0, 0.0 );
 		break;
+	default:
+		return vec3f( 1.0, 1.0, 1.0 );
+		break;
 	}
 }

@@ -81,16 +81,16 @@ void Shape::drawBraindeadQuad()
 	
 	glBegin( GL_QUADS );
 	
-	doVert( vec2f( st0.x, st1.y ),
+	doVert( vec2f( st0.x, st0.y ),
 			vec3f( pos.x - (cv-sv), pos.y + (sv+cv), zval) );
 
-	doVert( vec2f( st0.x, st0.y  ),
+	doVert( vec2f( st0.x, st1.y  ),
 			vec3f( pos.x - (cv+sv), pos.y + (sv-cv), zval) );
 
-	doVert( vec2f( st1.x, st0.y ),
+	doVert( vec2f( st1.x, st1.y ),
 			vec3f( pos.x - (-cv+sv), pos.y + (-sv-cv), zval) );
 
-	doVert( vec2f( st1.x, st1.y  ),
+	doVert( vec2f( st1.x, st0.y  ),
 			vec3f( pos.x - (-cv-sv), pos.y + (-sv+cv), zval) );
 	
 	glEnd();

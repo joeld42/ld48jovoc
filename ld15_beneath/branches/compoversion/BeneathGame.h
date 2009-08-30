@@ -65,6 +65,8 @@ protected:
 	Editor *m_editor;
 
 	Shape *m_player;
+	// todo: put this in a player class
+	vec2f m_vel;
 
 	Cavern *m_level;
 

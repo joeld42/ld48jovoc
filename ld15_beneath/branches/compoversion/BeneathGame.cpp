@@ -11,7 +11,8 @@ BeneathGame::BeneathGame() :
 	m_editor( NULL ),
 	m_gameState( GameState_MENU ),
 	m_playtest( false ),
-	m_level( NULL )
+	m_level( NULL ),
+	m_vel( 0.0f, 0.0f )
 {
 }
 
@@ -38,29 +39,115 @@ void BeneathGame::updateSim( float dt )
 
 void BeneathGame::game_updateSim( float dt )
 {
-	vec2f playerDir( 0.0f, 0.0f );
+	vec2f thrustDir( 0.0f, 0.0f );
+	float rotateAmt = 0.0;
+	const float LATERAL_THRUST_AMT = _TV(1.0f);
+	const float FWD_THRUST_AMT = _TV(1.0f);
+	const float REV_THRUST_AMT = _TV(0.2f);
+	const float THRUST_AMT = _TV(1500.0f);
+	const float ROTATE_AMT = _TV(400.0f);
+	const float kDRAG = _TV(0.01f);
+	const float kDRAG2 = _TV(0.002f);
 
 	// Continuous (key state) keys
 	Uint8 *keyState = SDL_GetKeyState( NULL );
-	if ((keyState[SDLK_LEFT]) && (!keyState[SDLK_RIGHT]))
+
+	// rotation
+	if ( ((keyState[SDLK_LEFT]) && (!keyState[SDLK_RIGHT])) ||
+		 ((keyState[SDLK_a]) && (!keyState[SDLK_d])) )
 	{
-		playerDir.x = -1.0;
+		rotateAmt = -ROTATE_AMT;
 	}
-	else if ((!keyState[SDLK_LEFT]) && (keyState[SDLK_RIGHT]))
+	else if ( ((!keyState[SDLK_LEFT]) && (keyState[SDLK_RIGHT])) ||
+		     ((!keyState[SDLK_a]) && (keyState[SDLK_d])) )
 	{
-		playerDir.x = 1.0;
+		rotateAmt = ROTATE_AMT;
 	}
-	if ((keyState[SDLK_UP]) && (!keyState[SDLK_DOWN]))
+
+	// lateral thrust
+	if ((keyState[SDLK_q]) && (!keyState[SDLK_e]))		 
 	{
-		playerDir.y = 1.0;
+		thrustDir.x = -LATERAL_THRUST_AMT;
 	}
-	else if ((!keyState[SDLK_UP]) && (keyState[SDLK_DOWN]))
+	else if ((!keyState[SDLK_q]) && (keyState[SDLK_e]))		     
 	{
-		playerDir.y = -1.0;
+		thrustDir.x = LATERAL_THRUST_AMT;
+	}
+
+	// forward/backward
+	if ( ((keyState[SDLK_UP]) && (!keyState[SDLK_DOWN])) ||
+		 ((keyState[SDLK_w]) && (!keyState[SDLK_s])) )
+	{
+		thrustDir.y = FWD_THRUST_AMT;
+	}
+	else if ( ((!keyState[SDLK_UP]) && (keyState[SDLK_DOWN])) ||
+				((!keyState[SDLK_w]) && (keyState[SDLK_s])) )
+	{
+		thrustDir.y = -REV_THRUST_AMT;
+	}
+
+	printf( "thrust Dir %f %f\n", thrustDir.x, thrustDir.y );
+
+	m_player->angle += rotateAmt *dt;
+
+	// rotate thrust dir
+	thrustDir = RotateZ( thrustDir, -(float)(m_player->angle * D2R) );
+
+
+	// calc drag
+	float l = Length( m_vel );
+	if (l > 0.1)
+	{
+		vec2f dragDir = -m_vel;		
+		
+		float kDrag = kDRAG * l + kDRAG2 * l * l;		
+		dragDir.Normalize();
+		dragDir *= kDrag;
+
+		m_vel += dragDir * dt;
+	}
+	else
+	{
+		m_vel = vec2f( 0.0f, 0.0f );
 	}
 
 	// update player
-	m_player->pos += playerDir * _TV( 100.0f ) * dt;
+	m_vel += thrustDir * THRUST_AMT * dt;
+
+	// Check for collisions	
+	vec2f newPos = m_player->pos + m_vel * dt;
+	bool collision = false;
+	if (m_level)
+	{
+		for (int i=0; i < m_level->m_collision.size(); i++)
+		{
+			Segment &s = m_level->m_collision[i];
+			vec2f p;
+			float d = distPointLine( s.a, s.b, newPos, p );						
+			
+			if (d < m_player->m_size.x * 0.7)
+			{
+				// collide
+				if (s.segType == SegType_COLLIDE)
+				{
+
+					printf("COLLISION: dist %f player %3.2f %3.2f seg %3.2f %3.2f -> %3.2f %3.2f\n", 
+						d, m_player->pos.x, m_player->pos.y,
+						s.a.x, s.a.y, s.b.x, s.b.y
+						);
+					collision = true;
+					m_vel =- m_vel;
+					break;
+				}
+				// TODO: Dialoge and kill
+			}
+		}
+	}	
+
+	if (!collision)
+	{
+		m_player->pos = newPos;
+	}
 }
 
 // "as fast as possible" update for effects and stuff
@@ -156,7 +243,7 @@ void BeneathGame::game_redraw()
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 
-	vec2f gameview(m_player->pos.x - 400, m_player->pos.y -100 );
+	vec2f gameview(m_player->pos.x - 400, m_player->pos.y - 300 );
 	pseudoOrtho2D( gameview.x, gameview.x + 800,
 					gameview.y, gameview.y + 600 );
 
@@ -172,6 +259,47 @@ void BeneathGame::game_redraw()
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );		
 
 	m_player->drawBraindead();
+
+	// debug collsion stuff
+#if 1
+	if (m_level)
+	{
+		glDisable( GL_TEXTURE_2D );
+		glBegin( GL_LINES );
+		for (int i=0; i < m_level->m_collision.size(); i++)
+		{
+			Segment &s = m_level->m_collision[i];
+			glColor3f( 1.0f, 1.0f, 0.0f );
+			glVertex3f( s.a.x, s.a.y, 0.0f );
+			glVertex3f( s.b.x, s.b.y, 0.0f );
+
+			// draw distance to seg
+			glColor3f( 0.0, 1.0f, 1.0f );
+			vec2f p;
+			float d = distPointLine( s.a, s.b, m_player->pos.y, p );
+			glVertex3f( m_player->pos.x, m_player->pos.y, 0.0 );
+			glVertex3f( p.x, p.y, 0.0 );
+
+		}
+		glEnd();
+
+		
+
+
+		// draw player radius
+		glColor3f( 1.0f, 0.0f, 1.0f );
+		glBegin( GL_LINE_LOOP );
+		float rad = m_player->m_size.x * 0.7;
+		for (float t=0; t < 2*M_PI; t += (M_PI/10.0) )
+		{
+			float s = sin(t);
+			float c = cos(t);
+			glVertex3f( m_player->pos.x + c * rad,
+						m_player->pos.y + s * rad, 0.0 );
+		}
+		glEnd();
+	}
+#endif
 }
 
 void BeneathGame::keypress( SDL_KeyboardEvent &key )
@@ -233,6 +361,21 @@ void BeneathGame::mouse( SDL_MouseButtonEvent &mouse )
 
 void BeneathGame::game_keypress( SDL_KeyboardEvent &key )
 {
+	switch (key.keysym.sym)
+	{
+	case SDLK_F5:
+		//DBG: reset start pos
+		m_vel = vec2f( 0.0f, 0.0f );
+		if (m_level) {
+			m_player->pos = m_level->m_spawnPoint;
+		}
+		else
+		{
+			m_player->pos = vec2f( 0.0f, 0.0f );
+		}
+		break;
+	}
+
 }
 
 
@@ -298,4 +441,27 @@ void pseudoOrtho2D( double left, double right, double bottom, double top )
 			   left + w2, bottom + h2, 0.0,
 			   0.0, 1.0, 0.0 );
 #endif
+}
+
+float distPointLine( const vec2f &a, const vec2f &b, const vec2f &c, vec2f &p )
+{
+	vec2f ab = b-a;
+	float lmag2 = LengthSquared(ab);
+	float r = ((c.x - a.x)*(b.x-a.x) + (c.y-a.y)*(b.y-a.y)) / lmag2;
+
+	if (r < 0.0f )
+	{
+		p = a;
+		return Length(a-c);
+	}
+	else if (r > 1.0f)
+	{
+		p = b;
+		return Length(b-c);
+	}
+	else
+	{
+		p=a + r * ab;
+		return Length( c-p );
+	}
 }
