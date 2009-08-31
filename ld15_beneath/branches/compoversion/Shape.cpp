@@ -74,8 +74,10 @@ void Shape::drawBraindeadQuad()
 {
 	float zval = -sortNum / 10000.0f;
 
+#if 1
 	float sv = sin( angle * D2R ) * m_size.x;
-	float cv = cos( angle * D2R ) * m_size.y;	
+	float cv = cos( angle * D2R ) * m_size.y;		
+
 
 	glColor3f( 1.0, 1.0, 1.0 );
 	
@@ -94,6 +96,26 @@ void Shape::drawBraindeadQuad()
 			vec3f( pos.x - (-cv-sv), pos.y + (-sv+cv), zval) );
 	
 	glEnd();
+#else
+
+	glColor3f( 1.0, 1.0, 1.0 );	
+	glBegin( GL_QUADS );
+	
+	vec2f p =  RotateZ( vec2f( -m_size.x, -m_size.y), (float)D2R*angle );
+	doVert( vec2f( st0.x, st0.y ), vec3f( pos.x+p.x, pos.y+p.y, zval) );
+
+	p = RotateZ( vec2f( -m_size.x, -m_size.y), (float)D2R*angle );
+	doVert( vec2f( st0.x, st1.y ), vec3f( pos.x+p.x, pos.y+p.y, zval) );
+	
+	p = RotateZ( vec2f( -m_size.x, -m_size.y), (float)D2R*angle );
+	doVert( vec2f( st1.x, st1.y ), vec3f( pos.x+p.x, pos.y+p.y, zval) );
+	
+	p = RotateZ( vec2f( -m_size.x, -m_size.y), (float)D2R*angle );
+	doVert( vec2f( st1.x, st0.y ), vec3f( pos.x+p.x, pos.y+p.y, zval) );
+
+	glEnd();
+#endif
+
 }
 
 void Shape::doVert( vec2f &st, vec3f &pos )

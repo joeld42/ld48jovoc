@@ -35,7 +35,7 @@ using namespace std;
 void errorMessage( std::string msg )
 {
 	// todo: on linux or other OS, just printf
-	MessageBoxA( NULL, msg.c_str(), "ld15_beneath ERROR", MB_OK | MB_ICONSTOP );
+	MessageBoxA( NULL, msg.c_str(), "ld15_cavern ERROR", MB_OK | MB_ICONSTOP );
 }
 
 //============================================================================
@@ -45,7 +45,7 @@ int main( int argc, char *argv[] )
 	// I can't live without my precious printf's
 #ifndef NDEBUG
 	AllocConsole();
-	SetConsoleTitle( L"ld15_beneath CONSOLE" );
+	SetConsoleTitle( L"ld15_cavern CONSOLE" );
 	freopen("CONOUT$", "w", stdout );
 #endif
 
@@ -73,7 +73,7 @@ int main( int argc, char *argv[] )
 	}
 		
 
-	SDL_WM_SetCaption( "LD15 Beneath", NULL );
+	SDL_WM_SetCaption( "LD15 Cavern Game", NULL );
 
 	// seed rand
 	srand( time(0) );

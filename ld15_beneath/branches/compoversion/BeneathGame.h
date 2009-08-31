@@ -44,6 +44,8 @@ public:
 	void game_update( float dt );
 	void game_keypress( SDL_KeyboardEvent &key );
 	
+	void loadShapes( const char *filename );
+
 	// generic stuff
 	void redraw();
 	void init();
@@ -69,6 +71,7 @@ protected:
 	vec2f m_vel;
 
 	Cavern *m_level;
+	std::vector<Shape*> m_shapes;
 
 	// debug/info font
 	GLuint m_glFontTexId;

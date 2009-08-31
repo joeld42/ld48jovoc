@@ -13,7 +13,7 @@ const char *SegTypeNames[] = {
 
 Cavern::Cavern():
 	m_mapSize( 2400, 4800 ),
-	m_bgColor( 0.2, 0.2, 0.2 ),
+	m_bgColor( 30.0/256.0, 47.0/256.0, 49.0/256.0 ),
 	m_spawnPoint( 0.0f, 0.0f )
 {	
 }

@@ -6,6 +6,8 @@
 #include <Common.h>
 #include <BeneathGame.h>
 
+#include <TinyXml.h>
+
 BeneathGame::BeneathGame() :
 	m_isInit( false ),
 	m_editor( NULL ),
@@ -139,7 +141,14 @@ void BeneathGame::game_updateSim( float dt )
 					m_vel =- m_vel;
 					break;
 				}
-				// TODO: Dialoge and kill
+				else if (s.segType == SegType_KILL)
+				{
+					// TODO: reset level properly
+					m_vel = vec2f( 0.0f, 0.0f );					
+					m_player->pos = m_level->m_spawnPoint;		
+					collision = true;
+				}
+				// TODO: Dialoge
 			}
 		}
 	}	
@@ -180,6 +189,10 @@ void BeneathGame::init()
 
 	printf("font has %d chars\n", 
 		gfGetFontMetric( m_fntFontId, GF_FONT_NUMCHARS ) );					
+
+
+	// load all shapes
+	loadShapes( "gamedata/shapes_Test.xml" );
 
 	// Now load game shapes
 	m_player = Shape::simpleShape( "gamedata/player.png" );
@@ -223,7 +236,7 @@ void BeneathGame::redraw()
 		gfEnableFont( m_fntFontId, 32 );	
 		gfBeginText();
 		glTranslated( _TV(260), _TV(500), 0 );
-		gfDrawString( "The World Beneath" );
+		gfDrawString( "LD15 Cavern Game" );
 		gfEndText();
 
 		// Bottom text
@@ -261,7 +274,7 @@ void BeneathGame::game_redraw()
 	m_player->drawBraindead();
 
 	// debug collsion stuff
-#if 1
+#if 0
 	if (m_level)
 	{
 		glDisable( GL_TEXTURE_2D );
@@ -333,7 +346,11 @@ void BeneathGame::keypress( SDL_KeyboardEvent &key )
 		switch( key.keysym.sym )
 		{
 		case SDLK_SPACE:			
+			m_level = new Cavern();
+			m_level->loadLevel( "level.xml", m_shapes );
 			m_gameState = GameState_GAME;
+			m_vel = vec2f( 0.0f, 0.0f );					
+			m_player->pos = m_level->m_spawnPoint;		
 			break;
 
 		case SDLK_F8:
@@ -342,8 +359,7 @@ void BeneathGame::keypress( SDL_KeyboardEvent &key )
 				m_gameState = GameState_EDITOR;
 				if (!m_editor)
 				{
-					m_editor = new Editor( m_fntFontId );
-					m_editor->loadShapes( "gamedata/shapes_Test.xml" );
+					m_editor = new Editor( m_fntFontId, m_shapes );					
 				}
 			}
 			break;
@@ -376,6 +392,58 @@ void BeneathGame::game_keypress( SDL_KeyboardEvent &key )
 		break;
 	}
 
+}
+
+void BeneathGame::loadShapes( const char *filename )
+{
+	TiXmlDocument *xmlDoc = new TiXmlDocument( filename );
+
+	if (!xmlDoc->LoadFile() ) {
+		printf("ERR! Can't load %s\n", filename );
+	}
+
+	TiXmlElement *xShapeList, *xShape;
+	//TiXmlNode *xText;
+
+	xShapeList = xmlDoc->FirstChildElement( "ShapeList" );
+	assert( xShapeList );
+
+	xShape = xShapeList->FirstChildElement( "Shape" );
+	while (xShape) 
+	{
+		Shape *shp = new Shape();
+		
+		shp->name = xShape->Attribute("name");
+		shp->m_collide = (!stricmp( xShape->Attribute("collide"), "true" ));
+		shp->m_pattern = (!stricmp( xShape->Attribute("pattern"), "true" ));
+		if (!stricmp( xShape->Attribute("blend"), "true" ))
+		{
+			shp->blendMode = Blend_NORMAL;
+		}
+
+		vec2f st0, sz;
+		sscanf( xShape->Attribute("rect"), "%f,%f,%f,%f", 
+				&(st0.x), &(st0.y),
+				&(sz.x), &(sz.y) );		
+	
+		shp->m_size = sz;
+		shp->m_origSize = sz;
+
+		// get texture and adjust sts
+		int texw, texh;
+		shp->mapname = std::string("gamedata/") + std::string(xShape->Attribute("map"));
+		shp->m_texId = getTexture( shp->mapname, &texw, &texh );
+
+		shp->st0 = st0 / (float)texw;
+		shp->st1 = (st0 + sz) / (float)texh;
+
+		m_shapes.push_back( shp );
+		xShape = xShape->NextSiblingElement( "Shape" );
+	}
+		
+	// done
+	xmlDoc->Clear();
+	delete xmlDoc;
 }
 
 

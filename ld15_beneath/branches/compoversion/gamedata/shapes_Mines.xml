@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <ShapeList>
+      <Shape blend="False" collide="False" map="Mines_shapes.png" name="cavebg" pattern="False" rect="0,0,256,256" relief="in"/>
+      <Shape blend="False" collide="True" map="Mines_shapes.png" name="chunk1" pattern="False" rect="256,0,256,128" relief="none"/>
+      <Shape blend="False" collide="True" map="Mines_shapes.png" name="chunk2" pattern="False" rect="256,128,128,128" relief="none"/>
+      <Shape blend="False" collide="True" map="Mines_shapes.png" name="chunk3" pattern="False" rect="384,128,128,128" relief="none"/>
+      <Shape blend="False" collide="True" map="Mines_shapes.png" name="chunk4" pattern="False" rect="512,0,256,128" relief="none"/>
+      <Shape blend="False" collide="True" map="Mines_shapes.png" name="plant" pattern="False" rect="0,256,130,444" relief="none"/>
+      <Shape blend="False" collide="True" map="Mines_shapes.png" name="rock1" pattern="False" rect="512,128,128,128" relief="none"/>
+      <Shape blend="False" collide="True" map="Mines_shapes.png" name="rock2" pattern="False" rect="640,128,128,128" relief="none"/>
+      <Shape blend="False" collide="True" map="rock_PC.png" name="rock" pattern="True" rect="0,0,256,256" relief="none"/>
+      <Shape blend="False" collide="True" map="Mines_shapes.png" name="tall" pattern="False" rect="768,0,32,64" relief="none"/>
+      <Shape blend="False" collide="True" map="Mines_shapes.png" name="wide" pattern="False" rect="800,0,64,32" relief="none"/>
+    </ShapeList>

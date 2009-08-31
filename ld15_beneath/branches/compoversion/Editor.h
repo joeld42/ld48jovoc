@@ -6,7 +6,7 @@
 class Editor
 {
 public:
-	Editor( GLuint fntID );
+	Editor( GLuint fntID, std::vector<Shape*> &shapes );
 
 	void update( float dt );
 	void redraw();
@@ -14,9 +14,7 @@ public:
 	void mousepress( SDL_MouseButtonEvent &mouse );
 
 	void newLevel( vec2f size );
-	void stampActiveShape();
-
-	void loadShapes( const char *filename );
+	void stampActiveShape();	
 
 	enum {
 		Tool_SELECT,
@@ -52,7 +50,7 @@ public:
 	std::vector<Shape*> m_selShapes;
 	
 	// all shapes we can pick from
-	std::vector<Shape*> m_shapes;
+	std::vector<Shape*> &m_shapes;
 
 	size_t m_actShapeIndex;
 	Shape *m_activeShape;

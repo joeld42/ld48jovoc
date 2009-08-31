@@ -30,6 +30,10 @@ class Shape( object ):
         self.pattern = False
         self.relief = "none" # ( 'none', 'in', 'out' )
 
+    def __cmp__( self, other ):
+        print "in cmp"
+        return self.img.size[0] < other.img.size[0]
+
 
 class PackNode:
     def __init__( self, r ):
@@ -97,6 +101,9 @@ class PackNode:
 def packShapes( shapes, destmap ):
     packSize = 32
     packed = False
+
+    shapes.sort()
+
     while (not packed) and (packSize < 2048):
         print "Pack trying size ", packSize
         rootR = Rect( 0, 0, packSize, packSize )

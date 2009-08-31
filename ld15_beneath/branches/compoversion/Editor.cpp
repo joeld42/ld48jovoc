@@ -6,7 +6,8 @@
 
 #include <tinyxml.h>
 
-Editor::Editor( GLuint fntID )
+Editor::Editor( GLuint fntID, std::vector<Shape*> &shapes ) : 
+		m_shapes( shapes )
 {
 	m_fntFontId = fntID;
 	m_level = NULL;
@@ -25,6 +26,17 @@ Editor::Editor( GLuint fntID )
 	isInit = false;
 	drawLine = false;
 	currSegType = SegType_COLLIDE;
+
+	if (m_shapes.size())
+	{
+		m_actShapeIndex = 0;
+
+		Shape *newShape = new Shape();
+		*newShape = *m_shapes[ m_actShapeIndex ];
+		m_activeShape = newShape;
+		
+	}
+
 }
 
 void Editor::frameView()
@@ -540,67 +552,6 @@ void Editor::update( float dt )
 	}
 }
 
-void Editor::loadShapes( const char *filename )
-{
-	TiXmlDocument *xmlDoc = new TiXmlDocument( filename );
-
-	if (!xmlDoc->LoadFile() ) {
-		printf("ERR! Can't load %s\n", filename );
-	}
-
-	TiXmlElement *xShapeList, *xShape;
-	//TiXmlNode *xText;
-
-	xShapeList = xmlDoc->FirstChildElement( "ShapeList" );
-	assert( xShapeList );
-
-	xShape = xShapeList->FirstChildElement( "Shape" );
-	while (xShape) 
-	{
-		Shape *shp = new Shape();
-		
-		shp->name = xShape->Attribute("name");
-		shp->m_collide = (!stricmp( xShape->Attribute("collide"), "true" ));
-		shp->m_pattern = (!stricmp( xShape->Attribute("pattern"), "true" ));
-		if (!stricmp( xShape->Attribute("blend"), "true" ))
-		{
-			shp->blendMode = Blend_NORMAL;
-		}
-
-		vec2f st0, sz;
-		sscanf( xShape->Attribute("rect"), "%f,%f,%f,%f", 
-				&(st0.x), &(st0.y),
-				&(sz.x), &(sz.y) );		
-	
-		shp->m_size = sz;
-		shp->m_origSize = sz;
-
-		// get texture and adjust sts
-		int texw, texh;
-		shp->mapname = std::string("gamedata/") + std::string(xShape->Attribute("map"));
-		shp->m_texId = getTexture( shp->mapname, &texw, &texh );
-
-		shp->st0 = st0 / (float)texw;
-		shp->st1 = (st0 + sz) / (float)texh;
-
-		m_shapes.push_back( shp );
-		xShape = xShape->NextSiblingElement( "Shape" );
-	}
-	
-	if (m_shapes.size())
-	{
-		m_actShapeIndex = 0;
-
-		Shape *newShape = new Shape();
-		*newShape = *m_shapes[ m_actShapeIndex ];
-		m_activeShape = newShape;
-		
-	}
-
-	// done
-	xmlDoc->Clear();
-	delete xmlDoc;
-}
 
 void Editor::stampActiveShape()
 {
