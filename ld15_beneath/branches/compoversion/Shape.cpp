@@ -59,8 +59,7 @@ Shape *Shape::simpleShape(const std::string &texname )
 	
 	int w, h;
 	shp->m_texId = getTexture( texname, &w, &h );
-	shp->m_size = vec2f( w, h );
-	printf("LOADED %s, %d x %d\n", texname.c_str(), w, h );
+	shp->m_size = vec2f( w, h );	
 
 	return shp;
 }

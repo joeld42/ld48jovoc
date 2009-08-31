@@ -383,9 +383,9 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 		if (m_level) 
 		{
 			m_level->m_spawnPoint = m_mousePos;
-			printf("Spawn Pos: %f %f\n", 
-				m_level->m_spawnPoint.x,
-				m_level->m_spawnPoint.y );
+			//printf("Spawn Pos: %f %f\n", 
+			//	m_level->m_spawnPoint.x,
+			//	m_level->m_spawnPoint.y );
 		}
 		break;
 
@@ -398,7 +398,7 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 
 			Shape *newShape = new Shape();
 			*newShape = *m_shapes[ m_actShapeIndex ];
-			printf("Current shape: %d %s\n", m_actShapeIndex, newShape->name.c_str() );
+			//printf("Current shape: %d %s\n", m_actShapeIndex, newShape->name.c_str() );
 
 			m_activeShape = newShape;
 		}
@@ -413,7 +413,7 @@ void Editor::keypress( SDL_KeyboardEvent &key )
 			
 			Shape *newShape = new Shape();
 			*newShape = *m_shapes[ m_actShapeIndex ];
-			printf("Current shape: %d %s\n", m_actShapeIndex, newShape->name.c_str() );
+			//printf("Current shape: %d %s\n", m_actShapeIndex, newShape->name.c_str() );
 			m_activeShape = newShape;
 		}
 		break;	

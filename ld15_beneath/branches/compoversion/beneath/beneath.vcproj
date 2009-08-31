@@ -137,7 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="tinyxml.lib DevIL.lib ILU.lib ILUT.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;c:\toolkits\SDL-1.2.4\lib&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\lib&quot;;c:\toolkits\tinyxml\Release"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -233,6 +235,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Shape.h"
 				>
 			</File>
@@ -246,6 +252,18 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath="..\cavegame.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\icon1.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\shipgame.rc"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
