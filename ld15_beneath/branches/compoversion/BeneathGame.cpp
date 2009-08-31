@@ -420,6 +420,7 @@ void BeneathGame::loadShapes( const char *filename )
 		{
 			shp->blendMode = Blend_NORMAL;
 		}
+		shp->m_relief = (!stricmp( xShape->Attribute("relief"), "in" ));
 
 		vec2f st0, sz;
 		sscanf( xShape->Attribute("rect"), "%f,%f,%f,%f", 
@@ -496,7 +497,7 @@ GLuint getTexture( const std::string &filename, int *xsize, int *ysize )
 
 void pseudoOrtho2D( double left, double right, double bottom, double top )
 {
-#if 1
+#if 0
 	// for now, real ortho
 	gluOrtho2D( left, right, bottom, top );
 #else	

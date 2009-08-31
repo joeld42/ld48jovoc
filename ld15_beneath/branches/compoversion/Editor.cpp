@@ -55,8 +55,8 @@ void Editor::initEditor()
 	float iconHite = 32.0 / 512.0;
 	iconSpawnPoint = Shape::simpleShape( "gamedata/ed_icons.png" );
 	iconSpawnPoint->m_size = vec2f( 32, 32 );
-	iconSpawnPoint->st0.y = iconHite;
-	iconSpawnPoint->st1.y = 0;
+	iconSpawnPoint->st1.y = iconHite;
+	iconSpawnPoint->st0.y = 0;
 }
 
 void Editor::redraw()
@@ -276,6 +276,7 @@ void Editor::redraw()
 					  "o,p,brackets - brush size\n"
 					  "k,l - zoom view\n" 
 					  "8,9 - segment type\n"
+					  "0 - spawn point\n"
 					  "mousewheel - rotate brush\n"
 					  "SPC, LMB - stamp brush\n"
 					  "Drag RMB - draw segment\n"

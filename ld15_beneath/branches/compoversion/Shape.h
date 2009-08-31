@@ -41,6 +41,7 @@ public:
 	std::string mapname;
 	bool m_collide;
 	bool m_pattern;
+	bool m_relief; // pseudo-3d effect
 	vec2f m_size;
 	vec2f m_origSize;
 };

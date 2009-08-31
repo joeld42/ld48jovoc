@@ -34,6 +34,7 @@ Shape::Shape()
 	pos = vec2f( 0, 0 );
 	blendMode = Blend_OFF;
 	m_pattern = false;
+	m_relief = false;
 
 	angle = 0;
 	sortNum = 1000;
@@ -78,24 +79,38 @@ void Shape::drawBraindeadQuad()
 	float sv = sin( angle * D2R ) * m_size.x;
 	float cv = cos( angle * D2R ) * m_size.y;		
 
+	glColor3f( 1.0, 1.0, 1.0 );	
+	if (!m_relief)
+	{	
+		glBegin( GL_QUADS );	
+		doVert( vec2f( st0.x, st0.y ),
+				vec3f( pos.x - (cv-sv), pos.y + (sv+cv), zval) );
+		doVert( vec2f( st0.x, st1.y  ),
+				vec3f( pos.x - (cv+sv), pos.y + (sv-cv), zval) );
+		doVert( vec2f( st1.x, st1.y ),
+				vec3f( pos.x - (-cv+sv), pos.y + (-sv-cv), zval) );
+		doVert( vec2f( st1.x, st0.y  ),
+				vec3f( pos.x - (-cv-sv), pos.y + (-sv+cv), zval) );	
+		glEnd();
+	}
+	else
+	{
+		glBegin( GL_TRIANGLE_FAN );	
+		doVert( vec2f( st0.x + st1.x/2.0f, st0.y + st1.y/2.0f ),
+				vec3f( pos.x, pos.y, zval - 0.5) );
 
-	glColor3f( 1.0, 1.0, 1.0 );
-	
-	glBegin( GL_QUADS );
-	
-	doVert( vec2f( st0.x, st0.y ),
-			vec3f( pos.x - (cv-sv), pos.y + (sv+cv), zval) );
-
-	doVert( vec2f( st0.x, st1.y  ),
-			vec3f( pos.x - (cv+sv), pos.y + (sv-cv), zval) );
-
-	doVert( vec2f( st1.x, st1.y ),
-			vec3f( pos.x - (-cv+sv), pos.y + (-sv-cv), zval) );
-
-	doVert( vec2f( st1.x, st0.y  ),
-			vec3f( pos.x - (-cv-sv), pos.y + (-sv+cv), zval) );
-	
-	glEnd();
+		doVert( vec2f( st0.x, st0.y ),
+				vec3f( pos.x - (cv-sv), pos.y + (sv+cv), zval) );
+		doVert( vec2f( st0.x, st1.y  ),
+				vec3f( pos.x - (cv+sv), pos.y + (sv-cv), zval) );
+		doVert( vec2f( st1.x, st1.y ),
+				vec3f( pos.x - (-cv+sv), pos.y + (-sv-cv), zval) );
+		doVert( vec2f( st1.x, st0.y  ),
+				vec3f( pos.x - (-cv-sv), pos.y + (-sv+cv), zval) );	
+		doVert( vec2f( st0.x, st0.y ),
+				vec3f( pos.x - (cv-sv), pos.y + (sv+cv), zval) );
+		glEnd();
+	}
 #else
 
 	glColor3f( 1.0, 1.0, 1.0 );	

@@ -237,6 +237,8 @@ void Cavern::loadLevel( const char *levelFile, std::vector<Shape*> &shapeList )
 				shp->m_origSize = shapeList[i]->m_origSize;
 				shp->st0 = shapeList[i]->st0;
 				shp->st1 = shapeList[i]->st1;
+				shp->m_relief = shapeList[i]->m_relief;
+
 				found = true;
 				break;
 			}
