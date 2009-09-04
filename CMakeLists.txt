@@ -35,6 +35,11 @@ IF (UNIX)
 ENDIF (UNIX)
 
 # ==================================================
+#  External dependencies
+# ==================================================
+ADD_SUBDIRECTORY( extern/jpgd )
+
+# ==================================================
 # LD1 - Zillagame
 #     Depdencies: Glut, OpenGL, PNG
 # 
