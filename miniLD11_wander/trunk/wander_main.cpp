@@ -187,8 +187,8 @@ void dbgRecolorTileset()
     
     for (int i=0; i < TileMap::m_tileset.size(); ++i )
     {
-        TileMap::m_tileset[i] = makeTileVariant( origTiles[i], pal );        
-        printf("Updated tile %d\n", i )
+        TileMap::m_tileset[i] = makeTileVariant( origTiles[i], pal );
+        printf("Updated tile %d\n", i );        
     }
 }
 

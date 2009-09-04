@@ -45,11 +45,11 @@ endif (OPENGL_FOUND AND GLUT_FOUND)
 
 # ==================================================
 # LD4 - Bad Food
-#     Dependancies: Allegro, Alfont
+#     Dependancies: Allegro, Alfont, libjpgd
 # ==================================================
-#if (ALLEGRO_FOUND)
-#   ADD_SUBDIRECTORY( ld4_BadFood/trunk )
-#endif (ALLEGRO_FOUND)
+if (ALLEGRO_FOUND)
+   ADD_SUBDIRECTORY( ld4_BadFood/trunk )
+endif (ALLEGRO_FOUND)
 
 # ==================================================
 # LD7 - Kudzu

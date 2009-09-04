@@ -1,4 +1,6 @@
-#include <crtdbg.h>
+#ifdef WIN32
+# include <crtdbg.h>
+#endif
 
 #include <allegro.h>
 #include <alfont.h>
