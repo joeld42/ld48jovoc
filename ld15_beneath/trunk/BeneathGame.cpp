@@ -2,6 +2,7 @@
 
 #include <tweakval.h>
 #include <gamefontgl.h>
+#include <jimgui.h>
 
 #include <Common.h>
 #include <BeneathGame.h>
@@ -14,13 +15,43 @@ BeneathGame::BeneathGame() :
 	m_gameState( GameState_MENU ),
 	m_playtest( false ),
 	m_level( NULL ),
-	m_vel( 0.0f, 0.0f )
+	m_vel( 0.0f, 0.0f ),
+	m_uiCtx( NULL ),
+	m_done( false )
 {
 }
 
+BeneathGame::~BeneathGame()
+{
+	delete m_editor;
+	delete m_level;
+	delete m_uiCtx;
+}
+
+bool BeneathGame::done()
+{
+	return m_done;
+}
+
+void BeneathGame::done( bool i_am_done )
+{
+	m_done = i_am_done;
+}
 
 void BeneathGame::update( float dt )
 {
+	// Update the UI context		
+	if (m_uiCtx)
+	{
+		int mx, my;
+		GLuint btns = SDL_GetMouseState( &mx, &my );		
+		my = 600-my;
+		m_uiCtx->m_mouseX = mx;
+		m_uiCtx->m_mouseY = my;		
+		m_uiCtx-> m_buttonState = btns;		
+	}
+	
+	// Update current game state
 	if (m_gameState==GameState_GAME)
 	{
 		game_update( dt );
@@ -147,7 +178,7 @@ void BeneathGame::game_updateSim( float dt )
 					m_player->pos = m_level->m_spawnPoint;		
 					collision = true;
 				}
-				// TODO: Dialoge
+				// TODO: Dialogue
 			}
 		}
 	}	
@@ -196,24 +227,32 @@ void BeneathGame::init()
 	// Now load game shapes
 	m_player = Shape::simpleShape( "gamedata/player.png" );
 	m_player->pos = vec2f( 300, 200 );
+
+	// Init UI context
+	m_uiCtx = new Jgui_UIContext();
+	Jgui_initContext( m_uiCtx );
 }
 	
 void BeneathGame::redraw()
 {	
+	// Init if needed
 	if (!m_isInit)
 	{
 		m_isInit = true;
 		init();
 	}
+
+	// set up view
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 
 	pseudoOrtho2D( 0, 800, 0, 600 ) ;
 
-
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
+	
 
+	// Draw the game
 	if (m_gameState == GameState_GAME )
 	{
 		game_redraw();
@@ -230,6 +269,7 @@ void BeneathGame::redraw()
 		glClearColor( _TV( 0.1f ), _TV(0.2f), _TV( 0.4f ), 1.0 );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+		glColor3f( _TV(1.0f), _TV(1.0f), _TV(1.0f) );
 		
 		// Title text
 		gfEnableFont( m_fntFontId, 32 );	
@@ -244,7 +284,33 @@ void BeneathGame::redraw()
 		glTranslated( _TV(180), _TV(10), 0 );
 		gfDrawString( "LudumDare 15 - Joel Davis (joeld42@yahoo.com)" );
 		gfEndText();
+
+		// Main Menu Buttons
+		glDisable( GL_TEXTURE_2D );
+		glEnable( GL_BLEND );
+		glColor3f( _TV(0.0f), _TV(1.0f), _TV(1.0f) );
+
+		// New Game
+		if (Jgui_doButton( 1, m_uiCtx, "New Game", m_fntFontId, 20, 
+						_TV(365), _TV(350),_TV( 125), _TV(30) ) )
+		{
+			newGame();
+		}
+		if (Jgui_doButton( 2, m_uiCtx, "Editor", m_fntFontId, 20, 
+						_TV(365), _TV(300),_TV( 125), _TV(30) ) )
+		{
+			startEditor();
+		}
+		if (Jgui_doButton( 3, m_uiCtx, "Quit", m_fntFontId, 20, 
+						_TV(365), _TV(250),_TV( 125), _TV(30) ) )
+		{
+			m_done = true;
+		}
+
 	}
+
+	// kick the UI stuff
+	Jgui_frameDone( m_uiCtx );
 }
 
 void BeneathGame::game_redraw()
@@ -345,22 +411,11 @@ void BeneathGame::keypress( SDL_KeyboardEvent &key )
 		switch( key.keysym.sym )
 		{
 		case SDLK_SPACE:			
-			m_level = new Cavern();
-			m_level->loadLevel( "level.xml", m_shapes );
-			m_gameState = GameState_GAME;
-			m_vel = vec2f( 0.0f, 0.0f );					
-			m_player->pos = m_level->m_spawnPoint;		
+			newGame();			
 			break;
 
-		case SDLK_F8:
-			{
-				// switch to editor
-				m_gameState = GameState_EDITOR;
-				if (!m_editor)
-				{
-					m_editor = new Editor( m_fntFontId, m_shapes );					
-				}
-			}
+		case SDLK_F8:			
+			startEditor();			
 			break;
 		}
 	}
@@ -444,6 +499,25 @@ void BeneathGame::loadShapes( const char *filename )
 	// done
 	xmlDoc->Clear();
 	delete xmlDoc;
+}
+
+void BeneathGame::newGame()
+{
+	m_level = new Cavern();
+	m_level->loadLevel( "level.xml", m_shapes );
+	m_gameState = GameState_GAME;
+	m_vel = vec2f( 0.0f, 0.0f );					
+	m_player->pos = m_level->m_spawnPoint;		
+}
+
+void BeneathGame::startEditor()
+{
+	// switch to editor
+	m_gameState = GameState_EDITOR;
+	if (!m_editor)
+	{
+		m_editor = new Editor( m_fntFontId, m_shapes );					
+	}
 }
 
 

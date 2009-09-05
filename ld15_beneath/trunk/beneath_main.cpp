@@ -1,7 +1,7 @@
 #ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <crtdbg.h>
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+# include <crtdbg.h>
 #endif
 
 #include <iostream>
@@ -86,9 +86,8 @@ int main( int argc, char *argv[] )
 	BeneathGame *game = new BeneathGame();
 
 	//=====[ Main loop ]======
-	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;
-	bool done = false;
-	while(!done)
+	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;	
+	while(!game->done())
 	{
 		SDL_Event event;
 
@@ -100,7 +99,7 @@ int main( int argc, char *argv[] )
 					switch( event.key.keysym.sym ) 
 					{						
 						case SDLK_ESCAPE:
-							done = true;
+							game->done( true );
 							break;
 					}
 
@@ -120,7 +119,7 @@ int main( int argc, char *argv[] )
 					break;				
 
 				case SDL_QUIT:
-					done = true;
+					game->done( true );
 					break;
 			}
 		}

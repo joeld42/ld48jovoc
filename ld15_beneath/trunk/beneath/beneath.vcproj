@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\jimgui.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Shape.cpp"
 				>
 			</File>
@@ -232,6 +236,10 @@
 			</File>
 			<File
 				RelativePath="..\gamefontgl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\jimgui.h"
 				>
 			</File>
 			<File

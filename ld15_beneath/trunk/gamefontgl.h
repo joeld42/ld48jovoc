@@ -2,7 +2,8 @@
 #define GL_GAMEFONT_H
 
 #ifdef WIN32
-#include <windows.h>
+# define WIN32_MEAN_AND_LEAN
+# include <windows.h>
 #endif
 
 #include <GL/gl.h>
