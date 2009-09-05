@@ -25,6 +25,7 @@
 #include <gamefontgl.h>
 
 #include <Server.h>
+#include <GameClient.h>
 
 using namespace std;
 
@@ -83,7 +84,7 @@ int main( int argc, char *argv[] )
 	ilutRenderer( ILUT_OPENGL );
 
 	// init game object
-	BeneathGame *game = new BeneathGame();
+	GameClient *game = new GameClient();
 
 	//=====[ Main loop ]======
 	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;	
