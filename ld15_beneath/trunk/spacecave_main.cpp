@@ -24,7 +24,7 @@
 #include <tweakval.h>
 #include <gamefontgl.h>
 
-#include <BeneathGame.h>
+#include <Server.h>
 
 using namespace std;
 

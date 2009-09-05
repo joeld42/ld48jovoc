@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="beneath"
+	Name="spacecave"
 	ProjectGUID="{4CF24391-BAA5-40BF-9672-C2BC455DF72D}"
-	RootNamespace="beneath"
+	RootNamespace="spacecave"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -197,7 +197,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Server.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Shape.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\spacecave_main.cpp"
 				>
 			</File>
 			<File
@@ -232,6 +240,10 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Server.h"
 				>
 			</File>
 			<File
