@@ -13,6 +13,7 @@ BeneathGame::BeneathGame() :
 	m_isInit( false ),
 	m_editor( NULL ),
 	m_gameState( GameState_MENU ),
+	m_menuState( MenuState_MAINMENU ),
 	m_playtest( false ),
 	m_level( NULL ),
 	m_vel( 0.0f, 0.0f ),
@@ -275,7 +276,7 @@ void BeneathGame::redraw()
 		gfEnableFont( m_fntFontId, 32 );	
 		gfBeginText();
 		glTranslated( _TV(260), _TV(500), 0 );
-		gfDrawString( "LD15 Cavern Game" );
+		gfDrawString( "Spaceships in a Cave" );
 		gfEndText();
 
 		// Bottom text
@@ -290,22 +291,50 @@ void BeneathGame::redraw()
 		glEnable( GL_BLEND );
 		glColor3f( _TV(0.0f), _TV(1.0f), _TV(1.0f) );
 
-		// New Game
-		if (Jgui_doButton( 1, m_uiCtx, "New Game", m_fntFontId, 20, 
-						_TV(365), _TV(350),_TV( 125), _TV(30) ) )
+		int yval = _TV(350);
+		int yspc = _TV(50);
+		if (m_menuState == MenuState_MAINMENU)
 		{
-			newGame();
-		}
-		if (Jgui_doButton( 2, m_uiCtx, "Editor", m_fntFontId, 20, 
-						_TV(365), _TV(300),_TV( 125), _TV(30) ) )
+			// New Game			
+			if (Jgui_doButton( __LINE__, m_uiCtx, "Single Player", m_fntFontId, 20, 
+				_TV(365), yval, _TV( 125), _TV(30) ) )
+			{
+				m_menuState = MenuState_MAPSELECT;
+			}
+			if (Jgui_doButton(  __LINE__, m_uiCtx, "Multiplayer", m_fntFontId, 20, 
+				_TV(365), yval-=yspc,_TV( 125), _TV(30) ) )
+			{
+				m_menuState = MenuState_LOBBY;
+			}
+			if (Jgui_doButton(  __LINE__, m_uiCtx, "Editor", m_fntFontId, 20, 
+				_TV(365), yval-=yspc,_TV( 125), _TV(30) ) )
+			{
+				startEditor();
+			}
+			if (Jgui_doButton(  __LINE__, m_uiCtx, "Quit", m_fntFontId, 20, 
+				_TV(365), yval-=yspc, _TV( 125), _TV(30) ) )
+			{
+				m_done = true;
+			}
+		} 
+		else if (m_menuState == MenuState_MAPSELECT)
 		{
-			startEditor();
+			if (Jgui_doButton( __LINE__, m_uiCtx, "Start Game", m_fntFontId, 20, 
+				_TV(365), yval, _TV( 125), _TV(30) ) )
+			{
+				newGame();
+			}
 		}
-		if (Jgui_doButton( 3, m_uiCtx, "Quit", m_fntFontId, 20, 
-						_TV(365), _TV(250),_TV( 125), _TV(30) ) )
+		else if (m_menuState == MenuState_LOBBY)
 		{
-			m_done = true;
+			if (Jgui_doButton( __LINE__, m_uiCtx, "Start Game MP", m_fntFontId, 20, 
+				_TV(365), yval, _TV( 125), _TV(30) ) )
+			{
+				newGame();
+			}
 		}
+
+
 
 	}
 

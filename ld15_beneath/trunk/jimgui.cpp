@@ -49,6 +49,16 @@ bool Jgui_doButton( GLuint self,
 	bool result = false;
 	bool mouseOver = false;
 
+	// Expand the button to fit the text if needed
+	GLuint textWidth;
+	gfEnableFont( fontId, fontSize );	
+	textWidth = gfGetStringWidth( label ) + 24;
+	if (textWidth > w)
+	{
+		x -= (textWidth - w)/2; // shift to remain centered
+		w = textWidth;
+	}
+
 	// Is the mouse over us?
 	if ( (ctx->m_mouseX >= x) && (ctx->m_mouseX <= x+w) &&
 		 (ctx->m_mouseY >= y) && (ctx->m_mouseY <= y+h) )
@@ -123,7 +133,7 @@ bool Jgui_doButton( GLuint self,
 	gfEnableFont( fontId, fontSize );	
 	gfBeginText();
 	glPushMatrix();
-	glTranslated( x+10, y+10, 0 );
+	glTranslated( 10+x+(w-textWidth)/2, y+11, 0 );
 	gfDrawString( label );
 	glPopMatrix();
 	gfEndText();	

@@ -60,9 +60,16 @@ public:
 
 	// game state
 	enum GameState {
-		GameState_MENU,
+		GameState_MENU,			
 		GameState_EDITOR,
 		GameState_GAME
+	};
+
+	enum MenuState {
+		MenuState_MAINMENU,
+		MenuState_LOBBY,
+		MenuState_MAPSELECT,
+		MenuState_BIDDING,
 	};
 
 	bool done();
@@ -73,6 +80,7 @@ protected:
 	bool m_playtest; // testing a level in editor?
 
 	GameState m_gameState;
+	MenuState m_menuState;
 	Editor *m_editor;
 
 	// Gui Context
