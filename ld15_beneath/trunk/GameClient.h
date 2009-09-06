@@ -30,8 +30,13 @@
 #include <Cavern.h>
 #include <Editor.h>
 #include <Server.h>
+#include <GameObj.h>
+#include <PlayerShip.h>
 
 struct Jgui_UIContext;
+
+#define NAME_MAX_LEN (32)
+#define NAME_MAX_ADDR (64)
 
 class GameClient
 {
@@ -111,13 +116,27 @@ protected:
 	ENetAddress m_netAddress;
 	ENetHost *m_netServer;
 	ENetPeer *m_serverPeer;
-	
+
+	void sendPacket( int channel, pbSpaceCave::Packet &pbPacket );
+	void handlePacket( int channel, ENetPacket *packet, ENetPeer *peer );
 
 	// Gui Context
 	Jgui_UIContext *m_uiCtx;	
 
-	// Game date
+	// UI Screens
+	void doMapSelectScreen();
+	void doLobbyScreen();
+
+	// lobby info
+	char m_lobbyName[NAME_MAX_LEN];
+	char m_remoteAddr[NAME_MAX_ADDR];
+	//uint32 m_playerColor;	
+
+	// Game data
 	std::vector<Shape*> m_shapes;
+	std::vector<GameObj*> m_gameObjs;
+	std::vector<PlayerShip*> m_ships;
+	PlayerShip *m_player;
 
 	// debug/info font
 	GLuint m_glFontTexId;

@@ -5,15 +5,40 @@ package pbSpaceCave;
 message Packet
 {
 	enum Type { 
-		CHAT = 1;
-		GAME_UPDATE = 2;
+		CHAT            = 1;
+		IDENTITY        = 2;
+		ADD_PLAYER      = 3;
+		PLAYERSETTINGS  = 4;
 	};
 	required Type type = 1;
 		
 	optional ChatPacket chat = 2;
+	optional AddPlayerPacket addPlayer = 3;
+	optional IdentityPacket identity = 4;
+	optional PlayerSettingsPacket pset = 5;
 }
 
 message ChatPacket
 {
 	optional string message = 1;	
+}
+
+// Really just important so the client may know
+// their index... 
+message IdentityPacket
+{
+	required uint32 index = 1;
+	optional string playerName =2;
+}
+
+// updates existing player settings
+message PlayerSettingsPacket
+{
+	required uint32 index = 1;
+	optional string playerName = 2;
+	// todo: color, avatar, etc..
+}
+
+message AddPlayerPacket
+{			
 }

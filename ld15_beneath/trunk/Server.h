@@ -29,6 +29,8 @@
 #include <Shape.h>
 #include <Cavern.h>
 #include <Editor.h>
+#include <GameObj.h>
+#include <PlayerShip.h>
 
 // protobufs for packets
 #include <pbSpaceCave/SpaceCave.pb.h>
@@ -65,8 +67,10 @@ public:
 	void game_updateSim( float dt );	
 	void game_update( float dt );
 
-	void net_update( );
-	void handlePacket( int channel, ENetPacket *packet, ENetPeer *peer );
+	void net_update( );	
+
+	// Game play happenings
+	PlayerShip *addPlayer();
 	
 	//void game_keypress( SDL_KeyboardEvent &key );	
 	void init();
@@ -74,8 +78,11 @@ public:
 
 	void newGame();
 
+	// some shortcuts in single player mode
 	bool m_singlePlayer;
-	Shape *m_player;
+
+	std::vector<PlayerShip*> m_ships;
+
 	Cavern *m_level;	
 
 protected:
@@ -83,13 +90,20 @@ protected:
 	// Networking stuff
 	ENetAddress m_serverAddr;
 	ENetHost *m_clientHost;
+	std::vector<ENetPeer*> m_clientPeers;
+
+	void sendPacketEveryone( int channel, pbSpaceCave::Packet &pbPacket );
+	void sendPacketPeer( int channel, pbSpaceCave::Packet &pbPacket, ENetPeer *peer  );
+
+	void newConnection( ENetPeer *peer );
+	
+	void doIdentity( pbSpaceCave::Packet &pbPacket, ENetPeer *peer );
+
+	void handlePacket( int channel, ENetPacket *packet, ENetPeer *peer );
 
 	// Game stuff
 	bool m_isInit;	
-	std::vector<Shape*> &m_shapes;
-	
-	// todo: put this in a player class
-	vec2f m_vel;	
+	std::vector<Shape*> &m_shapes;	
 };
 
 #endif

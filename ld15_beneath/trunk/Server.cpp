@@ -14,8 +14,7 @@ using namespace google;
 
 Server::Server( std::vector<Shape*> &shapes, bool singlePlayer ) :
 	m_isInit( false ),
-	m_level( NULL ),
-	m_vel( 0.0f, 0.0f ),
+	m_level( NULL ),	
 	m_shapes( shapes ),
 	m_clientHost( NULL ),
 	m_singlePlayer( singlePlayer )
@@ -53,6 +52,7 @@ void Server::initNetwork( )
 
 void Server::game_updateSim( float dt )
 {
+#if 0
 	vec2f thrustDir( 0.0f, 0.0f );
 	float rotateAmt = 0.0;
 	const float LATERAL_THRUST_AMT = _TV(1.0f);
@@ -168,6 +168,7 @@ void Server::game_updateSim( float dt )
 	{
 		m_player->pos = newPos;
 	}
+#endif
 }
 
 // "as fast as possible" update for effects and stuff
@@ -187,10 +188,10 @@ void Server::net_update( )
 			case ENET_EVENT_TYPE_CONNECT:
 				printf("SERVER: A new client connected from %x:%u.\n",
 					event.peer->address.host,
-					event.peer->address.port );
-				
-				// Store stuff in here
-				event.peer->data = "Client information";
+					event.peer->address.port );							
+
+				newConnection( event.peer );				
+
 				break;
 
 			case ENET_EVENT_TYPE_RECEIVE:
@@ -227,25 +228,182 @@ void Server::handlePacket( int channel, ENetPacket *packet, ENetPeer *peer )
 		case ::pbSpaceCave::Packet_Type_CHAT:			
 				printf("SERVER: got ChatPacket with message %s\n",
 					pbPacket.chat().message().c_str() );			
+			
+				sendPacketEveryone( NET_CHANNEL_CHAT, pbPacket );
+			break;
+
+		case ::pbSpaceCave::Packet_Type_IDENTITY:
+			
+			// fill in the player's index
+			printf("SERVER: Got request for identity for '%s'\n",
+				pbPacket.identity().playername().c_str() );
+			
+			doIdentity( pbPacket, peer );			
 			break;
 	}
+}
+
+PlayerShip *Server::addPlayer()
+{
+	// create a new ship for the player
+	PlayerShip *newShip = new PlayerShip( NULL );
+	
+	m_ships.push_back( newShip );
+
+	// Now send a packet informing clients of the new ship
+	// use protobuf to encode packet
+	pbSpaceCave::Packet pbPacket;	
+	pbPacket.set_type( ::pbSpaceCave::Packet_Type_ADD_PLAYER );
+	
+	sendPacketEveryone( NET_CHANNEL_GAMEUPDATE, pbPacket );
+
+	return newShip;
 }
 
 void Server::init()
 {
 	// Now load game shapes
-	m_player = Shape::simpleShape( "gamedata/player.png" );
-	m_player->pos = vec2f( 300, 200 );
+	//m_player = Shape::simpleShape( "gamedata/player.png" );
+	//m_player->pos = vec2f( 300, 200 );
 }
 
 void Server::newGame()
 {
 	delete m_level;
 
-	m_level = new Cavern();
-	m_level->loadLevel( "level.xml", m_shapes );	
-	m_vel = vec2f( 0.0f, 0.0f );					
-	m_player->pos = m_level->m_spawnPoint;		
+	//m_level = new Cavern();
+	//m_level->loadLevel( "level.xml", m_shapes );	
+	//m_vel = vec2f( 0.0f, 0.0f );					
+	//m_player->pos = m_level->m_spawnPoint;		
 }
 
+void Server::newConnection( ENetPeer *peer )
+{
+	m_clientPeers.push_back( peer );
 
+	// Send this one all the existing ships
+	pbSpaceCave::Packet pbPacket;		
+	for (size_t i=0; i < m_ships.size(); i++)
+	{
+		pbPacket.set_type( ::pbSpaceCave::Packet_Type_ADD_PLAYER );	
+		sendPacketPeer( NET_CHANNEL_GAMEUPDATE, pbPacket, peer );
+	}
+
+	// create a ship for this player
+	peer->data = addPlayer();	
+}
+
+void Server::sendPacketEveryone( int channel, pbSpaceCave::Packet &pbPacket )
+{
+	size_t packetSize = pbPacket.ByteSize();
+	void *packetData = malloc( packetSize );
+	pbPacket.SerializeToArray( packetData, packetSize );
+
+	// Now send it
+	ENetPacket *packet;
+	packet = enet_packet_create( packetData, packetSize, 
+							ENET_PACKET_FLAG_RELIABLE );
+
+	for (size_t i=0; i < m_clientPeers.size(); i++)
+	{
+		enet_peer_send( m_clientPeers[i], channel, packet );
+	}
+
+	// do this?
+	//free( packetData );
+}
+
+void Server::sendPacketPeer( int channel, pbSpaceCave::Packet &pbPacket, ENetPeer *peer )
+{
+	size_t packetSize = pbPacket.ByteSize();
+	void *packetData = malloc( packetSize );
+	pbPacket.SerializeToArray( packetData, packetSize );
+
+	// Now send it
+	ENetPacket *packet;
+	packet = enet_packet_create( packetData, packetSize, 
+							ENET_PACKET_FLAG_RELIABLE );
+	
+	enet_peer_send( peer, channel, packet );
+	
+	// do this?
+	//free( packetData );
+}
+
+void Server::doIdentity( pbSpaceCave::Packet &pbPacket, ENetPeer *peer )
+{
+	// TODO: uniqify name
+	bool isUnique = true;
+	string playerName = pbPacket.identity().playername();
+
+	int uniqueIndex = 1;
+	do
+	{
+		isUnique = true;
+		for (size_t i=0; i < m_ships.size(); i++)
+		{
+			if ( (!m_ships[i]->m_playerName.empty()) &&
+				  (m_ships[i]->m_playerName == playerName) )
+			{
+				isUnique = false;
+				break;
+			}	
+		}
+
+		// if we're not unique, try adding a higher suffix
+		if (!isUnique)
+		{
+			uniqueIndex++;
+			char playerNameBuff[100];
+			sprintf( playerNameBuff, "%s %d", 
+				     pbPacket.identity().playername().c_str(),
+					 uniqueIndex );
+			playerName = playerNameBuff;
+		}
+	}
+	while (!isUnique);
+
+	pbPacket.mutable_identity()->set_playername( playerName );
+
+	// Figure out which ship this is
+	size_t playerIndex;
+	bool found = false;
+	for (size_t i=0; i < m_ships.size(); i++)
+	{
+		if (peer->data == m_ships[i])
+		{
+			// set the name for our ship
+			m_ships[i]->m_playerName = playerName;
+
+			// set the index to pass back to client
+			playerIndex = i;
+			pbPacket.mutable_identity()->set_index( playerIndex );
+			found = true;			
+			break;
+		}
+	}
+
+	if (found)
+	{
+		// Send the updated identity packet back to the client
+		sendPacketPeer( NET_CHANNEL_GAMEUPDATE, pbPacket, peer );
+
+		// Send all of the existing players settings to the new player
+		pbSpaceCave::Packet pbPacketSettings;
+		pbPacketSettings.set_type( ::pbSpaceCave::Packet_Type_PLAYERSETTINGS );
+		for (int i=0; i < m_ships.size(); i++)
+		{
+			// ignore this player 'cause we're about to send it to everyone
+			if (i==playerIndex) continue;
+			pbPacketSettings.mutable_pset()->set_index( i );
+			pbPacketSettings.mutable_pset()->set_playername( m_ships[i]->m_playerName );
+			sendPacketPeer( NET_CHANNEL_GAMEUPDATE, pbPacketSettings, peer );
+		}
+
+		// Send a settings packet to everyone about the new player		
+		pbPacketSettings.mutable_pset()->set_index( playerIndex );
+		pbPacketSettings.mutable_pset()->set_playername( playerName );
+
+		sendPacketEveryone( NET_CHANNEL_GAMEUPDATE, pbPacketSettings );
+	}
+}

@@ -1,7 +1,12 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 
+#include <Common.h>
+
+#include <string>
 #include <prmath/prmath.hpp>
+
+
 
 enum {
 	Blend_OFF,

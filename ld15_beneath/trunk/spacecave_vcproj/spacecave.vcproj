@@ -201,7 +201,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GameObj.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\jimgui.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\PlayerShip.cpp"
 				>
 			</File>
 			<File
@@ -247,7 +255,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GameObj.h"
+				>
+			</File>
+			<File
 				RelativePath="..\jimgui.h"
+				>
+			</File>
+			<File
+				RelativePath="..\PlayerShip.h"
 				>
 			</File>
 			<File

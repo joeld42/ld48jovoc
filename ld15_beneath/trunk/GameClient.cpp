@@ -23,8 +23,11 @@ GameClient::GameClient() :
 	m_done( false ),
 	m_localServer( NULL ),
 	m_netServer( NULL ),
-	m_serverPeer( NULL )
+	m_serverPeer( NULL ),
+	m_player( NULL )
 {
+	strcpy( m_lobbyName, "Player" );
+	strcpy( m_remoteAddr, "127.0.0.1" );
 }
 
 GameClient::~GameClient()
@@ -89,8 +92,31 @@ void GameClient::net_update()
 		switch (event.type)
 		{
 		case ENET_EVENT_TYPE_CONNECT:
-			printf("CLIENT: Connection to server succeeded\n" );
+			{
+				printf("CLIENT: Connection to server succeeded\n" );
+				
+				// Now ask for an identity
+				pbSpaceCave::Packet pbPacket;
+				pbPacket.set_type( ::pbSpaceCave::Packet_Type_IDENTITY );		
+		
+				printf("CLIENT: request ident, lobby name %s\n", m_lobbyName );
+				pbPacket.mutable_identity()->set_index( 999 );
+				pbPacket.mutable_identity()->set_playername( std::string( m_lobbyName ) );
+
+				sendPacket( NET_CHANNEL_GAMEUPDATE, pbPacket );
+			}
 			break;
+
+		case ENET_EVENT_TYPE_RECEIVE:
+				printf("CLIENT: A packet of length %u was recieved from %s on channel %u.\n",
+					event.packet->dataLength,					
+					event.peer->data,
+					event.channelID );
+
+				handlePacket( event.channelID, event.packet, event.peer );
+
+				enet_packet_destroy( event.packet );
+				break;
 		}
 	}	
 }
@@ -227,46 +253,77 @@ void GameClient::redraw()
 		} 
 		else if (m_menuState == MenuState_MAPSELECT)
 		{
-			if (Jgui_doButton( __LINE__, m_uiCtx, "MAPSELECT", m_fntFontId, 20, 
-				_TV(365), yval, _TV( 125), _TV(30) ) )
-			{				
-				newGame();
-			}
+			doMapSelectScreen();
+			
 		}
 		else if (m_menuState == MenuState_LOBBY)
 		{
-			if (Jgui_doButton( __LINE__, m_uiCtx, "Create Server", m_fntFontId, 20, 
-				_TV(365), yval, _TV( 125), _TV(30) ) )
-			{
-				// Create a local server that's open for connections
-				m_localServer = new Server( m_shapes, false );	
-				connectServer( "localhost" );
-
-				// other players can join in the map select screen
-				m_menuState = MenuState_MAPSELECT;	
-			}
-			if (Jgui_doButton( __LINE__, m_uiCtx, "Join Localhost", m_fntFontId, 20, 
-				_TV(365), yval-=yspc, _TV( 125), _TV(30) ) )
-			{
-				// We are NOT running a local server
-				m_localServer = NULL;
-				connectServer( "localhost" );
-				m_menuState = MenuState_MAPSELECT;
-			}			
-			if (Jgui_doButton( __LINE__, m_uiCtx, "Join Remote", m_fntFontId, 20, 
-				_TV(365), yval-=yspc, _TV( 125), _TV(30) ) )
-			{
-				printf("TODO: Join Remote\n" );
-				//m_menuState = MenuState_MAPSELECT;
-			}			
+			doLobbyScreen();			
 		}
-
-
-
 	}
 
 	// kick the UI stuff
 	Jgui_frameDone( m_uiCtx );
+}
+
+void GameClient::doMapSelectScreen()
+{
+	// draw list of players
+	gfEnableFont( m_fntFontId, 20 );	
+	for ( size_t i=0; i < m_ships.size(); i++)
+	{
+		gfBeginText();
+		glTranslated( _TV(200), _TV(450) - i*_TV(25), 0 );
+		if (m_ships[i]->m_playerName.empty())
+		{
+			gfDrawStringFmt( "Unknown%d", i );
+		}
+		else
+		{
+			gfDrawString( m_ships[i]->m_playerName.c_str() );
+		}
+		gfEndText();
+	}
+
+	// start game
+	if (Jgui_doButton( __LINE__, m_uiCtx, 
+					(m_localServer?"Start Game":"Ready"), 
+					m_fntFontId, 20, 
+					_TV(365), _TV(200), _TV( 125), _TV(30) ) )
+	{				
+				newGame();
+	}
+}
+
+void GameClient::doLobbyScreen()
+{
+	int yval = _TV(250);
+	int yspc = _TV(50);
+
+	if (Jgui_doButton( __LINE__, m_uiCtx, "Create Server", m_fntFontId, 20, 
+		_TV(365), yval, _TV( 125), _TV(30) ) )
+	{
+		// Create a local server that's open for connections
+		m_localServer = new Server( m_shapes, false );	
+		connectServer( "localhost" );
+
+		// other players can join in the map select screen
+		m_menuState = MenuState_MAPSELECT;	
+	}
+	if (Jgui_doButton( __LINE__, m_uiCtx, "Join Localhost", m_fntFontId, 20, 
+		_TV(365), yval-=yspc, _TV( 125), _TV(30) ) )
+	{
+		// We are NOT running a local server
+		m_localServer = NULL;
+		connectServer( "localhost" );
+		m_menuState = MenuState_MAPSELECT;
+	}			
+	if (Jgui_doButton( __LINE__, m_uiCtx, "Join Remote", m_fntFontId, 20, 
+		_TV(365), yval-=yspc, _TV( 125), _TV(30) ) )
+	{
+		printf("TODO: Join Remote\n" );
+		//m_menuState = MenuState_MAPSELECT;
+	}			
 }
 
 void GameClient::gameview_redraw()
@@ -277,7 +334,8 @@ void GameClient::gameview_redraw()
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 
-	Shape *player = m_localServer->m_player;
+	//Shape *player = m_localServer->m_player;
+	Shape *player = m_player->m_shape;
 
 	vec2f gameview(player->pos.x - 400, player->pos.y - 300 );
 	pseudoOrtho2D( gameview.x, gameview.x + 800,
@@ -289,12 +347,16 @@ void GameClient::gameview_redraw()
 	// draw level
 	m_localServer->m_level->draw();
 
-	// Draw player shape
+	// Draw game objs
 	glEnable( GL_TEXTURE_2D );
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );		
 
-	m_localServer->m_player->drawBraindead();
+	//m_localServer->m_player->drawBraindead();
+	for (size_t i=0; i < m_gameObjs.size(); i++)
+	{
+		m_gameObjs[i]->m_shape->drawBraindead();
+	}
 
 	// debug collsion stuff
 #if 0
@@ -518,10 +580,6 @@ void GameClient::connectServer( const char *hostaddr )
 	{
 		printf("CLIENT: Connect to server fail\n" );
 	}
-	else
-	{
-		printf("CLIENT: Connect succeeded\n" );
-	}
 	
 }
 
@@ -537,7 +595,55 @@ void GameClient::chatSend( const char *message )
 	pbPacket.mutable_chat()->set_message( message );
 	//(*pbPacket.mutable_message()) = message;	
 	
-	
+	sendPacket( NET_CHANNEL_CHAT, pbPacket );	
+}
+
+void GameClient::handlePacket( int channel, ENetPacket *packet, ENetPeer *peer )
+{
+	pbSpaceCave::Packet pbPacket;
+	pbPacket.ParseFromArray( packet->data, packet->dataLength );
+
+	//printf("Got Packet of type: %s, contains %s\n", 
+	//	msg.GetTypeName().c_str(), 
+	//	msg.DebugString().c_str() );
+
+	switch( pbPacket.type() )
+	{
+		case ::pbSpaceCave::Packet_Type_CHAT:			
+				printf("CLIENT: got ChatPacket with message %s\n",
+					pbPacket.chat().message().c_str() );						
+			break;
+
+		case ::pbSpaceCave::Packet_Type_ADD_PLAYER:
+			{
+				printf("CLIENT: got AddPlayer\n" );
+				Shape *playerShape = Shape::simpleShape( "gamedata/player.png" );
+				PlayerShip *ship = new PlayerShip( playerShape );
+				m_gameObjs.push_back( ship );
+				m_ships.push_back( ship );
+			}
+			break;
+		
+		case ::pbSpaceCave::Packet_Type_IDENTITY:
+			{
+				printf("CLIENT: got Identity\n" );
+				m_player = m_ships[ pbPacket.identity().index() ];
+				m_player->m_playerName = pbPacket.identity().playername();
+			}
+
+		case ::pbSpaceCave::Packet_Type_PLAYERSETTINGS:
+			{
+				size_t ndx = pbPacket.pset().index();
+				printf("CLIENT: got player settings for %d\n", ndx );
+				m_ships[ ndx ]->m_playerName = pbPacket.pset().playername();
+				// same for color, etc..
+			}
+			break;
+	}
+}
+
+void GameClient::sendPacket( int channel, pbSpaceCave::Packet &pbPacket )
+{
 	size_t packetSize = pbPacket.ByteSize();
 	void *packetData = malloc( packetSize );
 	pbPacket.SerializeToArray( packetData, packetSize );

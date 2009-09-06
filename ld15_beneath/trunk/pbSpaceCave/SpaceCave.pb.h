@@ -32,14 +32,19 @@ void protobuf_ShutdownFile_SpaceCave_2eproto();
 
 class Packet;
 class ChatPacket;
+class IdentityPacket;
+class PlayerSettingsPacket;
+class AddPlayerPacket;
 
 enum Packet_Type {
   Packet_Type_CHAT = 1,
-  Packet_Type_GAME_UPDATE = 2
+  Packet_Type_IDENTITY = 2,
+  Packet_Type_ADD_PLAYER = 3,
+  Packet_Type_PLAYERSETTINGS = 4
 };
 bool Packet_Type_IsValid(int value);
 const Packet_Type Packet_Type_Type_MIN = Packet_Type_CHAT;
-const Packet_Type Packet_Type_Type_MAX = Packet_Type_GAME_UPDATE;
+const Packet_Type Packet_Type_Type_MAX = Packet_Type_PLAYERSETTINGS;
 
 const ::google::protobuf::EnumDescriptor* Packet_Type_descriptor();
 inline const ::std::string& Packet_Type_Name(Packet_Type value) {
@@ -106,7 +111,9 @@ class Packet : public ::google::protobuf::Message {
   
   typedef Packet_Type Type;
   static const Type CHAT = Packet_Type_CHAT;
-  static const Type GAME_UPDATE = Packet_Type_GAME_UPDATE;
+  static const Type IDENTITY = Packet_Type_IDENTITY;
+  static const Type ADD_PLAYER = Packet_Type_ADD_PLAYER;
+  static const Type PLAYERSETTINGS = Packet_Type_PLAYERSETTINGS;
   static inline bool Type_IsValid(int value) {
     return Packet_Type_IsValid(value);
   }
@@ -142,17 +149,41 @@ class Packet : public ::google::protobuf::Message {
   inline const ::pbSpaceCave::ChatPacket& chat() const;
   inline ::pbSpaceCave::ChatPacket* mutable_chat();
   
+  // optional .pbSpaceCave.AddPlayerPacket addPlayer = 3;
+  inline bool has_addplayer() const;
+  inline void clear_addplayer();
+  static const int kAddPlayerFieldNumber = 3;
+  inline const ::pbSpaceCave::AddPlayerPacket& addplayer() const;
+  inline ::pbSpaceCave::AddPlayerPacket* mutable_addplayer();
+  
+  // optional .pbSpaceCave.IdentityPacket identity = 4;
+  inline bool has_identity() const;
+  inline void clear_identity();
+  static const int kIdentityFieldNumber = 4;
+  inline const ::pbSpaceCave::IdentityPacket& identity() const;
+  inline ::pbSpaceCave::IdentityPacket* mutable_identity();
+  
+  // optional .pbSpaceCave.PlayerSettingsPacket pset = 5;
+  inline bool has_pset() const;
+  inline void clear_pset();
+  static const int kPsetFieldNumber = 5;
+  inline const ::pbSpaceCave::PlayerSettingsPacket& pset() const;
+  inline ::pbSpaceCave::PlayerSettingsPacket* mutable_pset();
+  
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
   
   int type_;
   ::pbSpaceCave::ChatPacket* chat_;
+  ::pbSpaceCave::AddPlayerPacket* addplayer_;
+  ::pbSpaceCave::IdentityPacket* identity_;
+  ::pbSpaceCave::PlayerSettingsPacket* pset_;
   friend void  protobuf_AddDesc_SpaceCave_2eproto();
   friend void protobuf_AssignDesc_SpaceCave_2eproto();
   friend void protobuf_ShutdownFile_SpaceCave_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -259,6 +290,283 @@ class ChatPacket : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static ChatPacket* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class IdentityPacket : public ::google::protobuf::Message {
+ public:
+  IdentityPacket();
+  virtual ~IdentityPacket();
+  
+  IdentityPacket(const IdentityPacket& from);
+  
+  inline IdentityPacket& operator=(const IdentityPacket& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const IdentityPacket& default_instance();
+  void Swap(IdentityPacket* other);
+  
+  // implements Message ----------------------------------------------
+  
+  IdentityPacket* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const IdentityPacket& from);
+  void MergeFrom(const IdentityPacket& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required uint32 index = 1;
+  inline bool has_index() const;
+  inline void clear_index();
+  static const int kIndexFieldNumber = 1;
+  inline ::google::protobuf::uint32 index() const;
+  inline void set_index(::google::protobuf::uint32 value);
+  
+  // optional string playerName = 2;
+  inline bool has_playername() const;
+  inline void clear_playername();
+  static const int kPlayerNameFieldNumber = 2;
+  inline const ::std::string& playername() const;
+  inline void set_playername(const ::std::string& value);
+  inline void set_playername(const char* value);
+  inline void set_playername(const char* value, size_t size);
+  inline ::std::string* mutable_playername();
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::uint32 index_;
+  ::std::string* playername_;
+  static const ::std::string _default_playername_;
+  friend void  protobuf_AddDesc_SpaceCave_2eproto();
+  friend void protobuf_AssignDesc_SpaceCave_2eproto();
+  friend void protobuf_ShutdownFile_SpaceCave_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static IdentityPacket* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class PlayerSettingsPacket : public ::google::protobuf::Message {
+ public:
+  PlayerSettingsPacket();
+  virtual ~PlayerSettingsPacket();
+  
+  PlayerSettingsPacket(const PlayerSettingsPacket& from);
+  
+  inline PlayerSettingsPacket& operator=(const PlayerSettingsPacket& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PlayerSettingsPacket& default_instance();
+  void Swap(PlayerSettingsPacket* other);
+  
+  // implements Message ----------------------------------------------
+  
+  PlayerSettingsPacket* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const PlayerSettingsPacket& from);
+  void MergeFrom(const PlayerSettingsPacket& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required uint32 index = 1;
+  inline bool has_index() const;
+  inline void clear_index();
+  static const int kIndexFieldNumber = 1;
+  inline ::google::protobuf::uint32 index() const;
+  inline void set_index(::google::protobuf::uint32 value);
+  
+  // optional string playerName = 2;
+  inline bool has_playername() const;
+  inline void clear_playername();
+  static const int kPlayerNameFieldNumber = 2;
+  inline const ::std::string& playername() const;
+  inline void set_playername(const ::std::string& value);
+  inline void set_playername(const char* value);
+  inline void set_playername(const char* value, size_t size);
+  inline ::std::string* mutable_playername();
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::uint32 index_;
+  ::std::string* playername_;
+  static const ::std::string _default_playername_;
+  friend void  protobuf_AddDesc_SpaceCave_2eproto();
+  friend void protobuf_AssignDesc_SpaceCave_2eproto();
+  friend void protobuf_ShutdownFile_SpaceCave_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static PlayerSettingsPacket* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class AddPlayerPacket : public ::google::protobuf::Message {
+ public:
+  AddPlayerPacket();
+  virtual ~AddPlayerPacket();
+  
+  AddPlayerPacket(const AddPlayerPacket& from);
+  
+  inline AddPlayerPacket& operator=(const AddPlayerPacket& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const AddPlayerPacket& default_instance();
+  void Swap(AddPlayerPacket* other);
+  
+  // implements Message ----------------------------------------------
+  
+  AddPlayerPacket* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const AddPlayerPacket& from);
+  void MergeFrom(const AddPlayerPacket& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  friend void  protobuf_AddDesc_SpaceCave_2eproto();
+  friend void protobuf_AssignDesc_SpaceCave_2eproto();
+  friend void protobuf_ShutdownFile_SpaceCave_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[1];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static AddPlayerPacket* default_instance_;
+};
 // ===================================================================
 
 
@@ -301,6 +609,57 @@ inline ::pbSpaceCave::ChatPacket* Packet::mutable_chat() {
   _set_bit(1);
   if (chat_ == NULL) chat_ = new ::pbSpaceCave::ChatPacket;
   return chat_;
+}
+
+// optional .pbSpaceCave.AddPlayerPacket addPlayer = 3;
+inline bool Packet::has_addplayer() const {
+  return _has_bit(2);
+}
+inline void Packet::clear_addplayer() {
+  if (addplayer_ != NULL) addplayer_->::pbSpaceCave::AddPlayerPacket::Clear();
+  _clear_bit(2);
+}
+inline const ::pbSpaceCave::AddPlayerPacket& Packet::addplayer() const {
+  return addplayer_ != NULL ? *addplayer_ : *default_instance_->addplayer_;
+}
+inline ::pbSpaceCave::AddPlayerPacket* Packet::mutable_addplayer() {
+  _set_bit(2);
+  if (addplayer_ == NULL) addplayer_ = new ::pbSpaceCave::AddPlayerPacket;
+  return addplayer_;
+}
+
+// optional .pbSpaceCave.IdentityPacket identity = 4;
+inline bool Packet::has_identity() const {
+  return _has_bit(3);
+}
+inline void Packet::clear_identity() {
+  if (identity_ != NULL) identity_->::pbSpaceCave::IdentityPacket::Clear();
+  _clear_bit(3);
+}
+inline const ::pbSpaceCave::IdentityPacket& Packet::identity() const {
+  return identity_ != NULL ? *identity_ : *default_instance_->identity_;
+}
+inline ::pbSpaceCave::IdentityPacket* Packet::mutable_identity() {
+  _set_bit(3);
+  if (identity_ == NULL) identity_ = new ::pbSpaceCave::IdentityPacket;
+  return identity_;
+}
+
+// optional .pbSpaceCave.PlayerSettingsPacket pset = 5;
+inline bool Packet::has_pset() const {
+  return _has_bit(4);
+}
+inline void Packet::clear_pset() {
+  if (pset_ != NULL) pset_->::pbSpaceCave::PlayerSettingsPacket::Clear();
+  _clear_bit(4);
+}
+inline const ::pbSpaceCave::PlayerSettingsPacket& Packet::pset() const {
+  return pset_ != NULL ? *pset_ : *default_instance_->pset_;
+}
+inline ::pbSpaceCave::PlayerSettingsPacket* Packet::mutable_pset() {
+  _set_bit(4);
+  if (pset_ == NULL) pset_ = new ::pbSpaceCave::PlayerSettingsPacket;
+  return pset_;
 }
 
 // -------------------------------------------------------------------
@@ -348,6 +707,134 @@ inline ::std::string* ChatPacket::mutable_message() {
   }
   return message_;
 }
+
+// -------------------------------------------------------------------
+
+// IdentityPacket
+
+// required uint32 index = 1;
+inline bool IdentityPacket::has_index() const {
+  return _has_bit(0);
+}
+inline void IdentityPacket::clear_index() {
+  index_ = 0u;
+  _clear_bit(0);
+}
+inline ::google::protobuf::uint32 IdentityPacket::index() const {
+  return index_;
+}
+inline void IdentityPacket::set_index(::google::protobuf::uint32 value) {
+  _set_bit(0);
+  index_ = value;
+}
+
+// optional string playerName = 2;
+inline bool IdentityPacket::has_playername() const {
+  return _has_bit(1);
+}
+inline void IdentityPacket::clear_playername() {
+  if (playername_ != &_default_playername_) {
+    playername_->clear();
+  }
+  _clear_bit(1);
+}
+inline const ::std::string& IdentityPacket::playername() const {
+  return *playername_;
+}
+inline void IdentityPacket::set_playername(const ::std::string& value) {
+  _set_bit(1);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  playername_->assign(value);
+}
+inline void IdentityPacket::set_playername(const char* value) {
+  _set_bit(1);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  playername_->assign(value);
+}
+inline void IdentityPacket::set_playername(const char* value, size_t size) {
+  _set_bit(1);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  playername_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* IdentityPacket::mutable_playername() {
+  _set_bit(1);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  return playername_;
+}
+
+// -------------------------------------------------------------------
+
+// PlayerSettingsPacket
+
+// required uint32 index = 1;
+inline bool PlayerSettingsPacket::has_index() const {
+  return _has_bit(0);
+}
+inline void PlayerSettingsPacket::clear_index() {
+  index_ = 0u;
+  _clear_bit(0);
+}
+inline ::google::protobuf::uint32 PlayerSettingsPacket::index() const {
+  return index_;
+}
+inline void PlayerSettingsPacket::set_index(::google::protobuf::uint32 value) {
+  _set_bit(0);
+  index_ = value;
+}
+
+// optional string playerName = 2;
+inline bool PlayerSettingsPacket::has_playername() const {
+  return _has_bit(1);
+}
+inline void PlayerSettingsPacket::clear_playername() {
+  if (playername_ != &_default_playername_) {
+    playername_->clear();
+  }
+  _clear_bit(1);
+}
+inline const ::std::string& PlayerSettingsPacket::playername() const {
+  return *playername_;
+}
+inline void PlayerSettingsPacket::set_playername(const ::std::string& value) {
+  _set_bit(1);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  playername_->assign(value);
+}
+inline void PlayerSettingsPacket::set_playername(const char* value) {
+  _set_bit(1);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  playername_->assign(value);
+}
+inline void PlayerSettingsPacket::set_playername(const char* value, size_t size) {
+  _set_bit(1);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  playername_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* PlayerSettingsPacket::mutable_playername() {
+  _set_bit(1);
+  if (playername_ == &_default_playername_) {
+    playername_ = new ::std::string;
+  }
+  return playername_;
+}
+
+// -------------------------------------------------------------------
+
+// AddPlayerPacket
 
 
 }  // namespace pbSpaceCave
