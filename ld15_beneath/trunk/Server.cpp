@@ -9,6 +9,8 @@
 
 #include <TinyXml.h>
 
+#include <pbSpaceCave/SpaceCave.pb.h>
+using namespace google;
 
 Server::Server( std::vector<Shape*> &shapes, bool singlePlayer ) :
 	m_isInit( false ),
@@ -192,11 +194,12 @@ void Server::net_update( )
 				break;
 
 			case ENET_EVENT_TYPE_RECEIVE:
-				printf("SERVER: A packet of length %u containing %s was recieved from %s on channel %u.\n",
-					event.packet->dataLength,
-					event.packet->data,
+				printf("SERVER: A packet of length %u was recieved from %s on channel %u.\n",
+					event.packet->dataLength,					
 					event.peer->data,
 					event.channelID );
+
+				handlePacket( event.channelID, event.packet, event.peer );
 
 				enet_packet_destroy( event.packet );
 				break;
@@ -208,6 +211,24 @@ void Server::net_update( )
 
 		}
 	}	
+}
+
+void Server::handlePacket( int channel, ENetPacket *packet, ENetPeer *peer )
+{
+	pbSpaceCave::Packet pbPacket;
+	pbPacket.ParseFromArray( packet->data, packet->dataLength );
+
+	//printf("Got Packet of type: %s, contains %s\n", 
+	//	msg.GetTypeName().c_str(), 
+	//	msg.DebugString().c_str() );
+
+	switch( pbPacket.type() )
+	{
+		case ::pbSpaceCave::Packet_Type_CHAT:			
+				printf("SERVER: got ChatPacket with message %s\n",
+					pbPacket.chat().message().c_str() );			
+			break;
+	}
 }
 
 void Server::init()

@@ -2,6 +2,17 @@
 
 package pbSpaceCave;
 
+message Packet
+{
+	enum Type { 
+		CHAT = 1;
+		GAME_UPDATE = 2;
+	};
+	required Type type = 1;
+		
+	optional ChatPacket chat = 2;
+}
+
 message ChatPacket
 {
 	optional string message = 1;	

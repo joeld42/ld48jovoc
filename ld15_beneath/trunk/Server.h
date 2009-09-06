@@ -66,6 +66,7 @@ public:
 	void game_update( float dt );
 
 	void net_update( );
+	void handlePacket( int channel, ENetPacket *packet, ENetPeer *peer );
 	
 	//void game_keypress( SDL_KeyboardEvent &key );	
 	void init();

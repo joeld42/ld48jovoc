@@ -13,6 +13,10 @@ namespace pbSpaceCave {
 
 namespace {
 
+const ::google::protobuf::Descriptor* Packet_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Packet_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* Packet_Type_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* ChatPacket_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ChatPacket_reflection_ = NULL;
@@ -26,7 +30,24 @@ void protobuf_AssignDesc_SpaceCave_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "SpaceCave.proto");
   GOOGLE_CHECK(file != NULL);
-  ChatPacket_descriptor_ = file->message_type(0);
+  Packet_descriptor_ = file->message_type(0);
+  static const int Packet_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, chat_),
+  };
+  Packet_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Packet_descriptor_,
+      Packet::default_instance_,
+      Packet_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Packet));
+  Packet_Type_descriptor_ = Packet_descriptor_->enum_type(0);
+  ChatPacket_descriptor_ = file->message_type(1);
   static const int ChatPacket_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChatPacket, message_),
   };
@@ -54,12 +75,16 @@ inline void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Packet_descriptor_, &Packet::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ChatPacket_descriptor_, &ChatPacket::default_instance());
 }
 
 }  // namespace
 
 void protobuf_ShutdownFile_SpaceCave_2eproto() {
+  delete Packet::default_instance_;
+  delete Packet_reflection_;
   delete ChatPacket::default_instance_;
   delete ChatPacket_reflection_;
 }
@@ -71,11 +96,16 @@ void protobuf_AddDesc_SpaceCave_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\017SpaceCave.proto\022\013pbSpaceCave\"\035\n\nChatPa"
-    "cket\022\017\n\007message\030\001 \002(\t", 61);
+    "\n\017SpaceCave.proto\022\013pbSpaceCave\"z\n\006Packet"
+    "\022&\n\004type\030\001 \002(\0162\030.pbSpaceCave.Packet.Type"
+    "\022%\n\004chat\030\002 \001(\0132\027.pbSpaceCave.ChatPacket\""
+    "!\n\004Type\022\010\n\004CHAT\020\001\022\017\n\013GAME_UPDATE\020\002\"\035\n\nCh"
+    "atPacket\022\017\n\007message\030\001 \001(\t", 185);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "SpaceCave.proto", &protobuf_RegisterTypes);
+  Packet::default_instance_ = new Packet();
   ChatPacket::default_instance_ = new ChatPacket();
+  Packet::default_instance_->InitAsDefaultInstance();
   ChatPacket::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_SpaceCave_2eproto);
 }
@@ -86,6 +116,278 @@ struct StaticDescriptorInitializer_SpaceCave_2eproto {
     protobuf_AddDesc_SpaceCave_2eproto();
   }
 } static_descriptor_initializer_SpaceCave_2eproto_;
+
+
+// ===================================================================
+
+const ::google::protobuf::EnumDescriptor* Packet_Type_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Packet_Type_descriptor_;
+}
+bool Packet_Type_IsValid(int value) {
+  switch(value) {
+    case 1:
+    case 2:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#ifndef _MSC_VER
+const Packet_Type Packet::CHAT;
+const Packet_Type Packet::GAME_UPDATE;
+const Packet_Type Packet::Type_MIN;
+const Packet_Type Packet::Type_MAX;
+#endif  // _MSC_VER
+#ifndef _MSC_VER
+const int Packet::kTypeFieldNumber;
+const int Packet::kChatFieldNumber;
+#endif  // !_MSC_VER
+
+Packet::Packet() {
+  SharedCtor();
+}
+
+void Packet::InitAsDefaultInstance() {
+  chat_ = const_cast< ::pbSpaceCave::ChatPacket*>(&::pbSpaceCave::ChatPacket::default_instance());
+}
+
+Packet::Packet(const Packet& from) {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void Packet::SharedCtor() {
+  _cached_size_ = 0;
+  type_ = 1;
+  chat_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Packet::~Packet() {
+  SharedDtor();
+}
+
+void Packet::SharedDtor() {
+  if (this != default_instance_) {
+    delete chat_;
+  }
+}
+
+const ::google::protobuf::Descriptor* Packet::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Packet_descriptor_;
+}
+
+const Packet& Packet::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_SpaceCave_2eproto();  return *default_instance_;
+}
+
+Packet* Packet::default_instance_ = NULL;
+
+Packet* Packet::New() const {
+  return new Packet;
+}
+
+void Packet::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    type_ = 1;
+    if (_has_bit(1)) {
+      if (chat_ != NULL) chat_->::pbSpaceCave::ChatPacket::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Packet::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required .pbSpaceCave.Packet.Type type = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+        int value;
+        DO_(::google::protobuf::internal::WireFormatLite::ReadEnum(input, &value));
+        if (::pbSpaceCave::Packet_Type_IsValid(value)) {
+          set_type(static_cast< ::pbSpaceCave::Packet_Type >(value));
+        } else {
+          mutable_unknown_fields()->AddVarint(1, value);
+        }
+        if (input->ExpectTag(18)) goto parse_chat;
+        break;
+      }
+      
+      // optional .pbSpaceCave.ChatPacket chat = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          goto handle_uninterpreted;
+        }
+       parse_chat:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+             input, mutable_chat()));
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void Packet::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  ::google::protobuf::uint8* raw_buffer = output->GetDirectBufferForNBytesAndAdvance(_cached_size_);
+  if (raw_buffer != NULL) {
+    Packet::SerializeWithCachedSizesToArray(raw_buffer);
+    return;
+  }
+  
+  // required .pbSpaceCave.Packet.Type type = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      1, this->type(), output);
+  }
+  
+  // optional .pbSpaceCave.ChatPacket chat = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
+      2, this->chat(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* Packet::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required .pbSpaceCave.Packet.Type type = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      1, this->type(), target);
+  }
+  
+  // optional .pbSpaceCave.ChatPacket chat = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->chat(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int Packet::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required .pbSpaceCave.Packet.Type type = 1;
+    if (has_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
+    }
+    
+    // optional .pbSpaceCave.ChatPacket chat = 2;
+    if (has_chat()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->chat());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  _cached_size_ = total_size;
+  return total_size;
+}
+
+void Packet::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Packet* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Packet*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Packet::MergeFrom(const Packet& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_type(from.type());
+    }
+    if (from._has_bit(1)) {
+      mutable_chat()->::pbSpaceCave::ChatPacket::MergeFrom(from.chat());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Packet::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Packet::CopyFrom(const Packet& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Packet::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  
+  return true;
+}
+
+void Packet::Swap(Packet* other) {
+  if (other != this) {
+    std::swap(type_, other->type_);
+    std::swap(chat_, other->chat_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Packet::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Packet_descriptor_;
+  metadata.reflection = Packet_reflection_;
+  return metadata;
+}
 
 
 // ===================================================================
@@ -158,7 +460,7 @@ bool ChatPacket::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string message = 1;
+      // optional string message = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
@@ -197,7 +499,7 @@ void ChatPacket::SerializeWithCachedSizes(
     return;
   }
   
-  // required string message = 1;
+  // optional string message = 1;
   if (_has_bit(0)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->message().data(), this->message().length(),
@@ -214,7 +516,7 @@ void ChatPacket::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* ChatPacket::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required string message = 1;
+  // optional string message = 1;
   if (_has_bit(0)) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->message().data(), this->message().length(),
@@ -235,7 +537,7 @@ int ChatPacket::ByteSize() const {
   int total_size = 0;
   
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string message = 1;
+    // optional string message = 1;
     if (has_message()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -287,7 +589,6 @@ void ChatPacket::CopyFrom(const ChatPacket& from) {
 }
 
 bool ChatPacket::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
   
   return true;
 }

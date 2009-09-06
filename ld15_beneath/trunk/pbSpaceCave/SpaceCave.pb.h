@@ -30,9 +30,145 @@ void  protobuf_AddDesc_SpaceCave_2eproto();
 void protobuf_AssignDesc_SpaceCave_2eproto();
 void protobuf_ShutdownFile_SpaceCave_2eproto();
 
+class Packet;
 class ChatPacket;
 
+enum Packet_Type {
+  Packet_Type_CHAT = 1,
+  Packet_Type_GAME_UPDATE = 2
+};
+bool Packet_Type_IsValid(int value);
+const Packet_Type Packet_Type_Type_MIN = Packet_Type_CHAT;
+const Packet_Type Packet_Type_Type_MAX = Packet_Type_GAME_UPDATE;
+
+const ::google::protobuf::EnumDescriptor* Packet_Type_descriptor();
+inline const ::std::string& Packet_Type_Name(Packet_Type value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    Packet_Type_descriptor(), value);
+}
+inline bool Packet_Type_Parse(
+    const ::std::string& name, Packet_Type* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<Packet_Type>(
+    Packet_Type_descriptor(), name, value);
+}
 // ===================================================================
+
+class Packet : public ::google::protobuf::Message {
+ public:
+  Packet();
+  virtual ~Packet();
+  
+  Packet(const Packet& from);
+  
+  inline Packet& operator=(const Packet& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Packet& default_instance();
+  void Swap(Packet* other);
+  
+  // implements Message ----------------------------------------------
+  
+  Packet* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Packet& from);
+  void MergeFrom(const Packet& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  typedef Packet_Type Type;
+  static const Type CHAT = Packet_Type_CHAT;
+  static const Type GAME_UPDATE = Packet_Type_GAME_UPDATE;
+  static inline bool Type_IsValid(int value) {
+    return Packet_Type_IsValid(value);
+  }
+  static const Type Type_MIN =
+    Packet_Type_Type_MIN;
+  static const Type Type_MAX =
+    Packet_Type_Type_MAX;
+  static inline const ::google::protobuf::EnumDescriptor*
+  Type_descriptor() {
+    return Packet_Type_descriptor();
+  }
+  static inline const ::std::string& Type_Name(Type value) {
+    return Packet_Type_Name(value);
+  }
+  static inline bool Type_Parse(const ::std::string& name,
+      Type* value) {
+    return Packet_Type_Parse(name, value);
+  }
+  
+  // accessors -------------------------------------------------------
+  
+  // required .pbSpaceCave.Packet.Type type = 1;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 1;
+  inline ::pbSpaceCave::Packet_Type type() const;
+  inline void set_type(::pbSpaceCave::Packet_Type value);
+  
+  // optional .pbSpaceCave.ChatPacket chat = 2;
+  inline bool has_chat() const;
+  inline void clear_chat();
+  static const int kChatFieldNumber = 2;
+  inline const ::pbSpaceCave::ChatPacket& chat() const;
+  inline ::pbSpaceCave::ChatPacket* mutable_chat();
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  int type_;
+  ::pbSpaceCave::ChatPacket* chat_;
+  friend void  protobuf_AddDesc_SpaceCave_2eproto();
+  friend void protobuf_AssignDesc_SpaceCave_2eproto();
+  friend void protobuf_ShutdownFile_SpaceCave_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static Packet* default_instance_;
+};
+// -------------------------------------------------------------------
 
 class ChatPacket : public ::google::protobuf::Message {
  public:
@@ -87,7 +223,7 @@ class ChatPacket : public ::google::protobuf::Message {
   
   // accessors -------------------------------------------------------
   
-  // required string message = 1;
+  // optional string message = 1;
   inline bool has_message() const;
   inline void clear_message();
   static const int kMessageFieldNumber = 1;
@@ -131,9 +267,47 @@ class ChatPacket : public ::google::protobuf::Message {
 
 // ===================================================================
 
+// Packet
+
+// required .pbSpaceCave.Packet.Type type = 1;
+inline bool Packet::has_type() const {
+  return _has_bit(0);
+}
+inline void Packet::clear_type() {
+  type_ = 1;
+  _clear_bit(0);
+}
+inline ::pbSpaceCave::Packet_Type Packet::type() const {
+  return static_cast< ::pbSpaceCave::Packet_Type >(type_);
+}
+inline void Packet::set_type(::pbSpaceCave::Packet_Type value) {
+  GOOGLE_DCHECK(::pbSpaceCave::Packet_Type_IsValid(value));
+  _set_bit(0);
+  type_ = value;
+}
+
+// optional .pbSpaceCave.ChatPacket chat = 2;
+inline bool Packet::has_chat() const {
+  return _has_bit(1);
+}
+inline void Packet::clear_chat() {
+  if (chat_ != NULL) chat_->::pbSpaceCave::ChatPacket::Clear();
+  _clear_bit(1);
+}
+inline const ::pbSpaceCave::ChatPacket& Packet::chat() const {
+  return chat_ != NULL ? *chat_ : *default_instance_->chat_;
+}
+inline ::pbSpaceCave::ChatPacket* Packet::mutable_chat() {
+  _set_bit(1);
+  if (chat_ == NULL) chat_ = new ::pbSpaceCave::ChatPacket;
+  return chat_;
+}
+
+// -------------------------------------------------------------------
+
 // ChatPacket
 
-// required string message = 1;
+// optional string message = 1;
 inline bool ChatPacket::has_message() const {
   return _has_bit(0);
 }
@@ -182,6 +356,10 @@ inline ::std::string* ChatPacket::mutable_message() {
 namespace google {
 namespace protobuf {
 
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::pbSpaceCave::Packet_Type>() {
+  return ::pbSpaceCave::Packet_Type_descriptor();
+}
 
 }  // namespace google
 }  // namespace protobuf

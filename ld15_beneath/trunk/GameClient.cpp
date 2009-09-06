@@ -531,8 +531,11 @@ void GameClient::chatSend( const char *message )
 	if (!m_serverPeer) return;
 
 	// use protobuf to encode packet
-	pbSpaceCave::ChatPacket pbPacket;
-	(*pbPacket.mutable_message()) = message;	
+	pbSpaceCave::Packet pbPacket;
+	
+	pbPacket.set_type( ::pbSpaceCave::Packet_Type_CHAT );
+	pbPacket.mutable_chat()->set_message( message );
+	//(*pbPacket.mutable_message()) = message;	
 	
 	
 	size_t packetSize = pbPacket.ByteSize();
