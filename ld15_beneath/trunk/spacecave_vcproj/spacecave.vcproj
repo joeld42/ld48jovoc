@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="tinyxml.lib DevIL.lib ILU.lib ILUT.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib enet.lib ws2_32.lib winmm.lib"
+				AdditionalDependencies="tinyxml.lib DevIL.lib ILU.lib ILUT.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib enet_d.lib ws2_32.lib winmm.lib libprotobuf_d.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;c:\toolkits\SDL-1.2.4\lib&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\lib&quot;;c:\toolkits\tinyxml\Release;c:\dvlp\lib\"
 				GenerateDebugInformation="true"
@@ -137,9 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="tinyxml.lib DevIL.lib ILU.lib ILUT.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib"
+				AdditionalDependencies="tinyxml.lib DevIL.lib ILU.lib ILUT.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib enet.lib ws2_32.lib winmm.lib libprotobuf.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;c:\toolkits\SDL-1.2.4\lib&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\lib&quot;;c:\toolkits\tinyxml\Release"
+				AdditionalLibraryDirectories="&quot;c:\toolkits\SDL-1.2.4\lib&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\lib&quot;;c:\toolkits\tinyxml\Release;c:\dvlp\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -282,6 +282,22 @@
 			</File>
 			<File
 				RelativePath=".\shipgame.rc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Protobuf Files"
+			>
+			<File
+				RelativePath="..\pbSpaceCave\SpaceCave.pb.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\pbSpaceCave\SpaceCave.pb.h"
+				>
+			</File>
+			<File
+				RelativePath="..\SpaceCave.proto"
 				>
 			</File>
 		</Filter>

@@ -10,6 +10,9 @@
 
 #include <TinyXml.h>
 
+#include <pbSpaceCave/SpaceCave.pb.h>
+using namespace google;
+
 GameClient::GameClient() :
 	m_isInit( false ),
 	m_editor( NULL ),
@@ -524,11 +527,21 @@ void GameClient::connectServer( const char *hostaddr )
 
 void GameClient::chatSend( const char *message )
 {
+	// Do nothing if no server
 	if (!m_serverPeer) return;
 
-	ENetPacket *packet;
+	// use protobuf to encode packet
+	pbSpaceCave::ChatPacket pbPacket;
+	(*pbPacket.mutable_message()) = message;	
+	
+	
+	size_t packetSize = pbPacket.ByteSize();
+	void *packetData = malloc( packetSize );
+	pbPacket.SerializeToArray( packetData, packetSize );
 
-	packet = enet_packet_create( message, strlen( message )+1, 
+	// Now send it
+	ENetPacket *packet;
+	packet = enet_packet_create( packetData, packetSize, 
 							ENET_PACKET_FLAG_RELIABLE );
 
 	enet_peer_send( m_serverPeer, NET_CHANNEL_CHAT, packet );

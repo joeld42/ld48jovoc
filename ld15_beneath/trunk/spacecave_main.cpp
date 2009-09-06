@@ -50,6 +50,10 @@ int main( int argc, char *argv[] )
 	SetConsoleTitle( L"ld15_cavern CONSOLE" );
 	freopen("CONOUT$", "w", stdout );
 #endif
+	
+	
+	// make sure no vesion mismatch for protobuf
+	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 	// Initialize SDL
 	if (SDL_Init( SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO ) < 0 ) 

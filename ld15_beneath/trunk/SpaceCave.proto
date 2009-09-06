@@ -1,0 +1,8 @@
+// Google Protobuf for network packets
+
+package pbSpaceCave;
+
+message ChatPacket
+{
+	optional string message = 1;	
+}

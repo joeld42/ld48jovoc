@@ -30,6 +30,9 @@
 #include <Cavern.h>
 #include <Editor.h>
 
+// protobufs for packets
+#include <pbSpaceCave/SpaceCave.pb.h>
+
 // no point in having more since only 8 players max
 #define MAX_CLIENTS (8)
 
@@ -46,7 +49,7 @@ enum {
 
 // ==================================================
 enum {
-	PacketType_CHAT_MESSAGE = 100,
+	PacketType_CHAT_MESSAGE = 100,	
 
 	PacketType_LAST
 };

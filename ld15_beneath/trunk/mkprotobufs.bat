@@ -1,0 +1,1 @@
+c:\\dvlp\bin\\protoc --cpp_out=./pbSpaceCave SpaceCave.proto
