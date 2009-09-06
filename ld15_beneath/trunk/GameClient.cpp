@@ -1,10 +1,12 @@
-#include <tweakval.h>
-#include <gamefontgl.h>
-#include <jimgui.h>
+
 
 #include <Common.h>
 #include <Server.h>
 #include <GameClient.h>
+
+#include <tweakval.h>
+#include <gamefontgl.h>
+#include <jimgui.h>
 
 #include <TinyXml.h>
 
@@ -16,7 +18,9 @@ GameClient::GameClient() :
 	m_playtest( false ),
 	m_uiCtx( NULL ),
 	m_done( false ),
-	m_server( NULL )	
+	m_localServer( NULL ),
+	m_netServer( NULL ),
+	m_serverPeer( NULL )
 {
 }
 
@@ -52,19 +56,47 @@ void GameClient::update( float dt )
 	// Update current game state
 	if (m_gameState==GameState_GAME)
 	{
-		m_server->game_update( dt );
+		m_localServer->game_update( dt );
 	}
 	else if (m_gameState==GameState_EDITOR)
 	{
 		if (m_editor) m_editor->update( dt );
 	}
+
+	// Update the server, if running
+	// TODO: eventually this should be just about the 
+	// only call to m_localServer
+	if (m_localServer)
+	{		
+		m_localServer->net_update();
+	}
+
+	// Now update our networky stuff
+	net_update();
+}
+
+void GameClient::net_update()
+{
+	// Make sure we're connected to something
+	if (!m_netServer) return;
+
+	ENetEvent event;
+	while( enet_host_service( m_netServer, &event, 0 ) > 0)
+	{
+		switch (event.type)
+		{
+		case ENET_EVENT_TYPE_CONNECT:
+			printf("CLIENT: Connection to server succeeded\n" );
+			break;
+		}
+	}	
 }
 
 void GameClient::updateSim( float dt )
 {
 	if (m_gameState==GameState_GAME)
 	{
-		m_server->game_updateSim( dt );
+		m_localServer->game_updateSim( dt );
 	}
 }
 
@@ -104,7 +136,7 @@ void GameClient::init()
 	Jgui_initContext( m_uiCtx );
 
 	// TEMP: create a server object
-	m_server = new Server( m_shapes );
+	//m_localServer = new Server( m_shapes );
 }
 	
 void GameClient::redraw()
@@ -172,12 +204,12 @@ void GameClient::redraw()
 			if (Jgui_doButton( __LINE__, m_uiCtx, "Single Player", m_fntFontId, 20, 
 				_TV(365), yval, _TV( 125), _TV(30) ) )
 			{
-				m_menuState = MenuState_MAPSELECT;
+				lobbySinglePlayer();				
 			}
 			if (Jgui_doButton(  __LINE__, m_uiCtx, "Multiplayer", m_fntFontId, 20, 
 				_TV(365), yval-=yspc,_TV( 125), _TV(30) ) )
 			{
-				m_menuState = MenuState_LOBBY;
+				lobbyMultiPlayer();				
 			}
 			if (Jgui_doButton(  __LINE__, m_uiCtx, "Editor", m_fntFontId, 20, 
 				_TV(365), yval-=yspc,_TV( 125), _TV(30) ) )
@@ -192,7 +224,7 @@ void GameClient::redraw()
 		} 
 		else if (m_menuState == MenuState_MAPSELECT)
 		{
-			if (Jgui_doButton( __LINE__, m_uiCtx, "Start Game", m_fntFontId, 20, 
+			if (Jgui_doButton( __LINE__, m_uiCtx, "MAPSELECT", m_fntFontId, 20, 
 				_TV(365), yval, _TV( 125), _TV(30) ) )
 			{				
 				newGame();
@@ -200,11 +232,30 @@ void GameClient::redraw()
 		}
 		else if (m_menuState == MenuState_LOBBY)
 		{
-			if (Jgui_doButton( __LINE__, m_uiCtx, "Start Game MP", m_fntFontId, 20, 
+			if (Jgui_doButton( __LINE__, m_uiCtx, "Create Server", m_fntFontId, 20, 
 				_TV(365), yval, _TV( 125), _TV(30) ) )
 			{
-				newGame();
+				// Create a local server that's open for connections
+				m_localServer = new Server( m_shapes, false );	
+				connectServer( "localhost" );
+
+				// other players can join in the map select screen
+				m_menuState = MenuState_MAPSELECT;	
 			}
+			if (Jgui_doButton( __LINE__, m_uiCtx, "Join Localhost", m_fntFontId, 20, 
+				_TV(365), yval-=yspc, _TV( 125), _TV(30) ) )
+			{
+				// We are NOT running a local server
+				m_localServer = NULL;
+				connectServer( "localhost" );
+				m_menuState = MenuState_MAPSELECT;
+			}			
+			if (Jgui_doButton( __LINE__, m_uiCtx, "Join Remote", m_fntFontId, 20, 
+				_TV(365), yval-=yspc, _TV( 125), _TV(30) ) )
+			{
+				printf("TODO: Join Remote\n" );
+				//m_menuState = MenuState_MAPSELECT;
+			}			
 		}
 
 
@@ -223,7 +274,7 @@ void GameClient::gameview_redraw()
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 
-	Shape *player = m_server->m_player;
+	Shape *player = m_localServer->m_player;
 
 	vec2f gameview(player->pos.x - 400, player->pos.y - 300 );
 	pseudoOrtho2D( gameview.x, gameview.x + 800,
@@ -233,14 +284,14 @@ void GameClient::gameview_redraw()
 	glLoadIdentity();
 
 	// draw level
-	m_server->m_level->draw();
+	m_localServer->m_level->draw();
 
 	// Draw player shape
 	glEnable( GL_TEXTURE_2D );
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );		
 
-	m_server->m_player->drawBraindead();
+	m_localServer->m_player->drawBraindead();
 
 	// debug collsion stuff
 #if 0
@@ -320,6 +371,14 @@ void GameClient::keypress( SDL_KeyboardEvent &key )
 			newGame();			
 			break;
 
+		case SDLK_F5:
+			chatSend("Chat Test message 1" );
+			break;
+
+		case SDLK_F6:
+			chatSend("Another chat test" );
+			break;
+
 		case SDLK_F8:			
 			startEditor();			
 			break;
@@ -340,9 +399,9 @@ void GameClient::game_keypress( SDL_KeyboardEvent &key )
 	switch (key.keysym.sym)
 	{
 	case SDLK_F5:
-		if (m_server)
+		if (m_localServer)
 		{
-			m_server->newGame();
+			m_localServer->newGame();
 		}		
 		break;
 	}
@@ -405,7 +464,7 @@ void GameClient::loadShapes( const char *filename )
 void GameClient::newGame()
 {	
 	m_gameState = GameState_GAME;
-	m_server->newGame();
+	m_localServer->newGame();
 }
 
 void GameClient::startEditor()
@@ -416,4 +475,63 @@ void GameClient::startEditor()
 	{
 		m_editor = new Editor( m_fntFontId, m_shapes );					
 	}
+}
+
+void GameClient::lobbySinglePlayer()
+{
+	// not really a lobby step here... just create a local
+	// server and move on to stage select
+	m_localServer = new Server( m_shapes, true );	
+	connectServer( "localhost" );
+
+	// and immediately go to the map select screen
+	m_menuState = MenuState_MAPSELECT;	
+}
+
+void GameClient::lobbyMultiPlayer()
+{
+	// Go to lobby stage to create or join a server
+	m_menuState = MenuState_LOBBY;
+}
+
+void GameClient::connectServer( const char *hostaddr )
+{
+	m_netServer = enet_host_create( NULL, 1, 0, 0 );
+	if (m_netServer == NULL)
+	{
+		printf("CLIENT: Creating server failed..\n" );
+		m_menuState = MenuState_MAINMENU;
+		return;
+	}
+	
+	printf("CLIENT: Creating server successful\n" );
+	
+	// connect to localhost
+	enet_address_set_host( &m_netAddress, hostaddr );
+	m_netAddress.port = SPACECAVE_PORT;
+
+	m_serverPeer = enet_host_connect( m_netServer, &m_netAddress, NUM_NET_CHANNELS );
+	if (!m_serverPeer)
+	{
+		printf("CLIENT: Connect to server fail\n" );
+	}
+	else
+	{
+		printf("CLIENT: Connect succeeded\n" );
+	}
+	
+}
+
+void GameClient::chatSend( const char *message )
+{
+	if (!m_serverPeer) return;
+
+	ENetPacket *packet;
+
+	packet = enet_packet_create( message, strlen( message )+1, 
+							ENET_PACKET_FLAG_RELIABLE );
+
+	enet_peer_send( m_serverPeer, NET_CHANNEL_CHAT, packet );
+
+	// will get flushed next net_update
 }

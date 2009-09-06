@@ -2,9 +2,10 @@
 #define COMMON_H
 
 #ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <crtdbg.h>
+# define WIN32_LEAN_AND_MEAN
+# include <winsock2.h>
+# include <windows.h>
+# include <crtdbg.h>
 #endif
 
 #include <iostream>

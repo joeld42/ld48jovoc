@@ -1,27 +1,52 @@
 #include <map>
 
+#include <Common.h>
+#include <Server.h>
+
 #include <tweakval.h>
 #include <gamefontgl.h>
 #include <jimgui.h>
 
-#include <Common.h>
-#include <Server.h>
-
 #include <TinyXml.h>
 
 
-Server::Server( std::vector<Shape*> &shapes ) :
+Server::Server( std::vector<Shape*> &shapes, bool singlePlayer ) :
 	m_isInit( false ),
 	m_level( NULL ),
 	m_vel( 0.0f, 0.0f ),
-	m_shapes( shapes )
+	m_shapes( shapes ),
+	m_clientHost( NULL ),
+	m_singlePlayer( singlePlayer )
 {
 	init();
+	initNetwork( );	
 }
 
 Server::~Server()
 {
+	if (m_clientHost)
+	{
+		enet_host_destroy( m_clientHost );
+	}
+
 	delete m_level;
+}
+void Server::initNetwork( )
+{
+	enet_address_set_host( &m_serverAddr, "localhost" );
+	m_serverAddr.port = SPACECAVE_PORT;
+
+	m_clientHost = enet_host_create( &m_serverAddr, 
+							m_singlePlayer?1:MAX_CLIENTS, 
+							0, 0 );
+	if (!m_clientHost)
+	{
+		printf("SERVER: Failed to create host\n" );
+	}
+	else
+	{
+		printf("SERVER: Host created successfully\n" );
+	}
 }
 
 void Server::game_updateSim( float dt )
@@ -147,6 +172,42 @@ void Server::game_updateSim( float dt )
 void Server::game_update( float dt )
 {
 //	printf("Update %3.2f\n", dt );
+}
+
+// Do networky stuff
+void Server::net_update( )
+{
+	ENetEvent event;
+	if (enet_host_service( m_clientHost, &event, 0 ))
+	{
+		switch (event.type)
+		{
+			case ENET_EVENT_TYPE_CONNECT:
+				printf("SERVER: A new client connected from %x:%u.\n",
+					event.peer->address.host,
+					event.peer->address.port );
+				
+				// Store stuff in here
+				event.peer->data = "Client information";
+				break;
+
+			case ENET_EVENT_TYPE_RECEIVE:
+				printf("SERVER: A packet of length %u containing %s was recieved from %s on channel %u.\n",
+					event.packet->dataLength,
+					event.packet->data,
+					event.peer->data,
+					event.channelID );
+
+				enet_packet_destroy( event.packet );
+				break;
+
+			case ENET_EVENT_TYPE_DISCONNECT:
+				printf("SERVER: %s disconnected\n", event.peer->data );
+				event.peer->data = NULL;
+				break;
+
+		}
+	}	
 }
 
 void Server::init()

@@ -1,5 +1,6 @@
 #ifdef WIN32
 # define WIN32_LEAN_AND_MEAN
+# include <winsock2.h>
 # include <windows.h>
 # include <crtdbg.h>
 #endif
@@ -74,7 +75,7 @@ int main( int argc, char *argv[] )
 	}
 		
 
-	SDL_WM_SetCaption( "LD15 Cavern Game", NULL );
+	SDL_WM_SetCaption( "Spaceships in a Cave", NULL );
 
 	// seed rand
 	srand( time(0) );
@@ -82,6 +83,16 @@ int main( int argc, char *argv[] )
 	// initialize DevIL
 	ilInit();
 	ilutRenderer( ILUT_OPENGL );
+
+	// Initialize enet
+	if (enet_initialize() != 0)
+	{
+		errorMessage( "Unable to initialize networking." );
+		exit(1);
+	}
+	
+	// clean up net stuff at exit
+	atexit( enet_deinitialize );
 
 	// init game object
 	GameClient *game = new GameClient();

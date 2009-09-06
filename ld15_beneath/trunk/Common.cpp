@@ -1,11 +1,11 @@
 #include <map>
 
+#include <Common.h>
+#include <Server.h>
+
 #include <tweakval.h>
 #include <gamefontgl.h>
 #include <jimgui.h>
-
-#include <Common.h>
-#include <Server.h>
 
 #include <TinyXml.h>
 
