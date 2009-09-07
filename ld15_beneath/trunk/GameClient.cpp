@@ -134,14 +134,14 @@ void GameClient::net_update()
 
 void GameClient::updateSim( float dt )
 {
+	if (m_gameState != GameState_GAME) return;
+
 	// If we're hosting the server, allow
 	// it to update
 	if (m_localServer)
 	{		
 		m_localServer->game_updateSim( dt );
-	}
-
-	// Update keyboard stuff
+	}	
 
 	// Continuous (key state) keys
 	const int CONTROL_AMT = 100;
@@ -381,6 +381,23 @@ void GameClient::doMapSelectScreen()
 
 void GameClient::doLobbyScreen()
 {
+	
+
+	if (Jgui_doTextEntry( __LINE__, m_uiCtx, "Name:", 
+					    m_lobbyName, NAME_MAX_LEN,
+						m_fntFontId, 20, 
+						_TV(250), _TV(450), _TV( 250), _TV(30) ) )
+	{
+		printf("Name activate\n" );
+	}
+
+	if (Jgui_doTextEntry( __LINE__, m_uiCtx, "Server:", 
+						m_remoteAddr, ADDR_MAX_LEN, m_fntFontId, 20, 
+						_TV(250), _TV(410), _TV(250), _TV(30) ) )
+	{
+		printf("Name activate\n" );
+	}
+
 	int yval = _TV(250);
 	int yspc = _TV(50);
 
@@ -528,6 +545,26 @@ void GameClient::keypress( SDL_KeyboardEvent &key )
 			startEditor();			
 			break;
 		}
+	}
+
+	// Pass along the key to Jgui in case it needs it
+	switch( key.keysym.sym )
+	{	
+		case SDLK_RETURN: m_uiCtx->m_keyPress = JguiK_ENTER; break;
+		case SDLK_LEFT:  m_uiCtx->m_keyPress = JguiK_LEFT; break;
+		case SDLK_RIGHT: m_uiCtx->m_keyPress = JguiK_RIGHT; break;
+		case SDLK_UP:    m_uiCtx->m_keyPress = JguiK_UP; break;
+		case SDLK_DOWN:  m_uiCtx->m_keyPress = JguiK_DOWN; break;
+		
+		case SDLK_BACKSPACE: m_uiCtx->m_keyPress = JguiK_BACKSPACE; break;
+		case SDLK_DELETE:    m_uiCtx->m_keyPress = JguiK_DELETE; break;
+
+		default:			
+			if ( (key.keysym.sym >= SDLK_a) && (key.keysym.sym <= SDLK_z) )
+			{
+				m_uiCtx->m_keyPress = 'a' + (key.keysym.sym - SDLK_a);
+			}
+			break;		
 	}
 }
 

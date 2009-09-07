@@ -36,7 +36,7 @@
 struct Jgui_UIContext;
 
 #define NAME_MAX_LEN (32)
-#define NAME_MAX_ADDR (64)
+#define ADDR_MAX_LEN (64)
 
 class GameClient
 {
@@ -129,7 +129,7 @@ protected:
 
 	// lobby info
 	char m_lobbyName[NAME_MAX_LEN];
-	char m_remoteAddr[NAME_MAX_ADDR];
+	char m_remoteAddr[ADDR_MAX_LEN];
 	//uint32 m_playerColor;	
 
 	// Game data
