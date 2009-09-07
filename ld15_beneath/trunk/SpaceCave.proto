@@ -5,10 +5,20 @@ package pbSpaceCave;
 message Packet
 {
 	enum Type { 
+		// General stuff
 		CHAT            = 1;
+		
+		// Lobby stuff
 		IDENTITY        = 2;
 		ADD_PLAYER      = 3;
 		PLAYERSETTINGS  = 4;
+		SETREADYSTATUS  = 5;
+		STARTGAME       = 6;
+		
+		// Gameplay stuff
+		SHIPCONTROLS    = 7;
+		UPDATE          = 8;
+		
 	};
 	required Type type = 1;
 		
@@ -16,6 +26,10 @@ message Packet
 	optional AddPlayerPacket addPlayer = 3;
 	optional IdentityPacket identity = 4;
 	optional PlayerSettingsPacket pset = 5;
+	optional SetReadyStatus ready = 6;
+	
+	optional ShipControlsPacket ctrl = 7;
+	optional UpdatePacket       update = 8;
 }
 
 message ChatPacket
@@ -41,4 +55,39 @@ message PlayerSettingsPacket
 
 message AddPlayerPacket
 {			
+}
+
+message SetReadyStatus
+{			
+	required bool readyToStart = 1;
+}
+
+message ShipControlsPacket
+{
+	// 0, 100, or -100 (for now until controllers with
+	// variable button pressure are supported)
+	optional int32 fwd_thrusters     = 1 [ default=0 ];
+	optional int32 lateral_thrusters = 2 [ default=0 ];
+	optional int32 rotation_amt      = 3 [ default=0 ];
+}
+
+// this is the big one
+message UpdatePacket
+{
+	// TODO: ticknum or something.. 
+	repeated GameObj obj = 1;
+	
+	// TODO: list of events triggered this tick
+}
+
+message GameObj
+{
+	// TODO: make this work for non-ships
+	required uint32 shipIndex = 1;
+	
+	optional float pos_x = 2;
+	optional float pos_y = 3;
+	optional float vel_x = 4;
+	optional float vel_y = 5;
+	optional float angle = 6;
 }

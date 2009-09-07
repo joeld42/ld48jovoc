@@ -35,16 +35,24 @@ class ChatPacket;
 class IdentityPacket;
 class PlayerSettingsPacket;
 class AddPlayerPacket;
+class SetReadyStatus;
+class ShipControlsPacket;
+class UpdatePacket;
+class GameObj;
 
 enum Packet_Type {
   Packet_Type_CHAT = 1,
   Packet_Type_IDENTITY = 2,
   Packet_Type_ADD_PLAYER = 3,
-  Packet_Type_PLAYERSETTINGS = 4
+  Packet_Type_PLAYERSETTINGS = 4,
+  Packet_Type_SETREADYSTATUS = 5,
+  Packet_Type_STARTGAME = 6,
+  Packet_Type_SHIPCONTROLS = 7,
+  Packet_Type_UPDATE = 8
 };
 bool Packet_Type_IsValid(int value);
 const Packet_Type Packet_Type_Type_MIN = Packet_Type_CHAT;
-const Packet_Type Packet_Type_Type_MAX = Packet_Type_PLAYERSETTINGS;
+const Packet_Type Packet_Type_Type_MAX = Packet_Type_UPDATE;
 
 const ::google::protobuf::EnumDescriptor* Packet_Type_descriptor();
 inline const ::std::string& Packet_Type_Name(Packet_Type value) {
@@ -114,6 +122,10 @@ class Packet : public ::google::protobuf::Message {
   static const Type IDENTITY = Packet_Type_IDENTITY;
   static const Type ADD_PLAYER = Packet_Type_ADD_PLAYER;
   static const Type PLAYERSETTINGS = Packet_Type_PLAYERSETTINGS;
+  static const Type SETREADYSTATUS = Packet_Type_SETREADYSTATUS;
+  static const Type STARTGAME = Packet_Type_STARTGAME;
+  static const Type SHIPCONTROLS = Packet_Type_SHIPCONTROLS;
+  static const Type UPDATE = Packet_Type_UPDATE;
   static inline bool Type_IsValid(int value) {
     return Packet_Type_IsValid(value);
   }
@@ -170,6 +182,27 @@ class Packet : public ::google::protobuf::Message {
   inline const ::pbSpaceCave::PlayerSettingsPacket& pset() const;
   inline ::pbSpaceCave::PlayerSettingsPacket* mutable_pset();
   
+  // optional .pbSpaceCave.SetReadyStatus ready = 6;
+  inline bool has_ready() const;
+  inline void clear_ready();
+  static const int kReadyFieldNumber = 6;
+  inline const ::pbSpaceCave::SetReadyStatus& ready() const;
+  inline ::pbSpaceCave::SetReadyStatus* mutable_ready();
+  
+  // optional .pbSpaceCave.ShipControlsPacket ctrl = 7;
+  inline bool has_ctrl() const;
+  inline void clear_ctrl();
+  static const int kCtrlFieldNumber = 7;
+  inline const ::pbSpaceCave::ShipControlsPacket& ctrl() const;
+  inline ::pbSpaceCave::ShipControlsPacket* mutable_ctrl();
+  
+  // optional .pbSpaceCave.UpdatePacket update = 8;
+  inline bool has_update() const;
+  inline void clear_update();
+  static const int kUpdateFieldNumber = 8;
+  inline const ::pbSpaceCave::UpdatePacket& update() const;
+  inline ::pbSpaceCave::UpdatePacket* mutable_update();
+  
  private:
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
   mutable int _cached_size_;
@@ -179,11 +212,14 @@ class Packet : public ::google::protobuf::Message {
   ::pbSpaceCave::AddPlayerPacket* addplayer_;
   ::pbSpaceCave::IdentityPacket* identity_;
   ::pbSpaceCave::PlayerSettingsPacket* pset_;
+  ::pbSpaceCave::SetReadyStatus* ready_;
+  ::pbSpaceCave::ShipControlsPacket* ctrl_;
+  ::pbSpaceCave::UpdatePacket* update_;
   friend void  protobuf_AddDesc_SpaceCave_2eproto();
   friend void protobuf_AssignDesc_SpaceCave_2eproto();
   friend void protobuf_ShutdownFile_SpaceCave_2eproto();
   
-  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
   
   // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
   inline bool _has_bit(int index) const {
@@ -567,6 +603,413 @@ class AddPlayerPacket : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static AddPlayerPacket* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class SetReadyStatus : public ::google::protobuf::Message {
+ public:
+  SetReadyStatus();
+  virtual ~SetReadyStatus();
+  
+  SetReadyStatus(const SetReadyStatus& from);
+  
+  inline SetReadyStatus& operator=(const SetReadyStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SetReadyStatus& default_instance();
+  void Swap(SetReadyStatus* other);
+  
+  // implements Message ----------------------------------------------
+  
+  SetReadyStatus* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const SetReadyStatus& from);
+  void MergeFrom(const SetReadyStatus& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required bool readyToStart = 1;
+  inline bool has_readytostart() const;
+  inline void clear_readytostart();
+  static const int kReadyToStartFieldNumber = 1;
+  inline bool readytostart() const;
+  inline void set_readytostart(bool value);
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  bool readytostart_;
+  friend void  protobuf_AddDesc_SpaceCave_2eproto();
+  friend void protobuf_AssignDesc_SpaceCave_2eproto();
+  friend void protobuf_ShutdownFile_SpaceCave_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static SetReadyStatus* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class ShipControlsPacket : public ::google::protobuf::Message {
+ public:
+  ShipControlsPacket();
+  virtual ~ShipControlsPacket();
+  
+  ShipControlsPacket(const ShipControlsPacket& from);
+  
+  inline ShipControlsPacket& operator=(const ShipControlsPacket& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ShipControlsPacket& default_instance();
+  void Swap(ShipControlsPacket* other);
+  
+  // implements Message ----------------------------------------------
+  
+  ShipControlsPacket* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ShipControlsPacket& from);
+  void MergeFrom(const ShipControlsPacket& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // optional int32 fwd_thrusters = 1 [default = 0];
+  inline bool has_fwd_thrusters() const;
+  inline void clear_fwd_thrusters();
+  static const int kFwdThrustersFieldNumber = 1;
+  inline ::google::protobuf::int32 fwd_thrusters() const;
+  inline void set_fwd_thrusters(::google::protobuf::int32 value);
+  
+  // optional int32 lateral_thrusters = 2 [default = 0];
+  inline bool has_lateral_thrusters() const;
+  inline void clear_lateral_thrusters();
+  static const int kLateralThrustersFieldNumber = 2;
+  inline ::google::protobuf::int32 lateral_thrusters() const;
+  inline void set_lateral_thrusters(::google::protobuf::int32 value);
+  
+  // optional int32 rotation_amt = 3 [default = 0];
+  inline bool has_rotation_amt() const;
+  inline void clear_rotation_amt();
+  static const int kRotationAmtFieldNumber = 3;
+  inline ::google::protobuf::int32 rotation_amt() const;
+  inline void set_rotation_amt(::google::protobuf::int32 value);
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::int32 fwd_thrusters_;
+  ::google::protobuf::int32 lateral_thrusters_;
+  ::google::protobuf::int32 rotation_amt_;
+  friend void  protobuf_AddDesc_SpaceCave_2eproto();
+  friend void protobuf_AssignDesc_SpaceCave_2eproto();
+  friend void protobuf_ShutdownFile_SpaceCave_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static ShipControlsPacket* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class UpdatePacket : public ::google::protobuf::Message {
+ public:
+  UpdatePacket();
+  virtual ~UpdatePacket();
+  
+  UpdatePacket(const UpdatePacket& from);
+  
+  inline UpdatePacket& operator=(const UpdatePacket& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const UpdatePacket& default_instance();
+  void Swap(UpdatePacket* other);
+  
+  // implements Message ----------------------------------------------
+  
+  UpdatePacket* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const UpdatePacket& from);
+  void MergeFrom(const UpdatePacket& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // repeated .pbSpaceCave.GameObj obj = 1;
+  inline int obj_size() const;
+  inline void clear_obj();
+  static const int kObjFieldNumber = 1;
+  inline const ::google::protobuf::RepeatedPtrField< ::pbSpaceCave::GameObj >& obj() const;
+  inline ::google::protobuf::RepeatedPtrField< ::pbSpaceCave::GameObj >* mutable_obj();
+  inline const ::pbSpaceCave::GameObj& obj(int index) const;
+  inline ::pbSpaceCave::GameObj* mutable_obj(int index);
+  inline ::pbSpaceCave::GameObj* add_obj();
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::RepeatedPtrField< ::pbSpaceCave::GameObj > obj_;
+  friend void  protobuf_AddDesc_SpaceCave_2eproto();
+  friend void protobuf_AssignDesc_SpaceCave_2eproto();
+  friend void protobuf_ShutdownFile_SpaceCave_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static UpdatePacket* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class GameObj : public ::google::protobuf::Message {
+ public:
+  GameObj();
+  virtual ~GameObj();
+  
+  GameObj(const GameObj& from);
+  
+  inline GameObj& operator=(const GameObj& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GameObj& default_instance();
+  void Swap(GameObj* other);
+  
+  // implements Message ----------------------------------------------
+  
+  GameObj* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GameObj& from);
+  void MergeFrom(const GameObj& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const { _cached_size_ = size; }
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  // accessors -------------------------------------------------------
+  
+  // required uint32 shipIndex = 1;
+  inline bool has_shipindex() const;
+  inline void clear_shipindex();
+  static const int kShipIndexFieldNumber = 1;
+  inline ::google::protobuf::uint32 shipindex() const;
+  inline void set_shipindex(::google::protobuf::uint32 value);
+  
+  // optional float pos_x = 2;
+  inline bool has_pos_x() const;
+  inline void clear_pos_x();
+  static const int kPosXFieldNumber = 2;
+  inline float pos_x() const;
+  inline void set_pos_x(float value);
+  
+  // optional float pos_y = 3;
+  inline bool has_pos_y() const;
+  inline void clear_pos_y();
+  static const int kPosYFieldNumber = 3;
+  inline float pos_y() const;
+  inline void set_pos_y(float value);
+  
+  // optional float vel_x = 4;
+  inline bool has_vel_x() const;
+  inline void clear_vel_x();
+  static const int kVelXFieldNumber = 4;
+  inline float vel_x() const;
+  inline void set_vel_x(float value);
+  
+  // optional float vel_y = 5;
+  inline bool has_vel_y() const;
+  inline void clear_vel_y();
+  static const int kVelYFieldNumber = 5;
+  inline float vel_y() const;
+  inline void set_vel_y(float value);
+  
+  // optional float angle = 6;
+  inline bool has_angle() const;
+  inline void clear_angle();
+  static const int kAngleFieldNumber = 6;
+  inline float angle() const;
+  inline void set_angle(float value);
+  
+ private:
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  mutable int _cached_size_;
+  
+  ::google::protobuf::uint32 shipindex_;
+  float pos_x_;
+  float pos_y_;
+  float vel_x_;
+  float vel_y_;
+  float angle_;
+  friend void  protobuf_AddDesc_SpaceCave_2eproto();
+  friend void protobuf_AssignDesc_SpaceCave_2eproto();
+  friend void protobuf_ShutdownFile_SpaceCave_2eproto();
+  
+  ::google::protobuf::uint32 _has_bits_[(6 + 31) / 32];
+  
+  // WHY DOES & HAVE LOWER PRECEDENCE THAN != !?
+  inline bool _has_bit(int index) const {
+    return (_has_bits_[index / 32] & (1u << (index % 32))) != 0;
+  }
+  inline void _set_bit(int index) {
+    _has_bits_[index / 32] |= (1u << (index % 32));
+  }
+  inline void _clear_bit(int index) {
+    _has_bits_[index / 32] &= ~(1u << (index % 32));
+  }
+  
+  void InitAsDefaultInstance();
+  static GameObj* default_instance_;
+};
 // ===================================================================
 
 
@@ -660,6 +1103,57 @@ inline ::pbSpaceCave::PlayerSettingsPacket* Packet::mutable_pset() {
   _set_bit(4);
   if (pset_ == NULL) pset_ = new ::pbSpaceCave::PlayerSettingsPacket;
   return pset_;
+}
+
+// optional .pbSpaceCave.SetReadyStatus ready = 6;
+inline bool Packet::has_ready() const {
+  return _has_bit(5);
+}
+inline void Packet::clear_ready() {
+  if (ready_ != NULL) ready_->::pbSpaceCave::SetReadyStatus::Clear();
+  _clear_bit(5);
+}
+inline const ::pbSpaceCave::SetReadyStatus& Packet::ready() const {
+  return ready_ != NULL ? *ready_ : *default_instance_->ready_;
+}
+inline ::pbSpaceCave::SetReadyStatus* Packet::mutable_ready() {
+  _set_bit(5);
+  if (ready_ == NULL) ready_ = new ::pbSpaceCave::SetReadyStatus;
+  return ready_;
+}
+
+// optional .pbSpaceCave.ShipControlsPacket ctrl = 7;
+inline bool Packet::has_ctrl() const {
+  return _has_bit(6);
+}
+inline void Packet::clear_ctrl() {
+  if (ctrl_ != NULL) ctrl_->::pbSpaceCave::ShipControlsPacket::Clear();
+  _clear_bit(6);
+}
+inline const ::pbSpaceCave::ShipControlsPacket& Packet::ctrl() const {
+  return ctrl_ != NULL ? *ctrl_ : *default_instance_->ctrl_;
+}
+inline ::pbSpaceCave::ShipControlsPacket* Packet::mutable_ctrl() {
+  _set_bit(6);
+  if (ctrl_ == NULL) ctrl_ = new ::pbSpaceCave::ShipControlsPacket;
+  return ctrl_;
+}
+
+// optional .pbSpaceCave.UpdatePacket update = 8;
+inline bool Packet::has_update() const {
+  return _has_bit(7);
+}
+inline void Packet::clear_update() {
+  if (update_ != NULL) update_->::pbSpaceCave::UpdatePacket::Clear();
+  _clear_bit(7);
+}
+inline const ::pbSpaceCave::UpdatePacket& Packet::update() const {
+  return update_ != NULL ? *update_ : *default_instance_->update_;
+}
+inline ::pbSpaceCave::UpdatePacket* Packet::mutable_update() {
+  _set_bit(7);
+  if (update_ == NULL) update_ = new ::pbSpaceCave::UpdatePacket;
+  return update_;
 }
 
 // -------------------------------------------------------------------
@@ -835,6 +1329,207 @@ inline ::std::string* PlayerSettingsPacket::mutable_playername() {
 // -------------------------------------------------------------------
 
 // AddPlayerPacket
+
+// -------------------------------------------------------------------
+
+// SetReadyStatus
+
+// required bool readyToStart = 1;
+inline bool SetReadyStatus::has_readytostart() const {
+  return _has_bit(0);
+}
+inline void SetReadyStatus::clear_readytostart() {
+  readytostart_ = false;
+  _clear_bit(0);
+}
+inline bool SetReadyStatus::readytostart() const {
+  return readytostart_;
+}
+inline void SetReadyStatus::set_readytostart(bool value) {
+  _set_bit(0);
+  readytostart_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// ShipControlsPacket
+
+// optional int32 fwd_thrusters = 1 [default = 0];
+inline bool ShipControlsPacket::has_fwd_thrusters() const {
+  return _has_bit(0);
+}
+inline void ShipControlsPacket::clear_fwd_thrusters() {
+  fwd_thrusters_ = 0;
+  _clear_bit(0);
+}
+inline ::google::protobuf::int32 ShipControlsPacket::fwd_thrusters() const {
+  return fwd_thrusters_;
+}
+inline void ShipControlsPacket::set_fwd_thrusters(::google::protobuf::int32 value) {
+  _set_bit(0);
+  fwd_thrusters_ = value;
+}
+
+// optional int32 lateral_thrusters = 2 [default = 0];
+inline bool ShipControlsPacket::has_lateral_thrusters() const {
+  return _has_bit(1);
+}
+inline void ShipControlsPacket::clear_lateral_thrusters() {
+  lateral_thrusters_ = 0;
+  _clear_bit(1);
+}
+inline ::google::protobuf::int32 ShipControlsPacket::lateral_thrusters() const {
+  return lateral_thrusters_;
+}
+inline void ShipControlsPacket::set_lateral_thrusters(::google::protobuf::int32 value) {
+  _set_bit(1);
+  lateral_thrusters_ = value;
+}
+
+// optional int32 rotation_amt = 3 [default = 0];
+inline bool ShipControlsPacket::has_rotation_amt() const {
+  return _has_bit(2);
+}
+inline void ShipControlsPacket::clear_rotation_amt() {
+  rotation_amt_ = 0;
+  _clear_bit(2);
+}
+inline ::google::protobuf::int32 ShipControlsPacket::rotation_amt() const {
+  return rotation_amt_;
+}
+inline void ShipControlsPacket::set_rotation_amt(::google::protobuf::int32 value) {
+  _set_bit(2);
+  rotation_amt_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// UpdatePacket
+
+// repeated .pbSpaceCave.GameObj obj = 1;
+inline int UpdatePacket::obj_size() const {
+  return obj_.size();
+}
+inline void UpdatePacket::clear_obj() {
+  obj_.Clear();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pbSpaceCave::GameObj >&
+UpdatePacket::obj() const {
+  return obj_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::pbSpaceCave::GameObj >*
+UpdatePacket::mutable_obj() {
+  return &obj_;
+}
+inline const ::pbSpaceCave::GameObj& UpdatePacket::obj(int index) const {
+  return obj_.Get(index);
+}
+inline ::pbSpaceCave::GameObj* UpdatePacket::mutable_obj(int index) {
+  return obj_.Mutable(index);
+}
+inline ::pbSpaceCave::GameObj* UpdatePacket::add_obj() {
+  return obj_.Add();
+}
+
+// -------------------------------------------------------------------
+
+// GameObj
+
+// required uint32 shipIndex = 1;
+inline bool GameObj::has_shipindex() const {
+  return _has_bit(0);
+}
+inline void GameObj::clear_shipindex() {
+  shipindex_ = 0u;
+  _clear_bit(0);
+}
+inline ::google::protobuf::uint32 GameObj::shipindex() const {
+  return shipindex_;
+}
+inline void GameObj::set_shipindex(::google::protobuf::uint32 value) {
+  _set_bit(0);
+  shipindex_ = value;
+}
+
+// optional float pos_x = 2;
+inline bool GameObj::has_pos_x() const {
+  return _has_bit(1);
+}
+inline void GameObj::clear_pos_x() {
+  pos_x_ = 0;
+  _clear_bit(1);
+}
+inline float GameObj::pos_x() const {
+  return pos_x_;
+}
+inline void GameObj::set_pos_x(float value) {
+  _set_bit(1);
+  pos_x_ = value;
+}
+
+// optional float pos_y = 3;
+inline bool GameObj::has_pos_y() const {
+  return _has_bit(2);
+}
+inline void GameObj::clear_pos_y() {
+  pos_y_ = 0;
+  _clear_bit(2);
+}
+inline float GameObj::pos_y() const {
+  return pos_y_;
+}
+inline void GameObj::set_pos_y(float value) {
+  _set_bit(2);
+  pos_y_ = value;
+}
+
+// optional float vel_x = 4;
+inline bool GameObj::has_vel_x() const {
+  return _has_bit(3);
+}
+inline void GameObj::clear_vel_x() {
+  vel_x_ = 0;
+  _clear_bit(3);
+}
+inline float GameObj::vel_x() const {
+  return vel_x_;
+}
+inline void GameObj::set_vel_x(float value) {
+  _set_bit(3);
+  vel_x_ = value;
+}
+
+// optional float vel_y = 5;
+inline bool GameObj::has_vel_y() const {
+  return _has_bit(4);
+}
+inline void GameObj::clear_vel_y() {
+  vel_y_ = 0;
+  _clear_bit(4);
+}
+inline float GameObj::vel_y() const {
+  return vel_y_;
+}
+inline void GameObj::set_vel_y(float value) {
+  _set_bit(4);
+  vel_y_ = value;
+}
+
+// optional float angle = 6;
+inline bool GameObj::has_angle() const {
+  return _has_bit(5);
+}
+inline void GameObj::clear_angle() {
+  angle_ = 0;
+  _clear_bit(5);
+}
+inline float GameObj::angle() const {
+  return angle_;
+}
+inline void GameObj::set_angle(float value) {
+  _set_bit(5);
+  angle_ = value;
+}
 
 
 }  // namespace pbSpaceCave

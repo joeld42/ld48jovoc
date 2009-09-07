@@ -24,16 +24,24 @@ GameClient::GameClient() :
 	m_localServer( NULL ),
 	m_netServer( NULL ),
 	m_serverPeer( NULL ),
-	m_player( NULL )
+	m_player( NULL ),
+	m_level( NULL ),
+	
+	m_fwd_thrusters( 0 ),
+	m_lateral_thrusters( 0 ),
+	m_rotation_amt( 0 )
 {
 	strcpy( m_lobbyName, "Player" );
 	strcpy( m_remoteAddr, "127.0.0.1" );
+
+	m_pbCtrlPacket.set_type( ::pbSpaceCave::Packet_Type_SHIPCONTROLS );
 }
 
 GameClient::~GameClient()
 {
 	delete m_editor;
 	delete m_uiCtx;
+	delete m_level;
 }
 
 bool GameClient::done()
@@ -62,7 +70,10 @@ void GameClient::update( float dt )
 	// Update current game state
 	if (m_gameState==GameState_GAME)
 	{
-		m_localServer->game_update( dt );
+		if (m_localServer)
+		{
+			m_localServer->game_update( dt );
+		}
 	}
 	else if (m_gameState==GameState_EDITOR)
 	{
@@ -123,10 +134,71 @@ void GameClient::net_update()
 
 void GameClient::updateSim( float dt )
 {
-	if (m_gameState==GameState_GAME)
-	{
+	// If we're hosting the server, allow
+	// it to update
+	if (m_localServer)
+	{		
 		m_localServer->game_updateSim( dt );
 	}
+
+	// Update keyboard stuff
+
+	// Continuous (key state) keys
+	const int CONTROL_AMT = 100;
+	Uint8 *keyState = SDL_GetKeyState( NULL );
+
+	// rotation
+	if ( ((keyState[SDLK_LEFT]) && (!keyState[SDLK_RIGHT])) ||
+		 ((keyState[SDLK_a]) && (!keyState[SDLK_d])) )
+	{
+		m_rotation_amt = CONTROL_AMT;
+	}
+	else if ( ((!keyState[SDLK_LEFT]) && (keyState[SDLK_RIGHT])) ||
+		     ((!keyState[SDLK_a]) && (keyState[SDLK_d])) )
+	{
+		m_rotation_amt = -CONTROL_AMT;
+	}
+	else m_rotation_amt = 0;
+
+	// lateral thrust
+	if ((keyState[SDLK_q]) && (!keyState[SDLK_e]))		 
+	{
+		m_lateral_thrusters = CONTROL_AMT;
+	}
+	else if ((!keyState[SDLK_q]) && (keyState[SDLK_e]))		     
+	{
+		m_lateral_thrusters = -CONTROL_AMT;
+	}
+	else m_lateral_thrusters = 0;
+
+	// forward/backward
+	if ( ((keyState[SDLK_UP]) && (!keyState[SDLK_DOWN])) ||
+		 ((keyState[SDLK_w]) && (!keyState[SDLK_s])) )
+	{
+		m_fwd_thrusters = CONTROL_AMT;
+	}
+	else if ( ((!keyState[SDLK_UP]) && (keyState[SDLK_DOWN])) ||
+				((!keyState[SDLK_w]) && (keyState[SDLK_s])) )
+	{
+		m_fwd_thrusters = -CONTROL_AMT;
+	}
+	else m_fwd_thrusters = 0;
+		
+
+	// If the controls have changed, tell the server	
+	if ( (m_pbCtrlPacket.ctrl().fwd_thrusters() != m_fwd_thrusters) ||
+		(m_pbCtrlPacket.ctrl().lateral_thrusters() != m_lateral_thrusters) ||
+		(m_pbCtrlPacket.ctrl().rotation_amt() != m_rotation_amt) )
+	{
+		// stuff new controls into packet
+		m_pbCtrlPacket.mutable_ctrl()->set_fwd_thrusters( m_fwd_thrusters );
+		m_pbCtrlPacket.mutable_ctrl()->set_lateral_thrusters( m_lateral_thrusters );
+		m_pbCtrlPacket.mutable_ctrl()->set_rotation_amt( m_rotation_amt );
+
+		printf("CLIENT: Sending ctrl update\n" );
+		sendPacket( NET_CHANNEL_GAMEUPDATE, m_pbCtrlPacket );
+	}
+
 }
 
 
@@ -286,12 +358,24 @@ void GameClient::doMapSelectScreen()
 	}
 
 	// start game
+	const char *readyStatus = m_localServer?"Start Game":"Ready";
+	if ((m_player) && (m_player->m_readyToStart))
+	{
+		readyStatus = "Waiting...";
+	}
+
 	if (Jgui_doButton( __LINE__, m_uiCtx, 
-					(m_localServer?"Start Game":"Ready"), 
+					readyStatus,
 					m_fntFontId, 20, 
 					_TV(365), _TV(200), _TV( 125), _TV(30) ) )
 	{				
-				newGame();
+		// Tell the server we are ready to start
+		pbSpaceCave::Packet pbPacket;
+		pbPacket.set_type( ::pbSpaceCave::Packet_Type_SETREADYSTATUS );		
+		pbPacket.mutable_ready()->set_readytostart( true );
+		printf("CLIENT: ready to start\n" );		
+
+		sendPacket( NET_CHANNEL_GAMEUPDATE, pbPacket );
 	}
 }
 
@@ -345,7 +429,7 @@ void GameClient::gameview_redraw()
 	glLoadIdentity();
 
 	// draw level
-	m_localServer->m_level->draw();
+	m_level->draw();
 
 	// Draw game objs
 	glEnable( GL_TEXTURE_2D );
@@ -431,11 +515,7 @@ void GameClient::keypress( SDL_KeyboardEvent &key )
 	else if (m_gameState==GameState_MENU)
 	{
 		switch( key.keysym.sym )
-		{
-		case SDLK_SPACE:			
-			newGame();			
-			break;
-
+		{		
 		case SDLK_F5:
 			chatSend("Chat Test message 1" );
 			break;
@@ -463,12 +543,12 @@ void GameClient::game_keypress( SDL_KeyboardEvent &key )
 {
 	switch (key.keysym.sym)
 	{
-	case SDLK_F5:
-		if (m_localServer)
-		{
-			m_localServer->newGame();
-		}		
-		break;
+	//case SDLK_F5:
+	//	if (m_localServer)
+	//	{
+	//		m_localServer->newGame();
+	//	}		
+	//	break;
 	}
 
 }
@@ -526,10 +606,23 @@ void GameClient::loadShapes( const char *filename )
 	delete xmlDoc;
 }
 
-void GameClient::newGame()
+void GameClient::startGame()
 {	
+	assert( m_player );
+
+	// yay we are playing
 	m_gameState = GameState_GAME;
-	m_localServer->newGame();
+	
+	// Load the level
+	if (m_localServer)
+	{
+		m_level = m_localServer->m_level;
+	}
+	else
+	{
+		m_level = new Cavern();
+		m_level->loadLevel( "level.xml", m_shapes );
+	}
 }
 
 void GameClient::startEditor()
@@ -637,6 +730,37 @@ void GameClient::handlePacket( int channel, ENetPacket *packet, ENetPeer *peer )
 				printf("CLIENT: got player settings for %d\n", ndx );
 				m_ships[ ndx ]->m_playerName = pbPacket.pset().playername();
 				// same for color, etc..
+			}
+			break;
+
+		case ::pbSpaceCave::Packet_Type_STARTGAME:
+			{				
+				printf("CLIENT: got Start Game, yay\n" );
+				startGame();
+			}
+			break;
+
+		case ::pbSpaceCave::Packet_Type_UPDATE:
+			{
+				printf("CLIENT: got game update...\n" );
+				for (int i=0; i < pbPacket.update().obj().size(); i++)
+				{
+					const ::pbSpaceCave::GameObj &gameObj = pbPacket.update().obj( i );
+					size_t ndx = gameObj.shipindex();
+
+					// get the ship info
+					m_ships[ndx]->m_pos.x = gameObj.pos_x();
+					m_ships[ndx]->m_pos.y = gameObj.pos_y();
+
+					m_ships[ndx]->m_vel.x = gameObj.vel_x();
+					m_ships[ndx]->m_vel.y = gameObj.vel_y();
+
+					m_ships[ndx]->m_angle = gameObj.angle();
+
+					// Copy into shape 
+					m_ships[ndx]->m_shape->pos = m_ships[ndx]->m_pos;
+					m_ships[ndx]->m_shape->angle = m_ships[ndx]->m_angle;
+				}
 			}
 			break;
 	}

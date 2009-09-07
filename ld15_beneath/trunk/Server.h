@@ -49,6 +49,11 @@ enum {
 	NUM_NET_CHANNELS
 };
 
+enum {
+	ServerState_LOBBY,
+	ServerState_GAME
+};
+
 // ==================================================
 enum {
 	PacketType_CHAT_MESSAGE = 100,	
@@ -66,6 +71,7 @@ public:
 	// during game state itself	
 	void game_updateSim( float dt );	
 	void game_update( float dt );
+	void game_updateShip( PlayerShip *ship, float dt );	
 
 	void net_update( );	
 
@@ -76,7 +82,7 @@ public:
 	void init();
 	void initNetwork( );
 
-	void newGame();
+	void startGame();
 
 	// some shortcuts in single player mode
 	bool m_singlePlayer;
@@ -84,6 +90,8 @@ public:
 	std::vector<PlayerShip*> m_ships;
 
 	Cavern *m_level;	
+	size_t m_gameTick;
+	int m_state;
 
 protected:
 
@@ -98,6 +106,7 @@ protected:
 	void newConnection( ENetPeer *peer );
 	
 	void doIdentity( pbSpaceCave::Packet &pbPacket, ENetPeer *peer );
+	void doShipControls( pbSpaceCave::Packet &pbPacket, ENetPeer *peer );
 
 	void handlePacket( int channel, ENetPacket *packet, ENetPeer *peer );
 

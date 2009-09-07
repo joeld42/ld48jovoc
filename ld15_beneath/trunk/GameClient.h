@@ -68,7 +68,7 @@ public:
 	void lobbySinglePlayer();
 	void lobbyMultiPlayer();
 
-	void newGame();
+	void startGame();
 	void startEditor();
 
 	void joinGame();
@@ -137,6 +137,13 @@ protected:
 	std::vector<GameObj*> m_gameObjs;
 	std::vector<PlayerShip*> m_ships;
 	PlayerShip *m_player;
+	Cavern *m_level;
+
+	// Controls
+	int m_fwd_thrusters;
+	int m_lateral_thrusters;
+	int m_rotation_amt;
+	::pbSpaceCave::Packet m_pbCtrlPacket;
 
 	// debug/info font
 	GLuint m_glFontTexId;

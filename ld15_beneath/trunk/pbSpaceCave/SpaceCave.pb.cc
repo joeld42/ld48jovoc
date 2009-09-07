@@ -29,6 +29,18 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* AddPlayerPacket_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   AddPlayerPacket_reflection_ = NULL;
+const ::google::protobuf::Descriptor* SetReadyStatus_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  SetReadyStatus_reflection_ = NULL;
+const ::google::protobuf::Descriptor* ShipControlsPacket_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ShipControlsPacket_reflection_ = NULL;
+const ::google::protobuf::Descriptor* UpdatePacket_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  UpdatePacket_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GameObj_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GameObj_reflection_ = NULL;
 
 }  // namespace
 
@@ -40,12 +52,15 @@ void protobuf_AssignDesc_SpaceCave_2eproto() {
       "SpaceCave.proto");
   GOOGLE_CHECK(file != NULL);
   Packet_descriptor_ = file->message_type(0);
-  static const int Packet_offsets_[5] = {
+  static const int Packet_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, chat_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, addplayer_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, identity_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, pset_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, ready_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, ctrl_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Packet, update_),
   };
   Packet_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -120,6 +135,73 @@ void protobuf_AssignDesc_SpaceCave_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AddPlayerPacket));
+  SetReadyStatus_descriptor_ = file->message_type(5);
+  static const int SetReadyStatus_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetReadyStatus, readytostart_),
+  };
+  SetReadyStatus_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      SetReadyStatus_descriptor_,
+      SetReadyStatus::default_instance_,
+      SetReadyStatus_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetReadyStatus, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetReadyStatus, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(SetReadyStatus));
+  ShipControlsPacket_descriptor_ = file->message_type(6);
+  static const int ShipControlsPacket_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ShipControlsPacket, fwd_thrusters_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ShipControlsPacket, lateral_thrusters_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ShipControlsPacket, rotation_amt_),
+  };
+  ShipControlsPacket_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ShipControlsPacket_descriptor_,
+      ShipControlsPacket::default_instance_,
+      ShipControlsPacket_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ShipControlsPacket, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ShipControlsPacket, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ShipControlsPacket));
+  UpdatePacket_descriptor_ = file->message_type(7);
+  static const int UpdatePacket_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdatePacket, obj_),
+  };
+  UpdatePacket_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      UpdatePacket_descriptor_,
+      UpdatePacket::default_instance_,
+      UpdatePacket_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdatePacket, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdatePacket, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(UpdatePacket));
+  GameObj_descriptor_ = file->message_type(8);
+  static const int GameObj_offsets_[6] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameObj, shipindex_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameObj, pos_x_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameObj, pos_y_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameObj, vel_x_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameObj, vel_y_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameObj, angle_),
+  };
+  GameObj_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GameObj_descriptor_,
+      GameObj::default_instance_,
+      GameObj_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameObj, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameObj, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GameObj));
 }
 
 namespace {
@@ -142,6 +224,14 @@ void protobuf_RegisterTypes(const ::std::string&) {
     PlayerSettingsPacket_descriptor_, &PlayerSettingsPacket::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     AddPlayerPacket_descriptor_, &AddPlayerPacket::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    SetReadyStatus_descriptor_, &SetReadyStatus::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ShipControlsPacket_descriptor_, &ShipControlsPacket::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    UpdatePacket_descriptor_, &UpdatePacket::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GameObj_descriptor_, &GameObj::default_instance());
 }
 
 }  // namespace
@@ -157,6 +247,14 @@ void protobuf_ShutdownFile_SpaceCave_2eproto() {
   delete PlayerSettingsPacket_reflection_;
   delete AddPlayerPacket::default_instance_;
   delete AddPlayerPacket_reflection_;
+  delete SetReadyStatus::default_instance_;
+  delete SetReadyStatus_reflection_;
+  delete ShipControlsPacket::default_instance_;
+  delete ShipControlsPacket_reflection_;
+  delete UpdatePacket::default_instance_;
+  delete UpdatePacket_reflection_;
+  delete GameObj::default_instance_;
+  delete GameObj_reflection_;
 }
 
 void protobuf_AddDesc_SpaceCave_2eproto() {
@@ -166,19 +264,31 @@ void protobuf_AddDesc_SpaceCave_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\017SpaceCave.proto\022\013pbSpaceCave\"\254\002\n\006Packe"
+    "\n\017SpaceCave.proto\022\013pbSpaceCave\"\364\003\n\006Packe"
     "t\022&\n\004type\030\001 \002(\0162\030.pbSpaceCave.Packet.Typ"
     "e\022%\n\004chat\030\002 \001(\0132\027.pbSpaceCave.ChatPacket"
     "\022/\n\taddPlayer\030\003 \001(\0132\034.pbSpaceCave.AddPla"
     "yerPacket\022-\n\010identity\030\004 \001(\0132\033.pbSpaceCav"
     "e.IdentityPacket\022/\n\004pset\030\005 \001(\0132!.pbSpace"
-    "Cave.PlayerSettingsPacket\"B\n\004Type\022\010\n\004CHA"
-    "T\020\001\022\014\n\010IDENTITY\020\002\022\016\n\nADD_PLAYER\020\003\022\022\n\016PLA"
-    "YERSETTINGS\020\004\"\035\n\nChatPacket\022\017\n\007message\030\001"
+    "Cave.PlayerSettingsPacket\022*\n\005ready\030\006 \001(\013"
+    "2\033.pbSpaceCave.SetReadyStatus\022-\n\004ctrl\030\007 "
+    "\001(\0132\037.pbSpaceCave.ShipControlsPacket\022)\n\006"
+    "update\030\010 \001(\0132\031.pbSpaceCave.UpdatePacket\""
+    "\203\001\n\004Type\022\010\n\004CHAT\020\001\022\014\n\010IDENTITY\020\002\022\016\n\nADD_"
+    "PLAYER\020\003\022\022\n\016PLAYERSETTINGS\020\004\022\022\n\016SETREADY"
+    "STATUS\020\005\022\r\n\tSTARTGAME\020\006\022\020\n\014SHIPCONTROLS\020"
+    "\007\022\n\n\006UPDATE\020\010\"\035\n\nChatPacket\022\017\n\007message\030\001"
     " \001(\t\"3\n\016IdentityPacket\022\r\n\005index\030\001 \002(\r\022\022\n"
     "\nplayerName\030\002 \001(\t\"9\n\024PlayerSettingsPacke"
     "t\022\r\n\005index\030\001 \002(\r\022\022\n\nplayerName\030\002 \001(\t\"\021\n\017"
-    "AddPlayerPacket", 495);
+    "AddPlayerPacket\"&\n\016SetReadyStatus\022\024\n\014rea"
+    "dyToStart\030\001 \002(\010\"e\n\022ShipControlsPacket\022\030\n"
+    "\rfwd_thrusters\030\001 \001(\005:\0010\022\034\n\021lateral_thrus"
+    "ters\030\002 \001(\005:\0010\022\027\n\014rotation_amt\030\003 \001(\005:\0010\"1"
+    "\n\014UpdatePacket\022!\n\003obj\030\001 \003(\0132\024.pbSpaceCav"
+    "e.GameObj\"g\n\007GameObj\022\021\n\tshipIndex\030\001 \002(\r\022"
+    "\r\n\005pos_x\030\002 \001(\002\022\r\n\005pos_y\030\003 \001(\002\022\r\n\005vel_x\030\004"
+    " \001(\002\022\r\n\005vel_y\030\005 \001(\002\022\r\n\005angle\030\006 \001(\002", 994);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "SpaceCave.proto", &protobuf_RegisterTypes);
   Packet::default_instance_ = new Packet();
@@ -186,11 +296,19 @@ void protobuf_AddDesc_SpaceCave_2eproto() {
   IdentityPacket::default_instance_ = new IdentityPacket();
   PlayerSettingsPacket::default_instance_ = new PlayerSettingsPacket();
   AddPlayerPacket::default_instance_ = new AddPlayerPacket();
+  SetReadyStatus::default_instance_ = new SetReadyStatus();
+  ShipControlsPacket::default_instance_ = new ShipControlsPacket();
+  UpdatePacket::default_instance_ = new UpdatePacket();
+  GameObj::default_instance_ = new GameObj();
   Packet::default_instance_->InitAsDefaultInstance();
   ChatPacket::default_instance_->InitAsDefaultInstance();
   IdentityPacket::default_instance_->InitAsDefaultInstance();
   PlayerSettingsPacket::default_instance_->InitAsDefaultInstance();
   AddPlayerPacket::default_instance_->InitAsDefaultInstance();
+  SetReadyStatus::default_instance_->InitAsDefaultInstance();
+  ShipControlsPacket::default_instance_->InitAsDefaultInstance();
+  UpdatePacket::default_instance_->InitAsDefaultInstance();
+  GameObj::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_SpaceCave_2eproto);
 }
 
@@ -214,6 +332,10 @@ bool Packet_Type_IsValid(int value) {
     case 2:
     case 3:
     case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
       return true;
     default:
       return false;
@@ -225,6 +347,10 @@ const Packet_Type Packet::CHAT;
 const Packet_Type Packet::IDENTITY;
 const Packet_Type Packet::ADD_PLAYER;
 const Packet_Type Packet::PLAYERSETTINGS;
+const Packet_Type Packet::SETREADYSTATUS;
+const Packet_Type Packet::STARTGAME;
+const Packet_Type Packet::SHIPCONTROLS;
+const Packet_Type Packet::UPDATE;
 const Packet_Type Packet::Type_MIN;
 const Packet_Type Packet::Type_MAX;
 #endif  // _MSC_VER
@@ -234,6 +360,9 @@ const int Packet::kChatFieldNumber;
 const int Packet::kAddPlayerFieldNumber;
 const int Packet::kIdentityFieldNumber;
 const int Packet::kPsetFieldNumber;
+const int Packet::kReadyFieldNumber;
+const int Packet::kCtrlFieldNumber;
+const int Packet::kUpdateFieldNumber;
 #endif  // !_MSC_VER
 
 Packet::Packet() {
@@ -245,6 +374,9 @@ void Packet::InitAsDefaultInstance() {
   addplayer_ = const_cast< ::pbSpaceCave::AddPlayerPacket*>(&::pbSpaceCave::AddPlayerPacket::default_instance());
   identity_ = const_cast< ::pbSpaceCave::IdentityPacket*>(&::pbSpaceCave::IdentityPacket::default_instance());
   pset_ = const_cast< ::pbSpaceCave::PlayerSettingsPacket*>(&::pbSpaceCave::PlayerSettingsPacket::default_instance());
+  ready_ = const_cast< ::pbSpaceCave::SetReadyStatus*>(&::pbSpaceCave::SetReadyStatus::default_instance());
+  ctrl_ = const_cast< ::pbSpaceCave::ShipControlsPacket*>(&::pbSpaceCave::ShipControlsPacket::default_instance());
+  update_ = const_cast< ::pbSpaceCave::UpdatePacket*>(&::pbSpaceCave::UpdatePacket::default_instance());
 }
 
 Packet::Packet(const Packet& from) {
@@ -259,6 +391,9 @@ void Packet::SharedCtor() {
   addplayer_ = NULL;
   identity_ = NULL;
   pset_ = NULL;
+  ready_ = NULL;
+  ctrl_ = NULL;
+  update_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -272,6 +407,9 @@ void Packet::SharedDtor() {
     delete addplayer_;
     delete identity_;
     delete pset_;
+    delete ready_;
+    delete ctrl_;
+    delete update_;
   }
 }
 
@@ -304,6 +442,15 @@ void Packet::Clear() {
     }
     if (_has_bit(4)) {
       if (pset_ != NULL) pset_->::pbSpaceCave::PlayerSettingsPacket::Clear();
+    }
+    if (_has_bit(5)) {
+      if (ready_ != NULL) ready_->::pbSpaceCave::SetReadyStatus::Clear();
+    }
+    if (_has_bit(6)) {
+      if (ctrl_ != NULL) ctrl_->::pbSpaceCave::ShipControlsPacket::Clear();
+    }
+    if (_has_bit(7)) {
+      if (update_ != NULL) update_->::pbSpaceCave::UpdatePacket::Clear();
     }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -381,6 +528,45 @@ bool Packet::MergePartialFromCodedStream(
        parse_pset:
         DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
              input, mutable_pset()));
+        if (input->ExpectTag(50)) goto parse_ready;
+        break;
+      }
+      
+      // optional .pbSpaceCave.SetReadyStatus ready = 6;
+      case 6: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          goto handle_uninterpreted;
+        }
+       parse_ready:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+             input, mutable_ready()));
+        if (input->ExpectTag(58)) goto parse_ctrl;
+        break;
+      }
+      
+      // optional .pbSpaceCave.ShipControlsPacket ctrl = 7;
+      case 7: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          goto handle_uninterpreted;
+        }
+       parse_ctrl:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+             input, mutable_ctrl()));
+        if (input->ExpectTag(66)) goto parse_update;
+        break;
+      }
+      
+      // optional .pbSpaceCave.UpdatePacket update = 8;
+      case 8: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          goto handle_uninterpreted;
+        }
+       parse_update:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+             input, mutable_update()));
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -439,6 +625,24 @@ void Packet::SerializeWithCachedSizes(
       5, this->pset(), output);
   }
   
+  // optional .pbSpaceCave.SetReadyStatus ready = 6;
+  if (_has_bit(5)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
+      6, this->ready(), output);
+  }
+  
+  // optional .pbSpaceCave.ShipControlsPacket ctrl = 7;
+  if (_has_bit(6)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
+      7, this->ctrl(), output);
+  }
+  
+  // optional .pbSpaceCave.UpdatePacket update = 8;
+  if (_has_bit(7)) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
+      8, this->update(), output);
+  }
+  
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -479,6 +683,27 @@ void Packet::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         5, this->pset(), target);
+  }
+  
+  // optional .pbSpaceCave.SetReadyStatus ready = 6;
+  if (_has_bit(5)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        6, this->ready(), target);
+  }
+  
+  // optional .pbSpaceCave.ShipControlsPacket ctrl = 7;
+  if (_has_bit(6)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        7, this->ctrl(), target);
+  }
+  
+  // optional .pbSpaceCave.UpdatePacket update = 8;
+  if (_has_bit(7)) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        8, this->update(), target);
   }
   
   if (!unknown_fields().empty()) {
@@ -526,6 +751,27 @@ int Packet::ByteSize() const {
           this->pset());
     }
     
+    // optional .pbSpaceCave.SetReadyStatus ready = 6;
+    if (has_ready()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->ready());
+    }
+    
+    // optional .pbSpaceCave.ShipControlsPacket ctrl = 7;
+    if (has_ctrl()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->ctrl());
+    }
+    
+    // optional .pbSpaceCave.UpdatePacket update = 8;
+    if (has_update()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->update());
+    }
+    
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -566,6 +812,15 @@ void Packet::MergeFrom(const Packet& from) {
     if (from._has_bit(4)) {
       mutable_pset()->::pbSpaceCave::PlayerSettingsPacket::MergeFrom(from.pset());
     }
+    if (from._has_bit(5)) {
+      mutable_ready()->::pbSpaceCave::SetReadyStatus::MergeFrom(from.ready());
+    }
+    if (from._has_bit(6)) {
+      mutable_ctrl()->::pbSpaceCave::ShipControlsPacket::MergeFrom(from.ctrl());
+    }
+    if (from._has_bit(7)) {
+      mutable_update()->::pbSpaceCave::UpdatePacket::MergeFrom(from.update());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -591,6 +846,12 @@ bool Packet::IsInitialized() const {
   if (has_pset()) {
     if (!this->pset().IsInitialized()) return false;
   }
+  if (has_ready()) {
+    if (!this->ready().IsInitialized()) return false;
+  }
+  if (has_update()) {
+    if (!this->update().IsInitialized()) return false;
+  }
   return true;
 }
 
@@ -601,6 +862,9 @@ void Packet::Swap(Packet* other) {
     std::swap(addplayer_, other->addplayer_);
     std::swap(identity_, other->identity_);
     std::swap(pset_, other->pset_);
+    std::swap(ready_, other->ready_);
+    std::swap(ctrl_, other->ctrl_);
+    std::swap(update_, other->update_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1505,6 +1769,1069 @@ void AddPlayerPacket::Swap(AddPlayerPacket* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = AddPlayerPacket_descriptor_;
   metadata.reflection = AddPlayerPacket_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int SetReadyStatus::kReadyToStartFieldNumber;
+#endif  // !_MSC_VER
+
+SetReadyStatus::SetReadyStatus() {
+  SharedCtor();
+}
+
+void SetReadyStatus::InitAsDefaultInstance() {
+}
+
+SetReadyStatus::SetReadyStatus(const SetReadyStatus& from) {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void SetReadyStatus::SharedCtor() {
+  _cached_size_ = 0;
+  readytostart_ = false;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+SetReadyStatus::~SetReadyStatus() {
+  SharedDtor();
+}
+
+void SetReadyStatus::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+const ::google::protobuf::Descriptor* SetReadyStatus::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return SetReadyStatus_descriptor_;
+}
+
+const SetReadyStatus& SetReadyStatus::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_SpaceCave_2eproto();  return *default_instance_;
+}
+
+SetReadyStatus* SetReadyStatus::default_instance_ = NULL;
+
+SetReadyStatus* SetReadyStatus::New() const {
+  return new SetReadyStatus;
+}
+
+void SetReadyStatus::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    readytostart_ = false;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool SetReadyStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required bool readyToStart = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::ReadBool(
+              input, &readytostart_));
+        _set_bit(0);
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void SetReadyStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  ::google::protobuf::uint8* raw_buffer = output->GetDirectBufferForNBytesAndAdvance(_cached_size_);
+  if (raw_buffer != NULL) {
+    SetReadyStatus::SerializeWithCachedSizesToArray(raw_buffer);
+    return;
+  }
+  
+  // required bool readyToStart = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(1, this->readytostart(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* SetReadyStatus::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required bool readyToStart = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(1, this->readytostart(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int SetReadyStatus::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required bool readyToStart = 1;
+    if (has_readytostart()) {
+      total_size += 1 + 1;
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  _cached_size_ = total_size;
+  return total_size;
+}
+
+void SetReadyStatus::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const SetReadyStatus* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const SetReadyStatus*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void SetReadyStatus::MergeFrom(const SetReadyStatus& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_readytostart(from.readytostart());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void SetReadyStatus::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SetReadyStatus::CopyFrom(const SetReadyStatus& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SetReadyStatus::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  
+  return true;
+}
+
+void SetReadyStatus::Swap(SetReadyStatus* other) {
+  if (other != this) {
+    std::swap(readytostart_, other->readytostart_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata SetReadyStatus::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = SetReadyStatus_descriptor_;
+  metadata.reflection = SetReadyStatus_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ShipControlsPacket::kFwdThrustersFieldNumber;
+const int ShipControlsPacket::kLateralThrustersFieldNumber;
+const int ShipControlsPacket::kRotationAmtFieldNumber;
+#endif  // !_MSC_VER
+
+ShipControlsPacket::ShipControlsPacket() {
+  SharedCtor();
+}
+
+void ShipControlsPacket::InitAsDefaultInstance() {
+}
+
+ShipControlsPacket::ShipControlsPacket(const ShipControlsPacket& from) {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void ShipControlsPacket::SharedCtor() {
+  _cached_size_ = 0;
+  fwd_thrusters_ = 0;
+  lateral_thrusters_ = 0;
+  rotation_amt_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ShipControlsPacket::~ShipControlsPacket() {
+  SharedDtor();
+}
+
+void ShipControlsPacket::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+const ::google::protobuf::Descriptor* ShipControlsPacket::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ShipControlsPacket_descriptor_;
+}
+
+const ShipControlsPacket& ShipControlsPacket::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_SpaceCave_2eproto();  return *default_instance_;
+}
+
+ShipControlsPacket* ShipControlsPacket::default_instance_ = NULL;
+
+ShipControlsPacket* ShipControlsPacket::New() const {
+  return new ShipControlsPacket;
+}
+
+void ShipControlsPacket::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    fwd_thrusters_ = 0;
+    lateral_thrusters_ = 0;
+    rotation_amt_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool ShipControlsPacket::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional int32 fwd_thrusters = 1 [default = 0];
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
+              input, &fwd_thrusters_));
+        _set_bit(0);
+        if (input->ExpectTag(16)) goto parse_lateral_thrusters;
+        break;
+      }
+      
+      // optional int32 lateral_thrusters = 2 [default = 0];
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+       parse_lateral_thrusters:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
+              input, &lateral_thrusters_));
+        _set_bit(1);
+        if (input->ExpectTag(24)) goto parse_rotation_amt;
+        break;
+      }
+      
+      // optional int32 rotation_amt = 3 [default = 0];
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+       parse_rotation_amt:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadInt32(
+              input, &rotation_amt_));
+        _set_bit(2);
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void ShipControlsPacket::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  ::google::protobuf::uint8* raw_buffer = output->GetDirectBufferForNBytesAndAdvance(_cached_size_);
+  if (raw_buffer != NULL) {
+    ShipControlsPacket::SerializeWithCachedSizesToArray(raw_buffer);
+    return;
+  }
+  
+  // optional int32 fwd_thrusters = 1 [default = 0];
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->fwd_thrusters(), output);
+  }
+  
+  // optional int32 lateral_thrusters = 2 [default = 0];
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->lateral_thrusters(), output);
+  }
+  
+  // optional int32 rotation_amt = 3 [default = 0];
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->rotation_amt(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* ShipControlsPacket::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional int32 fwd_thrusters = 1 [default = 0];
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->fwd_thrusters(), target);
+  }
+  
+  // optional int32 lateral_thrusters = 2 [default = 0];
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->lateral_thrusters(), target);
+  }
+  
+  // optional int32 rotation_amt = 3 [default = 0];
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->rotation_amt(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int ShipControlsPacket::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional int32 fwd_thrusters = 1 [default = 0];
+    if (has_fwd_thrusters()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->fwd_thrusters());
+    }
+    
+    // optional int32 lateral_thrusters = 2 [default = 0];
+    if (has_lateral_thrusters()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->lateral_thrusters());
+    }
+    
+    // optional int32 rotation_amt = 3 [default = 0];
+    if (has_rotation_amt()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->rotation_amt());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  _cached_size_ = total_size;
+  return total_size;
+}
+
+void ShipControlsPacket::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const ShipControlsPacket* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const ShipControlsPacket*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void ShipControlsPacket::MergeFrom(const ShipControlsPacket& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_fwd_thrusters(from.fwd_thrusters());
+    }
+    if (from._has_bit(1)) {
+      set_lateral_thrusters(from.lateral_thrusters());
+    }
+    if (from._has_bit(2)) {
+      set_rotation_amt(from.rotation_amt());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void ShipControlsPacket::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ShipControlsPacket::CopyFrom(const ShipControlsPacket& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ShipControlsPacket::IsInitialized() const {
+  
+  return true;
+}
+
+void ShipControlsPacket::Swap(ShipControlsPacket* other) {
+  if (other != this) {
+    std::swap(fwd_thrusters_, other->fwd_thrusters_);
+    std::swap(lateral_thrusters_, other->lateral_thrusters_);
+    std::swap(rotation_amt_, other->rotation_amt_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata ShipControlsPacket::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ShipControlsPacket_descriptor_;
+  metadata.reflection = ShipControlsPacket_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int UpdatePacket::kObjFieldNumber;
+#endif  // !_MSC_VER
+
+UpdatePacket::UpdatePacket() {
+  SharedCtor();
+}
+
+void UpdatePacket::InitAsDefaultInstance() {
+}
+
+UpdatePacket::UpdatePacket(const UpdatePacket& from) {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void UpdatePacket::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+UpdatePacket::~UpdatePacket() {
+  SharedDtor();
+}
+
+void UpdatePacket::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+const ::google::protobuf::Descriptor* UpdatePacket::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return UpdatePacket_descriptor_;
+}
+
+const UpdatePacket& UpdatePacket::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_SpaceCave_2eproto();  return *default_instance_;
+}
+
+UpdatePacket* UpdatePacket::default_instance_ = NULL;
+
+UpdatePacket* UpdatePacket::New() const {
+  return new UpdatePacket;
+}
+
+void UpdatePacket::Clear() {
+  obj_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool UpdatePacket::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated .pbSpaceCave.GameObj obj = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          goto handle_uninterpreted;
+        }
+       parse_obj:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+              input, add_obj()));
+        if (input->ExpectTag(10)) goto parse_obj;
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void UpdatePacket::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  ::google::protobuf::uint8* raw_buffer = output->GetDirectBufferForNBytesAndAdvance(_cached_size_);
+  if (raw_buffer != NULL) {
+    UpdatePacket::SerializeWithCachedSizesToArray(raw_buffer);
+    return;
+  }
+  
+  // repeated .pbSpaceCave.GameObj obj = 1;
+  for (int i = 0; i < this->obj_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageNoVirtual(
+      1, this->obj(i), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* UpdatePacket::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // repeated .pbSpaceCave.GameObj obj = 1;
+  for (int i = 0; i < this->obj_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->obj(i), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int UpdatePacket::ByteSize() const {
+  int total_size = 0;
+  
+  // repeated .pbSpaceCave.GameObj obj = 1;
+  total_size += 1 * this->obj_size();
+  for (int i = 0; i < this->obj_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->obj(i));
+  }
+  
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  _cached_size_ = total_size;
+  return total_size;
+}
+
+void UpdatePacket::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const UpdatePacket* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const UpdatePacket*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void UpdatePacket::MergeFrom(const UpdatePacket& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  obj_.MergeFrom(from.obj_);
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void UpdatePacket::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void UpdatePacket::CopyFrom(const UpdatePacket& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UpdatePacket::IsInitialized() const {
+  
+  for (int i = 0; i < obj_size(); i++) {
+    if (!this->obj(i).IsInitialized()) return false;
+  }
+  return true;
+}
+
+void UpdatePacket::Swap(UpdatePacket* other) {
+  if (other != this) {
+    obj_.Swap(&other->obj_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata UpdatePacket::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = UpdatePacket_descriptor_;
+  metadata.reflection = UpdatePacket_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int GameObj::kShipIndexFieldNumber;
+const int GameObj::kPosXFieldNumber;
+const int GameObj::kPosYFieldNumber;
+const int GameObj::kVelXFieldNumber;
+const int GameObj::kVelYFieldNumber;
+const int GameObj::kAngleFieldNumber;
+#endif  // !_MSC_VER
+
+GameObj::GameObj() {
+  SharedCtor();
+}
+
+void GameObj::InitAsDefaultInstance() {
+}
+
+GameObj::GameObj(const GameObj& from) {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void GameObj::SharedCtor() {
+  _cached_size_ = 0;
+  shipindex_ = 0u;
+  pos_x_ = 0;
+  pos_y_ = 0;
+  vel_x_ = 0;
+  vel_y_ = 0;
+  angle_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GameObj::~GameObj() {
+  SharedDtor();
+}
+
+void GameObj::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+const ::google::protobuf::Descriptor* GameObj::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GameObj_descriptor_;
+}
+
+const GameObj& GameObj::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_SpaceCave_2eproto();  return *default_instance_;
+}
+
+GameObj* GameObj::default_instance_ = NULL;
+
+GameObj* GameObj::New() const {
+  return new GameObj;
+}
+
+void GameObj::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    shipindex_ = 0u;
+    pos_x_ = 0;
+    pos_y_ = 0;
+    vel_x_ = 0;
+    vel_y_ = 0;
+    angle_ = 0;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool GameObj::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required uint32 shipIndex = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          goto handle_uninterpreted;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::ReadUInt32(
+              input, &shipindex_));
+        _set_bit(0);
+        if (input->ExpectTag(21)) goto parse_pos_x;
+        break;
+      }
+      
+      // optional float pos_x = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED32) {
+          goto handle_uninterpreted;
+        }
+       parse_pos_x:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadFloat(
+              input, &pos_x_));
+        _set_bit(1);
+        if (input->ExpectTag(29)) goto parse_pos_y;
+        break;
+      }
+      
+      // optional float pos_y = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED32) {
+          goto handle_uninterpreted;
+        }
+       parse_pos_y:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadFloat(
+              input, &pos_y_));
+        _set_bit(2);
+        if (input->ExpectTag(37)) goto parse_vel_x;
+        break;
+      }
+      
+      // optional float vel_x = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED32) {
+          goto handle_uninterpreted;
+        }
+       parse_vel_x:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadFloat(
+              input, &vel_x_));
+        _set_bit(3);
+        if (input->ExpectTag(45)) goto parse_vel_y;
+        break;
+      }
+      
+      // optional float vel_y = 5;
+      case 5: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED32) {
+          goto handle_uninterpreted;
+        }
+       parse_vel_y:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadFloat(
+              input, &vel_y_));
+        _set_bit(4);
+        if (input->ExpectTag(53)) goto parse_angle;
+        break;
+      }
+      
+      // optional float angle = 6;
+      case 6: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) !=
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED32) {
+          goto handle_uninterpreted;
+        }
+       parse_angle:
+        DO_(::google::protobuf::internal::WireFormatLite::ReadFloat(
+              input, &angle_));
+        _set_bit(5);
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void GameObj::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  ::google::protobuf::uint8* raw_buffer = output->GetDirectBufferForNBytesAndAdvance(_cached_size_);
+  if (raw_buffer != NULL) {
+    GameObj::SerializeWithCachedSizesToArray(raw_buffer);
+    return;
+  }
+  
+  // required uint32 shipIndex = 1;
+  if (_has_bit(0)) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->shipindex(), output);
+  }
+  
+  // optional float pos_x = 2;
+  if (_has_bit(1)) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->pos_x(), output);
+  }
+  
+  // optional float pos_y = 3;
+  if (_has_bit(2)) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->pos_y(), output);
+  }
+  
+  // optional float vel_x = 4;
+  if (_has_bit(3)) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->vel_x(), output);
+  }
+  
+  // optional float vel_y = 5;
+  if (_has_bit(4)) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(5, this->vel_y(), output);
+  }
+  
+  // optional float angle = 6;
+  if (_has_bit(5)) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(6, this->angle(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* GameObj::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required uint32 shipIndex = 1;
+  if (_has_bit(0)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->shipindex(), target);
+  }
+  
+  // optional float pos_x = 2;
+  if (_has_bit(1)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->pos_x(), target);
+  }
+  
+  // optional float pos_y = 3;
+  if (_has_bit(2)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->pos_y(), target);
+  }
+  
+  // optional float vel_x = 4;
+  if (_has_bit(3)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->vel_x(), target);
+  }
+  
+  // optional float vel_y = 5;
+  if (_has_bit(4)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(5, this->vel_y(), target);
+  }
+  
+  // optional float angle = 6;
+  if (_has_bit(5)) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(6, this->angle(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int GameObj::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required uint32 shipIndex = 1;
+    if (has_shipindex()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->shipindex());
+    }
+    
+    // optional float pos_x = 2;
+    if (has_pos_x()) {
+      total_size += 1 + 4;
+    }
+    
+    // optional float pos_y = 3;
+    if (has_pos_y()) {
+      total_size += 1 + 4;
+    }
+    
+    // optional float vel_x = 4;
+    if (has_vel_x()) {
+      total_size += 1 + 4;
+    }
+    
+    // optional float vel_y = 5;
+    if (has_vel_y()) {
+      total_size += 1 + 4;
+    }
+    
+    // optional float angle = 6;
+    if (has_angle()) {
+      total_size += 1 + 4;
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  _cached_size_ = total_size;
+  return total_size;
+}
+
+void GameObj::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const GameObj* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const GameObj*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void GameObj::MergeFrom(const GameObj& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from._has_bit(0)) {
+      set_shipindex(from.shipindex());
+    }
+    if (from._has_bit(1)) {
+      set_pos_x(from.pos_x());
+    }
+    if (from._has_bit(2)) {
+      set_pos_y(from.pos_y());
+    }
+    if (from._has_bit(3)) {
+      set_vel_x(from.vel_x());
+    }
+    if (from._has_bit(4)) {
+      set_vel_y(from.vel_y());
+    }
+    if (from._has_bit(5)) {
+      set_angle(from.angle());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void GameObj::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void GameObj::CopyFrom(const GameObj& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool GameObj::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  
+  return true;
+}
+
+void GameObj::Swap(GameObj* other) {
+  if (other != this) {
+    std::swap(shipindex_, other->shipindex_);
+    std::swap(pos_x_, other->pos_x_);
+    std::swap(pos_y_, other->pos_y_);
+    std::swap(vel_x_, other->vel_x_);
+    std::swap(vel_y_, other->vel_y_);
+    std::swap(angle_, other->angle_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata GameObj::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GameObj_descriptor_;
+  metadata.reflection = GameObj_reflection_;
   return metadata;
 }
 
