@@ -18,6 +18,9 @@ FIND_PACKAGE( SDL_image )
 FIND_PACKAGE( SDL_ttf )
 FIND_PACKAGE( DevIL )
 FIND_PACKAGE( PNG )
+FIND_PACKAGE( ENET )
+FIND_PACKAGE( ProtocolBuffers )
+
 
 message( "Allegro  : " ${ALLEGRO_FOUND} )
 message( "OpenGL   : " ${OPENGL_FOUND} )
@@ -25,6 +28,8 @@ message( "GLUT     : " ${GLUT_FOUND} )
 message( "SDL      : " ${SDL_FOUND} )
 message( "OpenIL   : " ${IL_FOUND} )
 message( "PNG      : " ${PNG_FOUND} )
+message( "ENET     : " ${ENET_FOUND} )
+message( "protobuf : " ${PROTOBUF_FOUND} )
 
 # ==================================================
 # Find X11 on unix
@@ -37,7 +42,9 @@ ENDIF (UNIX)
 # ==================================================
 #  External dependencies
 # ==================================================
-ADD_SUBDIRECTORY( extern/jpgd )
+#no worky
+#ADD_SUBDIRECTORY( extern/jpgd )
+ADD_SUBDIRECTORY( extern/tinyxml )
 
 # ==================================================
 # LD1 - Zillagame
@@ -52,9 +59,9 @@ endif (OPENGL_FOUND AND GLUT_FOUND)
 # LD4 - Bad Food
 #     Dependancies: Allegro, Alfont, libjpgd
 # ==================================================
-if (ALLEGRO_FOUND)
-   ADD_SUBDIRECTORY( ld4_BadFood/trunk )
-endif (ALLEGRO_FOUND)
+#if (ALLEGRO_FOUND)
+#   ADD_SUBDIRECTORY( ld4_BadFood/trunk )
+#endif (ALLEGRO_FOUND)
 
 # ==================================================
 # LD7 - Kudzu
@@ -79,6 +86,14 @@ endif (ALLEGRO_FOUND)
 # ==================================================
 if (SDL_FOUND AND OPENGL_FOUND)
    ADD_SUBDIRECTORY( ld13_Crossroads/trunk )
+endif (SDL_FOUND AND OPENGL_FOUND)
+
+# ==================================================
+# LD13 - Spaceship in a Cave
+#     Dependancies: SDL, OpenGL, OpenIL, enet
+# ==================================================
+if (SDL_FOUND AND OPENGL_FOUND)
+  ADD_SUBDIRECTORY( ld15_beneath/trunk/ )
 endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================

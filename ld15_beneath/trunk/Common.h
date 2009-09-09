@@ -20,9 +20,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include <il/il.h>
-#include <il/ilu.h>
-#include <il/ilut.h>
+#include <IL/il.h>
+#include <IL/ilu.h>
+#include <IL/ilut.h>
 
 #include <prmath/prmath.hpp>
 
@@ -35,7 +35,10 @@ void pseudoOrtho2D( double left, double right, double bottom, double top );
 float distPointLine( const vec2f &a, const vec2f &b, const vec2f &c, vec2f &p );
 
 /// Mmmm... pie
-#define M_PI (3.1415926535897932384626433832795)
+#ifndef M_PI
+# define M_PI (3.1415926535897932384626433832795)
+#endif
+
 #define D2R (M_PI / 180.0 )
 #define R2D (180.0 / M_PI );
 

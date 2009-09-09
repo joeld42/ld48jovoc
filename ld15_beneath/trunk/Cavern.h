@@ -21,13 +21,17 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include <il/il.h>
-#include <il/ilu.h>
-#include <il/ilut.h>
+#include <IL/il.h>
+#include <IL/ilu.h>
+#include <IL/ilut.h>
 
 #include <prmath/prmath.hpp>
 
 #include <Shape.h>
+
+#ifndef WIN32
+#define stricmp strcasecmp
+#endif
 
 // line segment for collision
 enum {
@@ -38,7 +42,7 @@ enum {
 	SegType_LAST
 };
 
-const char *SegTypeNames[];
+extern const char *SegTypeNames[];
 
 struct Segment
 {

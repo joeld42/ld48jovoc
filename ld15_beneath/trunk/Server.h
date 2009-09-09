@@ -20,9 +20,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include <il/il.h>
-#include <il/ilu.h>
-#include <il/ilut.h>
+#include <IL/il.h>
+#include <IL/ilu.h>
+#include <IL/ilut.h>
 
 #include <enet/enet.h>
 
@@ -33,7 +33,8 @@
 #include <PlayerShip.h>
 
 // protobufs for packets
-#include <pbSpaceCave/SpaceCave.pb.h>
+//#include <pbSpaceCave/SpaceCave.pb.h>
+#include <SpaceCave.pb.h>
 
 // no point in having more since only 8 players max
 #define MAX_CLIENTS (8)
@@ -116,3 +117,4 @@ protected:
 };
 
 #endif
+
