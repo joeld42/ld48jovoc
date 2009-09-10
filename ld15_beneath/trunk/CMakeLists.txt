@@ -3,6 +3,11 @@ FIND_PACKAGE( ProtocolBuffers )
 
 # Include this directory in the CPPPATH
 include_directories( . )
+
+# Also include the build dir (to get protobuf files)
+include_directories( ${CMAKE_BINARY_DIR}/ld15_beneath/trunk/)
+
+# include extern dirs
 include_directories( ${CMAKE_SOURCE_DIR}/extern )
 include_directories( ${CMAKE_SOURCE_DIR}/extern/tinyxml )
 
@@ -14,6 +19,8 @@ SET( spacecave_SRCS
      GameClient.cpp  
      Shape.cpp  
      Server.cpp  
+     GameObj.cpp
+     PlayerShip.cpp
 
      gamefontgl.c  
      jimgui.cpp  
@@ -53,7 +60,7 @@ set ( LIBS ${LIBS}
     ${PROTOBUF_LIBRARY}
     
     ${SDL_LIBRARY}
-    #{ENET_LIBRARIES}
+    ${ENET_LIBRARIES}
      )
 
 
@@ -76,7 +83,7 @@ ADD_DEFINITIONS( -DILUT_USE_SDL -DILUT_USE_OPENGL )
 
 # The executable
 ADD_EXECUTABLE( spacecave ${spacecave_SRCS} ${PROTO_SRC} )
-target_link_libraries( spacecave ${LIBS} )
+target_link_libraries( spacecave ${LIBS} tinyxml )
 set_target_properties( spacecave
                        PROPERTIES
                        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/ld15_beneath/trunk )

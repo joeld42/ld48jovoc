@@ -26,7 +26,7 @@ public:
 	void drawBraindead();	
 	void drawBraindeadQuad();	
 	
-	void doVert( vec2f &st, vec3f &p );
+	void doVert( const vec2f &st, const vec3f &p );
 
 //protected:
 	Shape();

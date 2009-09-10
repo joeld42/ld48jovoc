@@ -8,9 +8,10 @@
 #include <gamefontgl.h>
 #include <jimgui.h>
 
-#include <TinyXml.h>
+#include <tinyxml.h>
 
-#include <pbSpaceCave/SpaceCave.pb.h>
+#include <SpaceCave.pb.h>
+
 using namespace google;
 
 GameClient::GameClient() :

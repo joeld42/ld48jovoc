@@ -7,7 +7,7 @@
 #include <gamefontgl.h>
 #include <jimgui.h>
 
-#include <TinyXml.h>
+#include <tinyxml.h>
 
 // don't call this every frame or nothin'..
 typedef std::map<std::string,GLuint> TextureDB;

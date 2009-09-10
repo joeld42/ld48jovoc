@@ -17,9 +17,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include <il/il.h>
-#include <il/ilu.h>
-#include <il/ilut.h>
+#include <IL/il.h>
+#include <IL/ilu.h>
+#include <IL/ilut.h>
 
 #include <tweakval.h>
 #include <Common.h>
@@ -133,7 +133,7 @@ void Shape::drawBraindeadQuad()
 
 }
 
-void Shape::doVert( vec2f &st, vec3f &pos )
+void Shape::doVert( const vec2f &st, const vec3f &pos )
 {
 	if (m_pattern)
 	{

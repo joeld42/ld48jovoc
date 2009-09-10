@@ -9,6 +9,9 @@
 #
 # Created by Olivier Delannoy. This was influenced by
 # FindOpenAL.cmake module. MACOSX is not yet handled correctly
+
+# message ("env  " $ENV{ENETDIR} )
+
 FIND_PATH(ENET_INCLUDE_DIR enet/enet.h
         $ENV{ENETDIR}/include
        ~/Library/Frameworks/GLFW.framework/Headers
@@ -24,6 +27,7 @@ FIND_PATH(ENET_INCLUDE_DIR enet/enet.h
         )
 
 FIND_LIBRARY(ENET_LIBRARIES NAMES enet PATHS
+	    $ENV{ENETDIR}
 	    $ENV{ENETDIR}/lib
 	    /usr/local/lib
 	    /usr/local/X11R6/lib
@@ -34,7 +38,9 @@ FIND_LIBRARY(ENET_LIBRARIES NAMES enet PATHS
 	    /opt/X11/lib
 	    /opt/lib
         )
-	
+
+message( "enet libraries: " ${ENET_LIBRARIES} )	
+
 SET(ENET_FOUND "NO")
 IF (ENET_LIBRARIES)
       SET(ENET_FOUND "YES")

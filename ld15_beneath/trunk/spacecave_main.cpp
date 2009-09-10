@@ -17,9 +17,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include <il/il.h>
-#include <il/ilu.h>
-#include <il/ilut.h>
+#include <IL/il.h>
+#include <IL/ilu.h>
+#include <IL/ilut.h>
 
 // local includes
 #include <tweakval.h>
@@ -36,8 +36,12 @@ using namespace std;
 //============================================================================
 void errorMessage( std::string msg )
 {
-	// todo: on linux or other OS, just printf
+	// on linux or other OS, just printf
+#ifdef WIN32
 	MessageBoxA( NULL, msg.c_str(), "ld15_cavern ERROR", MB_OK | MB_ICONSTOP );
+#else
+    printf("ERROR: %s\n", msg.c_str() );    
+#endif
 }
 
 //============================================================================
@@ -45,10 +49,12 @@ int main( int argc, char *argv[] )
 {	
 
 	// I can't live without my precious printf's
-#ifndef NDEBUG
+#ifdef WIN32
+#  ifndef NDEBUG
 	AllocConsole();
 	SetConsoleTitle( L"ld15_cavern CONSOLE" );
 	freopen("CONOUT$", "w", stdout );
+#  endif
 #endif
 	
 	
@@ -164,10 +170,7 @@ int main( int argc, char *argv[] )
 
 		SDL_GL_SwapBuffers();
 
-#ifndef NDEBUG
         ReloadChangedTweakableValues();        
-#endif
-
 	}
 
 	delete game;

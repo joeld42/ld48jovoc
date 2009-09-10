@@ -1,3 +1,5 @@
+#if TV_USE_TWEAKVAL && TV_HAS_COUNTER
+
 #include <map>
 #include <vector>
 #include <string>
@@ -199,6 +201,8 @@ void ReloadChangedTweakableValues()
 	}
 }
 
+#endif
+
 //===================================================================
 // Example/test
 //===================================================================
@@ -226,3 +230,4 @@ int main( int argc, char *argv[] )
     
 }
 #endif
+
