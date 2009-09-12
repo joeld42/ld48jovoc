@@ -40,11 +40,36 @@
 
 
 // Note: gcc supports __COUNTER__ in 4.3+
-//       msvc supports it in 6.0+
+
+
+#ifdef __GNUC__
+#  define GCC_VERSION (__GNUC__ * 10000 \
+                       + __GNUC_MINOR__ * 100 \
+                       + __GNUC_PATCHLEVEL__ )
+
+#  define TV_HAS_COUNTER (GCC_VERSION > 40300)
+#else
+// msvc supports __COUNTER__ in 6.0+ which is old
+// enough to assume... not sure about other compilers
+#  define TV_HAS_COUNTER 1
+#endif
+
+
+// Do only in debug builds
+#ifndef NDEBUG
+#  define TV_USE_TWEAKVAL 0
+#else
+#  define TV_USE_TWEAKVAL 1
+#endif
+
+
 //
 // See the thread referenced above for idea of how to implement
 // this without the __COUNTER__ macro.
-#ifndef NDEBUG
+
+// If we are in a build modethat wants tweakval, and the compiler
+// supports it, use it
+#if TV_USE_TWEAKVAL && TV_HAS_COUNTER
 #  define _TV(Val) _TweakValue( __FILE__, __COUNTER__, Val )
 
 float _TweakValue( const char *file, size_t counter, float origVal );
@@ -53,7 +78,10 @@ int _TweakValue( const char *file, size_t counter, int origVal );
 void ReloadChangedTweakableValues();
 
 #else
+// don't use it
 #  define _TV(Val) Val
+#  define ReloadChangedTweakableValues()
+
 #endif
 
 
