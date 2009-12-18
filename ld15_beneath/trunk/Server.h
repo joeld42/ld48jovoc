@@ -33,8 +33,8 @@
 #include <PlayerShip.h>
 
 // protobufs for packets
-//#include <pbSpaceCave/SpaceCave.pb.h>
-#include <SpaceCave.pb.h>
+#include <pbSpaceCave/SpaceCave.pb.h>
+//#include <SpaceCave.pb.h>
 
 // no point in having more since only 8 players max
 #define MAX_CLIENTS (8)

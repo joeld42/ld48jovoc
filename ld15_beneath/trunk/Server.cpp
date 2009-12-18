@@ -9,7 +9,8 @@
 
 #include <tinyxml.h>
 
-#include <SpaceCave.pb.h>
+//#include <SpaceCave.pb.h>
+#include <pbSpaceCave/SpaceCave.pb.h>
 
 using namespace std;
 using namespace google;

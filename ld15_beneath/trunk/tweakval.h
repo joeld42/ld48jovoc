@@ -56,7 +56,7 @@
 
 
 // Do only in debug builds
-#ifndef NDEBUG
+#ifdef NDEBUG
 #  define TV_USE_TWEAKVAL 0
 #else
 #  define TV_USE_TWEAKVAL 1

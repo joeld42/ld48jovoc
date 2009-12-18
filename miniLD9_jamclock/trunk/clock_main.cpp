@@ -20,6 +20,7 @@
 #include <SDL.h>
 #include <SDL_endian.h>
 #include <SDL_draw.h>
+#include <SDL_ttf.h>
 
 #include <GLee.h>
 #include <GL/gl.h>
@@ -38,6 +39,8 @@ using namespace std;
 
 #define WAVE_SIZE (256)
 
+#define SAMPLE_THRESHOLD (1200)
+
 #ifndef M_PI
 const double M_PI = 3.14159265358979323846;
 #endif
@@ -55,7 +58,7 @@ enum
 FMOD::Sound *g_recSound = NULL;
 FMOD::System *g_fmod = NULL;
 
-
+TTF_Font *g_font = NULL;
 
 //===================================================================
 class Bar
@@ -106,26 +109,30 @@ public:
 			Sint16 s = abs(sample[i]);
 			if (s > maxVal) maxVal = s;
 		 }
+		
+		 bool doNormalize = (maxVal > SAMPLE_THRESHOLD);
 
-		 bool doNormalize = true;
-		 if (doNormalize)
-		 {
-			 for (size_t i=0; i < (len1>>1); ++i )
+		for (size_t i=0; i < (len1>>1); ++i )
+		{
+			// left, right interleaved .. just glom together
+			Sint16 s = sample[i];
+			if (doNormalize)
 			{
-				// left, right interleaved .. just glom together
-				Sint16 s = sample[i];				
 				sample[i] = (Sint16)( ((float)s / (float)maxVal) * 32768.0f);
-				
-				// update waveform
-				size_t waveNdx = (size_t)((float)i / (float)(len1>>1)) * WAVE_SIZE;
-				if (abs(sample[i]) > m_wave[waveNdx])
-				{
-					m_wave[waveNdx]= abs(sample[i]);
-				}
 			}
-		 }
+			
+			// update waveform
+			size_t waveNdx = (size_t)( ((float)i / (float)(len1>>1)) * WAVE_SIZE );
+			if (abs(sample[i]) > m_wave[waveNdx])
+			{
+				m_wave[waveNdx]= abs(sample[i]);							
+			}
+		}
+		
 
+		 printf("================================\n");
 		 printf("Max Sample Val %d\n", maxVal );
+		 printf("================================\n");
 
 		 m_sample->unlock( data1, data2, len1, len2 );
 		 return true;
@@ -183,6 +190,7 @@ public:
 		if (m_bar[bar].m_sample)
 		{
 			printf("Playing sample!\n" );
+
 			if (m_chan) m_chan->stop();
 			g_fmod->playSound( FMOD_CHANNEL_FREE, m_bar[bar].m_sample, false, &m_chan );
 		}
@@ -294,7 +302,8 @@ public:
 					for (int x=0; x <= barWidth -10; ++x)
 					{
 						int waveNdx = (int)( ((float)x / (float)(barWidth-10)) * (WAVE_SIZE-1) );		
-						float fhite = m_bar[i].m_wave[waveNdx] / 32768.0f;
+						float fhite = m_bar[i].m_wave[waveNdx] / 32768.0f;						
+
 						int hite = (int)(fhite * BAR_TEX_H_2);
 						Draw_Line( m_surf, bx+x, BAR_TEX_H_2 - hite, bx+x, BAR_TEX_H_2 + hite, c_sampleCol );
 					}
@@ -405,6 +414,18 @@ int main( int argc, char *argv[] )
 
 	// init fmod
 	res = g_fmod->init( 20, FMOD_INIT_NORMAL, 0 );
+
+	if (!TTF_Init() != -1 )
+	{
+		printf("TTF_Init error: %s\n", TTF_GetError() );		
+	}
+	SDL_version compile_version;
+	const SDL_version *link_version = TTF_Linked_Version();
+	SDL_TTF_VERSION( &compile_version );
+	printf("SDL_ttf -- link version %d.%d.%d compile version %d.%d.%d\n",
+			link_version->major, link_version->minor, link_version->patch,
+			compile_version.major, compile_version.minor, compile_version.patch );
+
 
 	//=============================
 	// Menu screen

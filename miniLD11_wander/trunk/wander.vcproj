@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Toolkits\allegro-4.2.0\include&quot;;c:\projects\wander;c:\projects\wander\tinyxml"
+				AdditionalIncludeDirectories="&quot;C:\Toolkits\allegro-4.2.0\include&quot;;c:\projects\ld48jovoc\miniLD11_wander\trunk;c:\projects\wander\tinyxml"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -118,7 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Toolkits\allegro-4.2.0\include&quot;;c:\projects\wander;c:\projects\wander\tinyxml"
+				AdditionalIncludeDirectories="&quot;C:\Toolkits\allegro-4.2.0\include&quot;;c:\projects\ld48jovoc\miniLD11_wander\trunk;c:\projects\wander\tinyxml"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -185,6 +185,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mkterrain.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\pixbot.cpp"
 				>
 			</File>
@@ -204,6 +208,10 @@
 			>
 			<File
 				RelativePath=".\game_obj.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mkterrain.h"
 				>
 			</File>
 			<File

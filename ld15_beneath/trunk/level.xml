@@ -1,166 +1,790 @@
-<Cavern bgcolor="0.117188,0.183594,0.191406" width="800" height="1200" spawnPoint="310.679840,94.999847">
-    <Shape name="cavebg" mapname="gamedata/Test_shapes.png" collide="False" pattern="False" blendMode="off" angle="0" sortNum="1200" pos="391.107605,913.312744" size="406.467072,406.467072" />
-    <Shape name="cavebg" mapname="gamedata/Test_shapes.png" collide="False" pattern="False" blendMode="off" angle="0" sortNum="1200" pos="312.669067,268.048340" size="327.309692,327.309692" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="1100" pos="212.565094,508.045105" size="49.589813,49.589813" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="1100" pos="226.092072,526.572083" size="32.535870,32.535870" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="1100" pos="503.092041,411.892029" size="32.535870,32.535870" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="1100" pos="519.138245,399.938232" size="42.443474,42.443474" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="1100" pos="536.138245,440.938232" size="42.443474,42.443474" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="1100" pos="654.359985,56.159981" size="32.000000,32.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="1100" pos="613.832703,564.920471" size="119.803535,119.803535" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="1100" pos="378.359985,600.840027" size="64.000000,64.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-165" sortNum="1100" pos="482.133118,585.613159" size="56.453754,56.453754" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="1000" pos="441.000000,1082.319824" size="64.000000,64.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="0" sortNum="1000" pos="-258.000000,255.679962" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="15" sortNum="1000" pos="-208.000000,679.679932" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="0" sortNum="1000" pos="-252.000000,1123.040039" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="15" sortNum="1000" pos="228.000000,1397.360107" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="0" sortNum="1000" pos="672.000000,1401.360107" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="0" sortNum="1000" pos="1024.959961,962.960083" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="15" sortNum="1000" pos="990.959961,578.000000" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="0" sortNum="1000" pos="864.959961,254.000031" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-45" sortNum="1000" pos="734.959961,-91.680115" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="0" sortNum="1000" pos="402.959961,-251.680115" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="30" sortNum="1000" pos="16.959991,-237.680115" size="256.000000,256.000000" />
-    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="15" sortNum="1000" pos="18.959991,-215.680115" size="256.000000,256.000000" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="950" pos="0.199993,547.000000" size="64.000000,64.000000" />
-    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="0" sortNum="950" pos="898.560120,739.920044" size="128.000000,128.000000" />
-    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="-45" sortNum="950" pos="1096.560181,839.920044" size="128.000000,128.000000" />
-    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="0" sortNum="950" pos="1250.560181,913.920044" size="128.000000,128.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="910" pos="774.000000,1075.319824" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="21.319992,1185.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="62.319992,1174.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="102.319992,1162.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="143.319992,1150.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="180.319992,1139.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="218.319992,1127.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="257.320007,1116.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="291.320007,1105.319824" size="16.000000,16.000000" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="910" pos="573.525146,1081.844971" size="66.949692,66.949692" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="910" pos="596.525146,1068.844971" size="66.949692,66.949692" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="910" pos="615.210083,1107.529907" size="35.579803,35.579803" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="910" pos="554.210083,1109.529907" size="35.579803,35.579803" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="910" pos="716.000000,1135.319824" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="910" pos="777.000000,1135.319824" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="88.319992,1189.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="168.319992,1165.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="206.319992,1153.319824" size="16.000000,16.000000" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="910" pos="472.000000,1075.319824" size="64.000000,64.000000" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="910" pos="504.081146,1062.401001" size="91.837723,91.837723" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="910" pos="486.210083,1108.529907" size="35.579803,35.579803" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="910" pos="652.000000,1135.319824" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="269.320007,1158.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="305.320007,1158.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="194.319992,1178.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="244.319992,1145.319824" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="232.319992,1169.319824" size="16.000000,16.000000" />
-    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="910" pos="539.525146,1092.844971" size="66.949692,66.949692" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="910" pos="282.320007,1136.319824" size="16.000000,16.000000" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="658.359985,52.159981" size="32.000000,32.000000" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="-96.480255,183.159973" size="32.000000,32.000000" />
-    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="900" pos="1206.560181,763.920044" size="256.000000,256.000000" />
-    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="-30" sortNum="900" pos="1018.880127,920.640076" size="128.000000,128.000000" />
-    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="-30" sortNum="900" pos="1146.880127,1068.640137" size="256.000000,256.000000" />
-    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="900" pos="832.560120,633.920044" size="128.000000,128.000000" />
-    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="900" pos="986.560181,655.920044" size="128.000000,128.000000" />
-    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="900" pos="878.880127,850.640076" size="128.000000,128.000000" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="890" pos="761.470154,989.470154" size="45.459675,45.459675" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="890" pos="660.200012,407.999969" size="64.000000,64.000000" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="890" pos="620.200012,328.999969" size="64.000000,64.000000" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="890" pos="604.200012,225.999969" size="64.000000,64.000000" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="890" pos="4.199993,304.000000" size="64.000000,64.000000" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-180" sortNum="890" pos="4.199993,216.000015" size="64.000000,64.000000" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-180" sortNum="890" pos="-2.128004,136.672012" size="46.655994,46.655994" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-285" sortNum="890" pos="59.872002,150.672012" size="46.655994,46.655994" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-225" sortNum="890" pos="21.871996,87.672012" size="46.655994,46.655994" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-225" sortNum="890" pos="68.872002,36.672012" size="46.655994,46.655994" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-225" sortNum="890" pos="591.872009,156.672012" size="46.655994,46.655994" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-225" sortNum="890" pos="632.872009,148.672012" size="46.655994,46.655994" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-225" sortNum="890" pos="571.872009,80.672012" size="46.655994,46.655994" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-225" sortNum="890" pos="661.872009,188.672012" size="46.655994,46.655994" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-225" sortNum="890" pos="493.045502,36.845486" size="68.309044,68.309044" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-225" sortNum="890" pos="726.122742,600.922607" size="34.154522,34.154522" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-285" sortNum="890" pos="755.122742,650.922607" size="34.154522,34.154522" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-285" sortNum="890" pos="698.122742,649.922607" size="34.154522,34.154522" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-315" sortNum="890" pos="720.122742,702.922607" size="34.154522,34.154522" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-345" sortNum="890" pos="763.122742,692.922607" size="34.154522,34.154522" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="890" pos="754.122742,759.922607" size="34.154522,34.154522" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="890" pos="774.740356,871.740356" size="90.919350,90.919350" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="850" pos="133.199997,523.000000" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="850" pos="119.199997,499.999969" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="850" pos="102.199997,481.999969" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="850" pos="305.199982,596.000000" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="850" pos="636.200012,480.999969" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="850" pos="51.340820,592.194702" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="850" pos="136.199997,549.000000" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="850" pos="114.199997,593.000000" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="850" pos="177.199997,595.000000" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="850" pos="-1.800007,455.999969" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="850" pos="577.200012,477.999969" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="75" sortNum="850" pos="81.199997,469.999969" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="850" pos="37.199993,451.999969" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="60" sortNum="850" pos="59.199997,458.999969" size="16.000000,16.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="850" pos="515.200012,478.999969" size="32.000000,32.000000" />
-    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="850" pos="241.199982,595.000000" size="32.000000,32.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="15" sortNum="850" pos="-510.221497,752.390076" size="512.000000,512.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="15" sortNum="850" pos="-6.783966,-528.938049" size="512.000000,512.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="850" pos="213.971863,1650.958496" size="329.238281,329.238281" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="850" pos="946.739990,1399.351563" size="322.686462,322.686462" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="30" sortNum="850" pos="1387.747314,439.265076" size="512.000000,512.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="850" pos="526.499512,1447.861084" size="266.683014,266.683014" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="15" sortNum="850" pos="-606.901184,1378.874512" size="512.000000,512.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="15" sortNum="850" pos="-481.393341,-271.125549" size="512.000000,512.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-15" sortNum="850" pos="661.184814,-546.516174" size="512.000000,512.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="30" sortNum="850" pos="1496.145752,940.241699" size="512.000000,512.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="30" sortNum="850" pos="1141.653564,-95.344299" size="512.000000,512.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="850" pos="715.294678,1730.406250" size="322.686462,322.686462" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="15" sortNum="850" pos="-677.213684,271.921326" size="512.000000,512.000000" />
-    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="15" sortNum="850" pos="-234.830872,1665.046387" size="512.000000,512.000000" />
-    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="780" pos="-19.800007,391.999969" size="64.000000,64.000000" />
-    <Segment start="438.000000,9.319984" end="183.000000,3.319984" type="collide" />
-    <Segment start="186.000000,3.319984" end="119.000000,23.319984" type="collide" />
-    <Segment start="119.000000,23.319984" end="120.000000,59.319984" type="collide" />
-    <Segment start="120.000000,59.319984" end="86.000000,89.319984" type="collide" />
-    <Segment start="86.000000,90.319984" end="112.000000,140.319977" type="collide" />
-    <Segment start="112.000000,144.319977" end="54.000000,292.319977" type="collide" />
-    <Segment start="338.480011,570.479980" end="339.480011,625.479980" type="collide" />
-    <Segment start="339.480011,625.479980" end="40.320004,622.479980" type="collide" />
-    <Segment start="40.320004,622.479980" end="105.320007,862.800049" type="collide" />
-    <Segment start="105.320007,862.800049" end="5.320004,888.800049" type="collide" />
-    <Segment start="5.479996,889.640015" end="3.479996,1190.799805" type="collide" />
-    <Segment start="491.319977,451.479797" end="488.319977,507.479797" type="collide" />
-    <Segment start="488.319977,507.479797" end="705.319946,510.479797" type="collide" />
-    <Segment start="705.319946,510.479797" end="721.319946,565.479797" type="collide" />
-    <Segment start="721.319946,565.479797" end="692.319946,608.479797" type="collide" />
-    <Segment start="692.319946,608.479797" end="665.319946,653.479797" type="collide" />
-    <Segment start="665.319946,653.479797" end="740.319946,789.479797" type="collide" />
-    <Segment start="740.319946,789.479797" end="694.319946,819.479797" type="collide" />
-    <Segment start="694.319946,819.479797" end="691.319946,887.479797" type="collide" />
-    <Segment start="690.319946,887.799805" end="765.319946,1075.799805" type="collide" />
-    <Segment start="434.959961,9.399994" end="438.959961,62.399994" type="collide" />
-    <Segment start="438.959961,61.399994" end="469.959961,94.399994" type="collide" />
-    <Segment start="469.959961,94.399994" end="524.959961,98.399994" type="collide" />
-    <Segment start="524.959961,98.399994" end="601.959961,444.399994" type="collide" />
-    <Segment start="326.000000,603.039978" end="500.000000,495.039978" type="dialogue" />
-    <Segment start="-6.000000,1194.719971" end="408.000000,1082.719971" type="kill" />
-    <Segment start="400.000000,1078.719971" end="432.000000,1158.719971" type="kill" />
-    <Segment start="408.000000,1154.719971" end="770.000000,1148.719971" type="kill" />
-    <Segment start="760.000000,1154.719971" end="772.000000,1066.719971" type="kill" />
-    <Segment start="54.000000,289.439941" end="36.000000,429.439941" type="collide" />
-    <Segment start="36.000000,431.439941" end="106.000000,453.439941" type="collide" />
-    <Segment start="106.000000,453.439941" end="194.000000,559.439941" type="collide" />
-    <Segment start="192.000000,559.439941" end="332.000000,569.439941" type="collide" />
-    <Segment start="490.000000,455.439941" end="606.000000,441.439941" type="collide" />
-    <Segment start="422.000000,1118.319824" end="431.000000,1005.319824" type="kill" />
-    <Segment start="430.000000,1004.319824" end="491.000000,995.319824" type="kill" />
-    <Segment start="491.000000,995.319824" end="504.000000,948.319824" type="kill" />
-    <Segment start="505.000000,948.319824" end="531.000000,1012.319824" type="kill" />
-    <Segment start="531.000000,1012.319824" end="594.000000,988.319824" type="kill" />
-    <Segment start="594.000000,987.319824" end="622.000000,1067.319824" type="kill" />
-    <Segment start="622.000000,1067.319824" end="622.000000,1149.319824" type="kill" />
-    <Segment start="305.320007,1104.319824" end="422.319977,1071.319824" type="collide" />
-    <Segment start="544.000000,449.000000" end="522.000000,343.000000" type="kill" />
-    <Segment start="522.000000,344.000000" end="495.000000,457.000000" type="kill" />
-    <Segment start="236.159973,563.000000" end="211.159973,453.000000" type="kill" />
-    <Segment start="212.159973,453.000000" end="206.159973,563.000000" type="kill" />
+<Cavern bgcolor="0.117188,0.183594,0.191406" width="4800" height="6000" spawnPoint="650.241699,741.061646">
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1300" pos="3410.755859,228.869965" size="519.161011,519.161011" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1200" pos="3410.755859,221.091400" size="519.161011,519.161011" />
+    <Shape name="cavebg" mapname="gamedata/Test_shapes.png" collide="False" pattern="False" blendMode="off" angle="0" sortNum="1100" pos="704.000000,787.199951" size="512.000000,512.000000" />
+    <Shape name="cavebg" mapname="gamedata/Test_shapes.png" collide="False" pattern="False" blendMode="off" angle="-60" sortNum="1100" pos="1270.239990,2163.439941" size="619.520020,619.520020" />
+    <Shape name="cavebg" mapname="gamedata/Test_shapes.png" collide="False" pattern="False" blendMode="off" angle="-105" sortNum="1100" pos="900.239990,3723.439941" size="619.520020,619.520020" />
+    <Shape name="cavebg" mapname="gamedata/Test_shapes.png" collide="False" pattern="False" blendMode="off" angle="-15" sortNum="1100" pos="2990.479980,4398.479980" size="1239.040039,1239.040039" />
+    <Shape name="cavebg" mapname="gamedata/Test_shapes.png" collide="False" pattern="False" blendMode="off" angle="15" sortNum="1100" pos="700.239990,5328.240234" size="619.520020,619.520020" />
+    <Shape name="cavebg" mapname="gamedata/Test_shapes.png" collide="False" pattern="False" blendMode="off" angle="180" sortNum="1100" pos="3251.128418,1670.728516" size="997.743286,997.743286" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1090" pos="3401.032471,217.202118" size="519.161011,519.161011" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="420" sortNum="1090" pos="3414.645020,306.655579" size="519.161011,519.161011" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1090" pos="3734.187012,279.430603" size="519.161011,519.161011" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="390" sortNum="1090" pos="4050.851074,228.870056" size="519.161011,519.161011" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1090" pos="3815.771240,610.240845" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1051" pos="3772.989258,635.521179" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1051" pos="3714.650146,594.683716" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1051" pos="3654.366211,629.687256" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1051" pos="3582.414551,610.240845" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1051" pos="3481.293457,639.410461" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1051" pos="3345.168701,598.572998" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1051" pos="4010.235352,695.804993" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1051" pos="3874.110596,765.812073" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="405" sortNum="1051" pos="3269.327637,668.580078" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="135" sortNum="1051" pos="3820.728760,708.541016" size="256.000000,256.000000" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="135" sortNum="1051" pos="3439.579346,753.267761" size="256.000000,256.000000" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="1050" pos="1002.000000,3001.600098" size="256.000000,256.000000" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="1050" pos="1482.000000,3921.600098" size="256.000000,256.000000" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="1050" pos="1732.000000,4131.600098" size="256.000000,256.000000" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="1050" pos="1042.000000,4521.600098" size="256.000000,256.000000" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="1050" pos="1445.119995,5354.320313" size="309.760010,309.760010" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="1050" pos="3339.632080,3058.832031" size="340.736023,340.736023" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="1050" pos="3492.001953,2661.201904" size="275.996155,275.996155" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="1050" pos="1002.000000,1441.599976" size="256.000000,256.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="1000" pos="2687.400391,2829.799805" size="365.199005,365.199005" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-495" sortNum="1000" pos="1981.261841,2885.261230" size="437.476410,437.476410" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-525" sortNum="1000" pos="560.748413,1564.748047" size="278.503204,278.503204" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-555" sortNum="1000" pos="4782.968750,4916.968262" size="874.062622,874.062622" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-390" sortNum="1000" pos="-521.993042,440.006744" size="803.986023,803.986023" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-105" sortNum="1000" pos="1407.206909,1404.884766" size="166.977676,166.977676" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-120" sortNum="1000" pos="1234.172241,1187.355469" size="166.977676,166.977676" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-90" sortNum="1000" pos="1637.860107,1333.963135" size="239.607056,239.607056" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-75" sortNum="1000" pos="1587.270386,645.617188" size="479.214111,479.214111" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-105" sortNum="1000" pos="793.952393,-632.988892" size="958.428223,958.428223" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-60" sortNum="1000" pos="2655.413086,4812.167969" size="256.000000,256.000000" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-345" sortNum="1000" pos="-481.993011,1650.006714" size="803.986023,803.986023" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-375" sortNum="1000" pos="-141.993011,2810.006836" size="803.986023,803.986023" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-360" sortNum="1000" pos="-845.052734,4366.947266" size="1070.105469,1070.105469" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-420" sortNum="1000" pos="-527.244995,6219.954590" size="934.490051,934.490051" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-465" sortNum="1000" pos="636.528015,2830.527588" size="246.943985,246.943985" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-465" sortNum="1000" pos="1436.527954,3020.527588" size="246.943985,246.943985" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-435" sortNum="1000" pos="434.133118,4601.333008" size="291.733795,291.733795" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-480" sortNum="1000" pos="284.726410,4361.926270" size="210.547195,210.547195" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-465" sortNum="1000" pos="627.638245,4504.837891" size="244.723495,244.723495" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-435" sortNum="1000" pos="1437.638306,4864.837891" size="244.723495,244.723495" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-510" sortNum="1000" pos="1750.798340,3727.998047" size="178.403427,178.403427" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-510" sortNum="1000" pos="1480.798340,4357.998047" size="178.403427,178.403427" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-465" sortNum="1000" pos="2362.518555,6109.718262" size="634.963135,634.963135" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-465" sortNum="1000" pos="1803.278687,3490.478516" size="253.442581,253.442581" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-60" sortNum="1000" pos="3120.134766,3956.882324" size="256.000000,256.000000" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-105" sortNum="1000" pos="2739.188477,4520.210938" size="128.000000,128.000000" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-435" sortNum="1000" pos="1336.030518,6823.229980" size="1027.939087,1027.939087" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-420" sortNum="1000" pos="1740.789917,5687.989746" size="358.420074,358.420074" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-465" sortNum="1000" pos="1437.638306,4524.837891" size="244.723495,244.723495" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-120" sortNum="1000" pos="3025.931641,4223.580078" size="128.000000,128.000000" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-435" sortNum="1000" pos="3615.175293,6472.375000" size="929.649597,929.649597" />
+    <Shape name="dirtpat" mapname="gamedata/dirtpat_CP.png" collide="True" pattern="True" blendMode="off" angle="-150" sortNum="1000" pos="2906.385498,4390.776855" size="110.012421,110.012421" />
+    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="-150" sortNum="1000" pos="2186.965088,1709.364624" size="366.069916,366.069916" />
+    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="-180" sortNum="1000" pos="2183.000488,2095.399902" size="213.998993,213.998993" />
+    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="-210" sortNum="1000" pos="2184.197021,2386.596436" size="171.605789,171.605789" />
+    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="-60" sortNum="1000" pos="2391.621582,-5.978821" size="796.756714,796.756714" />
+    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="0" sortNum="1000" pos="4634.000000,3537.999512" size="512.000000,512.000000" />
+    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="0" sortNum="1000" pos="5828.000000,3351.999512" size="1024.000000,1024.000000" />
+    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="-90" sortNum="1000" pos="3591.621582,-85.978821" size="796.756714,796.756714" />
+    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="-75" sortNum="1000" pos="4941.621582,574.021179" size="796.756714,796.756714" />
+    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="-15" sortNum="1000" pos="4988.000000,2281.999512" size="1024.000000,1024.000000" />
+    <Shape name="sandpat" mapname="gamedata/sandpat_PC.png" collide="True" pattern="True" blendMode="off" angle="-90" sortNum="1000" pos="2042.483154,1194.882690" size="275.033722,275.033722" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-75" sortNum="971" pos="3448.971680,632.369202" size="93.311989,93.311989" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-75" sortNum="971" pos="3338.127197,647.926331" size="93.311989,93.311989" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-45" sortNum="961" pos="3598.866699,616.969849" size="128.000000,128.000000" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="961" pos="3954.735840,659.751953" size="128.000000,128.000000" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="0" sortNum="961" pos="3781.662842,599.468079" size="128.000000,128.000000" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="433.665619,1216.819092" size="45.918861,45.918861" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="460.890594,1212.929810" size="45.918861,45.918861" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="478.392334,1242.099365" size="45.918861,45.918861" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="1001.500305,1173.103638" size="45.918861,45.918861" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="950" pos="1911.086914,3852.076172" size="183.675446,183.675446" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="950" pos="2039.433228,3596.707275" size="183.675446,183.675446" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="950" pos="2248.520996,3242.472656" size="183.675446,183.675446" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="950" pos="2116.285400,3421.379639" size="183.675446,183.675446" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="165" sortNum="950" pos="2290.992188,3152.086182" size="183.675446,183.675446" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="345" sortNum="950" pos="3012.399902,3725.700684" size="161.069199,161.069199" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="435" sortNum="950" pos="2856.828857,4024.552246" size="161.069199,161.069199" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="390" sortNum="950" pos="2614.531006,4487.223633" size="105.677498,105.677498" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="345" sortNum="950" pos="2453.125977,4636.960938" size="105.677498,105.677498" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="435" sortNum="950" pos="2358.460693,4812.288086" size="105.677498,105.677498" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="435" sortNum="950" pos="2494.585449,5041.444336" size="105.677498,105.677498" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="950" pos="3092.959229,2775.358643" size="194.081711,194.081711" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-60" sortNum="950" pos="3970.838623,3273.238037" size="258.322784,258.322784" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="950" pos="3670.838623,3143.238037" size="258.322784,258.322784" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="950" pos="3755.379395,2817.778809" size="209.241440,209.241440" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="950" pos="2472.959229,2855.358643" size="194.081711,194.081711" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="3032.959229,3045.358643" size="194.081711,194.081711" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="476.010834,5824.162109" size="77.440002,77.440002" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="794.931763,5767.767578" size="77.440002,77.440002" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="1061.347290,5750.266113" size="77.440002,77.440002" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="1094.406128,5814.438965" size="77.440002,77.440002" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="1283.969727,2622.512939" size="77.440002,77.440002" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="1320.917847,2690.575195" size="77.440002,77.440002" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="1433.238770,2610.376709" size="113.379913,113.379913" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="60" sortNum="950" pos="1540.193970,2447.027100" size="113.379913,113.379913" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="210" sortNum="950" pos="3101.276123,3872.449219" size="151.643448,151.643448" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="210" sortNum="950" pos="3148.742432,3970.476074" size="99.493256,99.493256" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="435" sortNum="950" pos="2517.921143,5012.274902" size="105.677498,105.677498" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="435" sortNum="950" pos="2397.353516,4823.644531" size="105.677498,105.677498" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="950" pos="1668.540161,2443.137695" size="113.379913,113.379913" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="60" sortNum="950" pos="1502.348999,2566.697998" size="91.837723,91.837723" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="1469.290161,2636.704834" size="91.837723,91.837723" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="950" pos="934.825378,2157.701172" size="91.837723,91.837723" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="408.385315,1222.652954" size="45.918861,45.918861" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="400.169922,5783.324707" size="77.440002,77.440002" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="437.118073,5818.328125" size="77.440002,77.440002" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="375" sortNum="950" pos="3141.928955,4278.925781" size="137.857681,137.857681" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="345" sortNum="950" pos="3287.776855,4160.302734" size="137.857681,137.857681" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="345" sortNum="950" pos="3281.241943,4114.644043" size="137.857681,137.857681" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="420" sortNum="950" pos="3275.407959,4038.802490" size="137.857681,137.857681" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="225" sortNum="950" pos="3221.843750,4059.134766" size="151.643448,151.643448" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="1381.374512,2576.014404" size="154.880005,154.880005" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="950" pos="1603.063232,2474.893066" size="154.880005,154.880005" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="360" sortNum="950" pos="2834.747803,2406.470947" size="132.425522,132.425522" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="435" sortNum="950" pos="3021.140869,2464.517822" size="160.234894,160.234894" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="375" sortNum="950" pos="2857.456299,2452.515137" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="345" sortNum="950" pos="2923.206543,4513.303223" size="170.194672,170.194672" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="390" sortNum="950" pos="2906.072266,2468.072266" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="390" sortNum="950" pos="2395.408936,4732.246582" size="105.677498,105.677498" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="480" sortNum="950" pos="2584.038818,5051.167480" size="105.677498,105.677498" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="345" sortNum="950" pos="2681.270996,5095.894043" size="105.677498,105.677498" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="345" sortNum="950" pos="2875.734863,4981.160645" size="105.677498,105.677498" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="435" sortNum="950" pos="2890.147705,4703.877930" size="170.194672,170.194672" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="420" sortNum="950" pos="2966.356201,2477.795654" size="129.790253,129.790253" />
+    <Shape name="plant" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="180" sortNum="950" pos="3004.044189,3814.110107" size="151.643448,151.643448" />
+    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="-30" sortNum="950" pos="4812.180664,4281.922852" size="256.000000,256.000000" />
+    <Shape name="dirt" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="950" pos="431.768677,4534.724609" size="256.000000,256.000000" />
+    <Shape name="dirt" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="950" pos="81.733627,4729.188477" size="256.000000,256.000000" />
+    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="-30" sortNum="950" pos="4699.391602,4060.234375" size="256.000000,256.000000" />
+    <Shape name="dirt" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="950" pos="31.172928,5986.440430" size="256.000000,256.000000" />
+    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="950" pos="4448.533203,4064.123535" size="256.000000,256.000000" />
+    <Shape name="dirt" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="950" pos="-83.560715,4474.440430" size="256.000000,256.000000" />
+    <Shape name="dirt" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="950" pos="-145.789246,5029.674805" size="256.000000,256.000000" />
+    <Shape name="dirt" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="950" pos="672.592834,6337.098633" size="256.000000,256.000000" />
+    <Shape name="dirt" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="950" pos="927.651733,6143.956543" size="256.000000,256.000000" />
+    <Shape name="dirt" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="950" pos="196.467346,4429.713867" size="256.000000,256.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="60" sortNum="901" pos="3383.897461,711.198303" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="901" pos="3481.129395,699.530518" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="901" pos="3570.583008,709.253662" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="901" pos="3684.447754,704.495605" size="85.184006,85.184006" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="901" pos="3808.904785,696.717041" size="85.184006,85.184006" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="60" sortNum="901" pos="3952.808105,698.661682" size="85.184006,85.184006" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1206.190186,4765.971191" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1223.795410,4692.178223" size="40.504566,40.504566" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1289.913208,4482.157227" size="40.504566,40.504566" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1309.359497,4408.261230" size="40.504566,40.504566" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="803.753418,4419.928711" size="40.504566,40.504566" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="782.362366,4489.936035" size="40.504566,40.504566" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="716.244629,4698.012207" size="40.504566,40.504566" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="694.853577,4773.853516" size="40.504566,40.504566" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="900" pos="1132.939941,3194.186768" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="900" pos="1210.725464,3229.190186" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="900" pos="1307.957397,3229.190186" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="900" pos="1387.687622,3306.975830" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="900" pos="1403.244751,3213.633057" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="900" pos="1507.369263,3286.643555" size="77.440002,77.440002" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1569.597656,3354.705811" size="77.440002,77.440002" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1540.428101,3481.107422" size="77.440002,77.440002" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1477.896240,3646.098633" size="124.717911,124.717911" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1570.713013,3758.361572" size="59.652176,59.652176" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1623.218384,3836.147217" size="59.652176,59.652176" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1655.966064,3175.281738" size="59.652176,59.652176" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1158.138428,3087.772949" size="59.652176,59.652176" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1168.899536,2993.523438" size="53.686958,53.686958" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-60" sortNum="900" pos="1220.573730,2881.847900" size="86.463394,86.463394" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-105" sortNum="900" pos="1283.237549,2748.103271" size="70.035347,70.035347" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="900" pos="1391.750000,2747.715820" size="63.031811,63.031811" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1286.739380,3066.636719" size="63.031811,63.031811" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1378.137451,2897.453125" size="63.031811,63.031811" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="900" pos="1353.769409,2983.929443" size="49.539356,49.539356" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="900" pos="1478.966064,2762.980225" size="32.502769,32.502769" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="2063.522217,2450.359375" size="280.332489,280.332489" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-105" sortNum="900" pos="1752.479126,2493.240723" size="120.673904,120.673904" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="900" pos="1602.100830,2611.222412" size="79.174141,79.174141" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-45" sortNum="900" pos="1537.562256,2711.978271" size="56.569363,56.569363" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="900" pos="1712.816162,2655.820068" size="67.764442,67.764442" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="1845.051636,2677.210938" size="67.764442,67.764442" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="1646.961060,2743.591553" size="40.014217,40.014217" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-120" sortNum="900" pos="1537.973267,2819.344482" size="32.411514,32.411514" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-120" sortNum="900" pos="1493.246582,2918.521240" size="32.411514,32.411514" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1204.722412,1526.297485" size="85.184006,85.184006" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1342.161499,1584.006470" size="55.330322,55.330322" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1453.005981,1584.006470" size="55.330322,55.330322" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1561.905762,1587.895752" size="55.330322,55.330322" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1681.094727,1607.908203" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1751.724121,1752.122681" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1831.454346,1892.136719" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1907.917603,2036.351196" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1975.979980,2180.254639" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="2079.955322,2212.278320" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="2013.837646,2076.153564" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1939.941284,1928.360962" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1858.266479,1788.346802" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1786.314819,1646.388184" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1506.286743,1498.595459" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1574.349121,1498.595459" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1644.356079,1500.540161" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="900" pos="1359.609741,4221.189453" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="900" pos="1386.834717,4197.854004" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-150" sortNum="900" pos="1410.170410,4180.352051" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-150" sortNum="900" pos="1441.284668,4162.850586" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-150" sortNum="900" pos="1468.509521,4143.404297" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-150" sortNum="900" pos="1499.623779,4133.680664" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-165" sortNum="900" pos="1528.793335,4120.068359" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-195" sortNum="900" pos="1552.129028,4118.123535" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-225" sortNum="900" pos="1573.520142,4129.791504" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="900" pos="1589.077148,4155.071777" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="900" pos="1602.689697,4182.296875" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="900" pos="1618.246826,4211.466309" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="900" pos="1633.803955,4236.746582" size="18.411165,18.411165" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="900" pos="1644.044678,4287.825195" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="900" pos="1655.712524,4361.721191" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="900" pos="1729.608887,4350.053711" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="900" pos="1688.771484,4425.894531" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-270" sortNum="900" pos="1682.937500,4488.123047" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-270" sortNum="900" pos="1661.546509,4558.129883" size="36.822330,36.822330" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-240" sortNum="900" pos="1720.920776,3896.354980" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-255" sortNum="900" pos="1365.177734,4999.088867" size="147.289322,147.289322" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-255" sortNum="900" pos="1588.811157,4936.860352" size="147.289322,147.289322" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-255" sortNum="900" pos="1601.777588,4689.244629" size="98.021049,98.021049" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-315" sortNum="900" pos="1341.576172,4763.521973" size="70.035339,70.035339" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-300" sortNum="900" pos="504.557312,4869.652832" size="128.000000,128.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-255" sortNum="900" pos="214.806030,4974.663086" size="128.000000,128.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-270" sortNum="900" pos="156.466858,5418.041016" size="128.000000,128.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-150" sortNum="900" pos="426.771729,5963.242676" size="128.000000,128.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1196.537720,5537.676758" size="128.000000,128.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-90" sortNum="900" pos="1339.382202,5748.583984" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-120" sortNum="900" pos="748.211853,5896.376465" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="1012.682739,5830.258789" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="227.048492,5707.746582" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="287.775208,5680.964355" size="32.000000,32.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="721.429749,5844.313965" size="32.000000,32.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="992.087585,5770.770508" size="46.851204,46.851204" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="1000.427734,5716.882324" size="37.949474,37.949474" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="998.199036,5666.037598" size="30.739073,30.739073" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="773.208313,5829.974609" size="49.010536,49.010536" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="731.192993,5801.572266" size="39.698532,39.698532" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="760.581543,5768.732422" size="35.371387,35.371387" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="741.135132,5729.839355" size="35.371387,35.371387" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="742.550720,5688.473145" size="28.650822,28.650822" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="271.095642,5637.060059" size="38.134247,38.134247" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="300.227295,5602.018066" size="34.320820,34.320820" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="284.041351,5564.441406" size="27.799862,27.799862" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="740.909180,5653.772461" size="20.266098,20.266098" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="997.582214,5634.306152" size="16.415539,16.415539" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="900" pos="293.622803,5535.129883" size="16.415539,16.415539" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1383.097900,5476.722656" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1527.001221,5389.213867" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1672.849121,5311.428223" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1812.863159,5229.753418" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1933.430786,5260.867676" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1770.524048,5309.926270" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1620.786743,5397.435059" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1474.938843,5465.497559" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1998.662842,5470.002930" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="2268.968018,5442.777832" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="2488.401367,5593.526855" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="2756.761475,5564.357422" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="2967.716064,5735.485840" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="3208.228760,5647.976074" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="3464.921143,5577.969238" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="3714.145020,5499.171875" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="3811.376953,5256.013672" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="3907.752930,5013.244141" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="3983.593994,4761.763184" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="4060.756836,4522.883789" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="4115.206543,4271.014648" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="4206.604492,4018.523926" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="4208.549316,3768.599854" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="4210.493652,3517.741455" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="549.999268,290.154053" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="671.229797,290.154053" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="792.460266,344.903290" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="913.690735,344.903290" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1036.876587,405.518555" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1157.481445,405.518555" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1159.436768,528.704346" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1159.436768,655.800842" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1280.667236,657.756165" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1278.711914,780.942017" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1189.124023,750.014038" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1067.893555,499.731750" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1011.188965,312.020050" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1073.759521,312.020050" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="1132.419434,312.020050" size="32.000000,32.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="285" sortNum="900" pos="1159.436768,943.860107" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="315" sortNum="900" pos="1112.508789,1051.403320" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="255" sortNum="900" pos="1075.357544,1149.169800" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="300" sortNum="900" pos="1030.384888,1258.668335" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="330" sortNum="900" pos="1120.330078,1325.149536" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="285" sortNum="900" pos="758.807983,1329.274170" size="51.839996,51.839996" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="300" sortNum="900" pos="1120.130859,1229.139160" size="68.309044,68.309044" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="255" sortNum="900" pos="1210.724976,1255.207275" size="82.653954,82.653954" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="255" sortNum="900" pos="1181.395020,1114.423462" size="82.653954,82.653954" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="255" sortNum="900" pos="1271.865234,993.718140" size="54.229252,54.229252" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="180" sortNum="900" pos="1338.346558,1128.635864" size="54.229252,54.229252" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="180" sortNum="900" pos="1224.937378,1396.516113" size="54.229252,54.229252" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="180" sortNum="900" pos="1336.391235,1343.722290" size="54.229252,54.229252" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="150" sortNum="900" pos="1372.288452,1241.416870" size="32.021824,32.021824" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="150" sortNum="900" pos="1331.226563,1460.413818" size="32.021824,32.021824" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="900" pos="1438.769775,1399.798584" size="32.021824,32.021824" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="900" pos="1413.350464,1018.509094" size="32.021824,32.021824" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="900" pos="1448.192139,1168.715332" size="28.819641,28.819641" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="900" pos="1326.961670,896.924438" size="28.819641,28.819641" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="180" sortNum="900" pos="1240.927124,871.505127" size="28.819641,28.819641" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="105" sortNum="900" pos="805.957947,1445.564819" size="85.184006,85.184006" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="900" pos="843.109192,1582.437988" size="85.184006,85.184006" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="900" pos="883.048157,1735.473267" size="103.072647,103.072647" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="75" sortNum="900" pos="746.453979,1819.831543" size="75.139954,75.139954" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="75" sortNum="900" pos="623.268188,1856.982788" size="75.139954,75.139954" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="75" sortNum="900" pos="494.216400,1872.625488" size="75.139954,75.139954" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="900" pos="397.986511,2055.695068" size="150.279907,150.279907" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="120" sortNum="900" pos="515.724976,2167.567383" size="75.139954,75.139954" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="150" sortNum="900" pos="625.223511,2208.629395" size="75.139954,75.139954" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="75" sortNum="900" pos="727.776184,2223.504883" size="49.299316,49.299316" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="60" sortNum="900" pos="805.989441,2233.281738" size="49.299316,49.299316" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="60" sortNum="900" pos="815.766052,2301.718262" size="49.299316,49.299316" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="900" pos="798.168091,2383.842041" size="49.299316,49.299316" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="900" pos="782.525452,2461.038818" size="49.299316,49.299316" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="90" sortNum="900" pos="742.969788,2591.630127" size="98.598633,98.598633" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="45" sortNum="900" pos="865.482056,2702.474609" size="98.598633,98.598633" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="105" sortNum="900" pos="877.149902,2867.769043" size="98.598633,98.598633" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="900" pos="812.976807,3062.233154" size="98.598633,98.598633" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="717.929932,3113.032715" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="657.646118,3113.032715" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="597.362305,3113.032715" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="574.026672,3161.648682" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="562.358826,3221.932617" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="552.635620,3284.161133" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="546.801697,3346.389404" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="540.967773,3408.617920" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="521.521362,3467.967773" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="504.019653,3524.362305" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="478.739319,3580.756836" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="447.625092,3635.206787" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="430.123322,3695.411865" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="391.185577,3765.374023" size="51.536324,51.536324" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="316.173767,3758.424561" size="30.431679,30.431679" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="259.779236,3742.867432" size="30.431679,30.431679" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="203.384705,3725.365723" size="30.431679,30.431679" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="149.946014,3709.808594" size="30.431679,30.431679" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="91.606842,3694.251465" size="30.431679,30.431679" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="37.156937,3676.749756" size="30.431679,30.431679" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="-19.937672,3657.303223" size="30.431679,30.431679" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="195.917297,3775.926270" size="30.431679,30.431679" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="193.972656,3836.210205" size="30.431679,30.431679" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="193.972656,3892.915527" size="30.431679,30.431679" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="167.088989,3982.710205" size="60.863358,60.863358" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="163.199707,4101.332520" size="60.863358,60.863358" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="285.711975,4146.059082" size="60.863358,60.863358" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="900" pos="404.334961,4208.287598" size="60.863358,60.863358" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="634.113525,4256.903320" size="60.863358,60.863358" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="733.290100,4331.499512" size="60.863358,60.863358" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="872.747437,4327.053223" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1306.401978,4297.883789" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1191.668213,4416.506836" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1218.893188,4574.721680" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="796.906494,4601.946289" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="816.352905,4753.628418" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1146.941528,4862.293945" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="1111.937988,4695.289063" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="899.972412,4483.323242" size="73.644661,73.644661" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="900" pos="507.400848,4274.405273" size="60.863358,60.863358" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-120" sortNum="890" pos="2740.922852,4365.866699" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-105" sortNum="890" pos="2639.801758,4369.755859" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-165" sortNum="890" pos="2446.365234,1665.482056" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-210" sortNum="890" pos="2414.769287,1785.567993" size="118.605476,118.605476" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-255" sortNum="890" pos="2328.053711,1118.026978" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-255" sortNum="890" pos="2277.011475,971.697266" size="118.605476,118.605476" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-180" sortNum="890" pos="2452.028809,856.963501" size="118.605476,118.605476" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="890" pos="2676.975586,4512.949219" size="37.569977,37.569977" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="890" pos="2325.797119,4702.380859" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-285" sortNum="890" pos="2485.569580,734.932922" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-285" sortNum="890" pos="2827.344238,680.001282" size="118.605476,118.605476" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-375" sortNum="890" pos="2990.507324,705.795471" size="86.463387,86.463387" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-375" sortNum="890" pos="2761.039795,814.695313" size="86.463387,86.463387" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-420" sortNum="890" pos="2904.991211,810.854004" size="63.031803,63.031803" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-225" sortNum="890" pos="2906.217285,4393.091797" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-180" sortNum="890" pos="2987.892090,4278.357910" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-360" sortNum="890" pos="3199.746826,714.737183" size="41.355164,41.355164" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-360" sortNum="890" pos="3259.800293,716.451477" size="30.147911,30.147911" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-360" sortNum="890" pos="3305.446289,703.758423" size="24.419807,24.419807" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-360" sortNum="890" pos="3996.078857,706.924072" size="21.977825,21.977825" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-390" sortNum="890" pos="4042.048096,717.889709" size="42.828564,42.828564" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-105" sortNum="890" pos="2908.161865,4157.790527" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-120" sortNum="890" pos="2856.099609,4282.690430" size="32.000000,32.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-420" sortNum="890" pos="4187.026367,878.425110" size="83.460762,83.460762" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-420" sortNum="890" pos="4211.100586,997.786743" size="54.758606,54.758606" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-420" sortNum="890" pos="4239.638672,1074.940430" size="44.354469,44.354469" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-465" sortNum="890" pos="4226.025879,1144.947510" size="44.354469,44.354469" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-465" sortNum="890" pos="4203.015137,1205.555786" size="35.927120,35.927120" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-105" sortNum="890" pos="3399.579346,3982.510254" size="128.000000,128.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-165" sortNum="890" pos="2770.092529,3881.651367" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-495" sortNum="890" pos="4185.037109,1302.311523" size="29.100965,29.100965" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-495" sortNum="890" pos="4165.590820,1370.373901" size="29.100965,29.100965" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-495" sortNum="890" pos="4159.756836,1436.491699" size="29.100965,29.100965" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-495" sortNum="890" pos="4231.708496,1399.543457" size="29.100965,29.100965" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-495" sortNum="890" pos="4255.043945,1317.868652" size="29.100965,29.100965" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="890" pos="3120.570557,4307.970703" size="32.000000,32.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="890" pos="2790.560059,4484.575195" size="51.536324,51.536324" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="890" pos="2421.084473,4946.471680" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-45" sortNum="890" pos="3187.613525,3634.419678" size="128.000000,128.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-75" sortNum="890" pos="3249.842041,3838.606934" size="128.000000,128.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="30" sortNum="890" pos="2738.060791,5057.315918" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="890" pos="2827.514160,4777.288086" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-60" sortNum="890" pos="2566.932373,5140.935547" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="890" pos="2994.753174,4903.689453" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="890" pos="2342.677246,2641.458252" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="890" pos="2350.455811,2433.381836" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-180" sortNum="890" pos="2859.545898,3827.201660" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-180" sortNum="890" pos="3046.231201,4400.870117" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-120" sortNum="890" pos="2422.407471,2249.574463" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-180" sortNum="890" pos="3104.570557,4175.291992" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-120" sortNum="890" pos="2391.293213,2088.169434" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-165" sortNum="890" pos="2420.462891,1990.937378" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-165" sortNum="890" pos="2548.638428,1889.956421" size="118.605476,118.605476" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="890" pos="2774.207520,4649.074219" size="37.569977,37.569977" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="890" pos="2571.964844,4736.583008" size="37.569977,37.569977" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-120" sortNum="890" pos="2659.964844,1824.320435" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-165" sortNum="890" pos="2399.212158,1336.356079" size="118.605476,118.605476" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-165" sortNum="890" pos="2308.295898,1214.325562" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-165" sortNum="890" pos="2281.071045,1284.332642" size="59.302738,59.302738" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4077.823242,1764.799072" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-285" sortNum="890" pos="2632.880371,738.340454" size="118.605476,118.605476" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-45" sortNum="890" pos="2393.237793,2347.817627" size="59.302738,59.302738" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4106.992676,1650.687500" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4058.375977,2320.655273" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-525" sortNum="890" pos="4278.379883,1232.304443" size="29.100965,29.100965" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4124.493652,2081.464600" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4176.999023,1862.031250" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4140.050781,1535.331665" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4235.338379,1636.452881" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-390" sortNum="890" pos="3108.440674,714.828979" size="56.728622,56.728622" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4317.456055,1666.065308" size="32.000000,32.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-120" sortNum="890" pos="2575.863525,1693.547852" size="118.605476,118.605476" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="890" pos="2551.375244,4598.381348" size="59.302738,59.302738" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4266.895508,1885.809692" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4214.390137,2105.553955" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4150.216797,2347.311768" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4086.043945,2580.979736" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="3856.134277,2594.849365" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-390" sortNum="890" pos="4124.262207,772.878479" size="68.975838,68.975838" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="3887.248535,2476.226318" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-120" sortNum="890" pos="2358.234375,2177.622803" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-30" sortNum="890" pos="2611.659180,4868.686035" size="59.302738,59.302738" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-165" sortNum="890" pos="2388.026123,1457.405518" size="59.302738,59.302738" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="3922.251953,2355.658691" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="3955.310791,2235.090820" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="3996.148438,2552.067139" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="3988.369873,2114.523193" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-465" sortNum="890" pos="4196.704590,1257.584839" size="29.100965,29.100965" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-135" sortNum="890" pos="2465.329834,1528.875488" size="118.605476,118.605476" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4015.594727,1999.789429" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="890" pos="4048.653564,1887.000366" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="880" pos="213.056747,1072.286255" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="880" pos="547.775635,1294.221680" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-45" sortNum="880" pos="418.723816,376.545959" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="880" pos="665.095459,1264.891724" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-45" sortNum="880" pos="356.153229,491.910461" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="880" pos="457.473053,1317.328247" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-45" sortNum="880" pos="385.483185,435.205872" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="880" pos="324.510590,1301.685547" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-45" sortNum="880" pos="260.342041,660.068848" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-60" sortNum="880" pos="467.607086,327.662689" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="880" pos="606.435547,1278.578979" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="880" pos="173.950150,1213.382813" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-45" sortNum="880" pos="320.957275,546.659729" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="15" sortNum="880" pos="207.190765,1336.568726" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="880" pos="187.637451,743.790710" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="880" pos="75.468903,905.368408" size="128.000000,128.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-45" sortNum="880" pos="289.671997,601.408936" size="32.000000,32.000000" />
+    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="880" pos="1764.858398,1376.014038" size="256.000000,256.000000" />
+    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="880" pos="1764.858398,1070.705566" size="256.000000,256.000000" />
+    <Shape name="sand" mapname="gamedata/Test_blend.png" collide="True" pattern="False" blendMode="normal" angle="0" sortNum="870" pos="1860.145752,812.068481" size="256.000000,256.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="195" sortNum="850" pos="740.995972,1241.070313" size="64.000000,64.000000" />
+    <Shape name="rock" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="150" sortNum="800" pos="173.238373,1211.732788" size="28.819641,28.819641" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="800" pos="4207.490234,3518.627197" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="800" pos="4203.601074,3763.651855" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="0" sortNum="800" pos="4205.545898,4014.510254" size="64.000000,64.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="800" pos="3877.967529,2538.197754" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="800" pos="3942.140625,2297.062256" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="800" pos="4006.313721,2053.982422" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="800" pos="4064.652832,1824.826050" size="32.000000,32.000000" />
+    <Shape name="block" mapname="gamedata/Test_shapes.png" collide="True" pattern="False" blendMode="off" angle="-15" sortNum="800" pos="4126.881348,1587.580078" size="32.000000,32.000000" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-60" sortNum="751" pos="1335.676758,7441.968750" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-90" sortNum="751" pos="2961.308105,7424.582520" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-60" sortNum="751" pos="4882.508301,6876.909668" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-330" sortNum="751" pos="5751.830078,4462.977051" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-360" sortNum="751" pos="5908.307617,2287.934570" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-315" sortNum="751" pos="5769.216309,57.950439" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-315" sortNum="751" pos="2005.054443,-811.371338" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-375" sortNum="751" pos="3934.947998,-1133.020386" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-345" sortNum="751" pos="2.832825,-1295.409790" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-180" sortNum="751" pos="-1531.345947,-43.586426" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-165" sortNum="751" pos="-2921.139648,1730.950806" size="2985.983643,2985.983643" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-150" sortNum="751" pos="-2087.711670,4344.749512" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-150" sortNum="751" pos="-2174.643799,5725.580078" size="1492.991821,1492.991821" />
+    <Shape name="darkblob" mapname="gamedata/Test_blend.png" collide="False" pattern="False" blendMode="normal" angle="-120" sortNum="751" pos="-1399.556641,7361.296387" size="1492.991821,1492.991821" />
+    <Segment start="498.562988,352.079254" end="254.215195,715.413940" type="collide" />
+    <Segment start="260.589478,709.039612" end="188.347534,998.007507" type="collide" />
+    <Segment start="188.347534,998.007507" end="296.710449,1032.003784" type="collide" />
+    <Segment start="296.710449,1032.003784" end="260.589478,1248.729614" type="collide" />
+    <Segment start="260.589478,1248.729614" end="364.702881,1225.357300" type="collide" />
+    <Segment start="368.952423,1225.357300" end="432.695343,1163.739136" type="kill" />
+    <Segment start="432.695343,1163.739136" end="504.937286,1242.355347" type="kill" />
+    <Segment start="507.062042,1252.979248" end="745.035583,1191.361084" type="collide" />
+    <Segment start="738.661255,1191.361084" end="787.530823,1216.858154" type="collide" />
+    <Segment start="786.510986,1214.053467" end="958.616821,1716.517578" type="collide" />
+    <Segment start="956.492065,1715.412720" end="943.743469,1798.278564" type="collide" />
+    <Segment start="943.743469,1798.278564" end="627.153687,1917.265259" type="collide" />
+    <Segment start="627.153687,1917.265259" end="546.412659,1913.015747" type="collide" />
+    <Segment start="546.412659,1913.015747" end="537.913635,2034.127319" type="collide" />
+    <Segment start="537.913635,2035.232056" end="574.034607,2147.844727" type="collide" />
+    <Segment start="574.034607,2149.969482" end="833.255737,2192.464600" type="collide" />
+    <Segment start="833.255737,2209.462646" end="1026.609253,2109.598877" type="kill" />
+    <Segment start="848.809021,2223.231201" end="797.814697,2526.987305" type="collide" />
+    <Segment start="797.814697,2526.987305" end="836.060425,2607.728271" type="collide" />
+    <Segment start="836.060425,2607.728271" end="948.672913,2669.346436" type="collide" />
+    <Segment start="948.672913,2672.490967" end="944.423401,2891.341553" type="collide" />
+    <Segment start="944.423401,2891.341553" end="870.056641,2965.708252" type="collide" />
+    <Segment start="870.056641,2965.708252" end="899.803345,3071.946533" type="collide" />
+    <Segment start="897.678589,3071.606445" end="831.810913,3141.723633" type="collide" />
+    <Segment start="831.810913,3141.723633" end="610.835510,3145.973145" type="collide" />
+    <Segment start="612.960266,3148.437500" end="547.092590,3497.239014" type="collide" />
+    <Segment start="549.217346,3497.239014" end="423.856323,3811.704102" type="collide" />
+    <Segment start="426.660980,3814.168701" end="218.434143,3763.174316" type="collide" />
+    <Segment start="226.933197,3764.958740" end="226.933197,4085.798096" type="collide" />
+    <Segment start="222.343719,4084.353027" end="341.330475,4082.228271" type="collide" />
+    <Segment start="341.330475,4082.228271" end="347.704773,4148.096191" type="collide" />
+    <Segment start="347.704773,4148.096191" end="453.942932,4145.971191" type="collide" />
+    <Segment start="453.942932,4145.971191" end="513.436340,4216.088379" type="collide" />
+    <Segment start="513.436340,4216.088379" end="594.177368,4186.341797" type="collide" />
+    <Segment start="594.177368,4186.341797" end="698.290771,4218.213379" type="collide" />
+    <Segment start="698.290771,4218.213379" end="740.786011,4277.706543" type="collide" />
+    <Segment start="740.786011,4277.706543" end="823.651794,4243.710449" type="collide" />
+    <Segment start="823.651794,4245.834961" end="957.511902,4286.205566" type="collide" />
+    <Segment start="954.367249,4287.990234" end="920.371033,4417.600586" type="collide" />
+    <Segment start="920.371033,4417.600586" end="986.238708,4434.599121" type="collide" />
+    <Segment start="986.238708,4434.599121" end="943.743408,4566.334473" type="collide" />
+    <Segment start="943.743408,4566.334473" end="882.125305,4553.585938" type="collide" />
+    <Segment start="888.499573,4554.010254" end="846.004333,4689.995117" type="collide" />
+    <Segment start="846.004333,4689.995117" end="903.372925,4713.367676" type="collide" />
+    <Segment start="905.497681,4713.367676" end="871.501465,4836.604004" type="collide" />
+    <Segment start="875.750977,4834.139160" end="761.013794,4815.016602" type="collide" />
+    <Segment start="761.013794,4815.016602" end="610.155579,4861.761230" type="collide" />
+    <Segment start="610.155579,4861.761230" end="576.159363,4948.876465" type="collide" />
+    <Segment start="582.448669,4949.216797" end="482.584778,4983.212891" type="collide" />
+    <Segment start="482.584778,4981.088379" end="374.221832,4927.969238" type="collide" />
+    <Segment start="374.221832,4927.969238" end="231.862671,5117.073242" type="collide" />
+    <Segment start="231.862671,5120.217773" end="223.363617,5347.567383" type="collide" />
+    <Segment start="225.488388,5344.422852" end="255.235077,5389.042969" type="collide" />
+    <Segment start="255.235077,5389.042969" end="248.860779,5529.277344" type="collide" />
+    <Segment start="248.860779,5529.277344" end="306.229401,5514.403809" type="collide" />
+    <Segment start="306.229401,5514.403809" end="333.851318,5624.891602" type="collide" />
+    <Segment start="333.851318,5624.891602" end="293.480835,5779.999512" type="collide" />
+    <Segment start="293.480835,5779.999512" end="416.717102,5981.851563" type="collide" />
+    <Segment start="408.218048,5981.851563" end="1383.484497,5746.002930" type="collide" />
+    <Segment start="703.560181,5918.108398" end="724.807800,5635.515137" type="collide" />
+    <Segment start="731.182129,5631.265625" end="831.045959,5915.983887" type="collide" />
+    <Segment start="962.781311,5869.239258" end="984.028931,5597.269043" type="collide" />
+    <Segment start="984.028931,5593.019531" end="1071.144287,5839.492188" type="collide" />
+    <Segment start="386.970398,5869.239258" end="397.594238,5686.509277" type="kill" />
+    <Segment start="397.594238,5686.509277" end="486.834290,5741.753418" type="kill" />
+    <Segment start="486.834290,5741.753418" end="491.083832,5877.738281" type="kill" />
+    <Segment start="801.299316,5661.012207" end="790.675476,5845.866699" type="kill" />
+    <Segment start="1073.269043,5663.136719" end="1039.272827,5818.244629" type="kill" />
+    <Segment start="1094.516602,5726.879883" end="1086.017578,5905.359863" type="kill" />
+    <Segment start="1289.994873,5777.874023" end="1277.246338,5644.014160" type="collide" />
+    <Segment start="1277.246338,5644.014160" end="1134.887207,5646.138672" type="collide" />
+    <Segment start="1134.887207,5646.138672" end="1086.017578,5495.280762" type="collide" />
+    <Segment start="1090.267090,5497.405273" end="1168.883423,5414.539551" type="collide" />
+    <Segment start="1168.883423,5418.789063" end="1311.242554,5437.912109" type="collide" />
+    <Segment start="1308.862915,5442.162109" end="1338.609497,5416.665039" type="collide" />
+    <Segment start="1338.609497,5416.665039" end="1449.097290,5427.288574" type="collide" />
+    <Segment start="1449.097290,5427.288574" end="1480.968750,5321.050293" type="collide" />
+    <Segment start="1480.968750,5321.050293" end="1593.581177,5352.921875" type="collide" />
+    <Segment start="1593.581177,5352.921875" end="1642.450684,5236.060059" type="collide" />
+    <Segment start="1642.450684,5236.060059" end="1738.065063,5267.931152" type="collide" />
+    <Segment start="1738.065063,5267.931152" end="1769.936523,5148.944336" type="collide" />
+    <Segment start="1769.256592,5161.693359" end="2005.105347,5221.186523" type="collide" />
+    <Segment start="2005.105347,5221.186523" end="1973.233887,5335.923828" type="collide" />
+    <Segment start="1973.233887,5335.923828" end="2149.589111,5382.668457" type="collide" />
+    <Segment start="2151.713867,5382.668457" end="2185.710205,5297.678223" type="collide" />
+    <Segment start="2185.710205,5297.678223" end="2423.683594,5357.171387" type="collide" />
+    <Segment start="2423.683594,5357.171387" end="2406.685547,5446.411621" type="collide" />
+    <Segment start="2406.685547,5446.411621" end="2631.910645,5503.780273" type="collide" />
+    <Segment start="2640.409424,5505.904785" end="2668.031250,5418.789551" type="collide" />
+    <Segment start="2672.280762,5420.914551" end="2903.880127,5480.407715" type="collide" />
+    <Segment start="2916.288818,5480.407715" end="2880.167725,5593.020020" type="collide" />
+    <Segment start="2880.167725,5593.020020" end="3073.521240,5644.014648" type="collide" />
+    <Segment start="3073.521240,5644.014648" end="3073.521240,5525.027832" type="collide" />
+    <Segment start="3073.521240,5525.027832" end="3317.869141,5527.152344" type="collide" />
+    <Segment start="3324.242920,5528.937012" end="3332.741943,5467.318848" type="collide" />
+    <Segment start="3332.741943,5467.318848" end="3579.214355,5452.445313" type="collide" />
+    <Segment start="3581.339111,5452.445313" end="3583.463867,5390.827148" type="collide" />
+    <Segment start="3583.463867,5390.827148" end="3687.577393,5373.829102" type="collide" />
+    <Segment start="3687.577393,5373.829102" end="3696.076416,5140.104980" type="collide" />
+    <Segment start="3696.076416,5140.104980" end="3787.441406,5133.730957" type="collide" />
+    <Segment start="3787.441406,5133.730957" end="3785.316406,4893.632813" type="collide" />
+    <Segment start="3785.316406,4893.632813" end="3863.932861,4893.632813" type="collide" />
+    <Segment start="3863.167480,4888.703613" end="3867.416992,4633.731934" type="collide" />
+    <Segment start="3867.416992,4633.731934" end="3941.783691,4635.856934" type="collide" />
+    <Segment start="3941.783691,4635.856934" end="3939.658936,4400.008301" type="collide" />
+    <Segment start="3939.658936,4400.008301" end="3988.528564,4397.883301" type="collide" />
+    <Segment start="3988.528564,4397.883301" end="3999.152344,4147.161133" type="collide" />
+    <Segment start="4001.277100,4154.130371" end="4084.142822,4145.631348" type="collide" />
+    <Segment start="4084.142822,4141.381836" end="4088.392334,3505.737061" type="collide" />
+    <Segment start="4088.392334,3505.737061" end="3975.779785,3533.359131" type="collide" />
+    <Segment start="3975.779785,3533.359131" end="3671.938721,3361.593262" type="collide" />
+    <Segment start="3671.938721,3361.593262" end="3516.831055,3268.103516" type="collide" />
+    <Segment start="3527.454834,3282.636719" end="3459.462402,3142.402344" type="collide" />
+    <Segment start="3459.462402,3142.402344" end="3465.836670,3076.534668" type="collide" />
+    <Segment start="3465.836670,3076.534668" end="3521.080566,3027.665039" type="collide" />
+    <Segment start="3521.080566,3027.665039" end="3550.827148,2904.428711" type="collide" />
+    <Segment start="3548.702393,2911.907959" end="3593.322510,2882.161377" type="collide" />
+    <Segment start="3593.322510,2882.161377" end="3618.819580,2652.686768" type="collide" />
+    <Segment start="3616.694824,2659.061279" end="3667.689209,2618.690674" type="collide" />
+    <Segment start="3667.689209,2620.815430" end="3784.551025,2618.690674" type="collide" />
+    <Segment start="3780.301514,2618.350830" end="4101.141113,1461.375000" type="collide" />
+    <Segment start="4099.016113,1461.375122" end="4130.887695,1444.376953" type="collide" />
+    <Segment start="4130.887695,1442.252197" end="4226.501953,1123.537598" type="collide" />
+    <Segment start="4220.127441,1142.320557" end="4058.645508,753.488770" type="collide" />
+    <Segment start="3136.839355,753.488770" end="2928.612549,861.851746" type="collide" />
+    <Segment start="2928.612549,861.851746" end="2733.134277,887.348938" type="collide" />
+    <Segment start="2750.132324,887.348938" end="2648.143799,825.730774" type="collide" />
+    <Segment start="2652.393311,825.730774" end="2539.780762,842.728882" type="collide" />
+    <Segment start="2541.905518,842.728882" end="2541.905518,946.842285" type="collide" />
+    <Segment start="2541.905518,948.967102" end="2361.300781,985.088074" type="collide" />
+    <Segment start="2372.604248,976.588989" end="2387.477539,1240.059692" type="collide" />
+    <Segment start="2387.477539,1240.059692" end="2487.341553,1274.055908" type="collide" />
+    <Segment start="2487.341553,1274.055908" end="2595.704346,1589.965820" type="collide" />
+    <Segment start="2595.704346,1589.965820" end="2706.192139,1649.459229" type="collide" />
+    <Segment start="2706.192139,1649.459229" end="2718.940674,1826.154297" type="collide" />
+    <Segment start="2721.065430,1830.403809" end="2633.950195,1991.885864" type="collide" />
+    <Segment start="2633.950195,1991.885864" end="2468.218750,2038.630737" type="collide" />
+    <Segment start="2468.218750,2038.630737" end="2423.598633,2195.863281" type="collide" />
+    <Segment start="2425.723389,2207.166748" end="2487.341553,2234.788818" type="collide" />
+    <Segment start="2489.466309,2234.788818" end="2400.226318,2470.637695" type="collide" />
+    <Segment start="2400.226318,2470.637695" end="2359.855713,2572.626221" type="collide" />
+    <Segment start="2359.855713,2572.626221" end="2468.218750,2598.123535" type="collide" />
+    <Segment start="2468.218750,2598.123535" end="2510.713867,2489.760498" type="collide" />
+    <Segment start="2510.713867,2489.760498" end="2599.954102,2421.768066" type="collide" />
+    <Segment start="2599.954102,2421.768066" end="3216.135498,2619.371094" type="collide" />
+    <Segment start="3218.260254,2615.121338" end="3271.379150,2704.361572" type="collide" />
+    <Segment start="3271.379150,2704.361572" end="3256.505859,2876.467529" type="collide" />
+    <Segment start="3258.630615,2871.877686" end="3158.766846,3120.475098" type="collide" />
+    <Segment start="3158.766846,3120.475098" end="3101.398193,3177.843750" type="collide" />
+    <Segment start="3101.398193,3177.843750" end="2963.288574,3196.966553" type="collide" />
+    <Segment start="2965.413330,3196.966553" end="2918.668457,3131.098877" type="collide" />
+    <Segment start="2918.668457,3131.098877" end="2825.178955,3094.977783" type="collide" />
+    <Segment start="2829.428467,3094.977783" end="2676.445557,3141.722656" type="collide" />
+    <Segment start="2676.445557,3141.722656" end="2476.717773,3037.609375" type="collide" />
+    <Segment start="1823.310913,3915.135986" end="1685.201294,3991.627441" type="collide" />
+    <Segment start="1685.201294,3991.627441" end="1489.723022,3747.279541" type="collide" />
+    <Segment start="1489.723022,3747.279541" end="1406.857300,3719.657715" type="collide" />
+    <Segment start="1430.229736,3723.567383" end="1362.237305,3666.198730" type="collide" />
+    <Segment start="1363.682007,3670.788330" end="1404.052490,3534.803467" type="collide" />
+    <Segment start="1404.052490,3534.803467" end="1474.169678,3490.183350" type="collide" />
+    <Segment start="1474.169678,3490.183350" end="1501.791626,3347.824219" type="collide" />
+    <Segment start="1501.791626,3347.824219" end="1370.056274,3356.323242" type="collide" />
+    <Segment start="1370.056274,3356.323242" end="1261.693359,3254.334717" type="collide" />
+    <Segment start="1261.693359,3256.459473" end="1100.211304,3230.962158" type="collide" />
+    <Segment start="1118.994263,3244.730469" end="1070.124756,3183.112305" type="collide" />
+    <Segment start="1070.124756,3183.112305" end="1163.614258,2832.526367" type="collide" />
+    <Segment start="1161.489502,2842.469971" end="1265.602905,2700.110840" type="collide" />
+    <Segment start="1727.781494,2385.985596" end="1831.894897,2392.359863" type="collide" />
+    <Segment start="1831.894897,2392.359863" end="1899.887329,2192.632080" type="collide" />
+    <Segment start="1919.010254,2187.703125" end="1634.291870,1675.634888" type="collide" />
+    <Segment start="1636.076660,1684.133911" end="1553.210938,1643.763428" type="collide" />
+    <Segment start="1553.210938,1643.763428" end="1293.989746,1639.513916" type="collide" />
+    <Segment start="1293.989746,1639.513916" end="1124.008667,1614.016724" type="collide" />
+    <Segment start="1130.382935,1616.821655" end="1119.759155,1380.972778" type="collide" />
+    <Segment start="1131.402832,1374.598511" end="984.794189,1295.982300" type="collide" />
+    <Segment start="989.723633,1298.786987" end="979.099854,1228.669800" type="collide" />
+    <Segment start="979.099854,1228.669800" end="1036.468506,1186.174561" type="collide" />
+    <Segment start="1036.468506,1186.174561" end="1149.080933,871.709473" type="collide" />
+    <Segment start="1161.829468,871.369629" end="1030.094116,463.414948" type="collide" />
+    <Segment start="1032.218872,463.414948" end="970.600769,465.539703" type="collide" />
+    <Segment start="967.031128,474.038788" end="962.781555,406.046356" type="collide" />
+    <Segment start="967.031128,406.046356" end="735.431885,403.921600" type="collide" />
+    <Segment start="731.182373,363.551056" end="499.583130,352.927246" type="collide" />
+    <Segment start="737.556641,359.301544" end="735.431885,403.921600" type="collide" />
+    <Segment start="1007.401611,1109.683105" end="1001.027344,1220.170898" type="kill" />
+    <Segment start="1275.121826,2704.785645" end="1285.745605,2541.178711" type="kill" />
+    <Segment start="1287.870361,2541.178711" end="1474.849609,2715.409424" type="kill" />
+    <Segment start="1389.859009,2392.445313" end="1360.112305,2711.159912" type="kill" />
+    <Segment start="1389.859009,2507.182617" end="1704.323975,2318.078613" type="kill" />
+    <Segment start="1610.834473,2298.955566" end="1600.210571,2492.309082" type="kill" />
+    <Segment start="1506.721069,2339.326172" end="1547.091553,2545.428223" type="kill" />
+    <Segment start="1701.179443,2315.953857" end="1722.427002,2415.817627" type="kill" />
+    <Segment start="2331.894043,4761.642578" end="2393.512207,4906.126465" type="kill" />
+    <Segment start="2457.255127,4995.366699" end="2533.746582,5114.353516" type="kill" />
+    <Segment start="2605.988525,5137.726074" end="2707.977295,5082.481934" type="kill" />
+    <Segment start="2778.094482,5033.612305" end="2973.572754,4935.873535" type="kill" />
+    <Segment start="2977.822266,4859.381836" end="2837.587891,4610.784180" type="kill" />
+    <Segment start="2837.587891,4627.103027" end="2888.582031,4516.615234" type="kill" />
+    <Segment start="2888.582031,4516.615234" end="3047.939453,4452.872070" type="kill" />
+    <Segment start="3083.040527,4380.290527" end="3168.031006,4229.432617" type="kill" />
+    <Segment start="3168.031006,4229.432617" end="3389.006348,4101.946777" type="kill" />
+    <Segment start="3123.410889,3666.369873" end="2881.187988,3793.855713" type="kill" />
+    <Segment start="2804.696533,3934.090332" end="2900.310791,4121.069336" type="kill" />
+    <Segment start="2645.339111,4410.377441" end="2590.095215,4565.484863" type="kill" />
+    <Segment start="2543.350586,4614.354492" end="2339.373291,4675.972656" type="kill" />
+    <Segment start="2645.339111,4431.625000" end="2581.596191,4399.753418" type="collide" />
+    <Segment start="2583.720947,4399.753418" end="2611.343018,4312.638184" type="collide" />
+    <Segment start="2613.467773,4314.762695" end="2791.947754,4323.261719" type="collide" />
+    <Segment start="2791.947754,4323.261719" end="2868.439209,4212.774414" type="collide" />
+    <Segment start="2868.439209,4212.774414" end="2883.312744,4095.912109" type="collide" />
+    <Segment start="2849.316650,3927.375732" end="2740.953613,3942.249268" type="collide" />
+    <Segment start="2740.953613,3942.249268" end="2700.583008,3867.882324" type="collide" />
+    <Segment start="2700.583008,3867.882324" end="2866.314697,3761.644287" type="collide" />
+    <Segment start="3111.342285,3676.653564" end="3087.969971,3578.914551" type="collide" />
+    <Segment start="3087.969971,3578.914551" end="3187.833740,3500.298340" type="collide" />
+    <Segment start="3187.833740,3500.298340" end="3338.692139,3615.035400" type="collide" />
+    <Segment start="3332.317871,3612.910645" end="3319.569092,3723.398438" type="collide" />
+    <Segment start="3319.569092,3723.398438" end="3376.937744,3867.882324" type="collide" />
+    <Segment start="3379.062500,3867.882324" end="3515.047363,3908.252930" type="collide" />
+    <Segment start="3385.776611,4106.195801" end="3489.889893,4093.447510" type="collide" />
+    <Segment start="3494.139404,4093.447510" end="3513.262451,3906.468262" type="collide" />
+    <Segment start="2979.946777,4844.253418" end="3054.313477,4876.125000" type="collide" />
+    <Segment start="3058.562988,4874.000488" end="3035.190674,4956.866211" type="collide" />
+    <Segment start="3035.190674,4956.866211" end="2956.574219,4935.618652" type="collide" />
+    <Segment start="2699.478027,5085.032227" end="2741.973145,5108.404785" type="collide" />
+    <Segment start="2741.973145,5108.404785" end="2797.217041,5061.659668" type="collide" />
+    <Segment start="2797.217041,5061.659668" end="2771.719971,5040.412109" type="collide" />
+    <Segment start="2529.496826,5111.208984" end="2529.496826,5174.952148" type="collide" />
+    <Segment start="2529.496826,5174.952148" end="2588.990234,5191.950195" type="collide" />
+    <Segment start="2588.990234,5191.950195" end="2625.111328,5164.328125" type="collide" />
+    <Segment start="2625.111328,5164.328125" end="2618.737061,5123.957520" type="collide" />
+    <Segment start="2473.488525,4983.723145" end="2399.121826,4996.471680" type="collide" />
+    <Segment start="2399.121826,4996.471680" end="2369.375000,4934.853516" type="collide" />
+    <Segment start="2369.375000,4936.978516" end="2405.496094,4879.609863" type="collide" />
+    <Segment start="2365.125732,4769.122070" end="2252.513184,4720.252441" type="collide" />
+    <Segment start="2256.762695,4720.252441" end="2292.883789,4658.634277" type="collide" />
+    <Segment start="2292.883789,4658.634277" end="2363.000977,4656.509277" type="collide" />
+    <Segment start="3315.999756,4230.876465" end="3332.997803,4126.762695" type="kill" />
+    <Segment start="3318.124512,4226.626953" end="3241.632813,4167.133301" type="kill" />
+    <Segment start="3218.260498,4262.748047" end="3220.385254,4179.881836" type="kill" />
+    <Segment start="2503.490234,3041.773682" end="2193.274658,3277.622559" type="kill" />
+    <Segment start="2205.003418,3272.013184" end="2018.024170,3618.349609" type="kill" />
+    <Segment start="2018.024170,3618.349609" end="1984.027954,3813.827881" type="kill" />
+    <Segment start="1818.296387,3920.066162" end="2094.515625,3747.960205" type="kill" />
+    <Segment start="2724.125488,2502.510010" end="2932.352295,2296.407959" type="kill" />
+    <Segment start="2934.477051,2296.407959" end="3110.832520,2606.623291" type="kill" />
+    <Segment start="3126.725098,756.974182" end="3271.208984,831.340942" type="kill" />
+    <Segment start="3264.834717,829.216187" end="3371.072754,858.962830" type="kill" />
+    <Segment start="3371.072754,858.962830" end="3534.679688,939.703857" type="kill" />
+    <Segment start="3537.484375,939.703857" end="3868.947510,924.830566" type="kill" />
+    <Segment start="3871.072266,924.830566" end="3907.193115,863.212402" type="kill" />
+    <Segment start="3907.193115,863.212402" end="4011.306641,848.339050" type="kill" />
+    <Segment start="4011.306641,848.339050" end="4070.800049,739.976074" type="kill" />
+    <Segment start="1264.243408,4223.057129" end="1219.623413,4350.542969" type="collide" />
+    <Segment start="1219.623413,4352.667480" end="1141.007202,4335.669434" type="collide" />
+    <Segment start="1141.007202,4335.669434" end="1113.385254,4467.404785" type="collide" />
+    <Segment start="1111.260498,4467.404785" end="1172.878662,4488.652344" type="collide" />
+    <Segment start="1172.878662,4488.652344" end="1130.383423,4626.762207" type="collide" />
+    <Segment start="1130.383423,4626.762207" end="1066.640503,4614.013672" type="collide" />
+    <Segment start="1066.640503,4611.888672" end="1030.519531,4741.499512" type="collide" />
+    <Segment start="1030.519531,4741.499512" end="1104.886230,4762.747070" type="collide" />
+    <Segment start="1109.135742,4757.477539" end="1064.515747,4916.834473" type="collide" />
+    <Segment start="1064.515747,4916.834473" end="1213.249146,4957.205078" type="collide" />
+    <Segment start="1213.249146,4957.205078" end="1268.493042,5176.055664" type="collide" />
+    <Segment start="1268.493042,5176.055664" end="1752.939087,5035.821289" type="collide" />
+    <Segment start="1752.939087,5035.821289" end="1693.445679,4770.226074" type="collide" />
+    <Segment start="1693.445679,4770.226074" end="1714.693359,4755.352539" type="collide" />
+    <Segment start="1716.818115,4755.352539" end="1691.320923,4606.619141" type="collide" />
+    <Segment start="1691.320923,4606.619141" end="1725.317139,4398.392090" type="collide" />
+    <Segment start="1725.317139,4400.517090" end="1776.311523,4358.021484" type="collide" />
+    <Segment start="1772.061890,4354.112793" end="1738.065674,4300.993652" type="collide" />
+    <Segment start="1738.065674,4300.993652" end="1659.449463,4247.874512" type="collide" />
+    <Segment start="1659.449463,4247.874512" end="1593.581787,4124.638184" type="collide" />
+    <Segment start="1595.706543,4124.638184" end="1517.090332,4107.640137" type="collide" />
+    <Segment start="1517.090332,4107.640137" end="1321.612061,4226.626953" type="collide" />
+    <Segment start="1321.612061,4226.626953" end="1257.869141,4226.626953" type="collide" />
 </Cavern>
