@@ -15,6 +15,8 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include <execinfo.h>
+
 #endif
 
 #include <SDL.h>
@@ -201,11 +203,6 @@ void copyStackBuffToClipboard()
 
 #else
 
-void copyStackBuffToClipboard()
-{
-    stack_outf("TODO: copyStackBuffToClipboard linux version\n" );    
-}
-
 // http://cboard.cprogramming.com/faq-board/27714-faq-there-getch-conio-equivalent-linux-unix.html 
 int dbgGetCh()
 {
@@ -385,16 +382,30 @@ bool DBG::AssertFunc( bool expr, char *desc, int line, char *file, bool *skip )
 {
  	if (expr) return false; // don't break if expr is good
 
+	// make sure assert will be seen
+	if (g_verbose_level < 2) g_verbose_level = 2;
+
 	// print the assert message
 	stack_output_reset();
 	stack_outf( "Assertion Failed: %s:%d\n", file, line );
 	stack_outf( "Description: %s\n\n", desc );
-			
-	// make sure assert will be seen
-	if (g_verbose_level < 2) g_verbose_level = 2;
+
+    // print a stack trace    
+    const int max_depth = 16;    
+    void *trace[max_depth];
+    char **messages = (char**)NULL;
+    int trace_size;
+    
+    trace_size = backtrace( trace, max_depth );
+    messages = backtrace_symbols( trace,  trace_size );
+
+    for (int i=0; i < trace_size; i++)
+    {
+        stack_outf("    %s\n", messages[i] );        
+    }
+    stack_outf("\n\n");
 
 	DBG::error("[B] Break, [S] Skip, [K] Skip Always, [Q] Quit\n" );
-	DBG::error("Press [SPACE] to copy stack trace to clipboard.\n" );
 
 	while (1) {
 		int ch = dbgGetCh();	
@@ -416,9 +427,6 @@ bool DBG::AssertFunc( bool expr, char *desc, int line, char *file, bool *skip )
 			case 'Q':
 				exit(1);
 				return false;
-				break;
-			case ' ':
-				copyStackBuffToClipboard();
 				break;
 		}
 	}
