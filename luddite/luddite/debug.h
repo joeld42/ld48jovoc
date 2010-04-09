@@ -1,7 +1,6 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-namespace October {
 namespace DBG {
 
 //---[ Console Output ]------------------------------------
@@ -56,7 +55,7 @@ bool AssertFunc( bool expr, char *desc, int line, char *file, bool *skip );
 	{ \
 		static bool _skipAlways = false; \
 		if (!_skipAlways) { \
-		if (October::DBG::AssertFunc( !!(expr), (desc), __LINE__, __FILE__, &_skipAlways ) ) { \
+		if (DBG::AssertFunc( !!(expr), (desc), __LINE__, __FILE__, &_skipAlways ) ) { \
 				{ __asm { int 3 }; } \
 			} \
 		} \
@@ -66,6 +65,5 @@ bool AssertFunc( bool expr, char *desc, int line, char *file, bool *skip );
 #define AssertPtr( ptr ) Assert( ((ptr)!=NULL), #ptr " is NULL" ) 
 
 }; // namespace DBG
-}; // namespace October
 
 #endif

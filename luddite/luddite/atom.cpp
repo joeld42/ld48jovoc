@@ -1,13 +1,17 @@
 
 
 #include "atom.h"
+#include "debug.h"
+
 #include <string.h>
-
-#include "assert.h"
 #include <limits.h>
-//#include "mem.h"
 
-using namespace luddite;
+// TODO: hook up micro-allocator
+//#include "mem.h"
+#include <stdlib.h>
+#define ALLOC malloc
+#define FREE free
+#define REALLOC realloc
 
 #define NELEMS(x) ((sizeof (x))/(sizeof ((x)[0])))
 
@@ -66,7 +70,7 @@ static unsigned long scatter[] = {
 
 const char *Atom_string(const char *str) 
 {
-	assert(str);
+	AssertPtr(str);
 	return Atom_new(str, strlen(str));
 }
 
@@ -88,40 +92,62 @@ const char *Atom_int(long n) {
 		*--s = '-';
 	return Atom_new(s, (str + sizeof str) - s);
 }
-const char *Atom_new(const char *str, int len) {
+const char *Atom_new(const char *str, size_t len) {
 	unsigned long h;
 	int i;
-	struct atom *p;
-	assert(str);
-	assert(len >= 0);
+	struct Atom_impl *p;
+	AssertPtr(str);
+	AssertPtr(len >= 0);
 	for (h = 0, i = 0; i < len; i++)
+	{
 		h = (h<<1) + scatter[(unsigned char)str[i]];
+	}
+
 	h &= NELEMS(buckets)-1;
 	for (p = buckets[h]; p; p = p->link)
-		if (len == p->len) {
+	{
+		if (len == p->len) 
+		{
 			for (i = 0; i < len && p->str[i] == str[i]; )
+			{
 				i++;
+			}
+
 			if (i == len)
+			{
 				return p->str;
+			}
 		}
-	p = ALLOC(sizeof (*p) + len + 1);
+	}
+
+	p = (Atom_impl*)ALLOC(sizeof (*p) + len + 1);
 	p->len = len;
 	p->str = (char *)(p + 1);
 	if (len > 0)
+	{
 		memcpy(p->str, str, len);
+	}
 	p->str[len] = '\0';
 	p->link = buckets[h];
 	buckets[h] = p;
 	return p->str;
 }
 int Atom_length(const char *str) {
-	struct atom *p;
+	struct Atom_impl *p;
 	int i;
-	assert(str);
+	
+	AssertPtr(str);
+
 	for (i = 0; i < NELEMS(buckets); i++)
+	{
 		for (p = buckets[i]; p; p = p->link)
+		{
 			if (p->str == str)
+			{
 				return p->len;
-	assert(0);
+			}
+		}
+	}
+	AssertPtr(0);
 	return 0;
 }

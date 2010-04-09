@@ -14,16 +14,15 @@
 
 #include "debug.h"
 
-using namespace October;
 using namespace DBG;
 
 // globals;
-int  October::DBG::g_verbose_level;
-bool October::DBG::g_colorterm;
+int  DBG::g_verbose_level = DBG::kVerbose_On;
+bool DBG::g_colorterm = true;
 
-const int October::DBG::kVerbose_Off = 2;
-const int October::DBG::kVerbose_On  = 5;
-const int October::DBG::kVerbose_Dbg = 6;
+const int DBG::kVerbose_Off = 2;
+const int DBG::kVerbose_On  = 5;
+const int DBG::kVerbose_Dbg = 6;
 
 #define MAX_SYMBOL_NAME (1024)
 
@@ -111,7 +110,7 @@ message_part:
 }
 
 #define def_output_fn( fname, level ) \
-	void October::DBG::fname( const char *fmt, ... ) { \
+	void DBG::fname( const char *fmt, ... ) { \
 		va_list args; \
 		va_start(args,fmt);  \
 		vmessage( level, fmt, args); \
@@ -191,12 +190,10 @@ void copyStackBuffToClipboard()
 }
 
 // The uber-assert
-bool October::DBG::AssertFunc( bool expr, char *desc, int line, char *file, bool *skip )
+bool DBG::AssertFunc( bool expr, char *desc, int line, char *file, bool *skip )
 {	
 	if (expr) return false; // don't break if expr is good
-		
-	
-
+			
 	// make sure assert will be seen
 	if (g_verbose_level < 2) g_verbose_level = 2;
 
