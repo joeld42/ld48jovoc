@@ -1,19 +1,28 @@
-#include <windows.h>
-
 #include <stdio.h>
+#include <stdlib.h>
 
+#ifdef WIN32
+# define WIN32_LEAN_AND_MEAN
+# include <winsock2.h>
+# include <windows.h>
+# include <crtdbg.h>
+#endif
+
+#include <GL/gl.h>
+
+// FIXME: remove SDL from this, just using the typedefs
 #include <SDL.h>
 #include <SDL_endian.h>
 
-#include <GL/glew.h>
+// FIXME: check for glCompressedTexImage2DARB by hand, remove
+// dependency on GLEW
+//#include <GL/glew.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
 
 #include "debug.h"
-#include "load_texture.h"
-
-using namespace October;
+#include "texture_dds.h"
 
 
 // Most of the DDS code comes from from the NVidia Whitepaper
@@ -145,7 +154,7 @@ GenericImage *ReadDDSFile( const char *filename, Uint32 *bufsize, Uint32 *numMip
 	return img;
 }
 
-GLuint October::loadTextureDDS( const char *filename )
+GLuint Texture_load_DDS( const char *filename )
 {
 	GLuint glTexID;
 
@@ -153,7 +162,7 @@ GLuint October::loadTextureDDS( const char *filename )
 	Uint32 numMipmaps;
 	GenericImage *ddsImage = ReadDDSFile( filename, &ddsBufSize, &numMipmaps );
 
-	Assert( ddsImage, "Could not load texture" );
+	Assert( ddsImage, "Could not read texture" );
 
 	Uint32 width, height, offset, size;
 	Uint32 blocksize = (ddsImage->format == DDS_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
@@ -178,8 +187,9 @@ GLuint October::loadTextureDDS( const char *filename )
 		}
 
 		size = ((width+3)/4) * ((height+3)/4) * blocksize;
-		glCompressedTexImage2DARB( GL_TEXTURE_2D, i, ddsImage->format, width, height,
-									0, size, ddsImage->pixeldata + offset );
+		
+		//glCompressedTexImage2DARB( GL_TEXTURE_2D, i, ddsImage->format, width, height,
+		//							0, size, ddsImage->pixeldata + offset );
 
 		//GLErrorReport() // probably a good idea
 		offset += size;

@@ -1,5 +1,5 @@
-#ifndef TEXTURE_DDS
-#define TEXTURE_DDS
+#ifndef TEXTURE_PNG
+#define TEXTURE_PNG
 
 #ifdef WIN32
 # define WIN32_LEAN_AND_MEAN
@@ -11,6 +11,6 @@
 #include <GL/gl.h>
 
 // creates and returns a GL textureID
-GLuint Texture_load_DDS( const char *filename );
+GLuint Texture_load_PNG( const char *filename );
 
 #endif

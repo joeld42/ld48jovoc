@@ -25,7 +25,7 @@ typedef stdext::hash_map<const char *, void*, atomStr_hashTraits> Resource_hash;
 static Resource_hash g_resHash;
 
 void *ResourcePtr_get( const char *atomized_name, 
-					ResourcePtrFunc *resfunc )
+					ResourcePtrFunc resfunc )
 {
 	void *val = g_resHash[ atomized_name ];
 	if (!val)
@@ -44,7 +44,7 @@ void *ResourcePtr_get( const char *atomized_name,
 }
 
 unsigned int Resource_get( const char *atomized_name, 
-						   ResourceFunc *resfunc )
+						   ResourceFunc resfunc )
 {
 	// TODO
 	return 0;

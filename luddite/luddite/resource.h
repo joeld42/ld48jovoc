@@ -11,13 +11,13 @@
 // For resources addressed by a pointer
 typedef void* (*ResourcePtrFunc)(const char *);
 void *ResourcePtr_get( const char *atomized_name, 
-				   ResourcePtrFunc *resfunc );
+				   ResourcePtrFunc resfunc );
 
 
 // For resources addressed by a handle (i.e. GLuint)
 // for example, GL Textures
 typedef unsigned int (*ResourceFunc)(const char *);
 unsigned int Resource_get( const char *atomized_name, 
-						   ResourceFunc *resfunc );
+						   ResourceFunc resfunc );
 
 #endif
