@@ -2,15 +2,23 @@
 #include <stdarg.h>
 #include <assert.h>
 
-#include <windows.h>
-#include <conio.h>
-#include <cassert>
-
-#include <SDL.h>
-#include <SDL_endian.h>
+#ifdef WIN32
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
 
 #include <dbghelp.h>
 #pragma comment(linker, "/defaultlib:dbghelp.lib")
+
+#else
+
+// Linux 
+#include <termios.h>
+#include <unistd.h>
+
+#endif
+
+#include <SDL.h>
+#include <SDL_endian.h>
 
 #include "debug.h"
 
@@ -39,14 +47,14 @@ void vmessage( int message_level, const char *fmt, va_list args) {
 	
 #ifndef WIN32
 	static char *catcolor[8] = {
-		"[0m", // reset
-		"[1m[31m", // fatal - bright red
-		"[0m[31m", // error - red
-		"[1m[33m", // warn - bright yellow
-		"[1m[37m", // info - bright white
-		"[1m[36m", // progress - bright cyan
-		"[1m[44m", // debug - bright blue
-		"[1m[44m"  // vdebug - bright blue
+		"\e[0m", // reset
+		"\e[1m\e[31m", // fatal - bright red
+		"\e[0m\e[31m", // error - red
+		"\e[1m\e[33m", // warn - bright yellow
+		"\e[1m\e[37m", // info - bright white
+		"\e[1m\e[36m", // progress - bright cyan
+		"\e[1m\e[44m", // debug - bright blue
+		"\e[1m\e[44m"  // vdebug - bright blue
 	};
 #else
 	static WORD catcolor[8] = {
@@ -68,7 +76,7 @@ void vmessage( int message_level, const char *fmt, va_list args) {
 		if (g_colorterm) {			
 			
 #ifndef WIN32
-			printf("%c%s", 27, catcolor[message_level] );
+			printf( catcolor[message_level] );
 #else
 			if (hStdOut==INVALID_HANDLE_VALUE) {
 				hStdOut = GetStdHandle( STD_OUTPUT_HANDLE );
@@ -91,7 +99,7 @@ message_part:
 		// reset color
 		if (g_colorterm) {
 #ifndef WIN32
-			printf("%c[0m", 27 );
+			printf("\e[0m" );
 #else
 			// defautl??
 			SetConsoleTextAttribute( hStdOut, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE ); 
@@ -103,7 +111,7 @@ message_part:
 	if (message_level > 1) return;
 	
 #ifndef NDEBUG
-	Assert( FALSE, "Fatal Error" ); // break into debugger
+	Assert( 0, "Fatal Error" ); // break into debugger
 #else
 	exit(1); // quit
 #endif
@@ -166,6 +174,8 @@ void stack_outf( const char *fmt, ... )
 	va_end(args);
 }
 
+#ifdef WIN32
+
 void copyStackBuffToClipboard()
 {
 	if (OpenClipboard( NULL)) 
@@ -189,7 +199,37 @@ void copyStackBuffToClipboard()
 	
 }
 
-// The uber-assert
+#else
+
+void copyStackBuffToClipboard()
+{
+    stack_outf("TODO: copyStackBuffToClipboard linux version\n" );    
+}
+
+// http://cboard.cprogramming.com/faq-board/27714-faq-there-getch-conio-equivalent-linux-unix.html 
+int dbgGetCh()
+{
+  struct termios oldt, newt;
+  int ch;
+
+  tcgetattr( STDIN_FILENO, &oldt );
+
+  newt = oldt;
+  newt.c_lflag &= ~( ICANON | ECHO );
+
+  tcsetattr( STDIN_FILENO, TCSANOW, &newt );
+  ch = getchar();
+  tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
+
+  return ch;
+}
+
+
+#endif
+
+// The uber-assert -- win32 style
+#ifdef WIN32
+
 bool DBG::AssertFunc( bool expr, char *desc, int line, char *file, bool *skip )
 {	
 	if (expr) return false; // don't break if expr is good
@@ -337,3 +377,53 @@ bool DBG::AssertFunc( bool expr, char *desc, int line, char *file, bool *skip )
 	// not reached
 	return true; // should break;
 }
+
+#else
+
+// uber-assert, linux style
+bool DBG::AssertFunc( bool expr, char *desc, int line, char *file, bool *skip )
+{
+ 	if (expr) return false; // don't break if expr is good
+
+	// print the assert message
+	stack_output_reset();
+	stack_outf( "Assertion Failed: %s:%d\n", file, line );
+	stack_outf( "Description: %s\n\n", desc );
+			
+	// make sure assert will be seen
+	if (g_verbose_level < 2) g_verbose_level = 2;
+
+	DBG::error("[B] Break, [S] Skip, [K] Skip Always, [Q] Quit\n" );
+	DBG::error("Press [SPACE] to copy stack trace to clipboard.\n" );
+
+	while (1) {
+		int ch = dbgGetCh();	
+		switch (ch) {
+			case 'b':
+			case 'B':
+				return true; // should break
+				break;
+			case 's':
+			case 'S':
+				return false; // should skip
+				break;
+			case 'k':
+			case 'K':
+				*skip = true; // set skip always
+				return false; // skip
+				break;
+			case 'q':
+			case 'Q':
+				exit(1);
+				return false;
+				break;
+			case ' ':
+				copyStackBuffToClipboard();
+				break;
+		}
+	}
+
+	// not reached
+	return true; // should break;   
+}
+#endif

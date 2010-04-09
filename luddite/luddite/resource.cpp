@@ -1,6 +1,20 @@
 #include "resource.h"
 
-#include <hash_map>
+#include <string.h>
+
+#ifdef __GNUC__
+#  include <ext/hash_map>
+
+namespace ns_ext = __gnu_cxx;
+
+#else
+#  include <hash_map>
+
+namespace ns_ext = stdext;
+
+#endif
+
+
 
 // Use this one if you're using atomized strings. It's faster.
 struct atomStr_hashTraits
@@ -21,7 +35,7 @@ struct atomStr_hashTraits
 	}
 };
 
-typedef stdext::hash_map<const char *, void*, atomStr_hashTraits> Resource_hash;
+typedef ns_ext::hash_map<const char *, void*, atomStr_hashTraits> Resource_hash;
 static Resource_hash g_resHash;
 
 void *ResourcePtr_get( const char *atomized_name, 
@@ -49,3 +63,5 @@ unsigned int Resource_get( const char *atomized_name,
 	// TODO
 	return 0;
 }
+
+

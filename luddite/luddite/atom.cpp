@@ -70,7 +70,7 @@ static unsigned long scatter[] = {
 
 const char *Atom_string(const char *str) 
 {
-	AssertPtr(str);
+    AssertPtr(str);
 	return Atom_new(str, strlen(str));
 }
 
@@ -96,8 +96,8 @@ const char *Atom_new(const char *str, size_t len) {
 	unsigned long h;
 	int i;
 	struct Atom_impl *p;
-	AssertPtr(str);
-	AssertPtr(len >= 0);
+    AssertPtr(str);
+    AssertPtr(len >= 0);
 	for (h = 0, i = 0; i < len; i++)
 	{
 		h = (h<<1) + scatter[(unsigned char)str[i]];
@@ -136,7 +136,7 @@ int Atom_length(const char *str) {
 	struct Atom_impl *p;
 	int i;
 	
-	AssertPtr(str);
+    AssertPtr(str);
 
 	for (i = 0; i < NELEMS(buckets); i++)
 	{
@@ -148,6 +148,6 @@ int Atom_length(const char *str) {
 			}
 		}
 	}
-	AssertPtr(0);
+    AssertPtr(0);
 	return 0;
 }

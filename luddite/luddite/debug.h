@@ -49,8 +49,11 @@ void _dbgtext_GetProjection();
 
 //---[ Assert ]------------------------------------
 
-// Note this is a #define so you don't need DBG:: namespace
 bool AssertFunc( bool expr, char *desc, int line, char *file, bool *skip );
+
+// Note this is a #define so you don't need DBG:: namespace
+#ifdef WIN32
+
 #define Assert( expr, desc ) \
 	{ \
 		static bool _skipAlways = false; \
@@ -61,9 +64,24 @@ bool AssertFunc( bool expr, char *desc, int line, char *file, bool *skip );
 		} \
 	}
 
+#else
+
+#define Assert( expr, desc ) \
+	{ \
+		static bool _skipAlways = false; \
+		if (!_skipAlways) { \
+		if (DBG::AssertFunc( !!(expr), (desc), __LINE__, __FILE__, &_skipAlways ) ) { \
+            { asm ("int $3"); }                                         \
+			} \
+		} \
+	}
+
+#endif
+
 // Shorthand for checking a pointer is non-null
 #define AssertPtr( ptr ) Assert( ((ptr)!=NULL), #ptr " is NULL" ) 
 
 }; // namespace DBG
 
 #endif
+

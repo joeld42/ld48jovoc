@@ -23,6 +23,10 @@
 // 30 ticks per sim frame
 #define STEPTIME (33)
 
+#ifndef WIN32
+#define _stricmp strcasecmp
+#endif
+
 // ===========================================================================
 int main( int argc, char *argv[] )
 {	
@@ -41,7 +45,7 @@ int main( int argc, char *argv[] )
 
 	// Test assert
 	char *cheese = "gorgonzola";
-	//cheese = NULL; // Uncomment this to see this in action
+	cheese = NULL; // Uncomment this to see this in action
 	Assert( cheese != NULL, "Cheese is bad" );
 	AssertPtr( cheese ); // shorthand version to check for null-ptrs
 

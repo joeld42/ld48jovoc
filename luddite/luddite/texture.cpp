@@ -29,5 +29,6 @@ GLuint Texture_load( const char *filename )
 
 	// Unsupported format
 	DBG::warn( "Unsupported texture format '%s' for texture '%s'\n", ext, filename );
-	return errorTextureId;
+	return errorTextureId();
 }
+
