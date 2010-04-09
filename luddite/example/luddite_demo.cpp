@@ -56,7 +56,7 @@ int main( int argc, char *argv[] )
 	Assert( atomA == atomB, "string atoms don't match" );
 
 	// Test out resource mgr
-
+	
 
 	// Initialize SDL
 	if (SDL_Init( SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO ) < 0 ) 
