@@ -19,6 +19,7 @@
 #include <luddite/debug.h>
 #include <luddite/atom.h>
 #include <luddite/resource.h>
+#include <luddite/luddite.h>
 
 // 30 ticks per sim frame
 #define STEPTIME (33)
@@ -26,6 +27,25 @@
 #ifndef WIN32
 #define _stricmp strcasecmp
 #endif
+
+// ===========================================================================
+// Global resources 
+GLuint g_demoFontTexture;
+
+// ===========================================================================
+void demo_init()
+{
+    DBG::info( "Demo init" );    
+    g_demoFontTexture = Texture_get( Atom_string("gamedata/demofont.png") );
+}
+
+// ===========================================================================
+void demo_redraw()
+{
+    glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );    
+}
+
 
 // ===========================================================================
 int main( int argc, char *argv[] )
@@ -45,7 +65,7 @@ int main( int argc, char *argv[] )
 
 	// Test assert
 	char *cheese = "gorgonzola";
-	cheese = NULL; // Uncomment this to see this in action
+	// cheese = NULL; // Uncomment this to see this in action
 	Assert( cheese != NULL, "Cheese is bad" );
 	AssertPtr( cheese ); // shorthand version to check for null-ptrs
 
@@ -57,9 +77,7 @@ int main( int argc, char *argv[] )
 	atomB = Atom_string( buff );
 	DBG::info("Atom A is %p (%s)\n", atomA, atomA );
 	DBG::info("Atom B is %p (%s)\n", atomB, atomB );
-	Assert( atomA == atomB, "string atoms don't match" );
-
-	// Test out resource mgr
+	Assert( atomA == atomB, "string atoms don't match" );    
 	
 
 	// Initialize SDL
@@ -86,6 +104,10 @@ int main( int argc, char *argv[] )
 	}
 		
 	SDL_WM_SetCaption( "Luddite Demo", NULL );
+
+    // Initialize resources
+    demo_init();    
+
 
 	//=====[ Main loop ]======
 	bool done = false;
@@ -146,7 +168,7 @@ int main( int argc, char *argv[] )
 		float dtRaw = (float)(ticks_elapsed) / 1000.0f;
 				
 		//game->update( dtRaw ); 
-		//game->redraw();		
+        demo_redraw();        
 
 		SDL_GL_SwapBuffers();
 
