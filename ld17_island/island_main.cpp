@@ -28,6 +28,7 @@
 #include <prmath/prmath.hpp>
 
 #include "debug.h"
+#include "tweakval.h"
 #include "IslandGame.h"
 
 // 30 ticks per sim frame
@@ -111,6 +112,19 @@ int main( int argc, char *argv[] )
 						case SDLK_ESCAPE:
 							done = true;
 							break;
+
+						case SDLK_UP:
+							game->move( 0, 1 );
+							break;
+						case SDLK_DOWN:
+							game->move( 0, -1 );
+							break;
+						case SDLK_LEFT:
+							game->move( -1, 0 );
+							break;
+						case SDLK_RIGHT:
+							game->move( 1, 0 );
+							break;
 					}
 					break;
 
@@ -141,8 +155,9 @@ int main( int argc, char *argv[] )
 		game->redraw(  );
 		
 
-		SDL_GL_SwapBuffers();
+		ReloadChangedTweakableValues();
 
+		SDL_GL_SwapBuffers();
 	}
 
 	SDL_Quit();	

@@ -20,11 +20,13 @@
 #include "gamefontgl.h"
 #include "IslandGame.h"
 
+#include "tweakval.h"
 #include "debug.h"
 
 
 IslandGame::IslandGame() :
-	m_islandDrawBuf( NULL )
+	m_islandDrawBuf( NULL ),
+	m_px(0), m_py(0)
 {
 }
 
@@ -56,38 +58,61 @@ void IslandGame::redraw( )
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();	
 
-	gluPerspective( 50.0, 800.0/600.0, 0.1, 1000.0 );
+	int useOrtho = _TV(1);
+	if (!useOrtho)
+	{
+		gluPerspective( 50.0, 800.0/600.0, 0.1, 1000.0 );
+	}
+	else
+	{
+		float aspect = 800.0 / 600.0;
+		float hite = _TV(4.0f);
+		glOrtho( -aspect * hite, aspect * hite, -hite, hite, 0.1, 1000.0 );
+	}
 
 	glMatrixMode( GL_MODELVIEW );
-	glLoadIdentity();
+	glLoadIdentity();	
+	
+	// player
+	MapSquare &mp = m_map[m_px][m_py];
+	vec3f ppos( m_px, (mp.m_elevation+1.0) * 0.3f, m_py );
+	
+	//gluLookAt( ppos.x, ppos.y + 1, ppos.z + 1,
+	//		   ppos.x, ppos.y, ppos.z,
+	//		   0.0, 1.0, 0.0 );	
+	glRotatef( _TV(29.7f), 1.0, 0.0, 0.0 );
+	glTranslatef( _TV(-7), _TV(-60), _TV(-100) );
+	glRotatef( _TV(45.0f), 0.0, 1.0, 0.0 );
 
-	gluLookAt( 1.5, 10.0, -20.0,
-			   0,0,0,
-			   0.0, 1.0, 0.0 );
+	glTranslatef( ppos.x * _TV(-1.0f), 
+				  ppos.y * _TV( 0.0f), 
+				  ppos.z  * _TV(-1.0f));
+	
 
-	static float ang = 0;
-	glRotatef( ang, 0.0, 1.0, 0.0 );
-	ang += 0.1;
+	//static float ang = 0;
+	//glRotatef( ang, 0.0, 1.0, 0.0 );
+	//ang += 1;	
 
 	// draw some stuff the easy way
-	glBindTexture( GL_TEXTURE_2D, m_terrainTilesTexId );	
+	glBindTexture( GL_TEXTURE_2D, m_waterTexId );	
 	glBegin( GL_QUADS );
 	
 	glTexCoord2f( 0.0, 0.0 );
-	glVertex3f( 0.0, 0.0, 0.0 );
+	glVertex3f( -2000, 0, -2000 );
 
-	glTexCoord2f( 0.0, 1.0 );
-	glVertex3f( 0.0, 0.0, 10.0 );
+	glTexCoord2f( 0.0, 1000.0 );
+	glVertex3f( -2000, 0, 2000 );
 
-	glTexCoord2f( 1.0, 1.0 );
-	glVertex3f( 10.0, 0.0, 10.0 );
+	glTexCoord2f( 1000.0, 1000.0 );
+	glVertex3f( 2000, 0, 2000 );
 
-	glTexCoord2f( 1.0, 0.0 );
-	glVertex3f( 10.0, 0.0, 0.0 );
+	glTexCoord2f( 1000.0, 0.0 );
+	glVertex3f( 2000, 0, -2000 );
 
 	glEnd();
 
 	glEnable( GL_TEXTURE_2D );
+	glBindTexture( GL_TEXTURE_2D, m_terrainTilesTexId );	
 	//glColor3f( 1.0, 0.0, 1.0 );	
 
 	// Bind the island VBO
@@ -111,8 +136,7 @@ void IslandGame::redraw( )
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	glTexCoordPointer( 2, GL_FLOAT, sizeof(MapVert), (void*)(4*sizeof(GLfloat)) );
 
-	glDrawArrays( GL_QUADS, 0, m_quadSize*4 );
-	
+	glDrawArrays( GL_QUADS, 0, m_quadSize*4 );	
 
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	glDisableClientState( GL_VERTEX_ARRAY );
@@ -165,6 +189,8 @@ void IslandGame::initGraphics( )
 	// Load the tiles
 	m_terrainTilesTexId  = loadTexture( "gamedata/crappytiles.png" );
 
+	m_waterTexId  = loadTexture( "gamedata/water.png" );
+
 }
 
 void IslandGame::loadLevel( const char *filename )
@@ -204,9 +230,7 @@ void IslandGame::loadLevel( const char *filename )
 		int id, xpos, ypos;
 		id = atoi( xTile->Attribute( "id" ) );
 		xpos = atoi( xTile->Attribute( "x" ) ) / 16;
-		ypos = atoi( xTile->Attribute( "y" ) ) / 16;
-
-		_RPT3( _CRT_WARN, "loc %d %d id %d\n", xpos, ypos, id );
+		ypos = atoi( xTile->Attribute( "y" ) ) / 16;		
 
 		xTile = xTile->NextSiblingElement( "tile" );
 
@@ -214,6 +238,33 @@ void IslandGame::loadLevel( const char *filename )
 		m.m_elevation = id;
 		m.m_terrain = 0; // TODO get from terrain tileset
 	}
+
+	// Load terrain indices
+	TiXmlElement *xTerrainTiles = xLevel->FirstChildElement( "terrainTiles" );
+	
+	xTile = xTerrainTiles->FirstChildElement( "tile" );	
+	while (xTile) 
+	{
+		int id, xpos, ypos;
+		id = atoi( xTile->Attribute( "id" ) );
+		xpos = atoi( xTile->Attribute( "x" ) ) / 16;
+		ypos = atoi( xTile->Attribute( "y" ) ) / 16;
+
+		_RPT3( _CRT_WARN, "loc %d %d id %d\n", xpos, ypos, id );
+
+		xTile = xTile->NextSiblingElement( "tile" );
+
+		MapSquare &m = m_map[xpos][ypos];		
+		m.m_terrain = id;
+	}
+
+	// Load actors	
+	TiXmlElement *xActorLayer = xLevel->FirstChildElement( "actors" );
+	
+	TiXmlElement *xActor = xActorLayer->FirstChildElement( "pstart" );
+	m_px = atoi( xActor->Attribute( "x" ) ) / 16;
+	m_py = atoi( xActor->Attribute( "y" ) ) / 16;
+
 }
 
 void IslandGame::clearLevel()
@@ -221,7 +272,7 @@ void IslandGame::clearLevel()
 	foreach_map_max
 	{
 		MapSquare &tile = MAPITER( m_map );
-		tile.m_elevation = 0;
+		tile.m_elevation = -1;
 		tile.m_terrain = TERRAIN_EMPTY;
 	}
 }
@@ -231,6 +282,9 @@ void IslandGame::buildMap()
 	if (m_islandDrawBuf)
 	{
 		free( m_islandDrawBuf );
+		m_islandDrawBuf = 0;
+		m_quadSize = 0;
+		m_quadCapacity = 0;
 	}
 	
 
@@ -257,18 +311,28 @@ void IslandGame::buildMap()
 		const float tilesz = 1.0/16.0;
 		int smap = m.m_terrain % 16;
 		int tmap = m.m_terrain / 16;
+		float elevation = (m.m_elevation + 1.0f) * 0.3f;
 		vec2f st = vec2f( smap * tilesz, tmap * tilesz );
-		newQuad[0].pos = vec4f( mi, m.m_elevation + 1.0f, mj, 1.0f );
+		newQuad[0].pos = vec4f( mi, elevation, mj, 1.0f );
 		newQuad[0].st  = st;
 
-		newQuad[1].pos = vec4f( mi + 1.0f, m.m_elevation + 1.0, mj, 1.0f );
+		newQuad[1].pos = vec4f( mi + 1.0f, elevation, mj, 1.0f );
 		newQuad[1].st  = st + vec2f( tilesz, 0.0f );
 
-		newQuad[2].pos = vec4f( mi + 1.0f, m.m_elevation + 1.0, mj + 1.0f, 1.0f );
+		newQuad[2].pos = vec4f( mi + 1.0f, elevation, mj + 1.0f, 1.0f );
 		newQuad[2].st  = st + vec2f( tilesz, tilesz );
 
-		newQuad[3].pos = vec4f( mi, m.m_elevation + 1.0f, mj + 1.0f, 1.0f );
+		newQuad[3].pos = vec4f( mi, elevation, mj + 1.0f, 1.0f );
 		newQuad[3].st  = st + vec2f( 0.0f, tilesz );
+
+		// draw the side quads
+
+		
+		buildSideQuad( -1, 0, mi, mj ); // LEFT SIDE
+		buildSideQuad(  1, 0, mi, mj ); // RIGHT SIDE
+		buildSideQuad(  0, -1, mi, mj ); // BACK SIDE
+		buildSideQuad(  0, 1, mi, mj ); // FRONT SIDE
+		
 	}
 
 	DBG::debug( "After buildMap, m_quadSize is %d\n", m_quadSize );
@@ -289,6 +353,78 @@ void IslandGame::buildMap()
 	glBufferData(GL_ARRAY_BUFFER, uiSize, m_islandDrawBuf, GL_STATIC_DRAW);	
 	
 	DBG::info("NumQuads %d size %d\n", m_quadSize, uiSize );
+}
+
+void IslandGame::buildSideQuad( int ii, int jj, int mi, int mj )
+{
+	int mi2, mj2;
+	MapSquare &m = m_map[mi][mj];
+
+	mi2 = mi+ii;
+	mj2 = mj+jj;
+
+	// See how far down we need to extend the tile
+	float currElev = (m.m_elevation + 1.0) * 0.3f;
+	float targElev = 0.0;
+	if ((mi2 >=0) && (mi2 < m_mapSizeX) &&
+		(mj2 >=0) && (mj2 < m_mapSizeY) )
+	{
+		targElev = (m_map[mi2][mj2].m_elevation + 1.0) * 0.3f;
+	}
+	
+	const float tilesz = 1.0/16.0;
+	int side_terrain = 48;
+	while (currElev > targElev )
+	{
+		// TODO: figure this out dynamically			
+		int smap = side_terrain % 16;
+		int tmap = side_terrain / 16;
+		MapVert *newQuad = addQuad();
+
+		vec2f st = vec2f( smap * tilesz, tmap * tilesz );		
+		newQuad[0].st  = st;
+		newQuad[1].st  = st + vec2f( tilesz, 0.0f );
+		newQuad[2].st  = st + vec2f( tilesz, tilesz );
+		newQuad[3].st  = st + vec2f( 0.0f, tilesz );
+
+		// There's probably a clever way to do this but
+		// i can't do "clever" right now
+		if ((ii==-1) && (jj==0))
+		{
+			// LEFT
+			newQuad[0].pos = vec4f( mi, currElev, mj, 1.0f );
+			newQuad[1].pos = vec4f( mi, currElev, mj+1.0f, 1.0f );
+			newQuad[2].pos = vec4f( mi, currElev-1.0, mj+1.0f, 1.0f );
+			newQuad[3].pos = vec4f( mi, currElev-1.0, mj, 1.0f );
+		}
+		else if ((ii==1) && (jj==0))
+		{
+			// RIGHT
+			newQuad[0].pos = vec4f( mi+1, currElev, mj, 1.0f );
+			newQuad[1].pos = vec4f( mi+1, currElev, mj+1.0f, 1.0f );
+			newQuad[2].pos = vec4f( mi+1, currElev-1.0, mj+1.0f, 1.0f );
+			newQuad[3].pos = vec4f( mi+1, currElev-1.0, mj, 1.0f );
+		}
+		else if ((ii==0) && (jj==-1))
+		{
+			// FRONT
+			newQuad[0].pos = vec4f( mi, currElev, mj, 1.0f );
+			newQuad[1].pos = vec4f( mi+1, currElev, mj, 1.0f );
+			newQuad[2].pos = vec4f( mi+1, currElev-1.0, mj, 1.0f );
+			newQuad[3].pos = vec4f( mi, currElev-1.0, mj, 1.0f );
+		}
+		else if ((ii==0) && (jj==1))
+		{
+			// BACK
+			newQuad[0].pos = vec4f( mi+1, currElev, mj+1, 1.0f );
+			newQuad[1].pos = vec4f( mi, currElev, mj+1, 1.0f );
+			newQuad[2].pos = vec4f( mi, currElev-1.0, mj+1, 1.0f );
+			newQuad[3].pos = vec4f( mi+1, currElev-1.0, mj+1, 1.0f );
+		}
+
+		currElev -= 1.0;
+		side_terrain = 64;
+	}
 }
 
 MapVert *IslandGame::addQuad()
@@ -348,6 +484,35 @@ GLuint IslandGame::loadTexture( const char *filename )
 	// Make a GL texture for it
 	GLuint glTexId;
 	glTexId = ilutGLBindTexImage();
+
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );	
 	
 	return glTexId;
+}
+
+void IslandGame::move( int dx, int dy )
+{
+	// Are we trying to move off the map?
+	if ((m_px + dx < 0) || (m_px + dx >= m_mapSizeX) ||
+		(m_py + dy < 0) || (m_py + dy >= m_mapSizeY) )
+	{
+		pass();
+		return;
+	}
+
+	int nx = m_px + dx;
+	int ny = m_py + dy;
+	
+	MapSquare &mnew = m_map[nx][ny];
+
+	// TODO: look at what's going on with mnew
+
+	// Move there
+	m_px = nx;
+	m_py = ny;
+	DBG::info("move to %d %d\n", m_px, m_py );
+}
+
+void IslandGame::pass()
+{
 }

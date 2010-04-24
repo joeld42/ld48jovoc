@@ -59,6 +59,12 @@ public:
 	void loadLevel( const char *filename );
 	void clearLevel();
 
+	void move( int dx, int dy );
+	void pass();
+
+	// Player
+	int m_px, m_py;
+
 	// Map
 	int m_mapSizeX;
 	int m_mapSizeY;
@@ -66,6 +72,7 @@ public:
 
 	// Map builder
 	void buildMap();
+	void buildSideQuad( int ii, int jj, int mi, int mj );
 	
 	// Adds four mapverts to the map
 	MapVert *addQuad();
@@ -82,9 +89,11 @@ public:
 	GLuint m_playerSprite;
 
 	GLuint m_terrainTilesTexId;
+	GLuint m_waterTexId;
 
 	ILuint m_ilFontId;
 	GLuint m_glFontTexId, m_fntFontId;
+	
 };
 
 void errorMessage( const char *msg, ... );

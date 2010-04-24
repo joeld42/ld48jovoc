@@ -12,9 +12,14 @@
        <tileset name="terrain" image="crappytiles.png" tileWidth="16" tileHeight="16"/>
    </tilesets>
    
+   <objects>
+       <object name="pstart" image="icon_pstart.png" width="16" height="16" limit="1" />
+   </objects>
+   
    <layers>
-        <tiles name="elevTiles" gridSize="16" exportTileIDs="true"/>
+        <tiles name="elevTiles" gridSize="16" exportTileIDs="true"/>        
         <tiles name="terrainTiles" gridSize="16" exportTileIDs="true"/>
+        <objects name="actors" gridSize="16" />
    </layers>
    
 </project>
