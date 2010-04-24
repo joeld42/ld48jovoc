@@ -1,0 +1,20 @@
+<project>
+   <name>LD17 Island Game</name>
+   
+   
+   <settings>
+       <defaultWidth>320</defaultWidth>
+       <defaultHeight>320</defaultHeight>       
+   </settings>
+   
+   <tilesets>
+       <tileset name="elevation" image="elevation.png" tileWidth="16" tileHeight="16"/>
+       <tileset name="terrain" image="crappytiles.png" tileWidth="16" tileHeight="16"/>
+   </tilesets>
+   
+   <layers>
+        <tiles name="elevTiles" gridSize="16" exportTileIDs="true"/>
+        <tiles name="terrainTiles" gridSize="16" exportTileIDs="true"/>
+   </layers>
+   
+</project>

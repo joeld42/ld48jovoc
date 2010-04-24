@@ -1,0 +1,45 @@
+<project>
+	<name>Ogmo Editor Example Project</name>
+	<settings>
+		<defaultWidth>640</defaultWidth>
+		<defaultHeight>480</defaultHeight>
+		<minWidth>320</minWidth>
+		<minHeight>240</minHeight>
+		<maxWidth>960</maxWidth>
+		<maxHeight>720</maxHeight>
+		<workingDirectory>gfx</workingDirectory>
+	</settings>
+	<values>
+		<string name="title" default="new level" maxChars="12" />
+	</values>
+	<tilesets>
+		<tileset name="bricks" image="tiles_bricks.png" tileWidth="16" tileHeight="16" />
+		<tileset name="grass" image="tiles_grass.png" tileWidth="16" tileHeight="16" />
+	</tilesets>
+	<objects>
+		<object name="ogmo" image="ogmo.png" width="16" height="16" limit="1"/>
+		<object name="chest" image="chest.png" width="16" height="16">
+			<values>
+				<integer name="coins" min="0" max="20" default="2" />
+			</values>
+		</object>
+		<object name="moving_platform" image="moving_platform.png" width="16" height="16" resizableX="true" resizableY="true" tile="true">
+			<values>
+				<number name="speed" min="0.1" max="5" default="1" />
+			</values>
+			<nodes drawObject="true" limit="3" lineMode="2"/>
+		</object>
+		<folder name="dangers" image="spikes_ground.png">
+			<object name="spikes_ground" image="spikes_ground.png" tile="true" width="16" height="16" resizableX="true" />
+			<object name="spikes_ceiling" image="spikes_ceiling.png" tile="true" width="16" height="16" resizableX="true" />
+			<object name="spikes_left" image="spikes_left.png" tile="true" width="16" height="16" resizableY="true" />
+			<object name="spikes_right" image="spikes_right.png" tile="true" width="16" height="16" resizableY="true" />
+		</folder>
+	</objects>
+	<layers>
+		<tiles name="tiles_bg" gridSize="16" drawGridSize="64" exportTileIDs="true"/>
+		<grid name="floors" gridSize="16" exportAsObjects="true" />
+		<objects name="objects" gridSize="16" drawGridSize="32" />
+		<tiles name="tiles_floors" gridSize="16" drawGridSize="64" exportTileIDs="true"/>
+	</layers>
+</project>
