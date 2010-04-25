@@ -60,6 +60,14 @@ enum
 	DIR_WEST
 };
 
+// behaviors
+enum 
+{
+	BEHAVIOR_STATIC,
+	BEHAVIOR_RANDOM,
+	BEHAVIOR_SEEK_PLAYER,	
+};
+
 struct Critter
 {	
 	std::string m_displayName;
@@ -70,6 +78,7 @@ struct Critter
 	int m_level;
 	int m_hp;
 	int m_dir;	
+	int m_behavior;
 	bool m_friendly;
 };
 
@@ -112,6 +121,7 @@ public:
 	//GLuint m_critterPigTex;	
 	std::map<std::string, Critter*> m_masterCritter;
 	std::vector<Critter*> m_critters;
+	void updateCritters();
 
 	// NPCs
 	std::vector<Npc*> m_npcs;
@@ -122,6 +132,14 @@ public:
 	MapSquare m_map[MAX_MAP_SIZE][MAX_MAP_SIZE];
 	std::string m_mapName;
 	std::string m_mapText;
+
+	// HUD text
+	void showHudText( const std::string &title,
+					  const std::string &text );
+	
+	bool m_showHudText;
+	std::string m_hudTitle;
+	std::string m_hudText;
 
 	// Map builder
 	void buildMap();

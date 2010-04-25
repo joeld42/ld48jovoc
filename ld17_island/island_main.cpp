@@ -94,6 +94,8 @@ int main( int argc, char *argv[] )
 	DBG::g_verbose_level = DBG::kVerbose_Dbg;
 	IslandGame *game = new IslandGame();
 
+	game->initGraphics();
+
 	game->loadLevel( "gamedata/testlevel1.oel" );
 	game->buildMap();
 

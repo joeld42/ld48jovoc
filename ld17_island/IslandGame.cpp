@@ -27,7 +27,7 @@
 
 IslandGame::IslandGame() :
 	m_islandDrawBuf( NULL ),
-	m_px(0), m_py(0)
+	m_px(0), m_py(0), m_showHudText( false )
 {
 }
 
@@ -42,12 +42,12 @@ void IslandGame::update( float dt )
 
 void IslandGame::redraw( )
 {
-	static bool gfxInit = false;
-	if (!gfxInit)
-	{
-		initGraphics();
-		gfxInit = true;
-	}
+	//static bool gfxInit = false;
+	//if (!gfxInit)
+	//{
+	//	initGraphics();
+	//	gfxInit = true;
+	//}
 
 	glClearColor( 0.3, 1.0, 1.0, 1.0 );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -162,7 +162,14 @@ void IslandGame::redraw( )
 		glTranslatef( c->m_x + 0.5f, elev, c->m_y + 0.5f );
 		glScalef( 0.4f, 0.4f, 0.4f );
 
-		glRotatef( getRotForDir( c->m_dir ), 0.0, 1.0, 0.0 );
+		if (c->m_behavior == BEHAVIOR_STATIC)
+		{
+			glRotatef( getRotLookAt( c->m_x, c->m_y ), 0.0, 1.0, 0.0 );
+		}
+		else
+		{
+			glRotatef( getRotForDir( c->m_dir ), 0.0, 1.0, 0.0 );
+		}
 
 		glBindTexture( GL_TEXTURE_2D, c->m_critterTex );
 		glCallList( m_critterMesh );
@@ -230,14 +237,37 @@ void IslandGame::redraw( )
 	glLoadIdentity();
 
 	glDisable( GL_LIGHTING );		
-	gfEnableFont( m_fntFontId, 32 );
+	
 
 	glColor3f( 1.0, 1.0, 1.0 );
 		
-	gfBeginText();
-	glTranslated( 200, 500, 0 );		
-	gfDrawString( "HELLO ISLAND WORLD..." );
-	gfEndText();						
+	if (m_showHudText)
+	{
+		gfEnableFont( m_fntFontId, 32 );
+		gfBeginText();		
+
+		// draw background box
+		glDisable( GL_TEXTURE_2D );
+		glColor4f( 0.0, 0.0, 0.0, 0.6 );
+		glBegin( GL_QUADS );
+		glVertex2f( 0, 0 ); glVertex2f( 0, 210 );
+		glVertex2f( 800, 210 ); glVertex2f( 800, 0 );
+		glEnd();
+		glColor4f( 1.0, 1.0, 0.0, 1.0 );
+
+		glEnable( GL_TEXTURE_2D );
+
+		glTranslated( 20, 170, 0 );		
+		gfDrawString( m_hudTitle.c_str() );
+		gfEndText();
+
+		glColor4f( 1.0, 1.0, 1.0, 1.0 );
+		gfEnableFont( m_fntFontId, 20 );
+		gfBeginText();		
+		glTranslated( 20, 130, 0 );		
+		gfDrawString( m_hudText.c_str() );
+		gfEndText();
+	}
 
 }
 
@@ -321,11 +351,14 @@ void IslandGame::loadLevel( const char *filename )
 	assert( xLevel );
 	m_mapName = xLevel->Attribute( "isleName" );	
 	m_mapText = xLevel->Attribute( "intro" );
+
+	showHudText( m_mapName, m_mapText );
+
 	const char *waterTex = xLevel->Attribute( "water" );
 	if (waterTex)
 	{
 		char buff[200];
-		sprintf( buff, "gamedata/%s.png" );
+		sprintf( buff, "gamedata/%s.png", waterTex );
 		m_waterTexId = loadTexture( buff );
 	}
 	else
@@ -413,6 +446,10 @@ void IslandGame::loadLevel( const char *filename )
 				mcrit->m_displayName = xActor->Attribute( "displayName" );
 				mcrit->m_level = atoi( xActor->Attribute( "level" ) );
 				mcrit->m_name = atoi( xActor->Attribute( "map" ) );
+				mcrit->m_behavior = atoi( xActor->Attribute( "behave" ) );
+
+				// DBG:
+				mcrit->m_behavior = BEHAVIOR_RANDOM;
 
 				char buff[1000];
 				sprintf( buff, "gamedata/critter_%s.png", xActor->Attribute( "map" ) );
@@ -779,23 +816,142 @@ void IslandGame::move( int dx, int dy )
 		(fabs( (float)(mnew.m_elevation - m_map[m_px][m_py].m_elevation)) > 1.01 ) )
 	{
 		// can't move there
-		// TODO: play bonk sound
+		// TODO: SFX play bonk sound
 		return;
+	}
+
+	// Check if there's an NPC there
+	for (int i=0; i < m_npcs.size(); i++)
+	{
+		Npc *npc = m_npcs[i];
+		if ((npc->m_x == nx) &&
+			(npc->m_y == ny))
+		{
+			// don't move there, say NPC's speech
+			// TODO: SFX talking
+			showHudText( npc->m_displayName, npc->m_speech );
+			return;
+		}
+
 	}
 
 	// Move there
 	m_px = nx;
 	m_py = ny;
 	DBG::info("move to %d %d\n", m_px, m_py );
+	m_showHudText = false;
 
 	// update camera pos
 	m_camTarg = vec3f( m_px + 0.5f, 
 					(mnew.m_elevation+1.0) * 0.3f, 
 					m_py + 0.5f );
+
+	// let critters move
+	updateCritters();
+}
+
+void IslandGame::updateCritters()
+{	
+	for (int i=0; i < m_critters.size(); i++)
+	{
+		Critter *c = m_critters[i];
+		bool doMove = true;
+		int dir = DIR_NORTH;
+
+		if (c->m_behavior == BEHAVIOR_STATIC)
+		{
+			// don't move
+			doMove = false;
+		}
+		else if (c->m_behavior == BEHAVIOR_RANDOM)
+		{
+			// move randomly
+			dir = rand() % 4;
+		}
+		else if (c->m_behavior == BEHAVIOR_SEEK_PLAYER)
+		{
+			// seek player
+			if (rand() % 2)
+			{
+				// move east/west
+				if (c->m_x < m_px) dir = DIR_WEST;
+				else dir = DIR_EAST;
+			}
+			else
+			{
+				// move north/south
+				if (c->m_y < m_py) dir = DIR_SOUTH;
+				else dir = DIR_NORTH;
+			}
+		}
+
+		if (doMove)
+		{
+			c->m_dir = dir;
+			
+			// now try to actually move there
+			int nx, ny;
+			switch (c->m_dir)
+			{
+				case DIR_NORTH:
+					nx = c->m_x;
+					ny = c->m_y-1;
+					break;
+				case DIR_SOUTH:
+					nx = c->m_x;
+					ny = c->m_y+1;
+					break;
+				case DIR_WEST:
+					nx = c->m_x-1;
+					ny = c->m_y;
+					break;
+				case DIR_EAST:
+					nx = c->m_x+1;
+					ny = c->m_y;
+					break;
+			}
+
+			// can we move there?
+			if ( (nx < 0) || (nx >= m_mapSizeX) ||
+				 (ny < 0) || (ny >= m_mapSizeY))
+			{
+				// nope, out of bounds				
+				continue;
+			}
+
+			// check elevation match
+			if (m_map[nx][ny].m_elevation != m_map[c->m_x][c->m_y].m_elevation)
+			{
+				// elevtion mismatch
+				continue;
+			}
+
+			// are we blocked
+			bool blocked = false;
+			for (int j=0; j < m_critters.size(); j++)
+			{
+				if (j==i) continue;
+				if ((m_critters[j]->m_x == nx) &&
+					(m_critters[j]->m_y == ny))
+				{
+					// someone's in our spot
+					blocked = true;					
+					break;
+				}
+			}
+
+			if (blocked) continue;
+
+			// Yay we can move
+			c->m_x = nx;
+			c->m_y = ny;
+		}
+	}
 }
 
 void IslandGame::pass()
 {
+	updateCritters();
 }
 
 float IslandGame::getRotForDir( int dir )
@@ -811,4 +967,50 @@ float IslandGame::getRotLookAt( int x, int y )
 	float y2 = y;
 
 	return (-atan2( y2-y1, x2-x1 ) * 180.0f/3.1415f) - 115.0f;
+}
+
+void IslandGame::showHudText( const std::string &title,
+							  const std::string &text )
+{
+	m_showHudText = true;
+	m_hudText = "";
+		
+
+	// word wrap text
+	gfEnableFont( m_fntFontId, 20 );
+	char buff[2000];
+	std::string text2 = text;
+	std::transform( text2.begin(), text2.end(), text2.begin(), toupper );
+	strcpy( buff, text2.c_str() );
+	char *ch = strtok( buff, " \t" );
+	std::string line;
+	do
+	{
+		// attempt to append word
+		std::string line2 = line + " " + ch;	
+
+		// does it fit?
+		int w = gfGetStringWidth( line2.c_str() );
+		if ( w > 750 )
+		{			
+			// wrap
+			m_hudText = m_hudText + line;
+			m_hudText = m_hudText + "\n";
+
+			line = ch;
+		}
+		else
+		{
+			line = line2;
+		}
+	} while( ch = strtok( NULL, " \t" ) );
+	
+	// append leftovers
+	m_hudText += line;
+
+	// upcase
+	//std::transform( m_hudText.begin(), m_hudText.end(), m_hudText.begin(), toupper );
+
+	m_hudTitle = title;
+	std::transform( m_hudTitle.begin(), m_hudTitle.end(), m_hudTitle.begin(), toupper );
 }

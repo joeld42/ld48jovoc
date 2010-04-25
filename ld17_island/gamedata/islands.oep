@@ -27,7 +27,9 @@
               
               <string name="map" default="pig" maxChars="20" />              
               <integer name="level" min="0" max="50" default="0" />
-              <integer name="size" min="0" max="200" default="0" />
+              <integer name="size" min="0" max="200" default="100" />
+              <boolean name="friendly" default="false" />
+              <integer name="behave" min="0" max="2" default="1" />
               <string name="tint" maxChars="7" />
           </values>
        </object>

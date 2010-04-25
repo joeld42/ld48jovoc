@@ -116,7 +116,7 @@ void gfLoadFontMetrics( GLuint fontId, const char *finfo_filename )
 			/* create and initialize a charset */ 
 			charset = (gfCharsetImpl*)malloc(sizeof(gfCharsetImpl));
 			charset->pxlsize = pxlsz;
-			charset->leading = pxlsz; /* TODO: better than this */
+			charset->leading = pxlsz+ 4; /* TODO: better than this */
 			charset->numGlyphs = 0;
 			for (i=0; i < 256; i++) {
 				charset->glyph[i] = NULL;
@@ -401,7 +401,7 @@ void gfDrawString( const char *s )
 			glTexCoord2f( g->xpos, g->ypos );
 			glVertex2f( curr_x, bl + g->h );
 			
-			curr_x += g->w;
+			curr_x += (g->w) - 2;
 			}
 		}		
 	}
@@ -429,7 +429,7 @@ int gfGetStringWidth( const char *s )
 		} else {
 			/* add this char to total */
 			if (_activeCharset->glyph[*ch]) {
-				lineW = lineW + _activeCharset->glyph[*ch]->w;
+				lineW = lineW + (_activeCharset->glyph[*ch]->w - 2);
 			}
 		}
 	}
