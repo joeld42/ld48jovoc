@@ -53,6 +53,7 @@ struct MapVert
 	vec3f norm;
 };
 
+
 enum
 {
 	DIR_NORTH,

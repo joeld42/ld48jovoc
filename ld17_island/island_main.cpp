@@ -96,8 +96,8 @@ int main( int argc, char *argv[] )
 
 	game->initGraphics();
 
-	//game->loadLevel( "gamedata/testlevel1.oel" );	
-	game->loadLevel( "gamedata/university_big.oel" );	
+	game->loadLevel( "gamedata/testlevel1.oel" );	
+	//game->loadLevel( "gamedata/university_big.oel" );	
 
 	//=====[ Main loop ]======
 	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;

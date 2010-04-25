@@ -221,7 +221,7 @@ void IslandGame::redraw( )
 	glEnableClientState( GL_NORMAL_ARRAY );
 	glNormalPointer( GL_FLOAT, sizeof(MapVert), (void*)(6*sizeof(GLfloat)) );
 	
-	glDrawArrays( GL_QUADS, 0, m_quadSize*4 );		
+	glDrawArrays( GL_QUADS, 0, m_quadSize );
 
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	glDisableClientState( GL_NORMAL_ARRAY );
@@ -559,7 +559,7 @@ void IslandGame::buildMap()
 		m_islandDrawBuf = 0;
 		m_quadSize = 0;
 		m_quadCapacity = 0;
-		//glDeleteBuffers( 1, &m_islandVBO );
+		glDeleteBuffers( 1, &m_islandVBO );
 	}
 	
 
@@ -989,7 +989,25 @@ void IslandGame::pass()
 
 float IslandGame::getRotForDir( int dir )
 {
-	return dir * 90.0f;
+	// such a hack	
+	switch (dir)
+	{
+		case DIR_NORTH:
+			return 180.0;
+			break;
+		case DIR_SOUTH:
+			return 0.0;
+			break;
+		case DIR_WEST:
+			return 90.0;
+			break;
+		case DIR_EAST:
+			return 270.0;
+			break;
+		default:
+			return 0;
+			break;
+	}
 }
 
 float IslandGame::getRotLookAt( int x, int y )
