@@ -15,6 +15,9 @@
 
 #include <tinyxml.h>
 
+#include <fmod.h>
+#include <fmod_errors.h>
+
 #include <prmath/prmath.hpp>
 
 #include "gamefontgl.h"
@@ -24,6 +27,13 @@
 #include "tweakval.h"
 #include "debug.h"
 
+void ERRCHECK(FMOD_RESULT result)
+{
+    if (result != FMOD_OK)
+    {
+		DBG::warn("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));        
+    }
+}
 
 IslandGame::IslandGame() :
 	m_islandDrawBuf( NULL ),
@@ -303,6 +313,25 @@ void IslandGame::initGraphics( )
 	m_terrainTilesTexId  = loadTexture( "gamedata/crappytiles.png", 4 );
 
 	m_waterTexId  = loadTexture( "gamedata/water.png", 4 );
+
+	// Load sounds while we're at it
+	FMOD_RESULT res;
+	res = m_fmod->createSound(  "gamedata/wall.wav", FMOD_HARDWARE, 0, &sfx_wall );
+	ERRCHECK( res );
+
+	res = m_fmod->createSound(  "gamedata/blang.wav", FMOD_HARDWARE, 0, &sfx_blahblah );
+	ERRCHECK( res );
+
+	res = m_fmod->createStream( "gamedata/galapagos.mp3", 
+		FMOD_HARDWARE |FMOD_LOOP_NORMAL | FMOD_2D,
+									0, &m_music );
+	ERRCHECK( res );
+
+	FMOD::Channel *chan=0;
+	res = m_fmod->playSound(FMOD_CHANNEL_FREE, m_music, false, &chan);
+	ERRCHECK( res );
+
+	//sfx_blahblah = FSOUND_Sample_Load( FSOUND_UNMANAGED, "gamedata/sfxr_blang.wav", FSOUND_NORMAL, 0, 0 );
 
 	// Set up simple lighting	
 	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -836,8 +865,10 @@ void IslandGame::move( int dx, int dy )
 	if ((mnew.m_elevation < 0) || 
 		(fabs( (float)(mnew.m_elevation - m_map[m_px][m_py].m_elevation)) > 1.01 ) )
 	{
-		// can't move there
-		// TODO: SFX play bonk sound
+		// can't move there		
+		FMOD::Channel *channel = 0;
+		m_fmod->playSound(FMOD_CHANNEL_FREE, sfx_wall, false, &channel );
+		
 		return;
 	}
 
@@ -848,8 +879,9 @@ void IslandGame::move( int dx, int dy )
 		if ((npc->m_x == nx) &&
 			(npc->m_y == ny))
 		{
-			// don't move there, say NPC's speech
-			// TODO: SFX talking
+			// don't move there, say NPC's speech			
+			FMOD::Channel *channel = 0;
+			m_fmod->playSound(FMOD_CHANNEL_FREE, sfx_blahblah, false, &channel );
 			showHudText( npc->m_displayName, npc->m_speech );
 			return;
 		}

@@ -27,12 +27,16 @@
 
 #include <prmath/prmath.hpp>
 
+#include <fmod.hpp>
+
 #include "debug.h"
 #include "tweakval.h"
 #include "IslandGame.h"
 
 // 30 ticks per sim frame
 #define STEPTIME (33)
+
+extern void ERRCHECK(FMOD_RESULT result);
 
 void errorMessage( const char *msg, ... )
 {
@@ -90,9 +94,21 @@ int main( int argc, char *argv[] )
 	ilInit(); 
 	ilutRenderer( ILUT_OPENGL );
 
+	// Init fmod
+	FMOD::System *fmod = NULL;
+	FMOD::System_Create( &fmod );
+	unsigned int version;
+	fmod->getVersion( &version );
+	DBG::info("FMOD version %d\n", version );
+	
+	FMOD_RESULT result = fmod->init(32, FMOD_INIT_NORMAL, 0);
+    ERRCHECK(result);
+	DBG::info("FMOD init OK\n" );
+
 	//=====[ Init Game ]======
 	DBG::g_verbose_level = DBG::kVerbose_Dbg;
 	IslandGame *game = new IslandGame();
+	game->m_fmod = fmod;
 
 	game->initGraphics();
 
@@ -159,6 +175,7 @@ int main( int argc, char *argv[] )
 		game->update( dtRaw ); 
 		game->redraw(  );
 		
+		fmod->update();
 
 		ReloadChangedTweakableValues();
 

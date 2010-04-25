@@ -11,7 +11,10 @@
 #include <crtdbg.h>
 #endif
 
+#include <fmod.hpp>
+
 #include <prmath/prmath.hpp>
+
 
 #define MAX_MAP_SIZE (100)
 
@@ -167,6 +170,13 @@ public:
 
 	ILuint m_ilFontId;
 	GLuint m_glFontTexId, m_fntFontId;
+
+	// SFX
+	FMOD::System *m_fmod;
+	FMOD::Sound *sfx_wall;
+	FMOD::Sound *sfx_blahblah;
+	
+	FMOD::Sound *m_music;
 	
 };
 
