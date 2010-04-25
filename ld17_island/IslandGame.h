@@ -13,7 +13,7 @@
 
 #include <prmath/prmath.hpp>
 
-#define MAX_MAP_SIZE (50)
+#define MAX_MAP_SIZE (100)
 
 #define foreach_map_max \
 	for (int mi = 0; mi < MAX_MAP_SIZE; ++mi ) \
@@ -36,6 +36,7 @@ struct MapSquare
 {
 	int m_elevation; // 0 = water
 	int m_terrain; // -1 = nothing
+	const char *m_portal; 
 };
 
 struct MapVert

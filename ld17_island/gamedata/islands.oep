@@ -3,8 +3,8 @@
    
    
    <settings>
-       <defaultWidth>320</defaultWidth>
-       <defaultHeight>320</defaultHeight>       
+       <defaultWidth>480</defaultWidth>
+       <defaultHeight>480</defaultHeight>       
    </settings>
    
    <values>
@@ -20,12 +20,17 @@
    
    <objects>
        <object name="pstart" image="icon_pstart.png" width="16" height="16" limit="1" />
+       <object name="portal" image="icon_portal.png" width="16" height="16" >
+         <values>
+             <string name="dest" default="university" maxChars="20" />
+         </values>
+       </object>
        <object name="critter" image="icon_critter.png" width="16" height="16" >
           <values>
               <string name="displayName" default="Pig" maxChars="30" />
               <boolean name="master" default="false" />
               
-              <string name="map" default="pig" maxChars="20" />              
+              <string name="map" default="pig" maxChars="20" />
               <integer name="level" min="0" max="50" default="0" />
               <integer name="size" min="0" max="200" default="100" />
               <boolean name="friendly" default="false" />

@@ -1,6 +1,6 @@
 <level>
-  <width>320</width>
-  <height>320</height>
+  <width>1600</width>
+  <height>1600</height>
   <elevTiles set="elevation">
     <tile id="0" x="80" y="128"/>
     <tile id="0" x="64" y="128"/>

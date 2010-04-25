@@ -220,8 +220,8 @@ void IslandGame::redraw( )
 
 	glEnableClientState( GL_NORMAL_ARRAY );
 	glNormalPointer( GL_FLOAT, sizeof(MapVert), (void*)(6*sizeof(GLfloat)) );
-
-	glDrawArrays( GL_QUADS, 0, m_quadSize*4 );	
+	
+	glDrawArrays( GL_QUADS, 0, m_quadSize*4 );		
 
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	glDisableClientState( GL_NORMAL_ARRAY );
@@ -449,7 +449,7 @@ void IslandGame::loadLevel( const char *filename )
 				mcrit->m_behavior = atoi( xActor->Attribute( "behave" ) );
 
 				// DBG:
-				mcrit->m_behavior = BEHAVIOR_RANDOM;
+				mcrit->m_behavior = BEHAVIOR_SEEK_PLAYER;
 
 				char buff[1000];
 				sprintf( buff, "gamedata/critter_%s.png", xActor->Attribute( "map" ) );
@@ -523,6 +523,20 @@ void IslandGame::loadLevel( const char *filename )
 
 		xActor = xActor->NextSiblingElement( "npc" );
 	}
+
+	// Finally, fill in any portal info
+	xActor = xActorLayer->FirstChildElement( "portal" );
+	while (xActor)
+	{
+		int x = atoi( xActor->Attribute( "x" ) ) / 16;
+		int y = atoi( xActor->Attribute( "y" ) ) / 16;
+		m_map[x][y].m_portal = strdup( xActor->Attribute("dest") );
+
+		xActor = xActor->NextSiblingElement( "portal" );
+	}
+
+	// And finally, rebuild the graphics
+	buildMap();
 }
 
 void IslandGame::clearLevel()
@@ -532,17 +546,20 @@ void IslandGame::clearLevel()
 		MapSquare &tile = MAPITER( m_map );
 		tile.m_elevation = -1;
 		tile.m_terrain = TERRAIN_EMPTY;
+		tile.m_portal = NULL;
 	}
 }
 
 void IslandGame::buildMap()
 {
+	// release geom if it's loaded
 	if (m_islandDrawBuf)
 	{
 		free( m_islandDrawBuf );
 		m_islandDrawBuf = 0;
 		m_quadSize = 0;
 		m_quadCapacity = 0;
+		//glDeleteBuffers( 1, &m_islandVBO );
 	}
 	
 
@@ -601,13 +618,13 @@ void IslandGame::buildMap()
 		
 	}
 
-	DBG::debug( "After buildMap, m_quadSize is %d\n", m_quadSize );
+	DBG::info( "After buildMap, m_quadSize is %d\n", m_quadSize );
 
 	// Make teh GL bufferses
 
 	// TODO: free old buffers
 	
-	// Generate the vertex buffer object (VBO)
+	// Generate the vertex buffer object (VBO)	
 	glGenBuffers(1, &m_islandVBO );
 	
 	// Bind the VBO so we can fill it with data
@@ -615,9 +632,12 @@ void IslandGame::buildMap()
 	
 	// Set the buffer's data
 	// Calc afVertices size (3 vertices * stride (3 GLfloats per vertex))
-	unsigned int uiSize = sizeof( MapVert ) * m_quadSize * 4;
+	unsigned int uiSize = sizeof( MapVert ) * m_quadSize;
+	//_RPT1( _CRT_WARN, "uiSize is %d\n", uiSize );
 	glBufferData(GL_ARRAY_BUFFER, uiSize, m_islandDrawBuf, GL_STATIC_DRAW);	
 	
+	//_RPT1( _CRT_WARN, "done with glBufferData %d\n", uiSize );
+
 	DBG::info("NumQuads %d size %d\n", m_quadSize, uiSize );
 }
 
@@ -722,7 +742,8 @@ MapVert *IslandGame::addQuad()
 			m_quadTargetCapacity = m_quadCapacity * 2;
 		}
 
-		DBG::debug("Grow quadbuff to new capacity %d\n", m_quadTargetCapacity );
+		DBG::info("Grow quadbuff to new capacity %d (size %d)\n", m_quadTargetCapacity,
+			sizeof(MapVert) * m_quadTargetCapacity );
 		MapVert *newBuff = (MapVert*)calloc( m_quadTargetCapacity, 
 											  sizeof( MapVert ) );
 
@@ -846,8 +867,20 @@ void IslandGame::move( int dx, int dy )
 					(mnew.m_elevation+1.0) * 0.3f, 
 					m_py + 0.5f );
 
-	// let critters move
-	updateCritters();
+	// Did we move into a portal???
+	if (m_map[m_px][m_py].m_portal)
+	{
+		// yep, load the new level
+		char buff[250];
+		sprintf( buff, "gamedata/%s.oel", m_map[m_px][m_py].m_portal );
+		DBG::info( "Portal hit: new level %s\n", buff );
+		loadLevel( buff );
+	}
+	else
+	{
+		// let critters move
+		updateCritters();
+	}
 }
 
 void IslandGame::updateCritters()
@@ -901,11 +934,11 @@ void IslandGame::updateCritters()
 					nx = c->m_x;
 					ny = c->m_y+1;
 					break;
-				case DIR_WEST:
+				case DIR_EAST:
 					nx = c->m_x-1;
 					ny = c->m_y;
 					break;
-				case DIR_EAST:
+				case DIR_WEST:
 					nx = c->m_x+1;
 					ny = c->m_y;
 					break;
