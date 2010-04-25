@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\load_obj.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tweakval.cpp"
 				>
 			</File>
@@ -220,6 +224,10 @@
 			</File>
 			<File
 				RelativePath="..\..\IslandGame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\load_obj.h"
 				>
 			</File>
 			<File

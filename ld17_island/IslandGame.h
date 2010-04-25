@@ -1,6 +1,10 @@
 #ifndef ISLAND_GAME_H
 #define ISLAND_GAME_H
 
+#include <string>
+#include <map>
+#include <vector>
+
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -48,6 +52,17 @@ struct MapVert
 	vec3f norm;
 };
 
+struct Critter
+{
+	std::string m_displayName;
+	std::string m_name;
+	GLuint m_critterTex;
+
+	int m_x, m_y;	
+	int m_level;
+	int m_hp;
+};
+
 class IslandGame
 {
 public:
@@ -67,11 +82,21 @@ public:
 	// Player
 	int m_px, m_py;
 	vec3f m_camPos, m_camTarg;
+	GLuint m_personMesh;
+	GLuint m_playerTex;
+
+	// Critters
+	GLuint m_critterMesh;
+	//GLuint m_critterPigTex;	
+	std::map<std::string, Critter*> m_masterCritter;
+	std::vector<Critter*> m_critters;
 
 	// Map
 	int m_mapSizeX;
 	int m_mapSizeY;
 	MapSquare m_map[MAX_MAP_SIZE][MAX_MAP_SIZE];
+	std::string m_mapName;
+	std::string m_mapText;
 
 	// Map builder
 	void buildMap();
@@ -87,6 +112,7 @@ public:
 	GLuint m_islandVBO;
 
 	// Graphics
+	std::map<std::string, GLuint> m_textureCache;
 	GLuint loadTexture( const char *filename, int upRes=1 );
 	void initGraphics();
 	GLuint m_playerSprite;

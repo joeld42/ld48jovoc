@@ -20,6 +20,7 @@
 #include "gamefontgl.h"
 #include "IslandGame.h"
 
+#include "load_obj.h"
 #include "tweakval.h"
 #include "debug.h"
 
@@ -99,6 +100,7 @@ void IslandGame::redraw( )
 	//ang += 1;	
 
 	glDisable( GL_TEXTURE_2D );
+#if 0	
 	glLineWidth( 4.0 );
 	glBegin( GL_LINES );
 
@@ -115,9 +117,10 @@ void IslandGame::redraw( )
 	glVertex3f( ppos.x, ppos.y + 0.01, ppos.z + 1.0 );
 
 	glEnd();
-	glColor3f( 1.0, 1.0, 1.0 );
+#endif
 
-	glEnable( GL_TEXTURE_2D );
+	glColor3f( 1.0, 1.0, 1.0 );
+	glEnable( GL_TEXTURE_2D );	
 
 	// draw some stuff the easy way
 	glBindTexture( GL_TEXTURE_2D, m_waterTexId );	
@@ -137,13 +140,37 @@ void IslandGame::redraw( )
 
 	glEnd();
 
-	glEnable( GL_TEXTURE_2D );
-	glBindTexture( GL_TEXTURE_2D, m_terrainTilesTexId );	
+	glEnable( GL_TEXTURE_2D );	
 	//glColor3f( 1.0, 0.0, 1.0 );	
+
+	// draw player
+	glPushMatrix();	
+	glTranslatef( ppos.x, ppos.y, ppos.z );
+	glScalef( 0.4f, 0.4f, 0.4f );
+	glRotatef( -90.0, 0.0, 1.0, 0.0 );
+	glBindTexture( GL_TEXTURE_2D, m_playerTex );
+	glCallList( m_personMesh );
+	glPopMatrix();
+
+	// draw critters
+	for (std::vector<Critter*>::iterator ci = m_critters.begin(); 
+		 ci != m_critters.end(); ci++)
+	{
+		Critter *c = (*ci);
+		float elev = (m_map[c->m_x][c->m_y].m_elevation + 1.0) * 0.3;
+		glPushMatrix();	
+		glTranslatef( c->m_x + 0.5f, elev, c->m_y + 0.5f );
+		glScalef( 0.4f, 0.4f, 0.4f );
+		glBindTexture( GL_TEXTURE_2D, c->m_critterTex );
+		glCallList( m_critterMesh );
+		glPopMatrix();
+	}
 
 	glEnable( GL_LIGHTING );
 	glEnable( GL_LIGHT0 );
-	glEnable( GL_LIGHT1 );
+	glEnable( GL_LIGHT1 );	
+
+	glBindTexture( GL_TEXTURE_2D, m_terrainTilesTexId );
 
 	// Bind the island VBO
 	glBindBuffer(GL_ARRAY_BUFFER, m_islandVBO);
@@ -218,6 +245,11 @@ void IslandGame::initGraphics( )
 		gfGetFontMetric( m_fntFontId, GF_FONT_NUMCHARS ) );					
 
 	// Load the player sprite
+	m_playerTex = loadTexture( "gamedata/npc_monk.png", 4 );
+	m_personMesh = load_obj( "gamedata/person.obj");
+
+	// Load critters	
+	m_critterMesh = load_obj( "gamedata/hemi_critter.obj");
 
 	// Load the tiles
 	m_terrainTilesTexId  = loadTexture( "gamedata/crappytiles.png", 4 );
@@ -227,9 +259,15 @@ void IslandGame::initGraphics( )
 	// Set up simple lighting	
 	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat mat_shininess[] = { 50.0 };
-	GLfloat light_direction[] = { -1.0, 0.6, 0.0, 0.0 };
+	GLfloat light_direction[] = { -0.5, 1.0, 0.5, 0.0 };
 	GLfloat light_ambient[] = { 2.0, 2.0, 2.0, 1.0 };
-	GLfloat light_diffuse[] = { 6.0, 6.0, 6.0, 1.0 };
+	GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+
+	vec3f lightDir( -0.5, 1.0, 0.5 );
+	lightDir.Normalize();
+	light_direction[0] = lightDir.x;
+	light_direction[1] = lightDir.y;
+	light_direction[2] = lightDir.z;
 
 
 	//glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
@@ -263,6 +301,19 @@ void IslandGame::loadLevel( const char *filename )
 
 	xLevel = xmlDoc->FirstChildElement( "level" );
 	assert( xLevel );
+	m_mapName = xLevel->Attribute( "isleName" );	
+	m_mapText = xLevel->Attribute( "intro" );
+	const char *waterTex = xLevel->Attribute( "water" );
+	if (waterTex)
+	{
+		char buff[200];
+		sprintf( buff, "gamedata/%s.png" );
+		m_waterTexId = loadTexture( buff );
+	}
+	else
+	{
+		m_waterTexId  = loadTexture( "gamedata/water.png", 4 );
+	}
 
 	// Get width and height
 	TiXmlElement *xTag;
@@ -315,6 +366,7 @@ void IslandGame::loadLevel( const char *filename )
 	// Load actors	
 	TiXmlElement *xActorLayer = xLevel->FirstChildElement( "actors" );
 	
+	// Get the player start pos
 	TiXmlElement *xActor = xActorLayer->FirstChildElement( "pstart" );
 	m_px = atoi( xActor->Attribute( "x" ) ) / 16;
 	m_py = atoi( xActor->Attribute( "y" ) ) / 16;
@@ -324,6 +376,71 @@ void IslandGame::loadLevel( const char *filename )
 					m_py + 0.5f );
 	m_camPos = m_camTarg;
 
+	// first, make sure all master critters are loaded
+	xActor = xActorLayer->FirstChildElement( "critter" );
+	while (xActor)
+	{
+		// If this is the master copy of the critter, load it
+		if (!strcmp( xActor->Attribute("master"), "true" ) )
+		{
+			Critter *mcrit = NULL;
+			std::string critKey = xActor->Attribute("displayName" );			
+			std::transform( critKey.begin(), critKey.end(), critKey.begin(), toupper );
+
+			// is it in the master list?
+			if ( m_masterCritter.find( critKey ) == m_masterCritter.end() )
+			{
+				// Nope, load it
+				mcrit = new Critter();
+				mcrit->m_displayName = xActor->Attribute( "displayName" );
+				mcrit->m_level = atoi( xActor->Attribute( "level" ) );
+				mcrit->m_name = atoi( xActor->Attribute( "map" ) );
+
+				char buff[1000];
+				sprintf( buff, "gamedata/critter_%s.png", xActor->Attribute( "map" ) );
+				mcrit->m_critterTex = loadTexture( buff, 4 );
+
+				// store in master list
+				m_masterCritter[ critKey ] = mcrit;
+			}
+		}
+		xActor = xActor->NextSiblingElement( "critter" );
+	}
+
+	// Now go through all the critters again and create them
+	for (std::vector<Critter*>::iterator ci = m_critters.begin();
+		 ci != m_critters.end(); ++ci )
+	{
+		delete *ci;
+	}
+	//m_critters.clear( m_critters.begin(), m_critters.end() );
+	m_critters.clear();
+
+	xActor = xActorLayer->FirstChildElement( "critter" );
+	while (xActor)
+	{
+		Critter *mcrit = NULL;
+		std::string critKey = xActor->Attribute("displayName" );			
+		std::transform( critKey.begin(), critKey.end(), critKey.begin(), toupper );
+	
+		std::map<std::string, Critter*>::iterator mcriti = m_masterCritter.find( critKey );
+		if ( mcriti == m_masterCritter.end() )
+		{
+			DBG::warn( "Couldn't find master critter: %s\n", critKey.c_str() );
+		}
+		else
+		{
+			mcrit = (*mcriti).second;
+			Critter *crit = new Critter();
+			*crit = *mcrit;
+			crit->m_x = atoi( xActor->Attribute( "x" ) ) / 16;
+			crit->m_y = atoi( xActor->Attribute( "y" ) ) / 16;
+
+			m_critters.push_back( crit );
+		}
+
+		xActor = xActor->NextSiblingElement( "critter" );
+	}
 }
 
 void IslandGame::clearLevel()
@@ -546,7 +663,18 @@ MapVert *IslandGame::addQuad()
 
 GLuint IslandGame::loadTexture( const char *filename, int upres )
 {
-	// Load the font image
+	// First see if we have it cached
+	std::string sfilename( filename );
+	std::map<std::string, GLuint>::iterator itex;
+	itex = m_textureCache.find( sfilename );
+
+	if (itex != m_textureCache.end())
+	{
+		DBG::info("Texture %s found in cache, reusing...\n", filename );
+		return (*itex).second;
+	}
+
+	// Load the texture image
 	ILuint ilId;
 	ilGenImages( 1, &ilId );
 	ilBindImage( ilId );		
@@ -576,6 +704,10 @@ GLuint IslandGame::loadTexture( const char *filename, int upres )
 	ilDeleteImages(  1, &ilId );
 
 	//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );	
+
+	// And add it to the texture cache
+	DBG::info( "Adding %s to texture cache...\n", filename );
+	m_textureCache[ sfilename ] = glTexId;
 	
 	return glTexId;
 }

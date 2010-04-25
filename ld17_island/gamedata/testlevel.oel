@@ -85,7 +85,6 @@
   </elevTiles>
   <terrainTiles set="terrain">
     <tile id="17" x="96" y="112"/>
-    <tile id="17" x="64" y="112"/>
     <tile id="0" x="64" y="80"/>
     <tile id="0" x="48" y="96"/>
     <tile id="32" x="48" y="112"/>
@@ -94,7 +93,6 @@
     <tile id="34" x="80" y="144"/>
     <tile id="33" x="96" y="128"/>
     <tile id="34" x="112" y="128"/>
-    <tile id="4" x="80" y="128"/>
     <tile id="34" x="128" y="112"/>
     <tile id="32" x="80" y="96"/>
     <tile id="2" x="256" y="96"/>
@@ -164,6 +162,8 @@
     <tile id="35" x="208" y="144"/>
     <tile id="52" x="224" y="144"/>
     <tile id="19" x="208" y="128"/>
+    <tile id="69" x="80" y="128"/>
+    <tile id="68" x="64" y="112"/>
   </terrainTiles>
   <actors>
     <pstart x="112" y="112"/>
