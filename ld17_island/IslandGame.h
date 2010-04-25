@@ -52,8 +52,16 @@ struct MapVert
 	vec3f norm;
 };
 
-struct Critter
+enum
 {
+	DIR_NORTH,
+	DIR_EAST,
+	DIR_SOUTH,
+	DIR_WEST
+};
+
+struct Critter
+{	
 	std::string m_displayName;
 	std::string m_name;
 	GLuint m_critterTex;
@@ -61,6 +69,17 @@ struct Critter
 	int m_x, m_y;	
 	int m_level;
 	int m_hp;
+	int m_dir;	
+	bool m_friendly;
+};
+
+struct Npc
+{
+	std::string m_displayName;
+	std::string m_name;
+	std::string m_speech;
+	GLuint m_personTex;
+	int m_x, m_y;
 };
 
 class IslandGame
@@ -79,6 +98,9 @@ public:
 	void move( int dx, int dy );
 	void pass();
 
+	float getRotForDir( int dir );
+	float getRotLookAt( int x, int y );
+
 	// Player
 	int m_px, m_py;
 	vec3f m_camPos, m_camTarg;
@@ -90,6 +112,9 @@ public:
 	//GLuint m_critterPigTex;	
 	std::map<std::string, Critter*> m_masterCritter;
 	std::vector<Critter*> m_critters;
+
+	// NPCs
+	std::vector<Npc*> m_npcs;
 
 	// Map
 	int m_mapSizeX;

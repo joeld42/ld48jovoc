@@ -161,8 +161,26 @@ void IslandGame::redraw( )
 		glPushMatrix();	
 		glTranslatef( c->m_x + 0.5f, elev, c->m_y + 0.5f );
 		glScalef( 0.4f, 0.4f, 0.4f );
+
+		glRotatef( getRotForDir( c->m_dir ), 0.0, 1.0, 0.0 );
+
 		glBindTexture( GL_TEXTURE_2D, c->m_critterTex );
 		glCallList( m_critterMesh );
+		glPopMatrix();
+	}
+
+	// draw npcs
+	for (std::vector<Npc*>::iterator ci = m_npcs.begin(); 
+		 ci != m_npcs.end(); ci++)
+	{
+		Npc *npc = (*ci);
+		float elev = (m_map[npc->m_x][npc->m_y].m_elevation + 1.0) * 0.3;
+		glPushMatrix();	
+		glTranslatef( npc->m_x + 0.5f, elev, npc->m_y + 0.5f );
+		glScalef( 0.4f, 0.4f, 0.4f );
+		glRotatef( getRotLookAt( npc->m_x, npc->m_y ), 0.0, 1.0, 0.0 );
+		glBindTexture( GL_TEXTURE_2D, npc->m_personTex );
+		glCallList( m_personMesh );
 		glPopMatrix();
 	}
 
@@ -436,10 +454,37 @@ void IslandGame::loadLevel( const char *filename )
 			crit->m_x = atoi( xActor->Attribute( "x" ) ) / 16;
 			crit->m_y = atoi( xActor->Attribute( "y" ) ) / 16;
 
+			crit->m_dir = rand() % 4;
 			m_critters.push_back( crit );
 		}
 
 		xActor = xActor->NextSiblingElement( "critter" );
+	}
+
+	// Now, load all the NPCs... npcs are simpler than critters
+	for (std::vector<Npc*>::iterator ci = m_npcs.begin();
+		 ci != m_npcs.end(); ++ci )
+	{
+		delete *ci;
+	}
+	m_npcs.clear();
+	xActor = xActorLayer->FirstChildElement( "npc" );
+	while (xActor)
+	{
+		Npc *npc = new Npc();
+		npc->m_x = atoi( xActor->Attribute( "x" ) ) / 16;
+		npc->m_y = atoi( xActor->Attribute( "y" ) ) / 16;
+		npc->m_displayName = xActor->Attribute("displayName" );
+		npc->m_name = xActor->Attribute( "map" );
+		npc->m_speech = xActor->Attribute( "speech" );
+
+		char buff[1000];
+		sprintf( buff, "gamedata/npc_%s.png", xActor->Attribute( "map" ) );
+		npc->m_personTex = loadTexture( buff, 4 );
+		
+		m_npcs.push_back( npc );
+
+		xActor = xActor->NextSiblingElement( "npc" );
 	}
 }
 
@@ -727,7 +772,16 @@ void IslandGame::move( int dx, int dy )
 	
 	MapSquare &mnew = m_map[nx][ny];
 
-	// TODO: look at what's going on with mnew
+	// Look at what's going on with mnew
+	
+	// can only move +/- 1 elevation, and not on water
+	if ((mnew.m_elevation < 0) || 
+		(fabs( (float)(mnew.m_elevation - m_map[m_px][m_py].m_elevation)) > 1.01 ) )
+	{
+		// can't move there
+		// TODO: play bonk sound
+		return;
+	}
 
 	// Move there
 	m_px = nx;
@@ -742,4 +796,19 @@ void IslandGame::move( int dx, int dy )
 
 void IslandGame::pass()
 {
+}
+
+float IslandGame::getRotForDir( int dir )
+{
+	return dir * 90.0f;
+}
+
+float IslandGame::getRotLookAt( int x, int y )
+{
+	float x1 = m_px;
+	float y1 = m_py;
+	float x2 = x;
+	float y2 = y;
+
+	return (-atan2( y2-y1, x2-x1 ) * 180.0f/3.1415f) - 115.0f;
 }
