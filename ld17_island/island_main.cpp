@@ -147,7 +147,7 @@ int main( int argc, char *argv[] )
 		{
 			sim_ticks -= STEPTIME;						
 
-			//game->update( (float)STEPTIME / 1000.0f );
+			game->updateSim( (float)STEPTIME / 1000.0f );
 			
 		}	
 

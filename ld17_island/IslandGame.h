@@ -39,11 +39,13 @@ struct MapVert
 	enum
 	{
 		ATTRIB_VERTEX=0,
-		ATTRIB_TEXCOORD
+		ATTRIB_TEXCOORD,
+		ATTRIB_NORMAL
 	};
 
 	vec4f pos;
 	vec2f st;
+	vec3f norm;
 };
 
 class IslandGame
@@ -64,6 +66,7 @@ public:
 
 	// Player
 	int m_px, m_py;
+	vec3f m_camPos, m_camTarg;
 
 	// Map
 	int m_mapSizeX;

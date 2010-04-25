@@ -31,7 +31,8 @@ IslandGame::IslandGame() :
 }
 
 void IslandGame::updateSim( float dtFixed )
-{
+{	
+	m_camPos += (m_camTarg - m_camPos) * dtFixed;
 }
 
 void IslandGame::update( float dt )
@@ -73,6 +74,8 @@ void IslandGame::redraw( )
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();	
 	
+	glDisable( GL_LIGHTING );
+
 	// player
 	MapSquare &mp = m_map[m_px][m_py];
 	vec3f ppos( m_px + 0.5f, 
@@ -86,9 +89,9 @@ void IslandGame::redraw( )
 	glTranslatef( _TV(0), _TV(-5), _TV(-6) );
 	glRotatef( _TV(45.0f), 0.0, 1.0, 0.0 );
 
-	glTranslatef( ppos.x * _TV(-1.0f), 
-				  ppos.y * _TV( 0.0f), 
-				  ppos.z  * _TV(-1.0f));
+	glTranslatef( m_camPos.x * _TV(-1.0f), 
+				  m_camPos.y * _TV( 0.0f), 
+				  m_camPos.z  * _TV(-1.0f));
 	
 
 	//static float ang = 0;
@@ -138,6 +141,10 @@ void IslandGame::redraw( )
 	glBindTexture( GL_TEXTURE_2D, m_terrainTilesTexId );	
 	//glColor3f( 1.0, 0.0, 1.0 );	
 
+	glEnable( GL_LIGHTING );
+	glEnable( GL_LIGHT0 );
+	glEnable( GL_LIGHT1 );
+
 	// Bind the island VBO
 	glBindBuffer(GL_ARRAY_BUFFER, m_islandVBO);
 
@@ -156,14 +163,17 @@ void IslandGame::redraw( )
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glVertexPointer( 3, GL_FLOAT, sizeof(MapVert), 0 );
 	
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );	
 	glTexCoordPointer( 2, GL_FLOAT, sizeof(MapVert), (void*)(4*sizeof(GLfloat)) );
+
+	glEnableClientState( GL_NORMAL_ARRAY );
+	glNormalPointer( GL_FLOAT, sizeof(MapVert), (void*)(6*sizeof(GLfloat)) );
 
 	glDrawArrays( GL_QUADS, 0, m_quadSize*4 );	
 
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState( GL_NORMAL_ARRAY );
 	glDisableClientState( GL_VERTEX_ARRAY );
-
 
 	// 2D text and GUI stuff
 	glDisable( GL_DEPTH_TEST );	
@@ -213,6 +223,27 @@ void IslandGame::initGraphics( )
 	m_terrainTilesTexId  = loadTexture( "gamedata/crappytiles.png", 4 );
 
 	m_waterTexId  = loadTexture( "gamedata/water.png", 4 );
+
+	// Set up simple lighting	
+	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat mat_shininess[] = { 50.0 };
+	GLfloat light_direction[] = { -1.0, 0.6, 0.0, 0.0 };
+	GLfloat light_ambient[] = { 2.0, 2.0, 2.0, 1.0 };
+	GLfloat light_diffuse[] = { 6.0, 6.0, 6.0, 1.0 };
+
+
+	//glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	//glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_direction);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+
+	glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);	
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
+
+	glEnable(GL_DEPTH_TEST);
 
 }
 
@@ -288,6 +319,11 @@ void IslandGame::loadLevel( const char *filename )
 	m_px = atoi( xActor->Attribute( "x" ) ) / 16;
 	m_py = atoi( xActor->Attribute( "y" ) ) / 16;
 
+	m_camTarg = vec3f( m_px + 0.5f, 
+					(m_map[m_px][m_py].m_elevation+1.0) * 0.3f, 
+					m_py + 0.5f );
+	m_camPos = m_camTarg;
+
 }
 
 void IslandGame::clearLevel()
@@ -352,9 +388,13 @@ void IslandGame::buildMap()
 		newQuad[3].pos = vec4f( mi, elevation, mj + 1.0f, 1.0f );
 		newQuad[3].st  = st + vec2f( 0.0f, tilesz ) + vec2f( subpixel_nudge, -subpixel_nudge );
 
-		// draw the side quads
+		// normals
+		newQuad[0].norm = vec3f( 0.0, 1.0, 0.0 );
+		newQuad[1].norm = vec3f( 0.0, 1.0, 0.0 );
+		newQuad[2].norm = vec3f( 0.0, 1.0, 0.0 );
+		newQuad[3].norm = vec3f( 0.0, 1.0, 0.0 );
 
-		
+		// draw the side quads		
 		buildSideQuad( -1, 0, mi, mj ); // LEFT SIDE
 		buildSideQuad(  1, 0, mi, mj ); // RIGHT SIDE
 		buildSideQuad(  0, -1, mi, mj ); // BACK SIDE
@@ -408,6 +448,13 @@ void IslandGame::buildSideQuad( int ii, int jj, int mi, int mj )
 		int tmap = side_terrain / 16;
 		MapVert *newQuad = addQuad();
 
+		// normals are easy
+		newQuad[0].norm = vec3f( ii, 0.0, jj );
+		newQuad[1].norm = vec3f( ii, 0.0, jj );
+		newQuad[2].norm = vec3f( ii, 0.0, jj );
+		newQuad[3].norm = vec3f( ii, 0.0, jj );
+
+		// tex coords
 		const float subpixel_nudge = 1.0/1024.0;
 		vec2f st = vec2f( smap * tilesz, tmap * tilesz );		
 		newQuad[0].st  = st + vec2f( subpixel_nudge, subpixel_nudge );
@@ -554,6 +601,11 @@ void IslandGame::move( int dx, int dy )
 	m_px = nx;
 	m_py = ny;
 	DBG::info("move to %d %d\n", m_px, m_py );
+
+	// update camera pos
+	m_camTarg = vec3f( m_px + 0.5f, 
+					(mnew.m_elevation+1.0) * 0.3f, 
+					m_py + 0.5f );
 }
 
 void IslandGame::pass()
