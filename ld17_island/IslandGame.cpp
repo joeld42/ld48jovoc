@@ -61,7 +61,7 @@ void IslandGame::redraw( )
 	int useOrtho = _TV(1);
 	if (!useOrtho)
 	{
-		gluPerspective( 50.0, 800.0/600.0, 0.1, 1000.0 );
+		gluPerspective( _TV(2.0f), 800.0/600.0, 0.1, 1000.0 );
 	}
 	else
 	{
@@ -75,13 +75,15 @@ void IslandGame::redraw( )
 	
 	// player
 	MapSquare &mp = m_map[m_px][m_py];
-	vec3f ppos( m_px, (mp.m_elevation+1.0) * 0.3f, m_py );
+	vec3f ppos( m_px + 0.5f, 
+				(mp.m_elevation+1.0) * 0.3f, 
+				m_py + 0.5f );
 	
 	//gluLookAt( ppos.x, ppos.y + 1, ppos.z + 1,
 	//		   ppos.x, ppos.y, ppos.z,
 	//		   0.0, 1.0, 0.0 );	
 	glRotatef( _TV(29.7f), 1.0, 0.0, 0.0 );
-	glTranslatef( _TV(-7), _TV(-60), _TV(-100) );
+	glTranslatef( _TV(0), _TV(-5), _TV(-6) );
 	glRotatef( _TV(45.0f), 0.0, 1.0, 0.0 );
 
 	glTranslatef( ppos.x * _TV(-1.0f), 
@@ -92,6 +94,27 @@ void IslandGame::redraw( )
 	//static float ang = 0;
 	//glRotatef( ang, 0.0, 1.0, 0.0 );
 	//ang += 1;	
+
+	glDisable( GL_TEXTURE_2D );
+	glLineWidth( 4.0 );
+	glBegin( GL_LINES );
+
+	glColor3f( 1.0, 0.0, 0.0 );
+	glVertex3f( ppos.x-1.0, ppos.y + 0.01, ppos.z );
+	glVertex3f( ppos.x+1.0, ppos.y + 0.01, ppos.z );
+
+	glColor3f( 0.0, 1.0, 0.0 );
+	glVertex3f( ppos.x, ppos.y -1.0, ppos.z );
+	glVertex3f( ppos.x, ppos.y +1.0, ppos.z );
+
+	glColor3f( 0.0, 0.0, 1.0 );
+	glVertex3f( ppos.x, ppos.y + 0.01, ppos.z - 1.0 );
+	glVertex3f( ppos.x, ppos.y + 0.01, ppos.z + 1.0 );
+
+	glEnd();
+	glColor3f( 1.0, 1.0, 1.0 );
+
+	glEnable( GL_TEXTURE_2D );
 
 	// draw some stuff the easy way
 	glBindTexture( GL_TEXTURE_2D, m_waterTexId );	
@@ -157,7 +180,7 @@ void IslandGame::redraw( )
 	glColor3f( 1.0, 1.0, 1.0 );
 		
 	gfBeginText();
-	glTranslated( 200, 200, 0 );		
+	glTranslated( 200, 500, 0 );		
 	gfDrawString( "HELLO ISLAND WORLD..." );
 	gfEndText();						
 
@@ -187,9 +210,9 @@ void IslandGame::initGraphics( )
 	// Load the player sprite
 
 	// Load the tiles
-	m_terrainTilesTexId  = loadTexture( "gamedata/crappytiles.png" );
+	m_terrainTilesTexId  = loadTexture( "gamedata/crappytiles.png", 4 );
 
-	m_waterTexId  = loadTexture( "gamedata/water.png" );
+	m_waterTexId  = loadTexture( "gamedata/water.png", 4 );
 
 }
 
@@ -306,24 +329,28 @@ void IslandGame::buildMap()
 
 		// Add a quad
 		MapVert *newQuad = addQuad();
+		
+		// prevent seams between tiles
+		const float subpixel_nudge = 1.0/1024.0;
 
 		// and fill it in
 		const float tilesz = 1.0/16.0;
 		int smap = m.m_terrain % 16;
 		int tmap = m.m_terrain / 16;
 		float elevation = (m.m_elevation + 1.0f) * 0.3f;
-		vec2f st = vec2f( smap * tilesz, tmap * tilesz );
+		vec2f st = vec2f( (smap * tilesz), 
+						  (tmap * tilesz) );
 		newQuad[0].pos = vec4f( mi, elevation, mj, 1.0f );
-		newQuad[0].st  = st;
+		newQuad[0].st  = st + vec2f( subpixel_nudge, subpixel_nudge );
 
 		newQuad[1].pos = vec4f( mi + 1.0f, elevation, mj, 1.0f );
-		newQuad[1].st  = st + vec2f( tilesz, 0.0f );
+		newQuad[1].st  = st + vec2f( tilesz, 0.0f ) + vec2f( -subpixel_nudge, subpixel_nudge );
 
 		newQuad[2].pos = vec4f( mi + 1.0f, elevation, mj + 1.0f, 1.0f );
-		newQuad[2].st  = st + vec2f( tilesz, tilesz );
+		newQuad[2].st  = st + vec2f( tilesz, tilesz ) + vec2f( -subpixel_nudge, -subpixel_nudge );
 
 		newQuad[3].pos = vec4f( mi, elevation, mj + 1.0f, 1.0f );
-		newQuad[3].st  = st + vec2f( 0.0f, tilesz );
+		newQuad[3].st  = st + vec2f( 0.0f, tilesz ) + vec2f( subpixel_nudge, -subpixel_nudge );
 
 		// draw the side quads
 
@@ -381,11 +408,12 @@ void IslandGame::buildSideQuad( int ii, int jj, int mi, int mj )
 		int tmap = side_terrain / 16;
 		MapVert *newQuad = addQuad();
 
+		const float subpixel_nudge = 1.0/1024.0;
 		vec2f st = vec2f( smap * tilesz, tmap * tilesz );		
-		newQuad[0].st  = st;
-		newQuad[1].st  = st + vec2f( tilesz, 0.0f );
-		newQuad[2].st  = st + vec2f( tilesz, tilesz );
-		newQuad[3].st  = st + vec2f( 0.0f, tilesz );
+		newQuad[0].st  = st + vec2f( subpixel_nudge, subpixel_nudge );
+		newQuad[1].st  = st + vec2f( tilesz, 0.0f ) + vec2f( -subpixel_nudge, subpixel_nudge );
+		newQuad[2].st  = st + vec2f( tilesz, tilesz ) + vec2f( -subpixel_nudge, -subpixel_nudge );
+		newQuad[3].st  = st + vec2f( 0.0f, tilesz ) + vec2f( subpixel_nudge, -subpixel_nudge );
 
 		// There's probably a clever way to do this but
 		// i can't do "clever" right now
@@ -469,7 +497,7 @@ MapVert *IslandGame::addQuad()
 	return newQuad;
 }
 
-GLuint IslandGame::loadTexture( const char *filename )
+GLuint IslandGame::loadTexture( const char *filename, int upres )
 {
 	// Load the font image
 	ILuint ilId;
@@ -480,12 +508,27 @@ GLuint IslandGame::loadTexture( const char *filename )
 	{		
 		errorMessage( "Loading texture failed for: %s", filename );
 	}
+
+	// upres if requested
+	if (upres > 1)
+	{
+		DBG::info("UPRES %s, orig size is %dx%d\n",
+				filename,
+				ilGetInteger( IL_IMAGE_WIDTH ),
+				ilGetInteger( IL_IMAGE_HEIGHT) );
+
+		iluScale( ilGetInteger( IL_IMAGE_WIDTH ) * upres,
+					ilGetInteger( IL_IMAGE_HEIGHT ) * upres,
+					ilGetInteger( IL_IMAGE_DEPTH ) );
+	}
 	
 	// Make a GL texture for it
 	GLuint glTexId;
 	glTexId = ilutGLBindTexImage();
 
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );	
+	ilDeleteImages(  1, &ilId );
+
+	//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );	
 	
 	return glTexId;
 }

@@ -84,7 +84,7 @@ public:
 	GLuint m_islandVBO;
 
 	// Graphics
-	GLuint loadTexture( const char *filename );
+	GLuint loadTexture( const char *filename, int upRes=1 );
 	void initGraphics();
 	GLuint m_playerSprite;
 

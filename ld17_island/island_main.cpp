@@ -75,6 +75,9 @@ int main( int argc, char *argv[] )
 		mode_flags |= SDL_FULLSCREEN;
 	}
 
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 4 );
+
 	if (SDL_SetVideoMode( sx, sy, 32, mode_flags ) == 0 ) 
 	{		
 		errorMessage( SDL_GetError() ) ;
@@ -84,7 +87,7 @@ int main( int argc, char *argv[] )
 	SDL_WM_SetCaption( "LD17 -- Islands", NULL );
 
 	// initialize DevIL
-	ilInit();
+	ilInit(); 
 	ilutRenderer( ILUT_OPENGL );
 
 	//=====[ Init Game ]======
@@ -114,16 +117,16 @@ int main( int argc, char *argv[] )
 							break;
 
 						case SDLK_UP:
-							game->move( 0, 1 );
+							game->move( 1, 0 );
 							break;
 						case SDLK_DOWN:
-							game->move( 0, -1 );
-							break;
-						case SDLK_LEFT:
 							game->move( -1, 0 );
 							break;
+						case SDLK_LEFT:
+							game->move( 0, -1 );
+							break;
 						case SDLK_RIGHT:
-							game->move( 1, 0 );
+							game->move( 0, 1 );
 							break;
 					}
 					break;
