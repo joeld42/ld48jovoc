@@ -39,6 +39,7 @@ IslandGame::IslandGame() :
 	m_islandDrawBuf( NULL ),
 	m_px(0), m_py(0), m_showHudText( false )
 {
+	m_pdir = DIR_SOUTH;
 }
 
 void IslandGame::updateSim( float dtFixed )
@@ -97,7 +98,7 @@ void IslandGame::redraw( )
 	//		   ppos.x, ppos.y, ppos.z,
 	//		   0.0, 1.0, 0.0 );	
 	glRotatef( _TV(29.7f), 1.0, 0.0, 0.0 );
-	glTranslatef( _TV(0), _TV(-5), _TV(-6) );
+	glTranslatef( _TV(0), _TV(-6), _TV(-8) );
 	glRotatef( _TV(45.0f), 0.0, 1.0, 0.0 );
 
 	glTranslatef( m_camPos.x * _TV(-1.0f), 
@@ -157,7 +158,7 @@ void IslandGame::redraw( )
 	glPushMatrix();	
 	glTranslatef( ppos.x, ppos.y, ppos.z );
 	glScalef( 0.4f, 0.4f, 0.4f );
-	glRotatef( -90.0, 0.0, 1.0, 0.0 );
+	glRotatef( getRotForDir(m_pdir), 0.0, 1.0, 0.0 );
 	glBindTexture( GL_TEXTURE_2D, m_playerTex );
 	glCallList( m_personMesh );
 	glPopMatrix();
@@ -303,14 +304,14 @@ void IslandGame::initGraphics( )
 		gfGetFontMetric( m_fntFontId, GF_FONT_NUMCHARS ) );					
 
 	// Load the player sprite
-	m_playerTex = loadTexture( "gamedata/npc_monk.png", 4 );
+	m_playerTex = loadTexture( "gamedata/npc_player.png", 4 );
 	m_personMesh = load_obj( "gamedata/person.obj");
 
 	// Load critters	
 	m_critterMesh = load_obj( "gamedata/hemi_critter.obj");
 
 	// Load the tiles
-	m_terrainTilesTexId  = loadTexture( "gamedata/crappytiles.png", 4 );
+	m_terrainTilesTexId  = loadTexture( "gamedata/tiles.png", 4 );
 
 	m_waterTexId  = loadTexture( "gamedata/water.png", 4 );
 
@@ -688,7 +689,17 @@ void IslandGame::buildSideQuad( int ii, int jj, int mi, int mj )
 	}
 	
 	const float tilesz = 1.0/16.0;
+
 	int side_terrain = 48;
+	int side_terrain2 = 64;
+
+	// use side_terrain based on which tiles
+	if (m_map[mi][mj].m_terrain >= 5*16)
+	{
+		side_terrain  = 5*16;
+		side_terrain2 = 6*16;
+	}
+
 	while (currElev > targElev )
 	{
 		// TODO: figure this out dynamically			
@@ -746,7 +757,7 @@ void IslandGame::buildSideQuad( int ii, int jj, int mi, int mj )
 		}
 
 		currElev -= 1.0;
-		side_terrain = 64;
+		side_terrain = side_terrain2;
 	}
 }
 
@@ -885,7 +896,22 @@ void IslandGame::move( int dx, int dy )
 			showHudText( npc->m_displayName, npc->m_speech );
 			return;
 		}
+	}
 
+	// Check if there's a critter there
+	for (int i=0; i < m_critters.size(); i++)
+	{
+		Critter *crit = m_critters[i];
+		if ((crit->m_x == nx) &&
+			(crit->m_y == ny))
+		{
+			// TODO: if friendly... else COMBAT! woo..
+
+			// can't move there		
+			FMOD::Channel *channel = 0;
+			m_fmod->playSound(FMOD_CHANNEL_FREE, sfx_wall, false, &channel );
+			return;
+		}
 	}
 
 	// Move there
@@ -981,6 +1007,13 @@ void IslandGame::updateCritters()
 				 (ny < 0) || (ny >= m_mapSizeY))
 			{
 				// nope, out of bounds				
+				continue;
+			}
+
+			// Is the player there?
+			if ((nx==m_px) && (ny == m_py))
+			{
+				// TODO: FIGHT!!
 				continue;
 			}
 

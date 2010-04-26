@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;C:\Toolkits\SDL-1.2.14\include&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\include&quot;;c:\projects\ld48jovoc\extern\tinyxml;c:\toolkits\fmod\api\inc"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;USE_TWEAKVAL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -118,7 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Toolkits\SDL-1.2.14&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\include&quot;;c:\projects\ld48jovoc\extern\tinyxml"
+				AdditionalIncludeDirectories="&quot;C:\Toolkits\SDL-1.2.14\include&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\include&quot;;c:\projects\ld48jovoc\extern\tinyxml;c:\toolkits\fmod\api\inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -137,9 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DevIL.lib ILU.lib ILUT.lib  SDL.lib SDLmain.lib opengl32.lib"
+				AdditionalDependencies="DevIL.lib ILU.lib ILUT.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib fmodex_vc.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;C:\Toolkits\SDL-1.2.14\lib&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Toolkits\SDL-1.2.14\lib&quot;;&quot;C:\Toolkits\Devil-SDK-1.6.7\lib&quot;;c:\toolkits\fmod\api\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"

@@ -117,6 +117,7 @@ public:
 
 	// Player
 	int m_px, m_py;
+	int m_pdir;
 	vec3f m_camPos, m_camTarg;
 	GLuint m_personMesh;
 	GLuint m_playerTex;

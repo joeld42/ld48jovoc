@@ -112,8 +112,8 @@ int main( int argc, char *argv[] )
 
 	game->initGraphics();
 
-	game->loadLevel( "gamedata/testlevel1.oel" );	
-	//game->loadLevel( "gamedata/university_big.oel" );	
+	//game->loadLevel( "gamedata/testlevel1.oel" );	
+	game->loadLevel( "gamedata/university.oel" );	
 
 	//=====[ Main loop ]======
 	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;
@@ -136,15 +136,19 @@ int main( int argc, char *argv[] )
 
 						case SDLK_UP:
 							game->move( 1, 0 );
+							game->m_pdir = DIR_WEST;
 							break;
 						case SDLK_DOWN:
 							game->move( -1, 0 );
+							game->m_pdir = DIR_EAST;
 							break;
 						case SDLK_LEFT:
 							game->move( 0, -1 );
+							game->m_pdir = DIR_NORTH;
 							break;
 						case SDLK_RIGHT:
 							game->move( 0, 1 );
+							game->m_pdir = DIR_SOUTH;
 							break;
 					}
 					break;

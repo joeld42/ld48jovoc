@@ -15,7 +15,7 @@
    
    <tilesets>
        <tileset name="elevation" image="elevation.png" tileWidth="16" tileHeight="16"/>
-       <tileset name="terrain" image="crappytiles.png" tileWidth="16" tileHeight="16"/>
+       <tileset name="terrain" image="tiles.png" tileWidth="16" tileHeight="16"/>
    </tilesets>
    
    <objects>

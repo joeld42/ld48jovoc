@@ -1,3 +1,5 @@
+#ifdef USE_TWEAKVAL
+
 #include <map>
 #include <vector>
 #include <string>
@@ -198,7 +200,7 @@ void ReloadChangedTweakableValues()
 		}
 	}
 }
-
+#endif
 
 //===================================================================
 // Example/test
