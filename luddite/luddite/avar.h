@@ -36,7 +36,7 @@ public:
     };
     
 
-    Avar( T val ) : 
+    Avar( T val = T() ) : 
         m_behavior( Avar_STEADY ),
         m_value( val ), 
         m_animValue( val ),
@@ -61,13 +61,13 @@ public:
     // Interp from current to target
     void animate( const T &targVal, float totalTime=1.0, InterpType interpType=Interp_SMOOTHSTEP )
     {
-        animate( m_animValue, targVal, totalTime, interpType );        
+        animate2( m_animValue, targVal, totalTime, interpType );        
     }
     
 
     // Interp from A to B
-    void animate( const T &a, const T &b,
-                  float totalTime=1.0, InterpType interpType=Interp_SMOOTHSTEP )
+    void animate2( const T &a, const T &b,
+                   float totalTime=1.0, InterpType interpType=Interp_SMOOTHSTEP )
     {
         m_behavior = Avar_INTERP;
         m_interpType = interpType;        

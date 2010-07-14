@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "jimgui.h"
+#include "gui.h"
 
 void Jgui_initContext( Jgui_UIContext *ctx )
 {
