@@ -43,7 +43,7 @@ void demo_init()
 void demo_redraw()
 {
     glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );    
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
 
@@ -160,7 +160,7 @@ int main( int argc, char *argv[] )
 		{
 			sim_ticks -= STEPTIME;						
 
-			//printf("update sim_ticks %d ticks_elapsed %d\n", sim_ticks, ticks_elapsed );						
+			//printf("update sim_ticks %d ticks_elapsed %d\n", sim_ticks, ticks_elapsed );
 			//game->updateSim( (float)STEPTIME / 1000.0f );			
 		}	
 
@@ -178,4 +178,6 @@ int main( int argc, char *argv[] )
 
     return 1;    
 }
+
+
 
