@@ -95,33 +95,48 @@ class LudditeWizard(object):
                             )
         self.stdscr.refresh()
 
+    def featuresMenu( self, targbox ):        
+
+        curry = 1
+        for f in FEATURES:
+
+            attr = curses.color_pair(1)
+            if (curry -1)==self.currFeature:
+                attr = attr | curses.A_REVERSE
+
+            targbox.addstr( curry, 4, "[X] "+f[1] + " "*(30-len(f[1])), 
+                            attr )
+            curry += 1
+
+        targbox.addstr( curry, 10, "[ DONE ] " )
+
+
 
     def run( self ):
-        
+
+        # Normal widgets
+        curses.init_pair( 1, curses.COLOR_WHITE, 
+                          curses.COLOR_BLUE )
+
         # Draw the form
         infobox = self.stdscr.derwin( 5, 40, 
                                       (self.winsz[0]/2)-10,
                                       (self.winsz[1]/2)-20 )
         infobox.border()
-        infobox.addstr( 0, 2, " Project Info " )
+        infobox.addstr( 0, 2, " Project Info ", curses.color_pair(1) )
 
         infobox.addstr( 1, 4, " Game Name : " )
         infobox.addstr( 2, 4, " Developer : " )
         infobox.addstr( 3, 4, "  Base Dir : " )
 
+        self.currFeature = -1
         targbox = self.stdscr.derwin( 3 + len(FEATURES), 40,
                                       (self.winsz[0]/2)-5,
                                       (self.winsz[1]/2)-20 )
         targbox.border()
         targbox.addstr( 0, 2, "Features" )
 
-        curry = 1
-        for f in FEATURES:
-            targbox.addstr( curry, 4, "[X] "+f[1] )
-            curry += 1
-
-        targbox.addstr( curry, 10, "[ DONE ] " )
-
+        self.featuresMenu ( targbox )
         self.stdscr.refresh()
 
         # Fill in project name
@@ -149,6 +164,12 @@ class LudditeWizard(object):
                 break
         
         # TODO: make checkboxes go
+        self.currFeature = 0
+        while True:
+            self.featuresMenu( targbox )
+            
+            cg = self.stdscr.getch()
+
 
 
 def gui_main( stdscr, proj ):
