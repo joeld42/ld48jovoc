@@ -57,6 +57,14 @@ public:
     // Access value .. todo more
 	operator T () const {  return m_value; }
 	T animValue() const { return m_animValue; }	
+	
+	// direct setter
+	T operator=( const T &val)
+	{
+		m_behavior = Avar_STEADY;
+		m_value = val;
+		m_animValue = val;
+	}
 
     // Interp from current to target
     void animate( const T &targVal, float totalTime=1.0, InterpType interpType=Interp_SMOOTHSTEP )
@@ -73,6 +81,8 @@ public:
         m_interpType = interpType;        
         m_currTime = 0.0;
         m_totTime = totalTime;
+		m_animValue = a;
+		m_value = a;
         m_aVal = a;
         m_bVal = b;
     }

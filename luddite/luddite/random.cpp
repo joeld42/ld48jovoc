@@ -1,17 +1,17 @@
 #include <stdlib.h>
 #include <math.h>
 
-float uniform()
+float randUniform()
 {
     return (float)rand() / (float)RAND_MAX;    
 }
 
-float uniform( float minVal, float maxVal )
+float randUniform( float minVal, float maxVal )
 {
-    return minVal + (uniform() * (maxVal-minVal));    
+    return minVal + (randUniform() * (maxVal-minVal));    
 }
 
-float normal()
+float randNormal()
 {
     static float y1, y2;
     
@@ -31,8 +31,8 @@ float normal()
 
         // reject points outside the unit circle
         do {
-            x1 = (2.0f * uniform()) - 1.0;
-            x2 = (2.0f * uniform()) - 1.0;
+            x1 = (2.0f * randUniform()) - 1.0;
+            x2 = (2.0f * randUniform()) - 1.0;
             w = x1*x1 + x2*x2;        
         } while (w >= 1.0 );
         
@@ -44,9 +44,9 @@ float normal()
     }
 }
 
-float normal( float mean, float stddev )
+float randNormal( float mean, float stddev )
 {
-    return (normal() * stddev) + mean;
+    return (randNormal() * stddev) + mean;
 }
 
 
