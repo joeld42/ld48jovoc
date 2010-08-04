@@ -1,23 +1,78 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-// Simplest possible resource manager -- pass in an (atomized) filename and a 
-// function that will load that file and it will load it if it hasn't already
-// been loaded.
-//
-// There's no free/release ... i might add one but generally resources seem to
-// stick around for the life of the app, at least in LD48 stuff. 
+#ifdef __GNUC__
+# include <ext/hash_map>
+namespace ns_ext = __gnu_cxx;
+#else
+# include <hash_map>
+namespace ns_ext = stdext;
+#endif
 
-// For resources addressed by a pointer
-typedef void* (*ResourcePtrFunc)(const char *);
-void *ResourcePtr_get( const char *atomized_name, 
-				   ResourcePtrFunc resfunc );
+#include <string>
+
+#include "handle.h"
+
+// The 'resource mgr' is built on top of the handle mgr and
+// provides on-demand loading and name-based lookup
+
+template <typename DATA, typename HANDLE, int BUCKET_SZ, int MIN_BUCKETS> 
+class ResourceMgr< DATA, HANDLE>
+{
+private:
+    typedef HandleMgr<DATA,HANDLE> HMgrType;
+    
+    struct ResourceHashTraits<HANDLE>
+    {
+        static const size_t bucket_size = BUCKET_SZ;
+        static const size_t min_buckets = MIN_BUCKETS;
+
+        // comparison operator
+        bool operator( const std::string &a, const std::string &b ) const
+        {
+            return ( ::stricmp( a.c_str(), b.c_str() ) < 0 );            
+        }
+
+        // hash operator
+        size_t operator()( const std::string &a ) const
+        {
+            return std::hash<const char*>( a.c_str() );            
+        }        
+    };
+    
+    typedef ns_ext::hash_map<std::string,HANDLE, ResourceHashTraits> ResourceHash;
+    typedef std::pair< ResourceHash::iterator, bool> NameIndexInsertRc;
+    
+    ResourceHash m_nameIndex;
+    
+public:
+    ResourceMgr() {}
+    ~ResourceMgr();
+    
+    // Gets a resource, loading it if needed
+    HANDLE getResource( const char *name );
+    void   release( HANDLE );
+    
+    
+
+};
+
+template <typename DATA, typename HANDLE, int BUCKET_SZ, int MIN_BUCKETS> 
+ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::~ResourceMgr
+{
+    // Release all of our resources
+    
+}
 
 
-// For resources addressed by a handle (i.e. GLuint)
-// for example, GL Textures
-typedef unsigned int (*ResourceFunc)(const char *);
-unsigned int Resource_get( const char *atomized_name, 
-						   ResourceFunc resfunc );
+template <typename DATA, typename HANDLE, int BUCKET_SZ, int MIN_BUCKETS> 
+HANDLE ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::getResource( const char *name )
+{
+    
+}
+
+
 
 #endif
+
+
