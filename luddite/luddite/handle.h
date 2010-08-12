@@ -107,8 +107,15 @@ public:
     DATA *acquire( HANDLE &handle );
     void release( HANDLE  handle );
 
-    void addref( HANDLE handle );
-    void decref( HANDLE handle );    
+    // reference counting 
+    void addrefCount( HANDLE handle );    
+
+    // this is a little unusual because the
+    // handle doesn't know how to free any resources owned by data
+    // other than the memory itself ... so it returns the data
+    // (which is still valid until the next call to acquire)
+    // if the caller needs to unload it. 
+    DATA* decrefCount( HANDLE handle ); 
 
     // deref
     DATA *deref( HANDLE handle );
@@ -134,26 +141,30 @@ DATA *HandleMgr< DATA, HANDLE>::acquire( HANDLE &handle )
     unsigned int index;
     if (m_freeSlots.empty() )
     {
+        // No free slots, grow the array
         index = m_magicNumbers.size();
+        
+        // Initialize the handle
         handle.init( index );
         m_userData.push_back( DATA() );
         m_magicNumbers.push_back( handle.getMagic() );
-        m_refCount.push_back( 1 );        
+        m_refCount.push_back( 0 ); // unreffed or not counting
     }
     else
     {
+        // Reuse a handle from the free list
         index = m_freeSlots.back();
         handle.init( index );
         m_freeSlots.pop_back();
         m_magicNumbers[ index ] = handle.getMagic();
-        m_refCount[ index ] = 1;        
+        m_refCount[ index ] = 0;        
     }
     
     return &(m_userData[index]);    
 }
 
 template <typename DATA, typename HANDLE>
-void HandleMgr<DATA, HANDLE>::addref( HANDLE handle )
+void HandleMgr<DATA, HANDLE>::addrefCount( HANDLE handle )
 {
     unsigned int index = handle.getIndex();
 
@@ -161,11 +172,11 @@ void HandleMgr<DATA, HANDLE>::addref( HANDLE handle )
     assert( index < m_userData.size() );
     assert( m_magicNumbers[ index ] == handle.getMagic() );
 
-    m_refCount[ index ] ++;    
+    m_refCount[ index ] ++;
 }
 
 template <typename DATA, typename HANDLE>
-void HandleMgr<DATA, HANDLE>::decref( HANDLE handle )
+DATA *HandleMgr<DATA, HANDLE>::decrefCount( HANDLE handle )
 {
     unsigned int index = handle.getIndex();
 
@@ -173,12 +184,21 @@ void HandleMgr<DATA, HANDLE>::decref( HANDLE handle )
     assert( index < m_userData.size() );
     assert( m_magicNumbers[ index ] == handle.getMagic() );
 
-    m_refCount[ index ]--;    
+    m_refCount[ index ]--;
+
+    // Is it no longer used
     if (m_refCount[index]==0)
     {
+        DATA *data = &(m_userData[index]);
         release( handle );
+        
+        // return data to the user to release any resources
+        // it owns
+        return data;
     }
-    
+
+    // Return NULL because the caller shouldn't delete anything
+    return NULL;    
 }
 
 
@@ -209,9 +229,11 @@ inline DATA *HandleMgr<DATA, HANDLE>::deref( HANDLE handle )
          ( m_magicNumbers[ index ] != handle.getMagic() ) )
     {
         // No good! invalid handle
-        assert( NULL );
+        assert( false );
         return NULL;        
     }
+
+    return &(m_userData[index]);    
 }
 
 template <typename DATA, typename HANDLE>

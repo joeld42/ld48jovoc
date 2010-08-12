@@ -58,12 +58,11 @@ private:
         // hash operator
         size_t operator()( const std::string &a ) const
         {
-            return ns_ext::hash<const char*>( a.c_str() );            
+            return ns_ext::hash<const char*>()( a.c_str() );            
         }        
     };
-    
-    typedef ns_ext::hash_map<std::string,HANDLE, ResourceHashTraits> ResourceHash;
-    //typedef std::pair< ResourceHash::iterator, bool> NameIndexInsertRc;    
+     
+   typedef ns_ext::hash_map<std::string,HANDLE, ResourceHashTraits> ResourceHash;
 
     HMgrType     m_resMgr;    
     ResourceHash m_nameIndex;
@@ -74,7 +73,7 @@ public:
     
     // Gets a resource, loading it if needed
     HANDLE getResource( const char *name );
-    void   release( HANDLE );
+    void   freeResource( HANDLE );
 };
 
 template <typename DATA, typename HANDLE, int BUCKET_SZ, int MIN_BUCKETS>
@@ -84,25 +83,83 @@ ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::~ResourceMgr()
     for ( typename ResourceHash::iterator ri = m_nameIndex.begin();
           ri != m_nameIndex.end(); ++ri )
     {
-        // TODO: delete
+        HANDLE hRes = (*ri).second;
+        if (!hRes.isNull())
+        {            
+            DATA *data = m_resMgr.deref( hRes );        
+
+            // If the res mgr is getting deleted, just nuke everything,
+            // don't worry about refcount
+            unloadResource( data );
+
+            // don't need to deallocate, handleMgr will do so            
+        }
+        
     }    
 }
-
-
 
 template <typename DATA, typename HANDLE, int BUCKET_SZ, int MIN_BUCKETS> 
 HANDLE ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::getResource( const char *name )
 {
+    HANDLE hRes;
     std::pair<typename ResourceHash::iterator, bool> rc = m_nameIndex.insert(
         std::make_pair( name, HANDLE() ) );
-    if (rc.second)
+
+    // If the handle is already in the map, retreive it
+    if (!rc.second)
     {
-        DATA *data = m_resMgr.aquire( rc.first->second );
-        printf("TODO: load %s\n", rc.first->first );
-        // TODO: error check
+        // Get the handle
+        hRes = rc.first->second;        
+    }
+    
+    // if the handle is NULL, either because this is something new or 
+    // previously deleted, aquire it's resource
+    if (hRes.isNull())
+    {    
+        DATA *data = m_resMgr.acquire( hRes );
+
+        // Load the resource
+        if (!loadResource( rc.first->first.c_str(), data ))
+        {
+            // todo: error check
+            printf("Warning: failed to load resource %s\n", rc.first->first.c_str() );
+        }
     }
 
-    return rc.first->second;    
+    // increment the ownership for this 
+    m_resMgr.addrefCount( hRes );    
+    
+    // return it
+    return hRes;    
+}
+
+template <typename DATA, typename HANDLE, int BUCKET_SZ, int MIN_BUCKETS> 
+void ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::freeResource( HANDLE hRes )
+{
+    // decref (and possibly unload) the refcount
+    DATA *data = m_resMgr.decrefCount( hRes );
+    
+    // Unload data if we need to
+    if (data) 
+    {
+        // Set it to a NULL handle in the resource index
+        // CBB: make constant time
+        for ( typename ResourceHash::iterator ni = m_nameIndex.begin();
+              ni != m_nameIndex.end(); ++ni )
+        {
+            // If this is our handle, set it to a null handle
+            if (ni->second == hRes)
+            {
+                ni->second = HANDLE();
+                break;                
+            }
+            
+        }
+        
+
+        // Unload any type-specific resources
+        unloadResource( data );
+    }    
 }
 
 
