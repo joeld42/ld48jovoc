@@ -1,10 +1,10 @@
 
 #include "font.h"
+using namespace Luddite;
 
-
-Font *makeFont_Digistrip_20( GLuint texId)
+Luddite::Font *makeFont_Digistrip_20( GLuint texId)
 {
-	Font *font = new Font( texId, 20);
+    Luddite::Font *font = new Luddite::Font( texId, 20);
 	
 	font->addGlyph(  33,   17, 10, 21,   0.355469, 0.816406, 0.394531, 0.898438 ); // '!'
 	font->addGlyph(  34,   18, 12, 12,   0.613281, 0.941406, 0.660156, 0.988281 ); // '"'
@@ -73,9 +73,9 @@ Font *makeFont_Digistrip_20( GLuint texId)
 }
 
 
-Font *makeFont_Digistrip_32( GLuint texId)
+Luddite::Font *makeFont_Digistrip_32( GLuint texId)
 {
-	Font *font = new Font( texId, 32);
+    Luddite::Font *font = new Luddite::Font( texId, 32);
 	
 	font->addGlyph(  33,   28, 13, 32,   0.000000, 0.699219, 0.050781, 0.824219 ); // '!'
 	font->addGlyph(  34,   28, 16, 15,   0.820312, 0.859375, 0.882812, 0.917969 ); // '"'

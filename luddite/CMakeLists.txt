@@ -9,16 +9,19 @@ SET( luddite_SRCS
      luddite/atom.cpp
      luddite/debug.cpp
      # luddite/debugtext.cpp
+     luddite/font.cpp
      # luddite/gamefontgl.cpp
      # luddite/gui.cpp
      # luddite/load_obj.cpp
      luddite/luddite.cpp
      # luddite/Md2Model.cpp
-     luddite/resource.cpp
      luddite/texture.cpp
-     # luddite/texture_dds.cpp
+     luddite/texture_dds.cpp
      # luddite/texture_png.cpp
      # luddite/tweakval.cpp
+     luddite/digistrip.cpp
+     luddite/stb_image.cpp
+     luddite/GLee.c
 
      example/luddite_demo.cpp
      )

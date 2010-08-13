@@ -8,14 +8,12 @@
 # include <crtdbg.h>
 #endif
 
-#include <GL/gl.h>
 #include "resource.h"
 #include "texture.h"
 
 // common utilities and stuff
-// TODO
 
-// resource shortcuts
-GLuint Texture_get( const char *filename );
+
 
 #endif
+

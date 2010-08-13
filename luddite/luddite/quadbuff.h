@@ -11,9 +11,17 @@
 #include <crtdbg.h>
 #endif
 
+// You'll probably have to mess with the GL includes
+// to get them right for your target, here.
+// TODO make a header that ifdef's this all away
 
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
+// Includes using GLee... should wrangle these myself
+// but am lazy
+#include "GLee.h"
+
+// includes for iOS
+//#import <OpenGLES/ES1/gl.h>
+//#import <OpenGLES/ES1/glext.h>
 
 //#include "debug.h"
 

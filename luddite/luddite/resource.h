@@ -12,6 +12,7 @@ namespace ns_ext = stdext;
 #include <string>
 
 #include "handle.h"
+#include "debug.h"
 
 // The 'resource mgr' is built on top of the handle mgr and
 // provides on-demand loading and name-based lookup
@@ -64,6 +65,7 @@ private:
      
    typedef ns_ext::hash_map<std::string,HANDLE, ResourceHashTraits> ResourceHash;
 
+protected:
     HMgrType     m_resMgr;    
     ResourceHash m_nameIndex;
     
@@ -122,7 +124,8 @@ HANDLE ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::getResource( const char *
         if (!loadResource( rc.first->first.c_str(), data ))
         {
             // todo: error check
-            printf("Warning: failed to load resource %s\n", rc.first->first.c_str() );
+            DBG::warn("failed to load resource %s", rc.first->first.c_str() );
+            return HANDLE();            
         }
     }
 

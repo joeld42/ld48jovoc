@@ -12,7 +12,9 @@
 
 #include "font.h"
 
-Font::Font( GLuint texId, int fontSz ) :
+using namespace Luddite;
+
+Luddite::Font::Font( GLuint texId, int fontSz ) :
 	QuadBuff<FontVert>( 0, true, GL_DYNAMIC_DRAW ),
 	m_texId( texId ),
 	m_fontSz( fontSz ),
@@ -20,7 +22,7 @@ Font::Font( GLuint texId, int fontSz ) :
 {
 	memset( m_glyphs, 0, sizeof(m_glyphs));
 }
-void Font::addGlyph( char ch,
+void Luddite::Font::addGlyph( char ch,
 			  int baseline,
 			  int w, int h,
 			  
@@ -39,7 +41,7 @@ void Font::addGlyph( char ch,
 	g.s1 = s1; g.t1 = t1;
 }
 
-void Font::setColor( float r, float g, float b, float a )
+void Luddite::Font::setColor( float r, float g, float b, float a )
 {
 	colorR = r;
 	colorG = g;
@@ -47,12 +49,12 @@ void Font::setColor( float r, float g, float b, float a )
 	colorA = a;
 }
 
-void Font::drawString( const char *s )
+void Luddite::Font::drawString( const char *s )
 {
 	drawString( 0.0, 0.0, s );
 }
 
-void Font::drawString( float orig_x, float curr_y, const char *s )
+void Luddite::Font::drawString( float orig_x, float curr_y, const char *s )
 {
 	float curr_x = orig_x;
 	const char *ch;	
@@ -74,7 +76,7 @@ void Font::drawString( float orig_x, float curr_y, const char *s )
 				//get baseline
 				bl = curr_y - (g.h - g.baseline);
 				
-				_drawGlyph( g, curr_x, bl );
+				_drawGlyph( g, (int)curr_x, (int)bl );
 				
 				//glTexCoord2f( g.xpos, g.ypos + g.height );
 				//glVertex2f( curr_x, bl );
@@ -92,7 +94,7 @@ void Font::drawString( float orig_x, float curr_y, const char *s )
 	}
 }
 
-float Font::calcWidth( const char *s )
+float Luddite::Font::calcWidth( const char *s )
 {
 	float curr_w = 0;
 	float max_w = 0;
@@ -120,13 +122,13 @@ float Font::calcWidth( const char *s )
 	return max_w;
 }
 
-void Font::drawStringCentered( float x, float y, const char *s )
+void Luddite::Font::drawStringCentered( float x, float y, const char *s )
 {
 	float w = calcWidth( s );
 	drawString( x - (w/2), y, s );
 }
 
-void Font::_drawGlyph( const Glyph &g, int x, int y )
+void Luddite::Font::_drawGlyph( const Glyph &g, int x, int y )
 {
 	// Get next vert
 	FontVert *newVert;
@@ -166,7 +168,7 @@ void Font::_drawGlyph( const Glyph &g, int x, int y )
 
 
 // Draw all the sprites in this buff
-void Font::renderAll()
+void Luddite::Font::renderAll()
 {
 	glBindTexture( GL_TEXTURE_2D, m_texId );
 	

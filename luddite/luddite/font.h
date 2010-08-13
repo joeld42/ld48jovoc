@@ -11,6 +11,9 @@
 
 #include "quadbuff.h"
 
+namespace Luddite
+{
+
 struct FontVert
 {
 	GLfloat pos[2];
@@ -24,6 +27,7 @@ public:
 	Font( GLuint texId, int fontSz );
 	
 	// Draw a text string
+    // TODO: merge drawStringFmt from glgamefont
 	void drawString( float x, float y, const char *s );
 	void drawStringCentered( float x, float y, const char *s );
 	
@@ -67,14 +71,16 @@ private:
 	float colorR, colorG, colorB, colorA;
 };
 
+} // namepace
+
+
 // The generated font data
-Font *makeFont_Digistrip_20( GLuint texId );
-Font *makeFont_Digistrip_32( GLuint texId );
+Luddite::Font *makeFont_Digistrip_20( GLuint texId );
+Luddite::Font *makeFont_Digistrip_32( GLuint texId );
 
 
-Font *makeFont_Bookman_12( GLuint texId);
-Font *makeFont_Bookman_24( GLuint texId);
-Font *makeFont_Bookman_38( GLuint texId);
-
+Luddite::Font *makeFont_Bookman_12( GLuint texId);
+Luddite::Font *makeFont_Bookman_24( GLuint texId);
+Luddite::Font *makeFont_Bookman_38( GLuint texId);
 
 #endif

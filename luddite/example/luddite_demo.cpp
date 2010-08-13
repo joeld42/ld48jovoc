@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <stdlib.h>
 #include <string>
 
 #ifdef WIN32
@@ -9,17 +9,24 @@
 # include <crtdbg.h>
 #endif
 
-#include <SDL.h>
-#include <SDL_endian.h>
-
+#include <luddite/GLee.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 
 // Luddite tools
+#include <luddite/luddite.h>
 #include <luddite/debug.h>
 #include <luddite/atom.h>
-#include <luddite/resource.h>
-#include <luddite/luddite.h>
+#include <luddite/texture.h>
+#include <luddite/font.h>
+
+#include <SDL.h>
+#include <SDL_endian.h>
+
+
+
+// Stupid X11 uses 'Font' too
+using namespace Luddite;
 
 // 30 ticks per sim frame
 #define STEPTIME (33)
@@ -29,14 +36,36 @@
 #endif
 
 // ===========================================================================
-// Global resources 
-GLuint g_demoFontTexture;
+// Global resources
+TextureDB g_texDB;
+
+HTexture hFontTexture;
+
+// Could use a HandleMgr and HFont for fonts too, but since there will
+// be just one just do directly
+Luddite::Font *g_font20 = NULL;
+Luddite::Font *g_font32 = NULL;
 
 // ===========================================================================
 void demo_init()
 {
-    DBG::info( "Demo init" );    
-    g_demoFontTexture = Texture_get( Atom_string("gamedata/demofont.png") );
+    DBG::info( "Demo init\n" );    
+    hFontTexture = g_texDB.getTexture("gamedata/digistrip.png") ;
+
+    GLuint texId = g_texDB.getTextureId( hFontTexture );
+    g_font20 = ::makeFont_Digistrip_20( texId );
+    g_font32 = ::makeFont_Digistrip_32( texId );
+}
+
+// ===========================================================================
+void demo_shutdown()
+{
+    DBG::info( "Demo shutdown\n" );
+    
+    g_texDB.freeTexture( hFontTexture );    
+
+    delete g_font20;
+    delete g_font32;    
 }
 
 // ===========================================================================
@@ -44,6 +73,28 @@ void demo_redraw()
 {
     glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    // set up camera
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();    
+    glOrtho( 0, 800, 0, 600, -1.0, 1.0 );
+
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();    
+
+    // do text
+    glEnable( GL_BLEND );
+    glEnable( GL_TEXTURE_2D );
+
+    g_font32->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
+    g_font32->drawString( 100, 100, "HELLO" );    
+
+    // actually draw the text
+    g_font20->renderAll();
+    g_font32->renderAll();
+
+    g_font32->clear();
+    g_font20->clear();    
 }
 
 
@@ -107,7 +158,10 @@ int main( int argc, char *argv[] )
 
     // Initialize resources
     demo_init();    
+    atexit( demo_shutdown );  
 
+    // init graphics
+    glViewport( 0, 0, 800, 600 );    
 
 	//=====[ Main loop ]======
 	bool done = false;
