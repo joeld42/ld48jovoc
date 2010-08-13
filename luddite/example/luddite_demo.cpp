@@ -19,6 +19,7 @@
 #include <luddite/atom.h>
 #include <luddite/texture.h>
 #include <luddite/font.h>
+#include <luddite/avar.h>
 
 #include <SDL.h>
 #include <SDL_endian.h>
@@ -46,6 +47,9 @@ HTexture hFontTexture;
 Luddite::Font *g_font20 = NULL;
 Luddite::Font *g_font32 = NULL;
 
+USE_AVAR( float );
+AnimFloat g_textX;
+
 // ===========================================================================
 void demo_init()
 {
@@ -55,7 +59,26 @@ void demo_init()
     GLuint texId = g_texDB.getTextureId( hFontTexture );
     g_font20 = ::makeFont_Digistrip_20( texId );
     g_font32 = ::makeFont_Digistrip_32( texId );
+
+    // set up the pulse Avar
+    g_textX.pulse( 0, 800 - g_font32->calcWidth( "HELLO" ), 10.0, 0.0 );    
 }
+
+// ===========================================================================
+// update on a fixed sim step, do any updates that may even remotely
+// effect gameplay here
+void demo_updateSim( float dtFixed )
+{
+    // Updates all avars
+    AnimFloat::updateAvars( dtFixed );    
+}
+
+// Free running update, useful for stuff like particles or something
+void demo_updateFree( float dt )
+{
+    // do nothing...
+}
+
 
 // ===========================================================================
 void demo_shutdown()
@@ -85,9 +108,10 @@ void demo_redraw()
     // do text
     glEnable( GL_BLEND );
     glEnable( GL_TEXTURE_2D );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );    
 
     g_font32->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
-    g_font32->drawString( 100, 100, "HELLO" );    
+    g_font32->drawString( g_textX.animValue(), 300, "HELLO" );    
 
     // actually draw the text
     g_font20->renderAll();
@@ -215,13 +239,13 @@ int main( int argc, char *argv[] )
 			sim_ticks -= STEPTIME;						
 
 			//printf("update sim_ticks %d ticks_elapsed %d\n", sim_ticks, ticks_elapsed );
-			//game->updateSim( (float)STEPTIME / 1000.0f );			
+			demo_updateSim( (float)STEPTIME / 1000.0f );			
 		}	
 
 		// redraw as fast as possible		
 		float dtRaw = (float)(ticks_elapsed) / 1000.0f;
 				
-		//game->update( dtRaw ); 
+		demo_updateFree( dtRaw ); 
         demo_redraw();        
 
 		SDL_GL_SwapBuffers();
