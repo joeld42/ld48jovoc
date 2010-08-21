@@ -21,8 +21,10 @@ public:
 
 	// enemy movement
 	virtual void movement( IronAndAlchemyGame *game, float dtFixed );
+	virtual void collideWorld( IronAndAlchemyGame *game );
 
 	Physics *m_physics;
+	int m_walkDir;
 };
 
 #endif

@@ -2,7 +2,11 @@
 #include "entity.h"
 #include "physics.h"
 
-Enemy::Enemy( Entity *owner ) : Behavior( owner )
+#include <luddite/debug.h>
+#include <luddite/tweakval.h>
+
+Enemy::Enemy( Entity *owner ) : Behavior( owner ),
+	m_walkDir( -1 )
 {
 	addTag( "movement" );
 	addTag( "enemy" );
@@ -15,5 +19,18 @@ Enemy::Enemy( Entity *owner ) : Behavior( owner )
 // enemy movement
 void Enemy::movement( IronAndAlchemyGame *game, float dtFixed )
 {
-	// todo
+	Sprite &spr = (*m_owner->m_sprite);
+
+	// walk if we are on the ground
+	if (game->onGround( m_physics->x, m_physics->y ))
+	{
+		// apply enemy impulse force
+		m_physics->ix = m_walkDir * _TV( 50 );		
+	}	
+}
+
+void Enemy::collideWorld( IronAndAlchemyGame *game )
+{
+	// bumped into something ... walk the other way
+	m_walkDir = -m_walkDir;
 }

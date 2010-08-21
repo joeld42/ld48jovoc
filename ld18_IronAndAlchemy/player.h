@@ -13,8 +13,9 @@ public:
 	Player( Entity *m_owner );
 	
 	virtual void movement( IronAndAlchemyGame *game, float dtFixed );
+	virtual void collideWorld( IronAndAlchemyGame *game );
 
-	void jump();
+	void jump( IronAndAlchemyGame *game );
 
 	// movment impulse
 	float ix, iy; // not sure if iy is useful

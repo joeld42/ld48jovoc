@@ -53,7 +53,8 @@ public:
 	Entity *makeEnemy( EnemyType type, float x, float y );
 
 	// world stuff
-	bool onGround( float x, float y );
+	bool onGround( float x, float y );	
+	bool collideWorld( Sprite *spr );
 
 	// Font used for game
 	Luddite::Font *m_font20;

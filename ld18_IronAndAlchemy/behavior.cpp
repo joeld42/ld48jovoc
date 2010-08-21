@@ -33,3 +33,8 @@ void Behavior::movement( IronAndAlchemyGame *game, float dtFixed )
 {
 	// do nothing..
 }
+
+void Behavior::collideWorld( IronAndAlchemyGame *game )
+{
+	// do nothing
+}

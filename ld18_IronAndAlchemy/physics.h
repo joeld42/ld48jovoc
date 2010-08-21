@@ -12,6 +12,9 @@ public:
 	// Override to change the entity's movment
 	virtual void movement( IronAndAlchemyGame *game, float dtFixed );
 
+	// check collide with map, return true if hit something
+	bool checkCollideMap( IronAndAlchemyGame *game );
+
 	// physics properties
 
 	// y is ground-y not center y like for sprites

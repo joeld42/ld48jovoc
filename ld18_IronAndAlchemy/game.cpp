@@ -92,6 +92,14 @@ bool IronAndAlchemyGame::onGround( float x, float y )
 	return false;
 }
 
+bool IronAndAlchemyGame::collideWorld( Sprite *spr )
+{
+	// TODO: actual world
+	if ((spr->x < 8) || (spr->x > 232)) return true;
+	return false;
+
+}
+
 Entity *IronAndAlchemyGame::makeEnemy( EnemyType type, float x, float y )
 {
 	// Make a sprite
@@ -175,7 +183,7 @@ void IronAndAlchemyGame::buttonPressed( unsigned int btn )
 	switch (btn)
 	{
 		case BTN_JUMP:
-			m_playerCtl->jump();
+			m_playerCtl->jump( this );
 			break;
 
 		case BTN_FIRE:

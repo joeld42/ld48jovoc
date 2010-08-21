@@ -19,6 +19,9 @@ public:
 	// Override to change the entity's movment
 	virtual void movement( IronAndAlchemyGame *game, float dtFixed );
 
+	// notify that we hit something
+	virtual void collideWorld( IronAndAlchemyGame *game );
+
 	//protected:
 
 	// NOTE: tags must be atomized
