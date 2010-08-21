@@ -153,10 +153,15 @@ int main( int argc, char *argv[] )
 						case SDLK_ESCAPE:
 							done = true;
 							break;
-					}
 
-					// let the game handle it
-					//game->keypress( event.key );
+						case SDLK_z:
+							game->buttonPressed( BTN_JUMP );
+							break;
+
+						case SDLK_x:
+							game->buttonPressed( BTN_FIRE );
+							break;
+					}
 					break;
 
 				case SDL_MOUSEMOTION:					

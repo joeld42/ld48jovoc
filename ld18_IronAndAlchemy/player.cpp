@@ -20,7 +20,14 @@ void Player::movement( IronAndAlchemyGame *game, float dtFixed )
 {
 	Sprite &spr = (*m_owner->m_sprite);	
 
-	// apply player impulse forcewww
-	m_physics->fx = ix * _TV( 300 );
+	// apply player impulse force
+	m_physics->ix = ix * _TV( 200 );
 	
+}
+
+void Player::jump()
+{
+	// add some instant velocity
+	// TODO: check if they are on the ground
+	m_physics->vy += _TV( 150 );
 }

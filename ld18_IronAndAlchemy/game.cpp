@@ -4,7 +4,7 @@
 
 #include <luddite/resource.h>
 #include <luddite/texture.h>
-
+#include <luddite/random.h>
 
 
 //#include <luddite/foreach.h>
@@ -31,9 +31,9 @@ void IronAndAlchemyGame::initResources()
 	m_sbPlayer = makeSpriteBuff( "gamedata/player_bad.png") ;
 	
 	Sprite *spr = m_sbPlayer->makeSprite( 0.0, 0.0, 0.25, 0.5 );
-    spr->sx = 32; spr->sy = 32;
-	spr->x = 240;
-	spr->y = 160;
+    spr->sx = 16; spr->sy = 16;
+	spr->x = 120;
+	spr->y = 80;
 	spr->update();
 
 	// Create the player
@@ -43,6 +43,9 @@ void IronAndAlchemyGame::initResources()
 	m_player->addBehavior( m_playerCtl );
 
 	m_entities.push_back( m_player );
+
+	// Init enemies
+	m_sbEnemies = makeSpriteBuff( "gamedata/enemies_bad.png");
 }
 
 void IronAndAlchemyGame::freeResources()
@@ -82,6 +85,33 @@ void IronAndAlchemyGame::updateFree( float dt )
 {
 }
 
+bool IronAndAlchemyGame::onGround( float x, float y )
+{
+	// TODO: do real
+	if (y < 9) return true;
+	return false;
+}
+
+Entity *IronAndAlchemyGame::makeEnemy( EnemyType type, float x, float y )
+{
+	// Make a sprite
+	Sprite *spr = m_sbEnemies->makeSprite( 0.0, 0.0, 1.0, 1.0 ); // fixme
+    spr->sx = 16; spr->sy = 16;
+	spr->x = x; spr->y = y;
+	spr->update();
+
+	// Create the enemy entity
+	Entity *ent = new Entity( spr );
+	ent->addBehavior( new Physics( ent ) );
+	Enemy *beh_enemy = new Enemy( ent );
+	ent->addBehavior( beh_enemy );
+
+	// add to our entities list
+	m_entities.push_back( ent );
+
+	return ent;
+}
+
 void IronAndAlchemyGame::render()
 {
     glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
@@ -90,7 +120,7 @@ void IronAndAlchemyGame::render()
     // set up camera
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();    
-    glOrtho( 0, 480, 0, 320, -1.0, 1.0 );
+    glOrtho( 0, 240, 0, 160, -1.0, 1.0 );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();    
@@ -101,7 +131,7 @@ void IronAndAlchemyGame::render()
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );    
 
     m_font32->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
-    m_font32->drawString( 10, 250, "HELLO" );    
+    m_font32->drawString( 10, 100, "HELLO" );    
 
 	// draw the sprites
 	foreach( std::list<SpriteBuff*>, sbi, m_spriteBuffs )
@@ -120,6 +150,7 @@ void IronAndAlchemyGame::render()
 
 void IronAndAlchemyGame::updateButtons( unsigned int btnMask )
 {
+	// Movment buttons
 	if ((btnMask & BTN_LEFT) && (!(btnMask & BTN_RIGHT)) )
 	{
 		m_playerCtl->ix = -1;
@@ -132,9 +163,27 @@ void IronAndAlchemyGame::updateButtons( unsigned int btnMask )
 	{
 		m_playerCtl->ix = 0;
 	}
+
+	// other buttons
+	m_playerCtl->m_jumpPressed = ((bool)(btnMask & BTN_JUMP));
+	m_playerCtl->m_firePressed = ((bool)(btnMask & BTN_FIRE));
 }
 	
 // key "events"
 void IronAndAlchemyGame::buttonPressed( unsigned int btn )
 {
+	switch (btn)
+	{
+		case BTN_JUMP:
+			m_playerCtl->jump();
+			break;
+
+		case BTN_FIRE:
+			// todo
+			// TMP for testing
+			{
+				Entity *baddy = makeEnemy( Enemy_REDBUG, randUniform( 10, 100 ), randUniform( 30, 50 ) );
+			}
+			break;
+	}
 }

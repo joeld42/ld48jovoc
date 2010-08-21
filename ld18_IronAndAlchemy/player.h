@@ -14,9 +14,15 @@ public:
 	
 	virtual void movement( IronAndAlchemyGame *game, float dtFixed );
 
+	void jump();
+
 	// movment impulse
 	float ix, iy; // not sure if iy is useful
 	Physics *m_physics; // to interfere with the physics
+
+	// buttons
+	bool m_jumpPressed;
+	bool m_firePressed;
 };
 
 #endif

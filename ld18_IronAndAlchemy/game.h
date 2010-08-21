@@ -6,12 +6,14 @@
 #include "entity.h"
 #include "behavior.h"
 #include "player.h"
+#include "enemy.h"
 
 // game resources
 #include <luddite/singleton.h>
 #include <luddite/texture.h>
 #include <luddite/resource.h>
 #include <luddite/font.h>
+
 
 
 // 'controller' presses (multiple can be pressed)
@@ -47,6 +49,12 @@ public:
 	// Resources
 	//HTexture hFontTexture;
 
+	// Enemies stuff
+	Entity *makeEnemy( EnemyType type, float x, float y );
+
+	// world stuff
+	bool onGround( float x, float y );
+
 	// Font used for game
 	Luddite::Font *m_font20;
 	Luddite::Font *m_font32;
@@ -56,6 +64,8 @@ public:
 	std::list<SpriteBuff*> m_spriteBuffs;
 	SpriteBuff *makeSpriteBuff( const char *filename );
 	SpriteBuff *m_sbPlayer;
+	SpriteBuff *m_sbEnemies;
+
 
 	// tmp
 	//Sprite *m_playerSprite;

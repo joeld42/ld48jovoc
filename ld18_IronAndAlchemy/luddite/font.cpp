@@ -35,9 +35,6 @@ void Luddite::Font::addGlyph( char ch,
 	// Size in pixels
 	g.baseline = baseline;
 	g.w = w; g.h = h;
-
-	// HACK : scale 2x for pixely look
-	g.w *= 2; g.h *= 2;
 	
 	// Placement in texture space
 	g.s0 = s0; g.t0 = t0;

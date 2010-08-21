@@ -1,3 +1,5 @@
+#include <luddite/tweakval.h>
+
 #if TV_USE_TWEAKVAL && TV_HAS_COUNTER
 
 #include <map>
@@ -5,8 +7,6 @@
 #include <string>
 
 #include <sys/stat.h> 
-
-#include <tweakval.h>
 
 namespace tweakval
 {
