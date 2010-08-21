@@ -182,6 +182,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\behavior.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\luddite\debug.cpp"
 				>
 			</File>
@@ -190,7 +194,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\entity.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\luddite\font.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\game.cpp"
 				>
 			</File>
 			<File
@@ -207,6 +219,10 @@
 			</File>
 			<File
 				RelativePath="..\..\luddite\particle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\player.cpp"
 				>
 			</File>
 			<File
@@ -244,11 +260,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\behavior.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\luddite\debug.h"
 				>
 			</File>
 			<File
+				RelativePath="..\..\entity.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\luddite\font.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\game.h"
 				>
 			</File>
 			<File
@@ -265,6 +293,10 @@
 			</File>
 			<File
 				RelativePath="..\..\luddite\particle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\player.h"
 				>
 			</File>
 			<File

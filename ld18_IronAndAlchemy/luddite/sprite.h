@@ -2,7 +2,6 @@
 #define SPRITE_H
 /*
  *  sprite.h
- *  stillpond
  *
  *  Created by joeld on 7/10/10.
  *  Copyright 2010 Tapnik. All rights reserved.

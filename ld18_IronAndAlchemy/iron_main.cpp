@@ -24,7 +24,8 @@
 #include <SDL.h>
 #include <SDL_endian.h>
 
-
+// Game stuff
+#include "game.h"
 
 // Stupid X11 uses 'Font' too
 using namespace Luddite;
@@ -38,30 +39,25 @@ using namespace Luddite;
 
 // ===========================================================================
 // Global resources
-TextureDB g_texDB;
-
-HTexture hFontTexture;
-
-// Could use a HandleMgr and HFont for fonts too, but since there will
-// be just one just do directly
-Luddite::Font *g_font20 = NULL;
-Luddite::Font *g_font32 = NULL;
+IronAndAlchemyGame *game = NULL;
 
 USE_AVAR( float );
 AnimFloat g_textX;
 
+
+
 // ===========================================================================
 void demo_init()
 {
-    DBG::info( "Demo init\n" );    
-    hFontTexture = g_texDB.getTexture("gamedata/digistrip.png") ;
+    DBG::info( "main init\n" );    
 
-    GLuint texId = g_texDB.getTextureId( hFontTexture );
-    g_font20 = ::makeFont_Digistrip_20( texId );
-    g_font32 = ::makeFont_Digistrip_32( texId );
+	game = new IronAndAlchemyGame();
+	game->initResources();
+
+    
 
     // set up the pulse Avar
-    g_textX.pulse( 0, 800 - g_font32->calcWidth( "HELLO" ), 10.0, 0.0 );    
+	g_textX.pulse( 0, 480 - game->m_font32->calcWidth( "HELLO" ), 30.0, 0.0 );    
 }
 
 // ===========================================================================
@@ -71,12 +67,15 @@ void demo_updateSim( float dtFixed )
 {
     // Updates all avars
     AnimFloat::updateAvars( dtFixed );    
+
+	// update the game
+	game->updateSim( dtFixed );
 }
 
 // Free running update, useful for stuff like particles or something
 void demo_updateFree( float dt )
 {
-    // do nothing...
+    game->updateFree( dt );
 }
 
 
@@ -84,41 +83,15 @@ void demo_updateFree( float dt )
 void demo_shutdown()
 {
     DBG::info( "Demo shutdown\n" );
-    
-    g_texDB.freeTexture( hFontTexture );    
+    game->freeResources();
 
-    delete g_font20;
-    delete g_font32;    
+    
 }
 
 // ===========================================================================
 void demo_redraw()
 {
-    glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    // set up camera
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();    
-    glOrtho( 0, 800, 0, 600, -1.0, 1.0 );
-
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();    
-
-    // do text
-    glEnable( GL_BLEND );
-    glEnable( GL_TEXTURE_2D );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );    
-
-    g_font32->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
-    g_font32->drawString( g_textX.animValue(), 300, "HELLO" );    
-
-    // actually draw the text
-    g_font20->renderAll();
-    g_font32->renderAll();
-
-    g_font32->clear();
-    g_font20->clear();    
+	game->render();
 }
 
 
@@ -130,30 +103,13 @@ int main( int argc, char *argv[] )
 #ifdef WIN32
 #  ifndef NDEBUG
 	AllocConsole();
-	SetConsoleTitle( L"luddite demo CONSOLE" );
+	SetConsoleTitle( L"iron and alchemy CONSOLE" );
 	freopen("CONOUT$", "w", stdout );
 #  endif
 #endif
 
 	// Test debug stuff
-	DBG::info( "Test of dbg info. Hello %s\n", "world" );
-
-	// Test assert
-	char *cheese = "gorgonzola";
-	// cheese = NULL; // Uncomment this to see this in action
-	Assert( cheese != NULL, "Cheese is bad" );
-	AssertPtr( cheese ); // shorthand version to check for null-ptrs
-
-	// Test out atoms	
-	const char *atomA, *atomB;
-	char buff[25];
-	atomA = Atom_string( "blarg77" );
-	sprintf( buff, "blarg%d", 77 );
-	atomB = Atom_string( buff );
-	DBG::info("Atom A is %p (%s)\n", atomA, atomA );
-	DBG::info("Atom B is %p (%s)\n", atomB, atomB );
-	Assert( atomA == atomB, "string atoms don't match" );    
-	
+	//DBG::info( "Test of dbg info. Hello %s\n", "world" );
 
 	// Initialize SDL
 	if (SDL_Init( SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO ) < 0 ) 
@@ -162,30 +118,22 @@ int main( int argc, char *argv[] )
 		exit(1);
 	}
 
-	// cheezy check for fullscreen
+	// open a window
 	Uint32 mode_flags = SDL_OPENGL;
-	for (int i=1; i < argc; i++)
-	{
-		if (!_stricmp( argv[i], "-fullscreen"))
-		{
-			mode_flags |= SDL_FULLSCREEN;
-		}
-	}
-
-	if (SDL_SetVideoMode( 800, 600, 32, mode_flags ) == 0 ) 
+	if (SDL_SetVideoMode( 960, 640, 32, mode_flags ) == 0 ) 
 	{
 		DBG::error( "Unable to set video mode: %s\n", SDL_GetError() ) ;
 		exit(1);
 	}
 		
-	SDL_WM_SetCaption( "Iron and Alchemy", NULL );
+	SDL_WM_SetCaption( " =[+ Iron and Alchemy - LD18 jovoc +]=", NULL );
 
     // Initialize resources
     demo_init();    
     atexit( demo_shutdown );  
 
     // init graphics
-    glViewport( 0, 0, 800, 600 );    
+    glViewport( 0, 0, 960, 640 );    
 
 	//=====[ Main loop ]======
 	bool done = false;
