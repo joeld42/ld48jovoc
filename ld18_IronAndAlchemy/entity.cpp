@@ -21,7 +21,7 @@ Behavior *Entity::getBehaviorByTag( const char *tag )
 	for (std::list<Behavior*>::iterator bi = m_behaviors.begin();
 			bi != m_behaviors.end(); ++bi)
 	{
-		if ((*bi)->hasTag( tag ))
+		if ((*bi)->hasTag( atomizedTag ))
 		{
 			return (*bi);
 		}

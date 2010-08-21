@@ -1,7 +1,9 @@
 #include <luddite/atom.h>
+#include <luddite/debug.h>
 
 #include "behavior.h"
 #include "entity.h"
+
 
 Behavior::Behavior( Entity *owner ) :
 	m_owner( owner )
@@ -19,6 +21,8 @@ bool Behavior::hasTag( const char *tag )
 	for (std::list<const char *>::iterator tagi = m_tags.begin();
 		 tagi != m_tags.end(); ++tagi )
 	{
+		DBG::info("in hasTag, looking for %s (%p) checking %s (%p)\n", (*tagi), (*tagi), tag, tag );
+
 		// note: strings are atomized so we can compare directly
 		if ((*tagi)==tag) return true;
 	}

@@ -11,7 +11,7 @@ class Entity;
 class Behavior 
 {
 public:
-	Behavior( Entity *m_owner );
+	Behavior( Entity *owner );
 
 	void addTag( const char *tag );
 	bool hasTag( const char *tag );

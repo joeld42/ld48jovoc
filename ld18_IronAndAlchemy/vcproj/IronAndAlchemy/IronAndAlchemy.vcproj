@@ -222,6 +222,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\physics.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\player.cpp"
 				>
 			</File>
@@ -293,6 +297,10 @@
 			</File>
 			<File
 				RelativePath="..\..\luddite\particle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\physics.h"
 				>
 			</File>
 			<File

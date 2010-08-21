@@ -20,6 +20,7 @@
 #include <luddite/texture.h>
 #include <luddite/font.h>
 #include <luddite/avar.h>
+#include <luddite/tweakval.h>
 
 #include <SDL.h>
 #include <SDL_endian.h>
@@ -175,6 +176,20 @@ int main( int argc, char *argv[] )
 			}
 		}
 		
+		// Do continuous keys
+		Uint8 *keyState = SDL_GetKeyState( NULL );
+
+		// convert to btn mask
+		Uint32 btnMask = 0;
+		btnMask |= keyState[SDLK_LEFT]?BTN_LEFT:0;
+		btnMask |= keyState[SDLK_RIGHT]?BTN_RIGHT:0;
+		btnMask |= keyState[SDLK_UP]?BTN_UP:0;
+		btnMask |= keyState[SDLK_DOWN]?BTN_DOWN:0;
+
+		btnMask |= keyState[SDLK_z]?BTN_JUMP:0;
+		btnMask |= keyState[SDLK_x]?BTN_FIRE:0;
+
+		game->updateButtons( btnMask );
 		
 		// Timing
 		ticks_elapsed = SDL_GetTicks() - ticks;
@@ -198,7 +213,8 @@ int main( int argc, char *argv[] )
 
 		SDL_GL_SwapBuffers();
 
-        //ReloadChangedTweakableValues();        
+		// Arrrrr... ya
+        ReloadChangedTweakableValues();        
 	}
 
 

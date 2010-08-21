@@ -1,5 +1,6 @@
 #include "game.h"
 #include "player.h"
+#include "physics.h"
 
 #include <luddite/resource.h>
 #include <luddite/texture.h>
@@ -35,8 +36,11 @@ void IronAndAlchemyGame::initResources()
 	spr->y = 160;
 	spr->update();
 
+	// Create the player
 	m_player = new Entity( spr );
-	m_player->addBehavior( new Player( m_player ) );
+	m_player->addBehavior( new Physics( m_player ) );
+	m_playerCtl = new Player( m_player );
+	m_player->addBehavior( m_playerCtl );
 
 	m_entities.push_back( m_player );
 }
@@ -111,4 +115,26 @@ void IronAndAlchemyGame::render()
 
     m_font32->clear();
     m_font20->clear();    
+}
+
+
+void IronAndAlchemyGame::updateButtons( unsigned int btnMask )
+{
+	if ((btnMask & BTN_LEFT) && (!(btnMask & BTN_RIGHT)) )
+	{
+		m_playerCtl->ix = -1;
+	}
+	else if ((btnMask & BTN_RIGHT) && (!(btnMask & BTN_LEFT)) )
+	{
+		m_playerCtl->ix = 1;
+	}
+	else
+	{
+		m_playerCtl->ix = 0;
+	}
+}
+	
+// key "events"
+void IronAndAlchemyGame::buttonPressed( unsigned int btn )
+{
 }
