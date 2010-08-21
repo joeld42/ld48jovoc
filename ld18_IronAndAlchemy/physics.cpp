@@ -23,9 +23,6 @@ void Physics::movement( IronAndAlchemyGame *game, float dtFixed )
 {
 	Sprite &spr = (*m_owner->m_sprite);
 
-	DBG::info("---- in Physics::movement, x is %3.2f\n", x );
-	Assert( x >= 8.0, "collide check" );	
-
 	// check onground
 	if (!game->onGround( spr.x, spr.y ))
 	{
@@ -40,32 +37,20 @@ void Physics::movement( IronAndAlchemyGame *game, float dtFixed )
 	vx += fx * dtFixed;
 	vy += fy * dtFixed;
 
-	// Check for collisions with the world
-	DBG::info("Before X update:, x is %3.2f\n", x );
-
 	// update x first
 	x += (vx + ix) * dtFixed;
 	spr.x = x;
 
 	if (checkCollideMap(game) )
-	{	
-		DBG::info("ROLLBACK: player hit map, x is %3.2f oldX is %3.2f\n", x, oldX );
-
+	{
 		// roll back x
 		x = oldX;
 		spr.x = x;
-	}
-	else
-	{
-		DBG::info("no collision, x is %3.2f\n", x );
-	}
-	DBG::info("After:, x is %3.2f\n", x );
-	Assert( x >= 8.0, "collide check" );	
+	}	
 
 	// Now update y
 	y += (vy + iy) * dtFixed;
-
-	DBG::info("Before Y update:, x is %3.2f\n", x );
+	
 	// Check if we hit the ground
 	if (game->onGround(x, y))
 	{
@@ -84,9 +69,6 @@ void Physics::movement( IronAndAlchemyGame *game, float dtFixed )
 		y = oldY;
 		spr.y = y + 16;	
 	}	
-
-	DBG::info("After Y update, x is %3.2f\n", x );
-	Assert( x >= 8.0, "collide check" );
 
 	// apply update to sprite
 	spr.x = x;

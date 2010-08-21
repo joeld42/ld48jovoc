@@ -45,7 +45,54 @@ IronAndAlchemyGame *game = NULL;
 USE_AVAR( float );
 AnimFloat g_textX;
 
+// ===========================================================================
+// Error Checkings
+int checkForGLErrors( const char *s, const char * file, int line )
+ {
+    int errors = 0 ;
+    int counter = 0 ;
 
+    while ( counter < 1000 )
+    {
+      GLenum x = glGetError() ;
+
+      if ( x == GL_NO_ERROR )
+        return errors ;
+
+	  DBG::error( "%s:%d OpenGL error: %s [%08x]\n", s ? s : "", file, line, gluErrorString ( x ) ) ;
+      errors++ ;
+      counter++ ;
+    }
+	return 0;
+}
+
+void checkFBO()
+{
+	GLenum status = glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
+	if (status != GL_FRAMEBUFFER_COMPLETE_EXT )
+	{
+		const char *errStr;
+		switch (status)
+		{
+		case GL_FRAMEBUFFER_UNDEFINED: errStr = "GL_FRAMEBUFFER_UNDEFINED"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: errStr = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: errStr = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: errStr = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: errStr = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"; break;
+		case GL_FRAMEBUFFER_UNSUPPORTED: errStr = "GL_FRAMEBUFFER_UNSUPPORTED"; break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: errStr = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"; break;		
+		default: errStr = "UNKNOWN_ERROR"; break;
+		}
+		DBG::error( "Bad framebuffer status: [0x%08X] %s\n", status, errStr );
+	}
+	else
+	{
+		DBG::info( "glCheckFramebufferStatus good: GL_FRAMEBUFFER_COMPLETE" );
+	}
+}
+
+
+#define CHECKGL( msg ) checkForGLErrors( msg, __FILE__, __LINE__ );
 
 // ===========================================================================
 void demo_init()
@@ -134,7 +181,32 @@ int main( int argc, char *argv[] )
     atexit( demo_shutdown );  
 
     // init graphics
-    glViewport( 0, 0, 960, 640 );    
+	GLuint fboGame;    
+	
+	// check the unbound fbo
+	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
+	checkFBO( );
+	DBG::info( "doing fbo stuff\n" );
+
+	// easier than making one from scratch XD
+	TextureDB &texDB = TextureDB::singleton();
+	HTexture hFBOTex = texDB.getTexture( "gamedata/blank256.png" );
+	GLuint texIdFbo = texDB.getTextureId( hFBOTex );
+
+	// make a small framebuffer to draw the game into
+	glGenFramebuffersEXT( 1, &fboGame );
+	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, fboGame );
+	DBG::info( "fboGame is %d\n", fboGame );	
+
+	// attach a texture
+	glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+				GL_TEXTURE_2D, texIdFbo, 0 );
+
+	checkFBO( );
+	CHECKGL( "attach fbo" );
+
+	DBG::error( "error test" );
+
 
 	//=====[ Main loop ]======
 	bool done = false;
@@ -214,7 +286,36 @@ int main( int argc, char *argv[] )
 		float dtRaw = (float)(ticks_elapsed) / 1000.0f;
 				
 		demo_updateFree( dtRaw ); 
-        demo_redraw();        
+		
+		// draw into the offscreen framebuffer
+		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, fboGame );
+		glViewport( 0, 0, 240, 160 );
+        demo_redraw();
+
+		//glClearColor( 1.0f, 0.0f, 1.0f, 1.0f );    
+		//glClear( GL_COLOR_BUFFER_BIT );
+
+		
+		// now draw the offscreen buffer to the screen
+		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
+		glViewport( 0, 0, 960, 640 );
+
+		// set up camera
+		glMatrixMode( GL_PROJECTION );
+		glLoadIdentity();    
+		glOrtho( 0, 960, 0, 640, -1.0, 1.0 );
+
+		glMatrixMode( GL_MODELVIEW );
+		glLoadIdentity();    
+
+		glBindTexture( GL_TEXTURE_2D, texIdFbo );
+
+		glBegin( GL_QUADS );
+		glTexCoord2f( 0.0, 0.0f ); glVertex2f( 0.0f, 0.0f );
+		glTexCoord2f( 240.0/256.0, 0.0f ); glVertex2f( 960.0f, 0.0f );
+		glTexCoord2f( 240.0/256.0, 160.0/256.0 ); glVertex2f( 960.0f, 640.0f );
+		glTexCoord2f( 0.0, 160.0/256.0 ); glVertex2f( 0.0f, 640.0f );
+		glEnd();
 
 		SDL_GL_SwapBuffers();
 

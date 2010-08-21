@@ -123,7 +123,7 @@ Entity *IronAndAlchemyGame::makeEnemy( EnemyType type, float x, float y )
 void IronAndAlchemyGame::render()
 {
     glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glClear( GL_COLOR_BUFFER_BIT );
 
     // set up camera
     glMatrixMode( GL_PROJECTION );
