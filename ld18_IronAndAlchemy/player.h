@@ -19,11 +19,17 @@ public:
 
 	// movment impulse
 	float ix, iy; // not sure if iy is useful
-	Physics *m_physics; // to interfere with the physics
+	Physics *m_physics; // to interfere with the physics	
 
 	// buttons
 	bool m_jumpPressed;
 	bool m_firePressed;
+
+	// frame counter
+	int m_frameTimer;
+	int m_animFrame;
+	
+	bool m_faceLeft;
 };
 
 #endif

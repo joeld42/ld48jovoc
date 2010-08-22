@@ -30,13 +30,16 @@ void IronAndAlchemyGame::initResources()
     m_font32 = ::makeFont_Digistrip_32( texId );
 
 	// Init the sprite textures & sprites	
-	m_sbPlayer = makeSpriteBuff( "gamedata/player_bad.png") ;
+	m_sbPlayer = makeSpriteBuff( "gamedata/player.png") ;
 	
 	Sprite *spr = m_sbPlayer->makeSprite( 0.0, 0.0, 0.25, 0.5 );
     spr->sx = 16; spr->sy = 16;
 	spr->x = 120;
 	spr->y = 80;
 	spr->update();
+
+	// not dead
+	m_dieTimer = -1;
 
 	// Create the player
 	m_player = new Entity( spr );
@@ -51,7 +54,8 @@ void IronAndAlchemyGame::initResources()
 
 	// Start with the starting map
 	m_mapCurr = NULL;
-	loadOgmoFile( "gamedata/level_wide.oel" );
+	//loadOgmoFile( "gamedata/noc_test1.oel" );
+	loadOgmoFile( "gamedata/intro.oel" );
 }
 
 void IronAndAlchemyGame::freeResources()
@@ -81,11 +85,43 @@ void IronAndAlchemyGame::updateSim( float dtFixed )
 {
 	dbgPoints.clear();
 
-	// update entities
-	for (std::list<Entity*>::iterator ei = m_entities.begin();
-		ei != m_entities.end(); ++ei )
+	// update entities	
+	if (m_dieTimer == -1 )
 	{
-		(*ei)->updateSim( this, dtFixed );		
+		for (std::list<Entity*>::iterator ei = m_entities.begin();
+			ei != m_entities.end(); ++ei )
+		{
+			(*ei)->updateSim( this, dtFixed );		
+		}
+
+		// Check if the player hit a portal
+		for (std::vector<Portal>::iterator pi = m_portals.begin();
+				pi != m_portals.end(); ++pi )
+		{
+			if (m_player->m_sprite->testHit( (*pi).m_x, (*pi).m_y ))
+			{
+				DBG::info("Hit portal to map %s\n", (*pi).m_name.c_str() );
+				char buff[200];
+				sprintf( buff, "gamedata/%s.oel",  (*pi).m_name.c_str()  );
+				loadOgmoFile( buff );
+				break;
+			}
+		}
+	}
+
+	// are we dying
+	if (m_dieTimer > 0)
+	{
+		m_dieTimer--;
+	}
+	
+	// are we dead?
+	if (m_dieTimer==0)
+	{
+		// respawn
+		loadOgmoFile( m_currLevel.c_str(), true );
+
+		m_dieTimer = -1;
 	}
 }
 
@@ -186,7 +222,8 @@ Entity *IronAndAlchemyGame::makeEnemy( int type, float x, float y )
 
 void IronAndAlchemyGame::render()
 {
-    glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
+    //glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
+	glClearColor( m_bgR, m_bgG, m_bgB, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT );
 
     // set up camera
@@ -235,7 +272,11 @@ void IronAndAlchemyGame::render()
 	// draw the sprites
 	foreach( std::list<SpriteBuff*>, sbi, m_spriteBuffs )
 	{
-		(*sbi)->renderAll();
+		// render the sprites (unless it's the player and we're dead)
+		if ((m_dieTimer == -1) || ((*sbi) != m_sbPlayer))
+		{
+			(*sbi)->renderAll();
+		}
 	}
 
 	// draw the dbg points
@@ -302,8 +343,12 @@ void IronAndAlchemyGame::buttonPressed( unsigned int btn )
 }
 
 
-void IronAndAlchemyGame::loadOgmoFile( const char *filename )
+void IronAndAlchemyGame::loadOgmoFile( const char *filename, bool respawn )
 {
+	// remember the level
+	m_currLevel = filename;
+
+	// Load the level
 	TiXmlDocument *xmlDoc = new TiXmlDocument( filename );
 
 	// TODO: free old map
@@ -311,6 +356,28 @@ void IronAndAlchemyGame::loadOgmoFile( const char *filename )
 	{
 		delete m_mapCurr;
 	}
+
+	// clear entities
+	for (std::list<Entity*>::iterator ei = m_entities.begin(); 
+		 ei != m_entities.end(); ++ei )
+	{
+		// delete everything but the player
+		if ((*ei) != m_player)
+		{
+			delete (*ei);
+		}
+	}
+
+	// reset list to just the player
+	m_entities.clear();	
+
+	DBG::warn( "after delete, %d entities\n", m_entities.size() );
+
+	// put the player back
+	m_entities.push_back( m_player );
+
+	// clear portal list
+	m_portals.clear();
 
 	if (!xmlDoc->LoadFile() ) 
 	{
@@ -344,6 +411,14 @@ void IronAndAlchemyGame::loadOgmoFile( const char *filename )
 	xTag = xLevel->FirstChildElement( "height" );
 	xText = xTag->FirstChild();
 	mapSizeY = atoi( xText->Value() ) / 8;
+
+	// get bg color
+	int r, g, b;
+	const char *bgcolor = xLevel->Attribute( "bgcolor" );		
+	sscanf( bgcolor, "#%02X%02X%02X", &r, &g, &b );
+	m_bgR = (float)r / 255.0;
+	m_bgG = (float)g / 255.0;
+	m_bgB = (float)b / 255.0;
 
 	// Make the tilemap
 	DBG::info( "map size is %d x %d\n", mapSizeX, mapSizeY );
@@ -428,11 +503,21 @@ void IronAndAlchemyGame::loadOgmoFile( const char *filename )
 		if (!strcmp( actorStr, "pstart" ))
 		{
 			// Player Start
-			m_respawnX = x;
-			m_respawnY = y + 9;
+			if (!respawn)
+			{
+				m_respawnX = x;
+				m_respawnY = y + 9;
+			}
 
 			m_playerCtl->m_physics->x = m_respawnX;
-			m_playerCtl->m_physics->y = m_respawnY;
+			m_playerCtl->m_physics->y = m_respawnY;			
+		}
+		else if (!strcmp( actorStr, "portal" ))
+		{
+			y += (23-8);
+			x += 8;
+			DBG::info( "load portal: %d %d\n", x, y );
+			m_portals.push_back( Portal( xActor->Attribute("map"), x, y ) );
 		}
 		else
 		{
@@ -452,7 +537,13 @@ void IronAndAlchemyGame::loadOgmoFile( const char *filename )
 		
 
 		xActor = xActor->NextSiblingElement( );
-	}
+	}	
+}
 
-	
+void IronAndAlchemyGame::playerDie()
+{
+	// set dead soon
+	m_dieTimer = 100;
+
+	// TODO: cool particle effects
 }

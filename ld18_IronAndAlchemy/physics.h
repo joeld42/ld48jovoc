@@ -16,12 +16,15 @@ public:
 	bool checkCollideMap( IronAndAlchemyGame *game );
 
 	// physics properties
+	bool falling; // DON'T use for physics, for other stuff to look at only
 
 	// y is ground-y not center y like for sprites
 	float x,y, // position
 		vx, vy, // velocity
 		fx, fy, // forces
 		ix, iy; // impules (instant forces)
+
+
 };
 
 #endif

@@ -14,6 +14,7 @@ class Entity
 {
 public:
 	Entity( Sprite *spr );
+	virtual ~Entity();
 
 	void addBehavior( Behavior *beh );
 

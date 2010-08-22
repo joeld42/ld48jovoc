@@ -236,6 +236,12 @@ int main( int argc, char *argv[] )
 						case SDLK_x:
 							game->buttonPressed( BTN_FIRE );
 							break;
+
+						// DBG: test levels
+						case SDLK_1:
+							game->loadOgmoFile( "gamedata/test1.oel" );
+							break;
+
 					}
 					break;
 

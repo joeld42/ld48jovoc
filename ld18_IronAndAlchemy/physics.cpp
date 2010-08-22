@@ -17,12 +17,15 @@ Physics::Physics( Entity *owner ) :
 	vx = 0; vy = 0;
 	fx = 0; fy = 0;
 	ix = 0; iy = 0;
+
+	falling = false;
 }
 
 // model the entity's movment
 void Physics::movement( IronAndAlchemyGame *game, float dtFixed )
 {
 	Sprite &spr = (*m_owner->m_sprite);
+	falling = true;
 
 	// Apply gravity		
 	const float MAX_FALL = -500;
@@ -68,40 +71,12 @@ void Physics::movement( IronAndAlchemyGame *game, float dtFixed )
 		// roll back y and kill velocity				
 		vy = 0;
 		fy = 0;
-#if 0		
-		// step back from oldY to Y a pixel at a time
-		// until we collide
-		if (oldY > y)
-		{
-			for(float yVal = oldY; yVal >= y; yVal -= 0.5f)
-			{
-				spr.y = yVal + 8;
-				if (game->collideWorld( &spr ))
-				{
-					// back off
-					y = ceil(yVal + 1.0f);
-					spr.y = y + 8;
-					break;
-				}
-			}
-		}
-		else
-		{
-			for(float yVal = oldY; yVal <= y; yVal += 0.5f)
-			{
-				spr.y = yVal + 8;
-				if (game->collideWorld( &spr ))
-				{
-					// back off
-					y = ceil(yVal - 1.0f);
-					spr.y = y + 8;
-					break;
-				}
-			}
-		}
-#endif
+
 		y = oldY;
 		spr.y = y + 8;
+
+		// mark that we're standing
+		falling = false;
 	}	
 
 	// integrate y	

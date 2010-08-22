@@ -16,7 +16,8 @@ Tilemap::Tilemap( GLuint texId, int w, int h ) :
 
 Tilemap::~Tilemap()
 {
-	delete [] m_map;
+	// FIXME: leak map
+	//delete [] m_map;
 }
 
 void Tilemap::setSolid( int x, int y, bool solid )

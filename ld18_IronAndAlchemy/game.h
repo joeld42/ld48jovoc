@@ -40,6 +40,18 @@ struct DbgPoint
 	float r, g, b;
 };
 
+// links to another level
+class Portal
+{
+public:
+	Portal( const std::string &name, int x, int y ) :
+		m_name( name ), m_x(x), m_y(y )
+	{
+	}
+	std::string m_name;
+	int m_x, m_y;
+};
+
 class IronAndAlchemyGame 
 {	
 public:
@@ -69,6 +81,10 @@ public:
 	bool collideWorld( Sprite *spr );
 	bool _collideWorldPnt( int x, int y );
 
+	// player stuff
+	void playerDie();
+	int m_dieTimer; // -1 = alive, 0 = dead, >0 die soon
+
 	// Font used for game
 	Luddite::Font *m_font20;
 	Luddite::Font *m_font32;
@@ -84,13 +100,17 @@ public:
 	Tilemap *m_mapCurr;
 
 	// Levels
-	void loadOgmoFile( const char *filename );
+	void loadOgmoFile( const char *filename, bool respawn=false );
+	std::string m_currLevel;
+
+	std::vector<Portal> m_portals;
 
 	// Player stuff
 	Entity *m_player;
 	Player *m_playerCtl;
 
 	int m_respawnX, m_respawnY;
+	float m_bgR, m_bgG, m_bgB;
 
 	// DBG
 	std::vector<DbgPoint> dbgPoints;

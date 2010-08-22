@@ -9,6 +9,19 @@ Entity::Entity( Sprite *spr ) :
 {
 }
 
+Entity::~Entity()
+{
+	// delete our sprite
+	delete m_sprite;
+
+	// delete our behaviors
+	for (std::list<Behavior*>::iterator bi = m_behaviors.begin();
+			bi != m_behaviors.end(); ++bi)
+	{
+		delete (*bi);
+	}
+}
+
 void Entity::addBehavior( Behavior *beh )
 {
 	m_behaviors.push_back( beh );
@@ -45,3 +58,4 @@ void Entity::updateSim( IronAndAlchemyGame *game, float dtFixed )
 		m_sprite->update();
 	}
 }
+
