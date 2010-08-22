@@ -32,7 +32,10 @@
 using namespace Luddite;
 
 // 30 ticks per sim frame
-#define STEPTIME (33)
+//#define STEPTIME (33)
+
+// 100 ticks per sim frame
+#define STEPTIME (10)
 
 #ifndef WIN32
 #define _stricmp strcasecmp
@@ -291,10 +294,6 @@ int main( int argc, char *argv[] )
 		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, fboGame );
 		glViewport( 0, 0, 240, 160 );
         demo_redraw();
-
-		//glClearColor( 1.0f, 0.0f, 1.0f, 1.0f );    
-		//glClear( GL_COLOR_BUFFER_BIT );
-
 		
 		// now draw the offscreen buffer to the screen
 		glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );

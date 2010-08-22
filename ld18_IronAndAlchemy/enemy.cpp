@@ -22,15 +22,16 @@ void Enemy::movement( IronAndAlchemyGame *game, float dtFixed )
 	Sprite &spr = (*m_owner->m_sprite);
 
 	// walk if we are on the ground
-	if (game->onGround( m_physics->x, m_physics->y ))
-	{
+	//if (game->onGround( m_physics->x, m_physics->y ))
+	//{
 		// apply enemy impulse force
 		m_physics->ix = m_walkDir * _TV( 50 );		
-	}	
+	//}	
 }
 
 void Enemy::collideWorld( IronAndAlchemyGame *game )
 {
 	// bumped into something ... walk the other way
+	DBG::info("Bump!" );
 	m_walkDir = -m_walkDir;
 }

@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Projects\ld48jovoc\ld18_IronAndAlchemy;.;./luddite;&quot;C:\Toolkits\SDL-1.2.14\include&quot;"
+				AdditionalIncludeDirectories="C:\Projects\ld48jovoc\ld18_IronAndAlchemy;.;./luddite;&quot;C:\Toolkits\SDL-1.2.14\include&quot;;C:\Projects\ld48jovoc\extern\tinyxml"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -250,6 +250,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\tilemap.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\luddite\tweakval.cpp"
 				>
 			</File>
@@ -344,6 +348,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\tilemap.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\luddite\tweakval.h"
 				>
 			</File>
@@ -353,6 +361,34 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+		</Filter>
+		<Filter
+			Name="TinyXml"
+			>
+			<File
+				RelativePath="..\..\..\extern\tinyxml\tinystr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\extern\tinyxml\tinystr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\extern\tinyxml\tinyxml.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\extern\tinyxml\tinyxml.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\extern\tinyxml\tinyxmlerror.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\extern\tinyxml\tinyxmlparser.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

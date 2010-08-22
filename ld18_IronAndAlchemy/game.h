@@ -7,6 +7,7 @@
 #include "behavior.h"
 #include "player.h"
 #include "enemy.h"
+#include "tilemap.h"
 
 // game resources
 #include <luddite/singleton.h>
@@ -26,6 +27,17 @@ enum
 
 	BTN_JUMP = ( 1 << 4 ),
 	BTN_FIRE = ( 1 << 5 ),
+};
+
+struct DbgPoint 
+{	
+	DbgPoint( int _x=0, int _y=0, float _r=1.0, float _g=0.0, float _b=1.0 ) :
+		x( _x ), y(_y), r(_r), g(_g), b(_b)
+	{
+	}
+
+	int x,  y;
+	float r, g, b;
 };
 
 class IronAndAlchemyGame 
@@ -55,6 +67,7 @@ public:
 	// world stuff
 	bool onGround( float x, float y );	
 	bool collideWorld( Sprite *spr );
+	bool _collideWorldPnt( int x, int y );
 
 	// Font used for game
 	Luddite::Font *m_font20;
@@ -67,12 +80,14 @@ public:
 	SpriteBuff *m_sbPlayer;
 	SpriteBuff *m_sbEnemies;
 
+	// Tilemaps
+	Tilemap *m_mapCurr;
 
-	// tmp
-	//Sprite *m_playerSprite;
-	
 	Entity *m_player;
 	Player *m_playerCtl;
+
+	// DBG
+	std::vector<DbgPoint> dbgPoints;
 
 	std::list<Entity*> m_entities;
 };

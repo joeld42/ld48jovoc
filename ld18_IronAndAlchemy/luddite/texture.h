@@ -7,7 +7,7 @@
 # include <windows.h>
 # include <crtdbg.h>
 #endif
-
+#include <luddite/GLee.h>
 #include <GL/gl.h>
 
 #include <luddite/handle.h>

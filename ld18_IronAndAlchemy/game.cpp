@@ -46,6 +46,9 @@ void IronAndAlchemyGame::initResources()
 
 	// Init enemies
 	m_sbEnemies = makeSpriteBuff( "gamedata/enemies_bad.png");
+
+	// Start with the starting map
+	m_mapCurr = loadOgmoFile( "gamedata/level_pile2.oel" );
 }
 
 void IronAndAlchemyGame::freeResources()
@@ -73,6 +76,8 @@ SpriteBuff *IronAndAlchemyGame::makeSpriteBuff( const char *filename )
 
 void IronAndAlchemyGame::updateSim( float dtFixed )
 {
+	dbgPoints.clear();
+
 	// update entities
 	for (std::list<Entity*>::iterator ei = m_entities.begin();
 		ei != m_entities.end(); ++ei )
@@ -87,17 +92,66 @@ void IronAndAlchemyGame::updateFree( float dt )
 
 bool IronAndAlchemyGame::onGround( float x, float y )
 {
-	// TODO: do real
+#if 0
+	// TODO: do for real
+	int ix, iy;
+	ix = (int)x; 
+	iy = (int)y+1; // 1px below
+
+	if (m_mapCurr->solid( ix/8, iy/8 ))
+	{
+		return true;
+	}
+#endif
+
 	if (y < 9) return true;
 	return false;
 }
 
 bool IronAndAlchemyGame::collideWorld( Sprite *spr )
 {
-	// TODO: actual world
-	if ((spr->x < 8) || (spr->x > 232)) return true;
-	return false;
+	// TODO: use actual world
+	//if ((spr->x < 8) || (spr->x > 232)) return true;
+	//if (spr->y < 16) return true;
+	//return false;
 
+	int ix, iy; 
+	ix = (int)(spr->x); iy = (int)(spr->y );
+
+	if (_collideWorldPnt( ix, iy - (spr->sy/2)) )
+	{
+		return true;
+	}
+	else return false;
+
+#if 0
+	// cheat a bit, just check the corner pixels of the sprite
+	int ix, iy; 
+	ix = (int)(spr->x); iy = (int)(spr->y);
+
+	if (_collideWorldPnt( ix - (spr->sx/2), iy - (spr->sy/2)) ||
+		_collideWorldPnt( ix + (spr->sx/2), iy - (spr->sy/2)) ||
+		_collideWorldPnt( ix + (spr->sx/2), iy + (spr->sy/2) ) ||
+		_collideWorldPnt( ix - (spr->sx/2), iy + (spr->sy/2) ) )
+	{
+		return true;
+	}
+	else return false;
+#endif
+}
+
+bool IronAndAlchemyGame::_collideWorldPnt( int x, int y )
+{
+	// DBG
+	// ground is always solid
+	if (y < 0) return true;
+	if ((x < 0) || (x>=m_mapCurr->m_width * 8)) return true;
+	
+	// check against map
+	bool result = m_mapCurr->solid( x/8, y/8 );	
+	dbgPoints.push_back( DbgPoint(x, y, result?1.0:0.0, result?0.0:0.0, 0.0) );	
+
+	return result;
 }
 
 Entity *IronAndAlchemyGame::makeEnemy( EnemyType type, float x, float y )
@@ -133,19 +187,50 @@ void IronAndAlchemyGame::render()
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();    
 
+	// translate view
+	// TODO	
+
     // do text
     glEnable( GL_BLEND );
     glEnable( GL_TEXTURE_2D );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );    
 
-    m_font32->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
-    m_font32->drawString( 10, 100, "HELLO" );    
+	// draw the map
+	m_mapCurr->renderAll();
+
+#if 0
+	if ( onGround( m_playerCtl->m_physics->x,
+				   m_playerCtl->m_physics->y ) )
+	{
+		m_font20->setColor( 0.0f, 1.0f, 0.0f, 1.0f );    
+		m_font20->drawString( 10, 130, "Ground" );    
+	}
+	else
+	{
+		m_font20->setColor( 1.0f, 1.0f, 0.0f, 1.0f );    
+		m_font20->drawString( 10, 130, "NO GRND" );    
+	}
+#endif
 
 	// draw the sprites
 	foreach( std::list<SpriteBuff*>, sbi, m_spriteBuffs )
 	{
 		(*sbi)->renderAll();
 	}
+
+	// draw the dbg points
+	glDisable( GL_TEXTURE );
+	glDisable( GL_BLEND );
+	glBegin( GL_POINTS );
+	//DBG::info("%d debug points\n", dbgPoints.size() );
+	for (int i=0; i < dbgPoints.size(); i++)
+	{
+		DbgPoint &p = dbgPoints[i];
+		glColor3f( p.r, p.g, p.b );
+		glVertex3f( p.x, p.y, 0.01 );
+	}
+	glEnd();
+	glColor3f( 1.0, 1.0, 1.0 );
 
     // actually draw the text
     m_font20->renderAll();
@@ -190,7 +275,7 @@ void IronAndAlchemyGame::buttonPressed( unsigned int btn )
 			// todo
 			// TMP for testing
 			{
-				Entity *baddy = makeEnemy( Enemy_REDBUG, randUniform( 10, 100 ), randUniform( 30, 50 ) );
+				Entity *baddy = makeEnemy( Enemy_REDBUG, randUniform( 10, 200 ), 100 );
 			}
 			break;
 	}
