@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Projects\ld48jovoc\ld18_IronAndAlchemy;.;./luddite;&quot;C:\Toolkits\SDL-1.2.14\include&quot;;C:\Projects\ld48jovoc\extern\tinyxml"
+				AdditionalIncludeDirectories="C:\Projects\ld48jovoc\ld18_IronAndAlchemy;.;./luddite;&quot;C:\Toolkits\SDL-1.2.14\include&quot;;C:\Projects\ld48jovoc\extern\tinyxml;c:\toolkits\fmod\api\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,9 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDLmain.lib opengl32.lib glu32.lib"
+				AdditionalDependencies="SDL.lib SDLmain.lib opengl32.lib glu32.lib fmodex_vc.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;C:\Toolkits\SDL-1.2.14\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Toolkits\SDL-1.2.14\lib&quot;;c:\toolkits\fmod\api\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"

@@ -9,6 +9,9 @@
 #include <luddite/tweakval.h>
 #include <tinyxml.h>
 
+#include <fmod.h>
+#include <fmod_errors.h>
+
 //#include <luddite/foreach.h>
 //#define foreach BOOST_FOREACH
 #define foreach(type, it, L) \
@@ -18,6 +21,24 @@ using namespace Luddite;
 
 void IronAndAlchemyGame::initResources()
 {
+
+	// Init sounds
+	FMOD_RESULT res;
+	res = m_fmod->createSound(  "gamedata/health_big.wav", FMOD_HARDWARE, 0, &sfx_health_big );
+	res = m_fmod->createSound(  "gamedata/health_small.wav", FMOD_HARDWARE, 0, &sfx_health_small );
+	res = m_fmod->createSound(  "gamedata/jump.wav", FMOD_HARDWARE, 0, &sfx_jump );
+	res = m_fmod->createSound(  "gamedata/ouch.wav", FMOD_HARDWARE, 0, &sfx_ouch );
+	res = m_fmod->createSound(  "gamedata/pewpew.wav", FMOD_HARDWARE, 0, &sfx_pewpew );
+	res = m_fmod->createSound(  "gamedata/zap.wav", FMOD_HARDWARE, 0, &sfx_zap );
+
+	res = m_fmod->createStream( "gamedata/intro.mp3", 
+		FMOD_HARDWARE |FMOD_LOOP_NORMAL | FMOD_2D, 0, &m_musicIntro );
+
+	res = m_fmod->createStream( "gamedata/irongame.mp3", 
+		FMOD_HARDWARE |FMOD_LOOP_NORMAL | FMOD_2D, 0, &m_musicGame );
+
+	playingIntro = false;
+
 	// Init the texture db
 	TextureDB *db = new TextureDB();
 	TextureDB &texDB = TextureDB::singleton();
@@ -350,6 +371,41 @@ void IronAndAlchemyGame::loadOgmoFile( const char *filename, bool respawn )
 
 	// Load the level
 	TiXmlDocument *xmlDoc = new TiXmlDocument( filename );
+
+	// do we need to change music?
+	if ( !strcmp(filename, "gamedata/intro.oel" ))
+	{
+		// if already playing intro music, ignore
+		if (!playingIntro)
+		{
+			if (m_chanMusic)
+			{
+				m_chanMusic->stop();
+			}
+
+			m_fmod->playSound(FMOD_CHANNEL_FREE, 
+								m_musicIntro, false, 
+								   &m_chanMusic);
+			playingIntro = true;
+		}
+	}
+	else
+	{
+		// Play the game music if not already
+		if (playingIntro)
+		{
+			if (m_chanMusic)
+			{
+				m_chanMusic->stop();
+			}
+
+			m_fmod->playSound(FMOD_CHANNEL_FREE, 
+								m_musicGame, false, 
+								   &m_chanMusic);
+
+			playingIntro = false;
+		}
+	}
 
 	// TODO: free old map
 	if (m_mapCurr)

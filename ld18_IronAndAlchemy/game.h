@@ -15,6 +15,7 @@
 #include <luddite/resource.h>
 #include <luddite/font.h>
 
+#include <fmod.hpp>
 
 
 // 'controller' presses (multiple can be pressed)
@@ -111,6 +112,20 @@ public:
 
 	int m_respawnX, m_respawnY;
 	float m_bgR, m_bgG, m_bgB;
+
+	// Sound	
+	FMOD::System *m_fmod;
+	FMOD::Sound *sfx_health_small;
+	FMOD::Sound *sfx_health_big;
+	FMOD::Sound *sfx_pewpew;
+	FMOD::Sound *sfx_zap;
+	FMOD::Sound *sfx_ouch;
+	FMOD::Sound *sfx_jump;
+	
+	bool playingIntro;
+	FMOD::Channel *m_chanMusic;	
+	FMOD::Sound *m_musicIntro;
+	FMOD::Sound *m_musicGame;
 
 	// DBG
 	std::vector<DbgPoint> dbgPoints;

@@ -6,6 +6,8 @@
 #include "player.h"
 #include "physics.h"
 
+#include <fmod.h>
+
 Player::Player( Entity *owner ) :
 	Behavior( owner )
 {
@@ -108,6 +110,11 @@ void Player::movement( IronAndAlchemyGame *game, float dtFixed )
 			// take damage
 			// TODO
 
+			// Damage sfx
+			FMOD::Channel *channel = 0;
+			game->m_fmod->playSound(FMOD_CHANNEL_FREE, 
+						game->sfx_ouch, false, &channel );
+
 			// and die..
 			game->playerDie();				
 		}
@@ -120,6 +127,12 @@ void Player::jump( IronAndAlchemyGame *game )
 	// add some instant velocity
 	if (! m_physics->falling )
 	{		
+		// play jump sound
+		FMOD::Channel *channel = 0;
+		game->m_fmod->playSound(FMOD_CHANNEL_FREE, 
+						game->sfx_jump, false, &channel );
+
+		// add force
 		m_physics->vy += _TV( 175 );
 	}
 }

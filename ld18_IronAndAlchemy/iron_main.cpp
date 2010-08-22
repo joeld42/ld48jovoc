@@ -98,11 +98,12 @@ void checkFBO()
 #define CHECKGL( msg ) checkForGLErrors( msg, __FILE__, __LINE__ );
 
 // ===========================================================================
-void demo_init()
+void demo_init( FMOD::System *fmod )
 {
     DBG::info( "main init\n" );    
 
 	game = new IronAndAlchemyGame();
+	game->m_fmod = fmod;
 	game->initResources();
 
     
@@ -179,8 +180,19 @@ int main( int argc, char *argv[] )
 		
 	SDL_WM_SetCaption( " =[+ Iron and Alchemy - LD18 jovoc +]=", NULL );
 
+	// Init fmod
+	FMOD::System *fmod = NULL;
+	FMOD::System_Create( &fmod );
+	unsigned int version;
+	fmod->getVersion( &version );
+	DBG::info("FMOD version %d\n", version );
+	
+	FMOD_RESULT result = fmod->init(32, FMOD_INIT_NORMAL, 0);
+    //ERRCHECK(result);
+	DBG::info("FMOD init OK\n" );
+
     // Initialize resources
-    demo_init();    
+    demo_init( fmod );    
     atexit( demo_shutdown );  
 
     // init graphics
