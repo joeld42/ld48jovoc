@@ -1,0 +1,24 @@
+<project>
+   <name>Iron & Alchemy</name>
+   
+   
+   <settings>
+       <defaultWidth>240</defaultWidth>
+       <defaultHeight>160</defaultHeight>       
+   </settings>
+   
+   <values>      
+      <string name="tileset" default="bad" maxChars="50" />      
+   </values>
+   
+   <tilesets>       
+       <tileset name="terrain" image="gamedata/tiles_bad.png" tileWidth="8" tileHeight="8"/>
+   </tilesets>
+      
+   
+   <layers>
+        <grid name="floors" gridSize="8" exportAsObjects="true"/>
+        <tiles name="terrainTiles" gridSize="8" exportTileIDs="true"/>        
+   </layers>
+   
+</project>
