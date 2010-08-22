@@ -3,11 +3,13 @@
 
 #include "behavior.h"
 
-enum EnemyType
+enum
 {
-	Enemy_NIL = 0,
-
 	Enemy_REDBUG,
+	Enemy_GREENBUG,
+	Enemy_BLUEBUG,
+	Enemy_SNOUTY,
+	Enemy_SHOOTY,
 };
 
 class IronAndAlchemyGame;

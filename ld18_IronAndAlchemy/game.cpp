@@ -6,6 +6,8 @@
 #include <luddite/texture.h>
 #include <luddite/random.h>
 
+#include <luddite/tweakval.h>
+
 
 //#include <luddite/foreach.h>
 //#define foreach BOOST_FOREACH
@@ -48,7 +50,7 @@ void IronAndAlchemyGame::initResources()
 	m_sbEnemies = makeSpriteBuff( "gamedata/enemies_bad.png");
 
 	// Start with the starting map
-	m_mapCurr = loadOgmoFile( "gamedata/level_pile2.oel" );
+	m_mapCurr = loadOgmoFile( "gamedata/level_wide.oel" );
 }
 
 void IronAndAlchemyGame::freeResources()
@@ -154,10 +156,10 @@ bool IronAndAlchemyGame::_collideWorldPnt( int x, int y )
 	return result;
 }
 
-Entity *IronAndAlchemyGame::makeEnemy( EnemyType type, float x, float y )
+Entity *IronAndAlchemyGame::makeEnemy( int type, float x, float y )
 {
 	// Make a sprite
-	Sprite *spr = m_sbEnemies->makeSprite( 0.0, 0.0, 1.0, 1.0 ); // fixme
+	Sprite *spr = m_sbEnemies->makeSprite( type*0.2, 0.0, (type+1)*0.2, 1.0 ); // fixme
     spr->sx = 16; spr->sy = 16;
 	spr->x = x; spr->y = y;
 	spr->update();
@@ -188,7 +190,19 @@ void IronAndAlchemyGame::render()
     glLoadIdentity();    
 
 	// translate view
-	// TODO	
+	float view_x = m_playerCtl->m_physics->x - 120;
+	float view_y = m_playerCtl->m_physics->y - 60;
+
+	if (view_x < 0) view_x = 0;
+	if (view_y < 0) view_y = 0;
+	float mapW  = (m_mapCurr->m_width*8) - 240;
+	float mapH  = (m_mapCurr->m_height*8) - _TV(160);
+	if (view_x > mapW) view_x = mapW;
+	if (view_y > mapH) view_y = mapH;
+	
+	DBG::info("view %3.2f %3.2f\n", view_x, view_y );
+
+	glTranslated( -view_x, -view_y, 0.0 );
 
     // do text
     glEnable( GL_BLEND );

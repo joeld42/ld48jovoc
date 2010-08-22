@@ -3,8 +3,8 @@
    
    
    <settings>
-       <defaultWidth>240</defaultWidth>
-       <defaultHeight>160</defaultHeight>       
+       <defaultWidth>960</defaultWidth>
+       <defaultHeight>176</defaultHeight>       
    </settings>
    
    <values>      

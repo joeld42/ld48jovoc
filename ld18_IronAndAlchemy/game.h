@@ -62,7 +62,7 @@ public:
 	//HTexture hFontTexture;
 
 	// Enemies stuff
-	Entity *makeEnemy( EnemyType type, float x, float y );
+	Entity *makeEnemy( int type, float x, float y );
 
 	// world stuff
 	bool onGround( float x, float y );	
