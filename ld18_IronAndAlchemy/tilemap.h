@@ -49,6 +49,4 @@ public:
 	GLuint m_texId;
 };
 
-Tilemap *loadOgmoFile( const char *filename );
-
 #endif

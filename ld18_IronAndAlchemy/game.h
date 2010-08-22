@@ -83,8 +83,14 @@ public:
 	// Tilemaps
 	Tilemap *m_mapCurr;
 
+	// Levels
+	void loadOgmoFile( const char *filename );
+
+	// Player stuff
 	Entity *m_player;
 	Player *m_playerCtl;
+
+	int m_respawnX, m_respawnY;
 
 	// DBG
 	std::vector<DbgPoint> dbgPoints;

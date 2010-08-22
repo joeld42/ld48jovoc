@@ -20,18 +20,20 @@ Enemy::Enemy( Entity *owner ) : Behavior( owner ),
 void Enemy::movement( IronAndAlchemyGame *game, float dtFixed )
 {
 	Sprite &spr = (*m_owner->m_sprite);
+	
+	// turn around if we're about to walk off a cliff
+	if (!game->_collideWorldPnt( spr.x + (m_walkDir*2), spr.y-9))
+	{
+		m_walkDir = -m_walkDir;
+	}
 
-	// walk if we are on the ground
-	//if (game->onGround( m_physics->x, m_physics->y ))
-	//{
-		// apply enemy impulse force
-		m_physics->ix = m_walkDir * _TV( 50 );		
-	//}	
+	// apply enemy impulse force
+	m_physics->ix = m_walkDir * _TV( 3500 ) * dtFixed;		
+	
 }
 
 void Enemy::collideWorld( IronAndAlchemyGame *game )
 {
-	// bumped into something ... walk the other way
-	DBG::info("Bump!" );
+	// bumped into something ... walk the other way	
 	m_walkDir = -m_walkDir;
 }

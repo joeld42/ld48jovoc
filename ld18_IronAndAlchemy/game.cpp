@@ -7,7 +7,7 @@
 #include <luddite/random.h>
 
 #include <luddite/tweakval.h>
-
+#include <tinyxml.h>
 
 //#include <luddite/foreach.h>
 //#define foreach BOOST_FOREACH
@@ -50,7 +50,8 @@ void IronAndAlchemyGame::initResources()
 	m_sbEnemies = makeSpriteBuff( "gamedata/enemies_bad.png");
 
 	// Start with the starting map
-	m_mapCurr = loadOgmoFile( "gamedata/level_wide.oel" );
+	m_mapCurr = NULL;
+	loadOgmoFile( "gamedata/level_wide.oel" );
 }
 
 void IronAndAlchemyGame::freeResources()
@@ -167,8 +168,15 @@ Entity *IronAndAlchemyGame::makeEnemy( int type, float x, float y )
 	// Create the enemy entity
 	Entity *ent = new Entity( spr );
 	ent->addBehavior( new Physics( ent ) );
-	Enemy *beh_enemy = new Enemy( ent );
-	ent->addBehavior( beh_enemy );
+	
+	// 'enemy' should be called 'walking' behavor
+	if ( (type==Enemy_REDBUG) ||
+		 (type==Enemy_GREENBUG) ||
+		 (type==Enemy_BLUEBUG) )
+	{
+		Enemy *beh_enemy = new Enemy( ent );
+		ent->addBehavior( beh_enemy );
+	}
 
 	// add to our entities list
 	m_entities.push_back( ent );
@@ -199,8 +207,6 @@ void IronAndAlchemyGame::render()
 	float mapH  = (m_mapCurr->m_height*8) - _TV(160);
 	if (view_x > mapW) view_x = mapW;
 	if (view_y > mapH) view_y = mapH;
-	
-	DBG::info("view %3.2f %3.2f\n", view_x, view_y );
 
 	glTranslated( -view_x, -view_y, 0.0 );
 
@@ -293,4 +299,160 @@ void IronAndAlchemyGame::buttonPressed( unsigned int btn )
 			}
 			break;
 	}
+}
+
+
+void IronAndAlchemyGame::loadOgmoFile( const char *filename )
+{
+	TiXmlDocument *xmlDoc = new TiXmlDocument( filename );
+
+	// TODO: free old map
+	if (m_mapCurr)
+	{
+		delete m_mapCurr;
+	}
+
+	if (!xmlDoc->LoadFile() ) 
+	{
+		DBG::error("ERR! Can't load %s\n", filename );
+	}
+
+	TiXmlElement *xLevel;
+	TiXmlNode *xText;
+
+	xLevel = xmlDoc->FirstChildElement( "level" );
+	assert( xLevel );
+	const char *tileset = xLevel->Attribute( "tileset" );	
+	char tilesetFilename[512];
+	sprintf( tilesetFilename, "gamedata/tiles_%s.png", tileset );
+	DBG::info( "Using tileset: %s\n", tilesetFilename );
+
+	// Load the texture	
+	TextureDB &texDB = TextureDB::singleton();
+	HTexture hTilesTex = texDB.getTexture( tilesetFilename );
+	GLuint texId = texDB.getTextureId( hTilesTex );
+
+	//m_mapText = xLevel->Attribute( "intro" );
+
+	// Get width and height
+	int mapSizeX, mapSizeY;
+	TiXmlElement *xTag;
+	xTag = xLevel->FirstChildElement( "width" );
+	xText = xTag->FirstChild();
+	mapSizeX = atoi( xText->Value() ) / 8;
+
+	xTag = xLevel->FirstChildElement( "height" );
+	xText = xTag->FirstChild();
+	mapSizeY = atoi( xText->Value() ) / 8;
+
+	// Make the tilemap
+	DBG::info( "map size is %d x %d\n", mapSizeX, mapSizeY );
+	Tilemap *map = new Tilemap( texId, mapSizeX, mapSizeY );
+
+	// Fill in floors	
+	TiXmlElement *xTileRect;
+	TiXmlElement *xFloorTiles = xLevel->FirstChildElement( "floors" );
+	
+	xTileRect = xFloorTiles->FirstChildElement( "rect" );	
+	while (xTileRect) 
+	{
+		int xpos, ypos, w, h;		
+		xpos = atoi( xTileRect->Attribute( "x" ) ) / 8;
+		ypos = atoi( xTileRect->Attribute( "y" ) ) / 8;
+
+		// y is flipped vs. ogmo coords
+		ypos = mapSizeY - (ypos+1);	
+
+		w = atoi( xTileRect->Attribute( "w" ) ) / 8;
+		h = atoi( xTileRect->Attribute( "h" ) ) / 8;
+		for (int j=0; j < h; ++j)
+		{
+			for (int i=0; i < w; ++i) 
+			{				
+				Assert( xpos+i < mapSizeX, "map range x" );
+				Assert( ypos-j < mapSizeY, "map range y" );
+				Assert( xpos+i >= 0, "map range x" );
+				Assert( ypos-j >= 0, "map range y" );
+
+				map->setSolid( xpos+i, ypos-j, true );
+			}
+		}
+
+		xTileRect = xTileRect->NextSiblingElement( "rect" );
+	}
+
+	// Load map tiles
+	TiXmlElement *xTile;
+	TiXmlElement *xTerrainTiles = xLevel->FirstChildElement( "terrainTiles" );
+	AssertPtr( xTerrainTiles );
+	
+	xTile = xTerrainTiles->FirstChildElement( "tile" );	
+	while (xTile) 
+	{
+		int id = atoi( xTile->Attribute( "id" ) );
+		int x = atoi( xTile->Attribute( "x" ) ) / 8;
+		int y = atoi( xTile->Attribute( "y" ) ) / 8;				
+		y = mapSizeY - (y+1);	// flip y vs. ogmo
+
+		// Set tile
+		map->setTileId( x, y, id );
+
+		xTile = xTile->NextSiblingElement( "tile" );
+	};
+
+	// build map polys
+	map->build();
+
+	// set this to be current map
+	m_mapCurr = map;
+
+	// Load actors
+	TiXmlElement *xActor;
+	TiXmlElement *xActors = xLevel->FirstChildElement( "actors" );
+	AssertPtr( xActors );
+	
+	xActor = xActors->FirstChildElement();	
+	while (xActor) 
+	{
+		//DBG::info("Actor is: %s\n", xActor->Value() );
+		
+		// get enemy type from name		
+		const char *actorStr = xActor->Value();
+
+		// get location
+		int x = atoi( xActor->Attribute( "x" ) );
+		int y = atoi( xActor->Attribute( "y" ) );
+		y = ((mapSizeY*8) - (y+1)) - 23;	// flip y vs. ogmo
+
+		// What kind of object is it?
+		if (!strcmp( actorStr, "pstart" ))
+		{
+			// Player Start
+			m_respawnX = x;
+			m_respawnY = y + 9;
+
+			m_playerCtl->m_physics->x = m_respawnX;
+			m_playerCtl->m_physics->y = m_respawnY;
+		}
+		else
+		{
+			// Some type of enemy
+			int enemyType = Enemy_REDBUG;
+			if (!strcmp( actorStr, "redbug" )) enemyType = Enemy_REDBUG;
+			else if (!strcmp( actorStr, "bluebug" )) enemyType = Enemy_BLUEBUG;
+			else if (!strcmp( actorStr, "greenbug" )) enemyType = Enemy_GREENBUG;
+			else if (!strcmp( actorStr, "snooty" )) enemyType = Enemy_SNOUTY;
+			else if (!strcmp( actorStr, "shooty" )) enemyType = Enemy_SHOOTY;		
+			
+			
+
+			// make enemy
+			Entity *baddy = makeEnemy( enemyType, x, y );
+		}
+		
+
+		xActor = xActor->NextSiblingElement( );
+	}
+
+	
 }

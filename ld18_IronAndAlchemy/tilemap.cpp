@@ -2,8 +2,6 @@
 #include <luddite/resource.h>
 #include <luddite/texture.h>
 
-#include <tinyxml.h>
-
 #include "tilemap.h"
 
 using namespace Luddite;
@@ -118,104 +116,4 @@ void Tilemap::renderAll()
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	//glDisableClientState( GL_COLOR_ARRAY );
 	glDisableClientState( GL_VERTEX_ARRAY );
-}
-
-Tilemap *loadOgmoFile( const char *filename )
-{
-	TiXmlDocument *xmlDoc = new TiXmlDocument( filename );
-
-	if (!xmlDoc->LoadFile() ) 
-	{
-		DBG::error("ERR! Can't load %s\n", filename );
-	}
-
-	TiXmlElement *xLevel;
-	TiXmlNode *xText;
-
-	xLevel = xmlDoc->FirstChildElement( "level" );
-	assert( xLevel );
-	const char *tileset = xLevel->Attribute( "tileset" );	
-	char tilesetFilename[512];
-	sprintf( tilesetFilename, "gamedata/tiles_%s.png", tileset );
-	DBG::info( "Using tileset: %s\n", tilesetFilename );
-
-	// Load the texture	
-	TextureDB &texDB = TextureDB::singleton();
-	HTexture hTilesTex = texDB.getTexture( tilesetFilename );
-	GLuint texId = texDB.getTextureId( hTilesTex );
-
-	//m_mapText = xLevel->Attribute( "intro" );
-
-	// Get width and height
-	int mapSizeX, mapSizeY;
-	TiXmlElement *xTag;
-	xTag = xLevel->FirstChildElement( "width" );
-	xText = xTag->FirstChild();
-	mapSizeX = atoi( xText->Value() ) / 8;
-
-	xTag = xLevel->FirstChildElement( "height" );
-	xText = xTag->FirstChild();
-	mapSizeY = atoi( xText->Value() ) / 8;
-
-	// Make the tilemap
-	DBG::info( "map size is %d x %d\n", mapSizeX, mapSizeY );
-	Tilemap *map = new Tilemap( texId, mapSizeX, mapSizeY );
-
-	// Fill in floors	
-	TiXmlElement *xTileRect;
-	TiXmlElement *xFloorTiles = xLevel->FirstChildElement( "floors" );
-	
-	xTileRect = xFloorTiles->FirstChildElement( "rect" );	
-	while (xTileRect) 
-	{
-		int xpos, ypos, w, h;		
-		xpos = atoi( xTileRect->Attribute( "x" ) ) / 8;
-		ypos = atoi( xTileRect->Attribute( "y" ) ) / 8;
-
-		// y is flipped vs. ogmo coords
-		ypos = mapSizeY - (ypos+1);	
-
-		w = atoi( xTileRect->Attribute( "w" ) ) / 8;
-		h = atoi( xTileRect->Attribute( "h" ) ) / 8;
-		for (int j=0; j < h; ++j)
-		{
-			for (int i=0; i < w; ++i) 
-			{				
-				Assert( xpos+i < mapSizeX, "map range x" );
-				Assert( ypos-j < mapSizeY, "map range y" );
-				Assert( xpos+i >= 0, "map range x" );
-				Assert( ypos-j >= 0, "map range y" );
-
-				map->setSolid( xpos+i, ypos-j, true );
-			}
-		}
-
-		xTileRect = xTileRect->NextSiblingElement( "rect" );
-	}
-
-	// Load map tiles
-	TiXmlElement *xTile;
-	TiXmlElement *xTerrainTiles = xLevel->FirstChildElement( "terrainTiles" );
-	AssertPtr( xTerrainTiles );
-	
-	xTile = xTerrainTiles->FirstChildElement( "tile" );	
-	while (xTile) 
-	{
-		int id = atoi( xTile->Attribute( "id" ) );
-		int x = atoi( xTile->Attribute( "x" ) ) / 8;
-		int y = atoi( xTile->Attribute( "y" ) ) / 8;
-		
-		// flip y vs. ogmo
-		y = mapSizeY - (y+1);	
-
-		// Set tile
-		map->setTileId( x, y, id );
-
-		xTile = xTile->NextSiblingElement( "tile" );
-	};
-
-	// build map polys
-	map->build();
-
-	return map;
 }
