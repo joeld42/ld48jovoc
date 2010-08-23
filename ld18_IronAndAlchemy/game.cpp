@@ -48,6 +48,9 @@ void IronAndAlchemyGame::initResources()
 	TextureDB *db = new TextureDB();
 	TextureDB &texDB = TextureDB::singleton();
 
+	// HACK Load the blank image 
+	//HTexture hBlankTex = texDB.getTexture( "gamedata/blank256.png" );
+
 	// Init the fonts
 	HTexture hFontTexture = texDB.getTexture("gamedata/digistrip.png") ;
 
@@ -87,6 +90,8 @@ void IronAndAlchemyGame::initResources()
 	m_mapCurr = NULL;
 	//loadOgmoFile( "gamedata/noc_test1.oel" );
 	loadOgmoFile( "gamedata/intro.oel" );
+
+	DBG::info("initResources done." );
 }
 
 void IronAndAlchemyGame::freeResources()
@@ -114,7 +119,7 @@ SpriteBuff *IronAndAlchemyGame::makeSpriteBuff( const char *filename )
 
 void IronAndAlchemyGame::updateSim( float dtFixed )
 {
-	//dbgPoints.clear();
+	//dbgPoints.clear();	
 
 	// update entities	
 	if (m_dieTimer == -1 )

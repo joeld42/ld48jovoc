@@ -30,6 +30,8 @@ bool loadResource( const char *filename, TextureGL *texture )
     // Remember filename
     texture->m_texName = filename;    
 
+	DBG::info("In loadResource (%s)\n", filename );
+
     // Determine file extension
 	const char *ext = strrchr( filename, '.');
 	if ((!ext)||(strlen(ext)<4))
@@ -60,6 +62,8 @@ bool loadResource( const char *filename, TextureGL *texture )
     {
         unsigned char *data;        
         int w, h, n;
+
+		DBG::info("loadResource: about to call stbi_load\n" );
         
         // Load the pixel data
         data = stbi_load( filename, &w, &h, &n, 0 );
@@ -79,6 +83,8 @@ bool loadResource( const char *filename, TextureGL *texture )
                        filename, w, h );            
         }
 
+		DBG::info("loadResource: make GL texture\n" );
+
         // Get a texture id
         glGenTextures( 1, &(texture->m_texId) );
 
@@ -88,7 +94,7 @@ bool loadResource( const char *filename, TextureGL *texture )
         // Set the texture's stretching properties
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-        //glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
+        //glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );		
 
         GLint fmt;
         switch(n)
@@ -111,10 +117,14 @@ bool loadResource( const char *filename, TextureGL *texture )
             break;            
         }
         
+		DBG::info("loadResource: glTexImage2D\n" );
+
         glTexImage2D( GL_TEXTURE_2D, 0, n, 
                       w, h, 0,
-                      fmt, GL_UNSIGNED_BYTE, data );        
+                      fmt, GL_UNSIGNED_BYTE, data );
         
+		DBG::info("loadResource: done\n" );
+
         return true;        
     }
 

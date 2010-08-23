@@ -2269,7 +2269,14 @@ static int expand(zbuf *z, int n)  // need to make room for n bytes
    limit = (int) (z->zout_end - z->zout_start);
    while (cur + n > limit)
       limit *= 2;
-   q = (char *) realloc(z->zout_start, limit);
+
+	// TERRIBLE HACKY HACK -- realloc is failing for some reason
+	//q = (char *) realloc(z->zout_start, limit);   
+	q = (char *) malloc(limit);	
+	if (q == NULL) return e("outofmem", "Out of memory");   	
+	memcpy( q, z->zout_start, cur );
+	// END OF HACK 
+
    if (q == NULL) return e("outofmem", "Out of memory");
    z->zout_start = q;
    z->zout       = q + cur;

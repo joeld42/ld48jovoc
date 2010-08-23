@@ -153,11 +153,11 @@ int main( int argc, char *argv[] )
 
 	// I can't live without my precious printf's
 #ifdef WIN32
-#  ifndef NDEBUG
+//#  ifndef NDEBUG
 	AllocConsole();
 	SetConsoleTitle( L"iron reflex CONSOLE" );
 	freopen("CONOUT$", "w", stdout );
-#  endif
+//#  endif
 #endif
 
 	// Test debug stuff
@@ -205,8 +205,27 @@ int main( int argc, char *argv[] )
 
 	// easier than making one from scratch XD
 	TextureDB &texDB = TextureDB::singleton();
+	DBG::info("texDB is %p\n", TextureDB::singletonPtr() );
+
+#if 0 
 	HTexture hFBOTex = texDB.getTexture( "gamedata/blank256.png" );
+	DBG::info("blank texture is %zu", hFBOTex.getHandle() );
+
 	GLuint texIdFbo = texDB.getTextureId( hFBOTex );
+	DBG::info( "texture ID is %d\n", texIdFbo );
+#endif
+	GLuint texIdFbo;
+	unsigned char *data = (unsigned char *)malloc( 256*256*4 );
+	glGenTextures( 1, &texIdFbo );
+	
+	glBindTexture( GL_TEXTURE_2D, texIdFbo );
+
+	// Set the texture's stretching properties
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+
+	glTexImage2D( GL_TEXTURE_2D, 0, 3, 
+                      256, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, data );
 
 	// make a small framebuffer to draw the game into
 	glGenFramebuffersEXT( 1, &fboGame );
@@ -256,6 +275,10 @@ int main( int argc, char *argv[] )
 
 						case SDLK_2:
 							game->loadOgmoFile( "gamedata/test2.oel" );
+							break;
+
+						case SDLK_3:
+							game->loadOgmoFile( "gamedata/nocturne1.oel" );
 							break;
 
 					}
