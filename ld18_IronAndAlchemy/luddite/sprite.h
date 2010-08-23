@@ -75,6 +75,13 @@ public:
 	
 	// Pointer into Spritebuff
 	SpriteVert *m_vertData;
+
+	// HACKY flip and keep track
+	bool mirrorX;
+	void setMirrorX( bool doFlip );
+
+	// HACKY 
+	bool canShoot;
 };
 
 #endif

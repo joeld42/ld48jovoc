@@ -2,15 +2,20 @@
 #include "player.h"
 #include "physics.h"
 
+#include <algorithm>
+
 #include <luddite/resource.h>
 #include <luddite/texture.h>
 #include <luddite/random.h>
+#include <luddite/avar.h>
 
 #include <luddite/tweakval.h>
 #include <tinyxml.h>
 
 #include <fmod.h>
 #include <fmod_errors.h>
+
+USE_AVAR(float);
 
 //#include <luddite/foreach.h>
 //#define foreach BOOST_FOREACH
@@ -49,6 +54,11 @@ void IronAndAlchemyGame::initResources()
     GLuint texId = texDB.getTextureId( hFontTexture );
     m_font20 = ::makeFont_Digistrip_20( texId );
     m_font32 = ::makeFont_Digistrip_32( texId );
+
+	// Init particles
+	HTexture hParticleTex = texDB.getTexture("gamedata/particles.png") ;
+    texId = texDB.getTextureId( hParticleTex );
+	m_particles = new ParticleBuff( texId );
 
 	// Init the sprite textures & sprites	
 	m_sbPlayer = makeSpriteBuff( "gamedata/player.png") ;
@@ -104,7 +114,7 @@ SpriteBuff *IronAndAlchemyGame::makeSpriteBuff( const char *filename )
 
 void IronAndAlchemyGame::updateSim( float dtFixed )
 {
-	dbgPoints.clear();
+	//dbgPoints.clear();
 
 	// update entities	
 	if (m_dieTimer == -1 )
@@ -139,17 +149,40 @@ void IronAndAlchemyGame::updateSim( float dtFixed )
 	// are we dead?
 	if (m_dieTimer==0)
 	{
+		// breathe new life
+		m_playerCtl->m_hitPoints = MAX_LIFE;
+
 		// respawn
 		loadOgmoFile( m_currLevel.c_str(), true );
 
 		m_dieTimer = -1;
 	}
+
+
+	// Everything's updated... clean up ents
+	for (std::list<Entity*>::iterator ei = m_entsToRemove.begin();
+		ei != m_entsToRemove.end(); ++ei )
+	{
+		Entity *ent = (*ei);
+		m_entities.remove( ent );
+		DBG::info( "Going to delete entity %p\n", ent );
+		delete ent;
+	}
+	m_entsToRemove.clear();
+
 }
 
 void IronAndAlchemyGame::updateFree( float dt )
 {
+	// update avars
+	AnimFloat::updateAvars( dt );
+
+	// maybe should be in the updatefixed 'cause they
+	// do contribute to gameplay but whatever.
+	m_particles->updateParts( dt );
 }
 
+// busted don't use it
 bool IronAndAlchemyGame::onGround( float x, float y )
 {
 #if 0
@@ -166,6 +199,19 @@ bool IronAndAlchemyGame::onGround( float x, float y )
 
 	if (y < 9) return true;
 	return false;
+}
+
+void IronAndAlchemyGame::removeEntity( Entity *ent )
+{
+	// Check if it's already scheduled for removal
+	std::list<Entity*>::iterator ei= std::find( m_entsToRemove.begin(), 
+									m_entsToRemove.end(), ent );
+
+	if (ei == m_entsToRemove.end())
+	{
+		// not there yet, add it
+		m_entsToRemove.push_back( ent );
+	}
 }
 
 bool IronAndAlchemyGame::collideWorld( Sprite *spr )
@@ -209,7 +255,7 @@ bool IronAndAlchemyGame::_collideWorldPnt( int x, int y )
 	
 	// check against map
 	bool result = m_mapCurr->solid( x/8, y/8 );	
-	dbgPoints.push_back( DbgPoint(x, y, result?1.0:0.0, result?0.0:0.0, 0.0) );	
+	//dbgPoints.push_back( DbgPoint(x, y, result?1.0:0.0, result?0.0:0.0, 0.0) );	
 
 	return result;
 }
@@ -217,23 +263,71 @@ bool IronAndAlchemyGame::_collideWorldPnt( int x, int y )
 Entity *IronAndAlchemyGame::makeEnemy( int type, float x, float y )
 {
 	// Make a sprite
-	Sprite *spr = m_sbEnemies->makeSprite( type*0.2, 0.0, (type+1)*0.2, 1.0 ); // fixme
+
+	// fixme -- handle more rows
+	Sprite *spr = m_sbEnemies->makeSprite( type*(16.0/256.0), 0.0, (type+1)*(16.0/256.0), (16.0/128.0) ); 
     spr->sx = 16; spr->sy = 16;
 	spr->x = x; spr->y = y;
 	spr->update();
 
 	// Create the enemy entity
-	Entity *ent = new Entity( spr );
-	ent->addBehavior( new Physics( ent ) );
+	Entity *ent = new Entity( spr );	
+
+	// Add some physics
+	if (type <= Enemy_SNOUTY)
+	{
+		ent->addBehavior( new Physics( ent ) );
+	}
 	
 	// 'enemy' should be called 'walking' behavor
 	if ( (type==Enemy_REDBUG) ||
 		 (type==Enemy_GREENBUG) ||
 		 (type==Enemy_BLUEBUG) )
-	{
+	{		
 		Enemy *beh_enemy = new Enemy( ent );
 		ent->addBehavior( beh_enemy );
 	}
+	
+
+	// shooting things
+	if ((type==Enemy_SNOUTY) ||
+		(type==Enemy_SHOOTY_N) ||
+		(type==Enemy_SHOOTY_E) ||
+		(type==Enemy_SHOOTY_W) )
+	{
+		spr->canShoot = true;
+		Shoot *beh_shoot = new Shoot( ent );
+
+		if (type == Enemy_SNOUTY)
+		{
+			beh_shoot->m_shootAng = 180.0;
+			beh_shoot->m_spreadAng = 0.0;
+			beh_shoot->m_numShoot = 1;
+		}
+		else
+		{
+			beh_shoot->m_shootAng = 90.0;
+			beh_shoot->m_spreadAng = 45.0;
+			beh_shoot->m_numShoot = 3;
+			switch( type )
+			{
+			case Enemy_SHOOTY_N:
+				beh_shoot->m_shootAng = 90.0;
+				break;
+			case Enemy_SHOOTY_S:
+				beh_shoot->m_shootAng = 270.0;
+				break;
+			case Enemy_SHOOTY_W:
+				beh_shoot->m_shootAng = 180.0;
+				break;
+			case Enemy_SHOOTY_E:
+				beh_shoot->m_shootAng = 0.0;
+				break;
+			}			
+		}
+		
+		ent->addBehavior( beh_shoot );
+	}	
 
 	// add to our entities list
 	m_entities.push_back( ent );
@@ -266,6 +360,7 @@ void IronAndAlchemyGame::render()
 	if (view_x > mapW) view_x = mapW;
 	if (view_y > mapH) view_y = mapH;
 
+	glPushMatrix();
 	glTranslated( -view_x, -view_y, 0.0 );
 
     // do text
@@ -300,6 +395,7 @@ void IronAndAlchemyGame::render()
 		}
 	}
 
+#if 0
 	// draw the dbg points
 	glDisable( GL_TEXTURE );
 	glDisable( GL_BLEND );
@@ -313,10 +409,21 @@ void IronAndAlchemyGame::render()
 	}
 	glEnd();
 	glColor3f( 1.0, 1.0, 1.0 );
+#endif
+
+	// draw the particles
+	glBlendFunc( GL_ONE, GL_ONE );    
+	m_particles->renderAll();
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );    
 
     // actually draw the text
     m_font20->renderAll();
     m_font32->renderAll();
+
+	glPopMatrix();
+
+	// draw player stuff
+	m_playerCtl->drawLifeMeter();
 
     m_font32->clear();
     m_font20->clear();    
@@ -354,11 +461,7 @@ void IronAndAlchemyGame::buttonPressed( unsigned int btn )
 			break;
 
 		case BTN_FIRE:
-			// todo
-			// TMP for testing
-			{
-				Entity *baddy = makeEnemy( Enemy_REDBUG, randUniform( 10, 200 ), 100 );
-			}
+			m_playerCtl->shoot( this );
 			break;
 	}
 }
@@ -407,6 +510,9 @@ void IronAndAlchemyGame::loadOgmoFile( const char *filename, bool respawn )
 		}
 	}
 
+	// clear any particles
+	m_particles->clearParticles();
+
 	// TODO: free old map
 	if (m_mapCurr)
 	{
@@ -426,6 +532,7 @@ void IronAndAlchemyGame::loadOgmoFile( const char *filename, bool respawn )
 
 	// reset list to just the player
 	m_entities.clear();	
+	m_entsToRemove.clear();
 
 	DBG::warn( "after delete, %d entities\n", m_entities.size() );
 
@@ -583,9 +690,27 @@ void IronAndAlchemyGame::loadOgmoFile( const char *filename, bool respawn )
 			else if (!strcmp( actorStr, "bluebug" )) enemyType = Enemy_BLUEBUG;
 			else if (!strcmp( actorStr, "greenbug" )) enemyType = Enemy_GREENBUG;
 			else if (!strcmp( actorStr, "snooty" )) enemyType = Enemy_SNOUTY;
-			else if (!strcmp( actorStr, "shooty" )) enemyType = Enemy_SHOOTY;		
-			
-			
+			else if (!strcmp( actorStr, "shooty" )) 
+			{
+				const char *dir = xActor->Attribute( "dir" );
+				switch( dir[0] )
+				{
+				case 'w':
+					enemyType = Enemy_SHOOTY_W;				
+					break;
+				case 'e':
+					enemyType = Enemy_SHOOTY_E;
+					break;
+				case 's':
+					enemyType = Enemy_SHOOTY_S;
+					break;
+				case 'n':
+				default:
+					enemyType = Enemy_SHOOTY_N;
+					break;
+				}
+				
+			}
 
 			// make enemy
 			Entity *baddy = makeEnemy( enemyType, x, y );
@@ -599,7 +724,14 @@ void IronAndAlchemyGame::loadOgmoFile( const char *filename, bool respawn )
 void IronAndAlchemyGame::playerDie()
 {
 	// set dead soon
-	m_dieTimer = 100;
+	m_dieTimer = 200;
 
-	// TODO: cool particle effects
+	// cool particle effects
+	for (int i=0; i < 150; i++)
+	{
+		m_particles->emitRadial( Particle_DOT, 
+			m_player->m_sprite->x,
+			m_player->m_sprite->y,
+			8.0 );
+	}
 }

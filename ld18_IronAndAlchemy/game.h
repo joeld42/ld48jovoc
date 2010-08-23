@@ -8,12 +8,14 @@
 #include "player.h"
 #include "enemy.h"
 #include "tilemap.h"
+#include "shoot.h"
 
 // game resources
 #include <luddite/singleton.h>
 #include <luddite/texture.h>
 #include <luddite/resource.h>
 #include <luddite/font.h>
+#include <luddite/particle.h>
 
 #include <fmod.hpp>
 
@@ -77,6 +79,8 @@ public:
 	// Enemies stuff
 	Entity *makeEnemy( int type, float x, float y );
 
+	void removeEntity( Entity *ent );
+
 	// world stuff
 	bool onGround( float x, float y );	
 	bool collideWorld( Sprite *spr );
@@ -113,6 +117,9 @@ public:
 	int m_respawnX, m_respawnY;
 	float m_bgR, m_bgG, m_bgB;
 
+	// particles (used as bullets)
+	ParticleBuff *m_particles;
+
 	// Sound	
 	FMOD::System *m_fmod;
 	FMOD::Sound *sfx_health_small;
@@ -128,9 +135,10 @@ public:
 	FMOD::Sound *m_musicGame;
 
 	// DBG
-	std::vector<DbgPoint> dbgPoints;
+	//std::vector<DbgPoint> dbgPoints;
 
 	std::list<Entity*> m_entities;
+	std::list<Entity*> m_entsToRemove;
 };
 
 

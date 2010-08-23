@@ -35,7 +35,12 @@
       <object name="greenbug" image="gamedata/icon_greenbug.png" width="16" height="16"  />
       <object name="bluebug" image="gamedata/icon_bluebug.png" width="16" height="16"  />
       <object name="snooty" image="gamedata/icon_snooty.png" width="16" height="16"  />
-      <object name="shooty" image="gamedata/icon_shooty.png" width="16" height="16"  />
+      <object name="shooty" image="gamedata/icon_shooty.png" width="16" height="16"  >
+        <values>               
+                <string name="dir" default="n" maxChars="1" />
+                <string name="numshoot" default="1" maxChars="5" />
+        </values>
+       </object>
       
    </objects>
    

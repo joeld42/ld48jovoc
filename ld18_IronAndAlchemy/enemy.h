@@ -9,7 +9,11 @@ enum
 	Enemy_GREENBUG,
 	Enemy_BLUEBUG,
 	Enemy_SNOUTY,
-	Enemy_SHOOTY,
+	
+	Enemy_SHOOTY_N,
+	Enemy_SHOOTY_S,
+	Enemy_SHOOTY_E,
+	Enemy_SHOOTY_W,
 };
 
 class IronAndAlchemyGame;

@@ -1,6 +1,5 @@
 /*
  *  particle.cpp
- *  stillpond
  *
  *  Created by joeld on 7/20/10.
  *  Copyright 2010 Tapnik. All rights reserved.
@@ -39,10 +38,18 @@ void ParticleBuff::emitRadial( ParticleType ptype, float x, float y, float radiu
 	p->x = x + randNormal() * radius;
 	p->y = y + randNormal() * radius;
 	p->maxAge = 3.0 + randNormal();
+
+	//p->r = 1.0; p->g = 1.0; p->b = 1.0;
+	float t = randUniform();
+	float rA = 166/255.0; float gA = 202/255.0; float bA = 222/255.0;
+	float rB = 31/255.0; float gB = 45/255.0; float bB = 227/255.0;
+	p->r = (rA*t) + (rB*(1.0-t));
+	p->g = (gA*t) + (gB*(1.0-t));
+	p->b = (bA*t) + (bB*(1.0-t));
 	
-	if ((ptype==Particle_RIPPLE) || (ptype==Particle_SMOKE))
+	if ((ptype==Particle_RING) || (ptype==Particle_SMOKE))
 	{
-		p->angle = 0.0;
+		p->angle = randUniform( 0.0, 360.0);		
 		p->dx = 0.0;
 		p->dy = 0.0;
 	}
@@ -58,6 +65,23 @@ void ParticleBuff::emitRadial( ParticleType ptype, float x, float y, float radiu
 		p->dy = randNormal() * initialVel;
 	}
 	p->age = 0;
+}
+
+void ParticleBuff::emitBullet( ParticleType ptype, float x, float y, float angle )
+{
+	Particle *p = emitPart( ptype );
+	if (!p) return; // Buff full
+	
+	// set up general stuff
+	const float initialVel = 150.0;
+	p->x = x;p->y = y;
+	p->age = 0;
+	p->maxAge = 5.0;
+	p->sx = 4; p->sy = 4;
+	p->r = 1.0; p->g = 1.0; p->b = 1.0;
+
+	p->dx = cos( angle * PARTI_D2R ) * initialVel;
+	p->dy = sin( angle * PARTI_D2R ) * initialVel;
 }
 
 void ParticleBuff::emitDirectional( ParticleType p, float x, float y, 
@@ -84,6 +108,7 @@ Particle *ParticleBuff::emitPart( ParticleType ptype )
 	switch (ptype)
 	{
 		case Particle_DOT:
+		case Particle_BULLET:
 			s0 = 0.0; t0 = 0.5;
 			s1 = 0.5; t1 = 1.0;
 			break;
@@ -93,7 +118,7 @@ Particle *ParticleBuff::emitPart( ParticleType ptype )
 			s1 = 1.0; t1 = 1.0;
 			break;
 			
-		case Particle_RIPPLE:
+		case Particle_RING:
 			s0 = 0.5; t0 = 0.0;
 			s1 = 1.0; t1 = 0.5;
 			break;
@@ -123,14 +148,7 @@ void ParticleBuff::updateParts( float dt )
 		float lasty = p.y;
 	
 		p.x = p.x + p.dx * dt;
-		p.y = p.y + p.dy * dt;
-		
-		// Hack -- spawn a ripple if we cross the water surface
-		if ((lasty >= 100) && (p.y <= 100))
-		{
-			emitRadial( Particle_RIPPLE, p.x, p.y + randUniform( -3.0, 3.0), 0.0 );
-			p.age = p.maxAge;
-		}
+		p.y = p.y + p.dy * dt;			
 		
 		// update age
 		p.age += dt;
@@ -147,14 +165,17 @@ void ParticleBuff::updateParts( float dt )
 				// update size
 				p.sx = p.sy = 10.0 * (1.0 - life);
 				break;
-				
+			
+			case Particle_BULLET:
+				break;
+
 			case Particle_SMOKE:
 				// grow and fade
 				p.sx = 30.0 + 30 * life;
 				p.sy = 30.0 + 30 * life;
 				break;
 				
-			case Particle_RIPPLE:
+			case Particle_RING:
 				// grow and fade
 				p.sx = 10.0 + 50 * life;
 				p.sy = 10.0 + 50 * life;
@@ -231,9 +252,9 @@ void ParticleBuff::buildVerts()
 		float a = 1.0 - (p.age / p.maxAge);
 		for (int j=0; j < 6; ++j)
 		{
-			vert[j].color[0] = 1;
-			vert[j].color[1] = 1;
-			vert[j].color[2] = 1;
+			vert[j].color[0] = p.r * a;
+			vert[j].color[1] = p.g * a;
+			vert[j].color[2] = p.b * a;
 			vert[j].color[3] = a;
 		}
 		

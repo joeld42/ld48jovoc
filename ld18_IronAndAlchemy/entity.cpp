@@ -45,17 +45,17 @@ Behavior *Entity::getBehaviorByTag( const char *tag )
 
 void Entity::updateSim( IronAndAlchemyGame *game, float dtFixed )
 {	
+	if (!m_sprite) return;
+
 	for (std::list<Behavior*>::iterator bi = m_behaviors.begin();
 			bi != m_behaviors.end(); ++bi)
 	{
-		// Apply movment to all behaviors
-		(*bi)->movement( game, dtFixed );
+		// Apply movment to all valid behaviors		
+		(*bi)->movement( game, dtFixed );	
 	}
 
-	// now commit changes to our sprite
-	if (m_sprite)
-	{
-		m_sprite->update();
-	}
+	// now commit changes to our sprite	
+	m_sprite->update();
+	
 }
 

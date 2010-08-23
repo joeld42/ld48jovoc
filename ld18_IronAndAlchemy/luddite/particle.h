@@ -16,10 +16,13 @@
 // TODO: particle types are pond-specific, need to generalize
 enum ParticleType 
 {
-	Particle_DOT,  // black dot
-	Particle_DOT2, // white dot
-	Particle_RIPPLE,
-	Particle_SMOKE,
+	Particle_DOT,  // hard dot
+	Particle_DOT2, // soft dot
+
+	Particle_BULLET,
+
+	Particle_RING,
+	Particle_SMOKE, // dunno if i need this one
 };
 
 struct PartiVert
@@ -38,6 +41,7 @@ struct Particle
 	float sx, sy;
 	float angle;
 	float age, maxAge;
+	float r, g, b;
 };
 
 #define MAX_PARTS (1000)
@@ -48,9 +52,12 @@ public:
 	ParticleBuff( GLuint texId );
 	
 	void emitRadial( ParticleType p, float x, float y, float radius );
+
 	void emitDirectional( ParticleType p, float x, float y, 
 						 float angDir, float angSpread );
 	
+	void emitBullet( ParticleType ptype, float x, float y, float angle );
+
 	void updateParts( float dt );
 	void renderAll();
 	

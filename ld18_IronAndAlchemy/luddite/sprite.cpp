@@ -29,6 +29,8 @@ Sprite *SpriteBuff::makeSprite( float s0, float t0,
 	Sprite *sprite = new Sprite( this, newVert );
 	sprite->setTexCoords( s0, t0, s1, t1 );
 
+	sprite->canShoot = false;
+
 	// Call update to initialize the pos data
 	sprite->update();
 	
@@ -122,7 +124,8 @@ Sprite::Sprite( SpriteBuff *owner, SpriteVert *vertData ) :
 	m_vertData( vertData ),
 	x(0.0f), y(0.0f),
 	angle( 0.0f ), 
-	sx( 1.0 ), sy(1.0)
+	sx( 1.0 ), sy(1.0),
+	mirrorX( false )
 {
 }
 
@@ -214,4 +217,14 @@ bool Sprite::testHit( float tx, float ty )
 	}
 	
 	return false;
+}
+
+void Sprite::setMirrorX( bool doFlip )
+{
+	// flip if we're not flipped
+	if (doFlip != mirrorX)
+	{
+		flipHoriz();
+		mirrorX = doFlip;
+	}	
 }

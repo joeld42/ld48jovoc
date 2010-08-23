@@ -155,7 +155,7 @@ int main( int argc, char *argv[] )
 #ifdef WIN32
 #  ifndef NDEBUG
 	AllocConsole();
-	SetConsoleTitle( L"iron and alchemy CONSOLE" );
+	SetConsoleTitle( L"iron reflex CONSOLE" );
 	freopen("CONOUT$", "w", stdout );
 #  endif
 #endif
@@ -178,7 +178,7 @@ int main( int argc, char *argv[] )
 		exit(1);
 	}
 		
-	SDL_WM_SetCaption( " =[+ Iron and Alchemy - LD18 jovoc +]=", NULL );
+	SDL_WM_SetCaption( " =[+ Iron Reflex - LD18 jovoc +]=", NULL );
 
 	// Init fmod
 	FMOD::System *fmod = NULL;
@@ -252,6 +252,10 @@ int main( int argc, char *argv[] )
 						// DBG: test levels
 						case SDLK_1:
 							game->loadOgmoFile( "gamedata/test1.oel" );
+							break;
+
+						case SDLK_2:
+							game->loadOgmoFile( "gamedata/test2.oel" );
 							break;
 
 					}

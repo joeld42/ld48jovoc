@@ -118,6 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="C:\Projects\ld48jovoc\ld18_IronAndAlchemy;.;./luddite;&quot;C:\Toolkits\SDL-1.2.14\include&quot;;C:\Projects\ld48jovoc\extern\tinyxml;c:\toolkits\fmod\api\inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -136,7 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="SDL.lib SDLmain.lib opengl32.lib glu32.lib fmodex_vc.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;C:\Toolkits\SDL-1.2.14\lib&quot;;c:\toolkits\fmod\api\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -238,6 +241,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\shoot.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\luddite\sprite.cpp"
 				>
 			</File>
@@ -329,6 +336,10 @@
 			</File>
 			<File
 				RelativePath="..\..\luddite\resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\shoot.h"
 				>
 			</File>
 			<File

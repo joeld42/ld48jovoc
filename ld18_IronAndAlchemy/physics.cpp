@@ -51,7 +51,7 @@ void Physics::movement( IronAndAlchemyGame *game, float dtFixed )
 	{
 		// roll back x
 		x = oldX;
-		vx = 0;
+		vx = 0;		
 		spr.x = x;
 	}	
 
