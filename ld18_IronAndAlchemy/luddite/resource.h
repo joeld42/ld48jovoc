@@ -2,6 +2,7 @@
 #define RESOURCE_H
 
 #include <string>
+#include <algorithm>
 #include <map>
 
 #include "handle.h"
@@ -24,61 +25,19 @@
 // Handle<tag_TEXTURE>. This is the type that the user will interact
 // with.
 //
-// BUCKET_SZ, MIN_BUCKETS -- for the internal std_ext::hash_map. Use
-// with appropriate size for expected population.
-//
 // To use this class, you only need to implement the loadResource and
 // unloadResource functions above. You may also want to subclass it to
 // provide accessors to the internal data from the handle.
 //
-template <typename DATA, typename HANDLE, int BUCKET_SZ, int MIN_BUCKETS> 
+template <typename DATA, typename HANDLE > 
 class ResourceMgr
 {
 
 private:
     typedef HandleMgr<DATA,HANDLE> HMgrType;
     
-    struct ResourceHashTraits
-    {
-        static const size_t bucket_size = BUCKET_SZ;
-        static const size_t min_buckets = MIN_BUCKETS;
-
-        // comparison operator
-        bool operator()( const std::string &a, const std::string &b ) const
-        {
-            return ( ::stricmp( a.c_str(), b.c_str() ) < 0 );            
-        }
-
-        // hash operator
-        size_t operator()( const std::string &a ) const
-        {
-#ifndef WIN32
-            return ns_ext::hash<const char*>()( a.c_str() );            
-#else
-			//blah
-#if 0
-			size_t h = 0;
-			std::string::const_iterator p, p_end;
-			for(p = a.begin(), p_end = a.end(); p != p_end; ++p)
-			{
-				h = 31 * h + (*p);
-			}
-#endif
-			size_t h = 0;
-			
-			for( const char *ch = a.c_str(); *ch; ++ch )
-			{
-				h = 31 * h + *ch;
-			}
-
-			DBG::info("str %s hash %u\n", a.c_str(), h );
-
-			return h;
-#endif
-        }        
-    };
-     
-   //typedef ns_ext::hash_map<std::string,HANDLE, ResourceHashTraits> ResourceHash;
+    // Was using a std_ext::hash, caused all sorts of headaches, 
+    // now back to good ol' std::map
 	typedef std::map< std::string, HANDLE> ResourceHash;
 
 protected:
@@ -94,8 +53,8 @@ public:
     void   freeResource( HANDLE );
 };
 
-template <typename DATA, typename HANDLE, int BUCKET_SZ, int MIN_BUCKETS>
-ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::~ResourceMgr()
+template <typename DATA, typename HANDLE >
+ResourceMgr<DATA,HANDLE>::~ResourceMgr()
 {
     // Release all of our resources
     for ( typename ResourceHash::iterator ri = m_nameIndex.begin();
@@ -116,28 +75,12 @@ ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::~ResourceMgr()
     }    
 }
 
-template <typename DATA, typename HANDLE, int BUCKET_SZ, int MIN_BUCKETS> 
-HANDLE ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::getResource( const char *name )
+template <typename DATA, typename HANDLE>
+HANDLE ResourceMgr<DATA,HANDLE>::getResource( const char *name )
 {
     HANDLE hRes;
-#if 0
-    std::pair<typename ResourceHash::iterator, bool> rc = m_nameIndex.insert(
-        std::make_pair( name, HANDLE() ) );
 
-	DBG::info( "getResource %s\n", name );	
-
-    // If the handle is already in the map, retreive it
-    if (!rc.second)
-    {		
-		// Get the handle
-        hRes = rc.first->second;		
-    }
-	else
-	{
-		DBG::info( "Handle not found! (%s)\n", name);
-	}
-#endif
-	ResourceHash::iterator ri = m_nameIndex.find( name );
+	typename ResourceHash::iterator ri = m_nameIndex.find( name );
 	if ( ri != m_nameIndex.end() )
 	{
 		hRes = (*ri).second;
@@ -181,8 +124,8 @@ HANDLE ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::getResource( const char *
     return hRes;    
 }
 
-template <typename DATA, typename HANDLE, int BUCKET_SZ, int MIN_BUCKETS> 
-void ResourceMgr<DATA,HANDLE,BUCKET_SZ,MIN_BUCKETS>::freeResource( HANDLE hRes )
+template <typename DATA, typename HANDLE>
+void ResourceMgr<DATA,HANDLE>::freeResource( HANDLE hRes )
 {
     // decref (and possibly unload) the refcount
     DATA *data = m_resMgr.decrefCount( hRes );

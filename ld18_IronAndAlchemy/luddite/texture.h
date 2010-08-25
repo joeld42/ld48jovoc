@@ -30,7 +30,7 @@ typedef Handle<tag_TEXTURE> HTexture;
 typedef HandleMgr<TextureGL,HTexture> HTextureMgr;
 
 // ===========================================================================
-typedef ResourceMgr<TextureGL, HTexture, 1024, 32> BaseTextureDB;
+typedef ResourceMgr<TextureGL, HTexture > BaseTextureDB;
 
 // All the template funkiness is hidden now. :)
 class TextureDB : public BaseTextureDB, public Singleton<TextureDB>

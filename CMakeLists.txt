@@ -105,6 +105,14 @@ if (ALLEGRO_FOUND)
 endif (ALLEGRO_FOUND)
 
 # ==================================================
+# ld18 Iron Reflex
+#  Dependancies: SDL/OpenGL
+# ==================================================
+if (SDL_FOUND AND OPENGL_FOUND)
+  ADD_SUBDIRECTORY( ld18_IronAndAlchemy )
+endif (SDL_FOUND AND OPENGL_FOUND)
+
+# ==================================================
 # luddite (toolkit/basecode)
 #  Dependancies: SDL (example only)/OpenGL
 # ==================================================
