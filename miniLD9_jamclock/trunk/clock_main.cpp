@@ -383,11 +383,13 @@ void chooseNextPart( std::vector<Track*> &tracks, int bar, int partLength, int &
 int main( int argc, char *argv[] )
 {	
 
-	#ifndef NDEBUG
+#ifdef WIN32
+#  ifndef NDEBUG
 	AllocConsole();
 	SetConsoleTitle( L"miniLD9 CONSOLE" );
 	freopen("CONOUT$", "w", stdout );
-	#endif
+#  endif
+#endif
 
 	// Initialize SDL
 	if (SDL_Init( SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO ) < 0 ) 
@@ -402,7 +404,7 @@ int main( int argc, char *argv[] )
 	}
 		
 
-	SDL_WM_SetCaption( "MiniLD9 -- JamClock", NULL );
+	SDL_WM_SetCaption( "JamWheel", NULL );
 
 	// seed rand
 	srand( (unsigned int)time(0) );
@@ -459,7 +461,7 @@ int main( int argc, char *argv[] )
 	tracks.push_back( &leadTrack );
 	tracks.push_back( &rhythmTrack );
 
-	// Put a dsp on the drum track to shift down
+	// Put a dsp on the bass track to shift down
 	FMOD::DSP *dsp;
 	g_fmod->createDSPByType( FMOD_DSP_TYPE_PITCHSHIFT, &dsp );	
 	dsp->setParameter( 0, 0.5 );

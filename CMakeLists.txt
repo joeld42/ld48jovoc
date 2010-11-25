@@ -105,6 +105,14 @@ if (ALLEGRO_FOUND)
 endif (ALLEGRO_FOUND)
 
 # ==================================================
+# miniLD9 - JamWheel (aka JamClock)
+#     Dependancies: SDL fmod
+# ==================================================
+if (SDL_FOUND AND OPENGL_FOUND)
+   ADD_SUBDIRECTORY( miniLD9_jamclock/trunk )
+endif (SDL_FOUND AND OPENGL_FOUND)
+
+# ==================================================
 # ld18 Iron Reflex
 #  Dependancies: SDL/OpenGL
 # ==================================================
