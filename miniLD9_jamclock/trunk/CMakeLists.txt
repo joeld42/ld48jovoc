@@ -4,12 +4,14 @@ include_directories( ${CMAKE_SOURCE_DIR}/extern )
 
 # Source files
 SET( jamwheel_SRCS 
-     clock_main.cpp
+     jamwheel_main.cpp
+     GLee.c
      )
 
 # Add Header files to Visual Studio project
 IF (WIN32)
    SET( jamwheel_SRCS ${jamwheel_SRCS} 
+        GLee.h
         )
 ENDIF( WIN32 )
 
@@ -31,8 +33,8 @@ set ( LIBS ${LIBS}
     ${SDL_LIBRARY}
 
     # FIXME: find this from the system
-    -L/work/stuff/fmodapi43205linux64/api/inc
-    -lfmodex64
+    -L/work/stuff/fmodapi43205linux64/api/lib
+    -lfmodex64 -lSDL_ttf -lSDL_gfx
 
      )
 

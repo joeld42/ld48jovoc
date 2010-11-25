@@ -19,8 +19,9 @@
 
 #include <SDL.h>
 #include <SDL_endian.h>
-#include <SDL_draw.h>
 #include <SDL_ttf.h>
+
+#include <SDL_gfxPrimitives.h>
 
 #include <GLee.h>
 #include <GL/gl.h>
@@ -229,14 +230,17 @@ public:
 #endif
 
 			m_surf = SDL_CreateRGBSurface( SDL_SWSURFACE, BAR_TEX_W, BAR_TEX_H, 32,
-											rmask, gmask, bmask, amask );
-
+											rmask, gmask, bmask, amask );            
 			assert(m_surf);
+
+            // clear the surface
+            SDL_FillRect( m_surf, NULL, 0 );
+            
 
 			// Also allocate a gl texture for this
 			glEnable( GL_TEXTURE_2D );
-			glEnable( GL_ALPHA_TEST );
-			glAlphaFunc( GL_GREATER, 0.5 );
+			//glEnable( GL_ALPHA_TEST );
+			//glAlphaFunc( GL_GREATER, 0.5 );
 
 			glGenTextures( 1, &m_glTex );
 			glBindTexture( GL_TEXTURE_2D, m_glTex );
@@ -291,10 +295,19 @@ public:
 				
 				// Outline
 				Sint16 bx = (Sint16)(i*barWidth);
-				Draw_FillRound( m_surf, bx, 0, barWidth - 5, BAR_TEX_H-1, 10, barOutlineCol );				
+
+                printf("drawing bar %d --- %d\n", i, bx );                
+
+				//Draw_FillRound( m_surf, bx, 0, barWidth - 5, BAR_TEX_H-1, 10, barOutlineCol );				
+                //roundedRectangleColor( m_surf, bx, 0, barWidth - 5,
+                //BAR_TEX_H-1, 10, barOutlineCol );			 
+                boxColor( m_surf, bx, 0, barWidth - 5, BAR_TEX_H-1, barOutlineCol );				
 
 				// Fill
-				Draw_FillRound( m_surf, bx+5, 5, barWidth - 15, BAR_TEX_H-11, 10, barFillCol );
+				//Draw_FillRound( m_surf, bx+5, 5, barWidth - 15, BAR_TEX_H-11, 10, barFillCol );
+                //roundedRectangleColor( m_surf, bx+5, 5, barWidth -
+				//15, BAR_TEX_H-11, 10, barFillCol );
+                boxColor( m_surf, bx+5, 5, barWidth - 15, BAR_TEX_H-11, barFillCol );
 
 				// waveform
 				if (m_bar[i].m_wave)
@@ -305,14 +318,22 @@ public:
 						float fhite = m_bar[i].m_wave[waveNdx] / 32768.0f;						
 
 						int hite = (int)(fhite * BAR_TEX_H_2);
-						Draw_Line( m_surf, bx+x, BAR_TEX_H_2 - hite, bx+x, BAR_TEX_H_2 + hite, c_sampleCol );
+						//Draw_Line( m_surf, bx+x, BAR_TEX_H_2 - hite,
+						//bx+x, BAR_TEX_H_2 + hite, c_sampleCol );
+                        vlineColor( m_surf, bx+x, BAR_TEX_H_2 - hite, BAR_TEX_H_2 + hite, c_sampleCol );
 					}
 				}
 
 				// Measure bars
-				Draw_Line( m_surf, bx + (Sint16)(barWidth*0.25), 0, bx + (Sint16)(barWidth*0.25), BAR_TEX_H-1, c_barDark );
-				Draw_Line( m_surf, bx + (Sint16)(barWidth*0.50), 0, bx + (Sint16)(barWidth*0.50), BAR_TEX_H-1, c_barDark );
-				Draw_Line( m_surf, bx + (Sint16)(barWidth*0.75), 0, bx + (Sint16)(barWidth*0.75), BAR_TEX_H-1, c_barDark );				
+				//Draw_Line( m_surf, bx + (Sint16)(barWidth*0.25), 0, bx + (Sint16)(barWidth*0.25), BAR_TEX_H-1, c_barDark );
+				//Draw_Line( m_surf, bx + (Sint16)(barWidth*0.50), 0, bx + (Sint16)(barWidth*0.50), BAR_TEX_H-1, c_barDark );
+				//Draw_Line( m_surf, bx + (Sint16)(barWidth*0.75), 0,
+				//bx + (Sint16)(barWidth*0.75), BAR_TEX_H-1, c_barDark
+				//);
+
+                vlineColor( m_surf, bx + (Sint16)(barWidth*0.25), 0, BAR_TEX_H-1, c_barDark );
+				vlineColor( m_surf, bx + (Sint16)(barWidth*0.50), 0, BAR_TEX_H-1, c_barDark );
+				vlineColor( m_surf, bx + (Sint16)(barWidth*0.75), 0, BAR_TEX_H-1, c_barDark );				
 			}			
 
 			//Draw_Line( m_surf, 0,0, BAR_TEX_W-1, BAR_TEX_H-1, c_red );
