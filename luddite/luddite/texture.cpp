@@ -3,10 +3,6 @@
 #include "texture.h"
 #include "debug.h"
 
-// Loader implementations
-#include "texture_dds.h"
-#include "stb_image.h"
-
 using namespace Luddite;
 
 // adapted from
@@ -38,12 +34,14 @@ bool loadResource( const char *filename, TextureGL *texture )
         return false;        
 	}    
 
+#if 0
 	// DDS textures
 	if (strncmp( ext, ".dds", 4)==0)
 	{        
         texture->m_texId = Texture_load_DDS( filename );        
         return true;        
 	}
+#endif
 
     // textures supported by stb_image
     // TODO: support hdr better
@@ -56,15 +54,14 @@ bool loadResource( const char *filename, TextureGL *texture )
               (strncmp( ext, ".pic", 4)==0) ||
               (strncmp( ext, ".hdr", 4)==0) )
     {
-        unsigned char *data;        
+        unsigned char *data = NULL;
         int w, h, n;
         
         // Load the pixel data
-        data = stbi_load( filename, &w, &h, &n, 0 );
+        //data = stbi_load( filename, &w, &h, &n, 0 );
         if (!data)
         {
-            DBG::error( "Failed to load texture '%s': %s\n",
-                        filename, stbi_failure_reason() );
+            DBG::error( "Failed to load texture '%s'\n", filename );
             return false;            
         }
         
@@ -86,7 +83,7 @@ bool loadResource( const char *filename, TextureGL *texture )
         // Set the texture's stretching properties
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-        glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
+        //glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
 
         GLint fmt;
         switch(n)
@@ -119,7 +116,8 @@ bool loadResource( const char *filename, TextureGL *texture )
 	// Unsupported format
 	DBG::warn( "Unsupported texture format '%s' for texture '%s'\n", 
                ext, filename );
-    
+
+	return false;
 }
 
 void unloadResource( TextureGL *texture )
