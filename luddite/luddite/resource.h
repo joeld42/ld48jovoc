@@ -52,8 +52,10 @@ public:
     HANDLE getResource( const char *name );
     void   freeResource( HANDLE );
 	
-	// Reports resource usage
-	void doReport();
+	// Reports resource usage .. will call ReporterFunc once for
+	// each resource and include name and reference count
+	typedef void (*ReporterFunc)( const std::string &, unsigned int, HANDLE );
+	void doReport( ReporterFunc cbReportFunc=NULL);
 };
 
 template <typename DATA, typename HANDLE >
@@ -149,11 +151,9 @@ void ResourceMgr<DATA,HANDLE>::freeResource( HANDLE hRes )
 }
 
 template <typename DATA, typename HANDLE>
-void ResourceMgr<DATA,HANDLE>::doReport()
+void ResourceMgr<DATA,HANDLE>::doReport( typename ResourceMgr<DATA,HANDLE>::ReporterFunc cbReportFunc )
 {	
-	DBG::info("=======================================\n" );
-	DBG::info(" Resource Usage\n" );
-	DBG::info("=======================================\n" );
+	AssertPtr( cbReportFunc );
 	
 	for ( typename ResourceHash::iterator ri = m_nameIndex.begin();
           ri != m_nameIndex.end(); ++ri )
@@ -161,9 +161,10 @@ void ResourceMgr<DATA,HANDLE>::doReport()
 		
 		HANDLE hRes = (*ri).second;
 		
-		DBG::info("%10s | %d\n", 
-				(*ri).first.c_str(), 
-				m_resMgr._refCount( hRes ) );
+		cbReportFunc( (*ri).first, m_resMgr._refCount( hRes ), hRes );
+		//DBG::info("%10s | %d\n", 
+		//		(*ri).first.c_str(), 
+		//		m_resMgr._refCount( hRes ) );
 	}	
 }
 

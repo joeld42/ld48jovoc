@@ -12,6 +12,7 @@
 
 #include <luddite/handle.h>
 #include <luddite/resource.h>
+#include <luddite/singleton.h>
 
 namespace Luddite
 {
@@ -36,7 +37,7 @@ typedef HandleMgr<TextureGL,HTexture> HTextureMgr;
 typedef ResourceMgr<TextureGL, HTexture> BaseTextureDB;
 
 // All the template funkiness is hidden now. :)
-class TextureDB : public BaseTextureDB
+class TextureDB : public BaseTextureDB, public Singleton<TextureDB>
 {
 public:
 
@@ -56,6 +57,7 @@ public:
 	// todo
 	
 	// Print texture usage report
+	static void reportTexture( const std::string &resName, unsigned int refCount, HTexture hTex );
 	void reportUsage();
     
 };

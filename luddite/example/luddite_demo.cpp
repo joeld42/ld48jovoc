@@ -204,11 +204,11 @@ int main( int argc, char *argv[] )
 						case SDLK_ESCAPE:
 							done = true;
 							break;
-							
+
 						case SDLK_F6:
 							g_texDB.reportUsage();
 							break;
-					}														
+					}
 
 					// let the game handle it
 					//game->keypress( event.key );

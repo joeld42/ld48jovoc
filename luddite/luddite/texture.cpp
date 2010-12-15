@@ -92,9 +92,23 @@ GLuint TextureDB::getTextureId( HTexture hTex )
     return tex->m_texId;    
 }
 
+void TextureDB::reportTexture( const std::string &resName, unsigned int refCount, HTexture hTex )
+{
+	
+	TextureDB &texDB = TextureDB::singleton();
+	TextureGL *tex = texDB.m_resMgr.deref( hTex );
+
+	DBG::info( "%10s|%3d|%4dx%-4d", resName.c_str(), refCount, 
+				tex->m_width, tex->m_height  );
+}
+	
 void TextureDB::reportUsage()
 {
-	doReport();
+	DBG::info("=======================================\n" );
+	DBG::info(" Texture Usage\n" );
+	DBG::info("=======================================\n" );
+
+	doReport( reportTexture );
 }
 
 
