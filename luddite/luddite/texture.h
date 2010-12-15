@@ -20,6 +20,10 @@ namespace Luddite
 struct TextureGL
 {
     std::string m_texName;
+	GLuint m_width;    // width bumped to pow2
+	GLuint m_height;
+	GLuint m_origWidth;  // orig width
+	GLuint m_origHeight;
     GLuint m_texId;
 };
 

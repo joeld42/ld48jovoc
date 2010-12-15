@@ -2,6 +2,7 @@
  *  PNGLoader.c
  *
  *  Created by Alexander Okafor on 10/11/09.
+ *  Modified and brought into Luddite 12/14/10 JBD
  *
  */
 
@@ -10,7 +11,7 @@
 #include <png.h>
 
 #include "PNGLoader.h"
-
+#include "debug.h"
 
 #define PNG_HEADER_SIZE 8
 
@@ -23,7 +24,7 @@ PNGImage LoadImagePNG(const char *path)
 	FILE *PNG_file = fopen(path, "rb");
     if (PNG_file == NULL)
     {
-        printf("Can't open PNG file %s\n", path);
+        DBG::warn("Can't open PNG file %s\n", path);
         return loadedImage;
     }
     
@@ -32,7 +33,7 @@ PNGImage LoadImagePNG(const char *path)
     fread(PNG_header, 1, PNG_HEADER_SIZE, PNG_file);
     if (png_sig_cmp(PNG_header, 0, PNG_HEADER_SIZE) != 0)
     {
-        printf("%s is not a PNG file\n", path);
+        DBG::warn("%s is not a PNG file\n", path);
         return loadedImage;
     }
     
@@ -40,7 +41,7 @@ PNGImage LoadImagePNG(const char *path)
 	= png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (PNG_reader == NULL)
     {
-        printf("Can't start reading PNG file %s\n", path);
+        DBG::warn("Can't start reading PNG file %s\n", path);
         fclose(PNG_file);
         return loadedImage;
     }
@@ -48,7 +49,8 @@ PNGImage LoadImagePNG(const char *path)
     png_infop PNG_info = png_create_info_struct(PNG_reader);
     if (PNG_info == NULL)
     {
-        printf("Can't get info for PNG file %s\n", path);
+        DBG::warn("Can't get info for PNG file %s\n", path);
+		
         png_destroy_read_struct(&PNG_reader, NULL, NULL);
         fclose(PNG_file);
         return loadedImage;
@@ -57,7 +59,8 @@ PNGImage LoadImagePNG(const char *path)
     png_infop PNG_end_info = png_create_info_struct(PNG_reader);
     if (PNG_end_info == NULL)
     {
-        printf("Can't get end info for PNG file %s\n", path);
+        DBG::warn("Can't get end info for PNG file %s\n", path);
+		
         png_destroy_read_struct(&PNG_reader, &PNG_info, NULL);
         fclose(PNG_file);
         return loadedImage;
@@ -65,7 +68,8 @@ PNGImage LoadImagePNG(const char *path)
     
     if (setjmp(png_jmpbuf(PNG_reader)))
     {
-        printf("Can't load PNG file %s\n", path);
+        DBG::warn("Can't load PNG file %s\n", path);
+		
         png_destroy_read_struct(&PNG_reader, &PNG_info, &PNG_end_info);
         fclose(PNG_file);
         return loadedImage;
@@ -175,7 +179,7 @@ PNGImage LoadImagePNG(const char *path)
 	loadedImage.height = height;
 	loadedImage.widthPow2 = widthPow2;
 	loadedImage.heightPow2 = heightPow2;
-	loadedImage.textureID = textureID;
+	loadedImage.textureId = textureID;
 	loadedImage.loadedSuccessfully = GL_TRUE;
 	
     return loadedImage;
@@ -227,9 +231,9 @@ void png_read_premultiply_alpha(png_structp png_ptr, png_row_infop row_info, png
 		{
 			//png_byte *pixel = row_pointer + (pos*row_info->channels);
 			float alphaMultiply = pixel[3] / 255.0;
-			pixel[0] *= alphaMultiply;
-			pixel[1] *= alphaMultiply;
-			pixel[2] *= alphaMultiply;
+			pixel[0] = (png_byte)(pixel[0] * alphaMultiply);
+			pixel[1] = (png_byte)(pixel[1] * alphaMultiply);
+			pixel[2] = (png_byte)(pixel[2] * alphaMultiply);
 			
 			pixel += row_info->channels;
 		}

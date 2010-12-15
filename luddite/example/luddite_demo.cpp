@@ -250,6 +250,7 @@ int main( int argc, char *argv[] )
 
 		SDL_GL_SwapBuffers();
 
+		// Call this once a frame if using tweakables
         //ReloadChangedTweakableValues();        
 	}
 

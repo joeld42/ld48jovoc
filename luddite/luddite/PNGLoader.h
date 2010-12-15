@@ -14,6 +14,7 @@
 
 //#include <OpenGLES/ES1/gl.h>
 
+
 #include <GL/gl.h>
 #include <png.h>
 
@@ -26,7 +27,7 @@ extern "C" {
 		int widthPow2;
 		int height;
 		int heightPow2;
-		GLuint textureID;
+		GLuint textureId;
 		GLboolean loadedSuccessfully;
 	} PNGImage;
 	

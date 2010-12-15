@@ -20,8 +20,8 @@ SET( luddite_SRCS
      # luddite/texture_png.cpp
      # luddite/tweakval.cpp
      luddite/digistrip.cpp
-     luddite/stb_image.cpp
      luddite/GLee.c
+     luddite/PNGLoader.cpp
 
      example/luddite_demo.cpp
      )
@@ -52,6 +52,7 @@ ENDIF( WIN32 )
 include_directories( 
     ${OPENGL_INCLUDE_DIR} 
     ${SDL_INCLUDE_DIR}
+    ${PNG_PNG_INCLUDE_DIR}
     )
 
 #include_directories( ${X11_INCLUDE_DIRS} )
@@ -66,6 +67,7 @@ if (UNIX)
     include_directories( ${X11_INCLUDE_DIRS} )
     set ( LIBS ${LIBS} 
         ${X11_LIBRARIES} 
+        ${PNG_LIBRARY}
 #        ${X11_Xcursor_LIB}
 #        ${X11_Xpm_LIB}
 #        pthread

@@ -37,8 +37,8 @@ void Luddite::Font::addGlyph( char ch,
 	g.w = w; g.h = h;
 	
 	// Placement in texture space
-	g.s0 = s0; g.t0 = t0;
-	g.s1 = s1; g.t1 = t1;
+	g.s0 = s0; g.t0 = 1.0-t0;
+	g.s1 = s1; g.t1 = 1.0-t1;
 }
 
 void Luddite::Font::setColor( float r, float g, float b, float a )
