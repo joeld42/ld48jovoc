@@ -108,7 +108,7 @@ public:
     void release( HANDLE  handle );
 
     // reference counting 
-    void addrefCount( HANDLE handle );    
+    void addrefCount( HANDLE handle );    	
 
     // this is a little unusual because the
     // handle doesn't know how to free any resources owned by data
@@ -120,6 +120,9 @@ public:
     // deref
     DATA *deref( HANDLE handle );
     const DATA *deref( HANDLE handle ) const;
+	
+	// mostly for debugging, shouldn't peek at this
+	unsigned int _refCount( HANDLE handle );    
     
     // other queries
     unsigned int getUsedHandleCount( void ) const 
@@ -173,6 +176,13 @@ void HandleMgr<DATA, HANDLE>::addrefCount( HANDLE handle )
     assert( m_magicNumbers[ index ] == handle.getMagic() );
 
     m_refCount[ index ] ++;
+}
+
+template <typename DATA, typename HANDLE>
+unsigned int HandleMgr<DATA, HANDLE>::_refCount( HANDLE handle )
+{
+	unsigned int index = handle.getIndex();
+	return m_refCount[ index ];
 }
 
 template <typename DATA, typename HANDLE>

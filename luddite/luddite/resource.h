@@ -51,6 +51,9 @@ public:
     // Gets a resource, loading it if needed
     HANDLE getResource( const char *name );
     void   freeResource( HANDLE );
+	
+	// Reports resource usage
+	void doReport();
 };
 
 template <typename DATA, typename HANDLE >
@@ -83,16 +86,8 @@ HANDLE ResourceMgr<DATA,HANDLE>::getResource( const char *name )
 	typename ResourceHash::iterator ri = m_nameIndex.find( name );
 	if ( ri != m_nameIndex.end() )
 	{
-		hRes = (*ri).second;
-		DBG::info( "FOUND %s\n", name );
+		hRes = (*ri).second;		
 	}
-	else
-	{
-		DBG::info( "Didn't find %s\n", name );
-	}
-
-
-	DBG::info( "Handle is %u\n", hRes.getHandle() );
     
     // if the handle is NULL, either because this is something new or 
     // previously deleted, aquire it's resource
@@ -153,7 +148,24 @@ void ResourceMgr<DATA,HANDLE>::freeResource( HANDLE hRes )
     }    
 }
 
-
+template <typename DATA, typename HANDLE>
+void ResourceMgr<DATA,HANDLE>::doReport()
+{	
+	DBG::info("=======================================\n" );
+	DBG::info(" Resource Usage\n" );
+	DBG::info("=======================================\n" );
+	
+	for ( typename ResourceHash::iterator ri = m_nameIndex.begin();
+          ri != m_nameIndex.end(); ++ri )
+    {
+		
+		HANDLE hRes = (*ri).second;
+		
+		DBG::info("%10s | %d\n", 
+				(*ri).first.c_str(), 
+				m_resMgr._refCount( hRes ) );
+	}	
+}
 
 #endif
 

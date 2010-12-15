@@ -92,4 +92,9 @@ GLuint TextureDB::getTextureId( HTexture hTex )
     return tex->m_texId;    
 }
 
+void TextureDB::reportUsage()
+{
+	doReport();
+}
+
 

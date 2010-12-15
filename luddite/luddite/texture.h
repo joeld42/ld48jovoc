@@ -51,6 +51,12 @@ public:
 
     // Access to texture name
     const std::string &getTextureName( HTexture hTex );
+	
+	// Access to texture size
+	// todo
+	
+	// Print texture usage report
+	void reportUsage();
     
 };
 
