@@ -23,7 +23,13 @@
 #include <SDL.h>
 #include <SDL_endian.h>
 
+#include "bonsai.h"
 
+#include "glsw.h"
+
+#include "PVRT/PVRTVector.h"
+#include "PVRT/PVRTMatrix.h"
+#include "PVRT/PVRTQuaternion.h"
 
 // Stupid X11 uses 'Font' too
 using namespace Luddite;
@@ -49,6 +55,156 @@ Luddite::Font *g_font32 = NULL;
 USE_AVAR( float );
 AnimFloat g_textX;
 
+Bonsai *g_treeLand;
+
+PVRTMat4 matModelview;
+PVRTMat4 matProjection;
+PVRTMat4 matMVP;
+
+PVRTQUATERNION quatCam;
+
+// ===========================================================================
+GLuint compileShader( const char *shaderText, GLenum shaderType )
+{
+    GLint status;    
+    GLuint shader;
+    shader = glCreateShader( shaderType );
+    
+    // compile the shader
+    glShaderSource( shader, 1, &shaderText, NULL );
+    glCompileShader( shader );
+    
+    // Check for errors
+    GLint logLength;
+    glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &logLength );
+	DBG::info( "Loglength %d >0 %s\n", logLength, (logLength>0)?"true":"false" );
+
+    if (logLength > 1)
+    {
+        char *log = (char *)malloc(logLength);
+        glGetShaderInfoLog( shader, logLength, &logLength, log );		
+
+        DBG::error("Error compiling shader:\n'%s'\n", log );
+        free(log);        
+    }
+    
+    glGetShaderiv( shader,GL_COMPILE_STATUS, &status );
+    if (status==0)
+    {
+        glDeleteShader( shader );
+        // TODO: throw exception
+        DBG::warn("Compile status is bad\n" );
+        
+        return 0;        
+    }
+
+    return shader;    
+}
+
+// ===========================================================================
+void printShaderLog( GLuint program )
+{
+	GLint logLength;
+    glGetProgramiv( program, GL_INFO_LOG_LENGTH, &logLength );
+    if (logLength > 0 )
+    {
+        char *log = (char*)malloc(logLength);
+        glGetProgramInfoLog( program, logLength, &logLength, log );
+        DBG::info ("Link Log:\n%s\n", log );
+        free(log);        
+    }
+	
+}
+
+// ===========================================================================
+void link(GLuint program )
+{
+    GLint status;
+    
+    glLinkProgram( program );
+	
+	printShaderLog( program );
+	
+    glGetProgramiv( program, GL_LINK_STATUS, &status);
+    if (status==0)
+    {
+		DBG::error("ERROR Linking shader\n");        
+    }    
+}
+
+
+// ===========================================================================
+bool loadShader( const char *shaderKey, GLuint &program )
+{
+	DBG::info("loadShader %s ...\n", shaderKey );
+	
+    // Create shader program
+    program = glCreateProgram();
+
+    // vertex and fragment shaders
+    GLuint vertShader, fragShader;    
+
+    // Get the vertex shader part
+    char fullShaderKey[256];
+    sprintf(fullShaderKey, "%s.Vertex", shaderKey );    
+    const char *vertShaderText = glswGetShader( fullShaderKey );
+    if (!vertShaderText)
+    {
+		DBG::warn("Couldn't find shader key: %s\n", fullShaderKey );
+		return false;
+    }
+
+    // Compile the vertex shader
+    vertShader = compileShader( vertShaderText, GL_VERTEX_SHADER );
+
+    // Get fragment shader
+    sprintf(fullShaderKey, "%s.Fragment", shaderKey );    
+    const char *fragShaderText = glswGetShader( fullShaderKey );
+    if (!fragShaderText)
+    {
+        DBG::warn("Couldn't find shader key: %s\n", fullShaderKey );
+		return false;
+    }
+
+    DBG::info( "compile fragment shader\n" );
+    
+    // Compile the fragment shader
+    fragShader = compileShader( fragShaderText, GL_FRAGMENT_SHADER );
+
+    // Attach shaders
+    glAttachShader( program, vertShader );
+    glAttachShader( program, fragShader );
+
+    DBG::info("... bind attrs\n" );
+	
+	// Bind Attrs (todo put in subclass)
+	// FIXME: some shaders dont have all these attrs..
+	glBindAttribLocation( program, Attrib_POSITION, "position" );
+	glBindAttribLocation( program, Attrib_TEXCOORD, "texcoord" );
+	glBindAttribLocation( program, Attrib_NORMAL,   "normal" );    
+	glBindAttribLocation( program, Attrib_COLOR,   "color" );
+	
+    
+    //  Link Shader
+    DBG::info("... links shaders\n" );
+    link( program );
+    
+    // Release vert and frag shaders
+    glDeleteShader( vertShader );
+    glDeleteShader( fragShader );    
+
+	
+	// print shader params
+	DBG::info(" ----- %s ------\n", shaderKey );
+	int activeUniforms;
+	glGetProgramiv( program, GL_ACTIVE_UNIFORMS, &activeUniforms );
+	
+	DBG::info(" Active Uniforms: %d\n", activeUniforms );
+	
+    return true;    
+}
+
+
 // ===========================================================================
 void game_init()
 {
@@ -61,6 +217,13 @@ void game_init()
 
     // set up the pulse Avar
     g_textX.pulse( 0, 800 - g_font32->calcWidth( "HELLO" ), 10.0, 0.0 );    
+
+	// set up shaders
+	glswInit();
+	glswSetPath( "gamedata/", ".glsl" );
+
+	PVRTMatrixQuaternionIdentity( quatCam );
+
 }
 
 // ===========================================================================
@@ -68,6 +231,11 @@ void game_init()
 // effect gameplay here
 void game_updateSim( float dtFixed )
 {
+	// rotate
+	PVRTQUATERNION qrot;
+	PVRTMatrixQuaternionRotationAxis( qrot, PVRTVec3( 0.0, 1.0, 0.0 ), 20.0*(M_PI/180.0)*dtFixed );
+	PVRTMatrixQuaternionMultiply( quatCam, quatCam, qrot );
+
     // Updates all avars
     AnimFloat::updateAvars( dtFixed );    
 }
@@ -95,6 +263,36 @@ void game_redraw()
 {
     glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+	// set up the camera
+	float aspect = 800.0 / 600.0;
+	PVRTMatrixPerspectiveFovLH( matProjection, 45.0, aspect,
+								0.01f, 1000.0f, false );
+
+	glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();        
+
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();    
+
+	PVRTMat4 m;
+	PVRTMatrixIdentity( matModelview );
+
+	//PVRTMatrixRotationY( m, 20.0 );
+	//PVRTMatrixMultiply( matModelview, matModelview, m );
+	PVRTMatrixRotationQuaternion( m, quatCam );
+	PVRTMatrixMultiply( matModelview, matModelview, m );	
+
+	PVRTMatrixTranslation( m, 0.0, 0.0, 5.0 );
+	PVRTMatrixMultiply( matModelview, matModelview, m );
+
+	PVRTMatrixMultiply( matMVP, matModelview, matProjection );
+
+	//DBG::info( "m[0] %f %f %f\n", matMVP[0][0], matMVP[0][1], matMVP[0][2] );
+	g_treeLand->setCamera( matMVP );
+	
+	// draw land thinggy
+	g_treeLand->renderAll();
 
     // set up camera
     glMatrixMode( GL_PROJECTION );
@@ -166,7 +364,13 @@ int main( int argc, char *argv[] )
     atexit( game_shutdown );  
 
     // init graphics
-    glViewport( 0, 0, 800, 600 );    
+    glViewport( 0, 0, 800, 600 );
+
+	// Build a treeland thinggy
+	g_treeLand = new Bonsai();
+	g_treeLand->init();
+
+	g_treeLand->buildAll();
 
 	//=====[ Main loop ]======
 	bool done = false;

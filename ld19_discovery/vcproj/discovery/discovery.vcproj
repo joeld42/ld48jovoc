@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Projects\ld48jovoc\luddite\luddite;C:\Projects\ld48jovoc\luddite;C:\Toolkits\lpng1216\lpng1216;C:\Toolkits\lpng1216\zlib;&quot;C:\Toolkits\SDL-1.2.4\include&quot;"
+				AdditionalIncludeDirectories="C:\Projects\ld48jovoc\luddite\luddite;C:\Projects\ld48jovoc\luddite;C:\Toolkits\lpng1216\lpng1216;C:\Toolkits\lpng1216\zlib;&quot;C:\Toolkits\SDL-1.2.4\include&quot;;C:\Projects\ld48jovoc\extern\glsw"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -178,7 +178,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\bonsai.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\bonsai.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\discovery_main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\gamedata\shaders.glsl"
 				>
 			</File>
 		</Filter>
@@ -275,6 +287,74 @@
 			</File>
 			<File
 				RelativePath="..\..\..\luddite\luddite\texture.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="PVRT"
+			>
+			<File
+				RelativePath="..\..\PVRT\PVRTFixedPoint.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PVRT\PVRTFixedPoint.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PVRT\PVRTGlobal.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PVRT\PVRTMatrix.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PVRT\PVRTMatrixF.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PVRT\PVRTMatrixX.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PVRT\PVRTQuaternion.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PVRT\PVRTQuaternionF.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PVRT\PVRTQuaternionX.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PVRT\PVRTVector.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\PVRT\PVRTVector.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="glsw"
+			>
+			<File
+				RelativePath="..\..\..\extern\glsw\bstrlib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\extern\glsw\bstrlib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\extern\glsw\glsw.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\extern\glsw\glsw.h"
 				>
 			</File>
 		</Filter>
