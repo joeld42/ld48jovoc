@@ -64,10 +64,37 @@ void unloadResource( TextureGL *texture )
     glDeleteTextures( 1, &texture->m_texId );    
 }
 
-
 HTexture TextureDB::getTexture( const char *name )
 {
     return BaseTextureDB::getResource( name );    
+}
+
+HTexture TextureDB::buildTextureFromData( const char *name, const GLubyte *data, 
+									GLint width, GLint height )
+{
+	HTexture hTex = BaseTextureDB::getResource( name, true );
+
+	// texture is not initialized, do so now
+	TextureGL *tex = m_resMgr.deref( hTex );
+
+	tex->m_texName = name;
+	glGenTextures( 1, &(tex->m_texId) );
+
+	glBindTexture(GL_TEXTURE_2D, tex->m_texId);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+				  GL_RGB, GL_UNSIGNED_BYTE, data );
+	
+	tex->m_origWidth = width;
+	tex->m_origHeight = height;
+
+	tex->m_width = width;
+	tex->m_height = height;
+
+	return hTex;
+	
 }
 
 void TextureDB::freeTexture( HTexture hTex )

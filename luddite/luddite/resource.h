@@ -49,7 +49,7 @@ public:
     ~ResourceMgr();
     
     // Gets a resource, loading it if needed
-    HANDLE getResource( const char *name );
+    HANDLE getResource( const char *name, bool _dontLoad=false );
     void   freeResource( HANDLE );
 	
 	// Reports resource usage .. will call ReporterFunc once for
@@ -81,7 +81,7 @@ ResourceMgr<DATA,HANDLE>::~ResourceMgr()
 }
 
 template <typename DATA, typename HANDLE>
-HANDLE ResourceMgr<DATA,HANDLE>::getResource( const char *name )
+HANDLE ResourceMgr<DATA,HANDLE>::getResource( const char *name, bool _dontLoad )
 {
     HANDLE hRes;
 
@@ -97,16 +97,20 @@ HANDLE ResourceMgr<DATA,HANDLE>::getResource( const char *name )
     {    
         DATA *data = m_resMgr.acquire( hRes );
 
-		DBG::info( "Not Found, loading\n", name );
+		if (!_dontLoad)
+		{
+			DBG::info( "Not Found, loading\n", name );
 
-        // Load the resource
-        if (!loadResource( name, data ))
-        {
-            // todo: error check
-            DBG::warn("failed to load resource %s", name );
-            return HANDLE();            
-        }
-    
+			// Load the resource
+			if (!loadResource( name, data ))
+			{
+				// todo: error check
+				DBG::warn("failed to load resource %s", name );
+				return HANDLE();            
+			}
+
+		}
+
 		// Add it to the map
 		m_nameIndex[ name ] = hRes;
 		DBG::info( "adding to map\n" );

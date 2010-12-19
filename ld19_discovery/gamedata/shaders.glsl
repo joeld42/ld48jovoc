@@ -21,6 +21,13 @@ uniform vec3 lightPos0;
 varying vec2 st;
 void main()
 {
-	gl_FragColor = texture2D( sampler_dif0, st );
+	if (st.x < 0.5)
+	{
+		gl_FragColor = texture2D( sampler_dif0, st );
+	}
+	else
+	{
+		gl_FragColor = texture2D( sampler_nrm0, st );
+	}
 	//gl_FragColor = vec4( st.x, 0.0, st.y, 1.0 );
 }

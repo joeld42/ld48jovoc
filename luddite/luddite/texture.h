@@ -45,6 +45,9 @@ public:
     HTexture getTexture( const char *name );
     void freeTexture( HTexture hTex );
 
+	HTexture buildTextureFromData( const char *name, const GLubyte *data, 
+									GLint width, GLint height );
+
     // Access to texture
     // TODO: needs to be reconsiled with the 
     // GraphicsES1/GraphicsES2 code

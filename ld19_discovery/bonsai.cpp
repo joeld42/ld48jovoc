@@ -21,9 +21,11 @@
 bool loadShader( const char *shaderKey, GLuint &program );
 
 TreeLand::TreeLand( float *heightData, 
-				   Luddite::HTexture htexColor ) : 
+				   Luddite::HTexture htexColor,
+				   Luddite::HTexture htexNorm ) : 
 	m_hiteData( heightData ),
-	m_htexTerrainColor( htexColor )
+	m_htexTerrainColor( htexColor ),
+	m_htexTerrainNorm( htexNorm )
 {
 }
 
@@ -105,11 +107,11 @@ void TreeLand::_makeQuad( int i, int j )
 void TreeLand::renderAll()
 {
 	//glBindTexture( GL_TEXTURE_2D, m_texId );		
-	Luddite::TextureDB &texDB = Luddite::TextureDB::singleton();
-	GLuint texId = texDB.getTextureId( m_htexTerrainColor );
+	
 
-	glEnable( GL_TEXTURE );
-	glBindTexture( GL_TEXTURE_2D, texId );		
+	//glEnable( GL_TEXTURE );
+	//glBindTexture( GL_TEXTURE_2D, texId );		
+	
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo() );
 	updateBuffer();
@@ -135,6 +137,14 @@ void TreeLand::renderAll()
 	glDisableVertexAttribArray( Attrib_POSITION );
     //glDisableVertexAttribArray( Attrib_NORMAL );
     glDisableVertexAttribArray( Attrib_TEXCOORD );
+
+	glActiveTexture( GL_TEXTURE1 );
+	glDisable( GL_TEXTURE_2D );
+
+	glActiveTexture( GL_TEXTURE0 );
+	glEnable( GL_TEXTURE_2D );	
+
+	
 
 	//glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	//glDisableClientState( GL_COLOR_ARRAY );
@@ -166,6 +176,7 @@ void Bonsai::init()
 	
 		m_paramTreeland_PMV = glGetUniformLocation( m_progTreeland, "matrixPMV" );
 		m_paramTreeland_samplerDif0 = glGetUniformLocation( m_progTreeland, "sampler_dif0" );
+		m_paramTreeland_samplerNrm0 = glGetUniformLocation( m_progTreeland, "sampler_nrm0" );
 	}
 }
 
@@ -229,8 +240,9 @@ void Bonsai::buildAll()
 
 	// check if there is cached normal data available
 	// TODO
-	if (false)
+	if (_checkCachedColorImage( "NRM", m_terrainNorm, HITE_RES ))
 	{
+		DBG::info( "Land '%s' read cached normals.\n", m_name );
 	}
 	else
 	{
@@ -273,15 +285,27 @@ void Bonsai::buildAll()
 	Luddite::HTexture htexNrm = texDB->buildTextureFromData( s, m_terrainNorm, 1024, 1024 );
 
 	// Make a land part
-	m_treeLand = new TreeLand( m_hiteData, htexNrm );
+	m_treeLand = new TreeLand( m_hiteData, htex, htexNrm );
 	m_treeLand->build();
 }
 
 void Bonsai::renderAll()
 {
+	Luddite::TextureDB &texDB = Luddite::TextureDB::singleton();
+	GLuint texId = texDB.getTextureId( m_treeLand->m_htexTerrainColor );
+	GLuint texIdNorm = texDB.getTextureId( m_treeLand->m_htexTerrainNorm );
+			
+	glActiveTexture( GL_TEXTURE0 );
+	glEnable( GL_TEXTURE_2D );
+	glBindTexture( GL_TEXTURE_2D, texId );
+
+	glActiveTexture( GL_TEXTURE1 );
+	glEnable( GL_TEXTURE_2D );
+	glBindTexture( GL_TEXTURE_2D, texId );
+
 	glUseProgram( m_progTreeland );
-	
 	glUniform1i( m_paramTreeland_samplerDif0, 0 );
+	glUniform1i( m_paramTreeland_samplerNrm0, 1 );	
 
 	m_treeLand->renderAll();
 

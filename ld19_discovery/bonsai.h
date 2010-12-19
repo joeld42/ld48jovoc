@@ -28,7 +28,7 @@ struct TreeVert
 class TreeLand : public QuadBuff<TreeVert>
 {
 public:
-	TreeLand( float *heightData, Luddite::HTexture htexColor );
+	TreeLand( float *heightData, Luddite::HTexture htexColor, Luddite::HTexture htexNorm );
 
 	void build();
 	void renderAll();
@@ -37,8 +37,9 @@ public:
 
 	float hite( float x, float y );
 
-protected:
+//protected:
 	Luddite::HTexture m_htexTerrainColor;
+	Luddite::HTexture m_htexTerrainNorm;
 
 	float *m_hiteData; // doesn't own, borrowed from Bonsai	
 };
