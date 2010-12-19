@@ -54,7 +54,7 @@ Luddite::Font *g_font20 = NULL;
 Luddite::Font *g_font32 = NULL;
 
 USE_AVAR( float );
-AnimFloat g_textX;
+//AnimFloat g_textX;
 
 Bonsai *g_treeLand;
 
@@ -62,7 +62,11 @@ PVRTMat4 matModelview;
 PVRTMat4 matProjection;
 PVRTMat4 matMVP;
 
+PVRTVec3 playerPos;
 PVRTQUATERNION quatCam;
+
+// wrt player -- +Z = move forward
+PVRTVec3 moveDir;
 
 // ===========================================================================
 GLuint compileShader( const char *shaderText, GLenum shaderType )
@@ -217,7 +221,7 @@ void game_init()
     g_font32 = ::makeFont_Digistrip_32( texId );
 
     // set up the pulse Avar
-    g_textX.pulse( 0, 800 - g_font32->calcWidth( "HELLO" ), 10.0, 0.0 );    
+    //g_textX.pulse( 0, 800 - g_font32->calcWidth( "HELLO" ), 10.0, 0.0 );    
 
 	// init noise
 	initNoise();
@@ -226,6 +230,9 @@ void game_init()
 	glswInit();
 	glswSetPath( "gamedata/", ".glsl" );
 
+
+	// player
+	playerPos = PVRTVec3( 0.0, 0.0, 0.0 );	
 	PVRTMatrixQuaternionIdentity( quatCam );
 
 }
@@ -236,9 +243,25 @@ void game_init()
 void game_updateSim( float dtFixed )
 {
 	// rotate
-	PVRTQUATERNION qrot;
-	PVRTMatrixQuaternionRotationAxis( qrot, PVRTVec3( 0.0, 1.0, 0.0 ), 20.0*(M_PI/180.0)*dtFixed );
-	PVRTMatrixQuaternionMultiply( quatCam, quatCam, qrot );
+	//PVRTQUATERNION qrot;
+	//PVRTMatrixQuaternionRotationAxis( qrot, PVRTVec3( 0.0, 1.0, 0.0 ), 20.0*(M_PI/180.0)*dtFixed );
+	//PVRTMatrixQuaternionMultiply( quatCam, quatCam, qrot );
+
+	// Move player
+	const float moveRate = 100.0;	
+	playerPos += moveDir * moveRate * dtFixed;
+	playerPos.y = g_treeLand->getHeight( playerPos );
+
+	// push player back towards center if too far
+	PVRTVec3 centerDir = -playerPos;	
+	centerDir.y = 0.0;
+	float outsideLen = centerDir.length() - 400.0;
+	if (outsideLen > 0)
+	{
+		centerDir.normalize();
+		playerPos += centerDir * outsideLen;
+	}
+
 
     // Updates all avars
     AnimFloat::updateAvars( dtFixed );    
@@ -290,7 +313,8 @@ void game_redraw()
 	PVRTMatrixMultiply( matModelview, matModelview, m );	
 
 	//PVRTMatrixTranslation( m, 0.0, -0.75, 3.0 );
-	PVRTMatrixTranslation( m, 0.0, -50.0, 3.0 );
+	//PVRTMatrixTranslation( m, 0.0, -50.0, 3.0 );
+	PVRTMatrixTranslation( m, -playerPos.x, -(playerPos.y+3.0), -playerPos.z );
 	PVRTMatrixMultiply( matModelview, matModelview, m );
 
 	PVRTMatrixMultiply( matMVP, matModelview, matProjection );
@@ -316,8 +340,8 @@ void game_redraw()
     glEnable( GL_TEXTURE_2D );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );    
 
-    g_font32->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
-    g_font32->drawString( g_textX.animValue(), 300, "HELLO" );    
+    //g_font32->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
+    //g_font32->drawString( g_textX.animValue(), 300, "HELLO" );    
 
     // actually draw the text
     g_font20->renderAll();
@@ -381,6 +405,8 @@ int main( int argc, char *argv[] )
 
 	g_treeLand->buildAll();
 
+	playerPos.y = g_treeLand->getHeight( playerPos );
+
 	//=====[ Main loop ]======
 	bool done = false;
 	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;	
@@ -424,7 +450,23 @@ int main( int argc, char *argv[] )
 					break;
 			}
 		}
-		
+
+		// continious keypresses
+		Uint8 *keys;
+		keys = SDL_GetKeyState(NULL);
+		moveDir = PVRTVec3( 0.0, 0.0, 0.0 );
+		if (keys[SDLK_a] && !keys[SDLK_d]) {
+			moveDir.x = 1.0;
+		}
+		if (!keys[SDLK_a] && keys[SDLK_d]) {
+			moveDir.x = -1.0;
+		}
+		if (keys[SDLK_s] && !keys[SDLK_w]) {
+			moveDir.z = 1.0;
+		}
+		if (!keys[SDLK_s] && keys[SDLK_w]) {
+			moveDir.z = -1.0;
+		}
 		
 		// Timing
 		ticks_elapsed = SDL_GetTicks() - ticks;

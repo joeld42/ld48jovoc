@@ -98,6 +98,7 @@ void TreeLand::_makeQuad( int i, int j )
 
 	for (int i=0; i < 6; i++)
 	{
+		// fixme: make these unhard-coded
 		newVert[i].pos[0] *= 500.0;
 		newVert[i].pos[1] *= 500.0;
 		newVert[i].pos[2] *= 100.0;
@@ -139,7 +140,7 @@ void TreeLand::renderAll()
     glDisableVertexAttribArray( Attrib_TEXCOORD );
 
 	glActiveTexture( GL_TEXTURE1 );
-	glDisable( GL_TEXTURE_2D );
+	glEnable( GL_TEXTURE_2D );
 
 	glActiveTexture( GL_TEXTURE0 );
 	glEnable( GL_TEXTURE_2D );	
@@ -177,6 +178,9 @@ void Bonsai::init()
 		m_paramTreeland_PMV = glGetUniformLocation( m_progTreeland, "matrixPMV" );
 		m_paramTreeland_samplerDif0 = glGetUniformLocation( m_progTreeland, "sampler_dif0" );
 		m_paramTreeland_samplerNrm0 = glGetUniformLocation( m_progTreeland, "sampler_nrm0" );
+
+		m_paramTreeland_lightDir = glGetUniformLocation( m_progTreeland, "lightDir0" );
+		m_paramTreeland_eyeDir = glGetUniformLocation( m_progTreeland, "eyeDir" );
 	}
 }
 
@@ -188,10 +192,13 @@ void Bonsai::buildAll()
 	m_terrainNorm = new GLubyte [ HITE_RES * HITE_RES * 3 ];
 
 	// HERE -- set up params
+
+	Luddite::HTexture htexColor;
+	Luddite::HTexture htexNorms;
 	
 	// check if there is cached image data available		
-	if ((_checkCachedColorImage( "DIF0", m_terrainColor, HITE_RES)) &&
-		(_checkCachedHeight( "HITE", m_hiteData, HITE_RES ) ))
+	htexColor = _checkCachedColorImage( "DIF0", m_terrainColor, HITE_RES);
+	if ( (!htexColor.isNull() ) && (_checkCachedHeight( "HITE", m_hiteData, HITE_RES ) ))
 	{
 		DBG::info( "Land '%s' read cached color and height.\n", m_name );
 	}
@@ -240,7 +247,7 @@ void Bonsai::buildAll()
 
 	// check if there is cached normal data available
 	// TODO
-	if (_checkCachedColorImage( "NRM", m_terrainNorm, HITE_RES ))
+	if (false && _checkCachedColorImage( "NRM", m_terrainNorm, HITE_RES ))
 	{
 		DBG::info( "Land '%s' read cached normals.\n", m_name );
 	}
@@ -276,16 +283,24 @@ void Bonsai::buildAll()
 
 	// Build texture
 	static int treeId = 0;
-	char s[20];
-	sprintf( s, "treeland%d", treeId++);
-
+	
 	Luddite::TextureDB *texDB = Luddite::TextureDB::singletonPtr();
-	Luddite::HTexture htex = texDB->buildTextureFromData( s, m_terrainColor, 1024, 1024 );
+	if (htexColor.isNull())
+	{
+		char s[20];
+		sprintf( s, "treeland%d", treeId++);
+		htexColor = texDB->buildTextureFromData( s, m_terrainColor, 1024, 1024 );
+	}
 
-	Luddite::HTexture htexNrm = texDB->buildTextureFromData( s, m_terrainNorm, 1024, 1024 );
+	if (htexNorms.isNull())
+	{
+		char s[20];
+		sprintf( s, "treenorms%d", treeId++);
+		htexNorms = texDB->buildTextureFromData( s, m_terrainNorm, 1024, 1024 );
+	}
 
 	// Make a land part
-	m_treeLand = new TreeLand( m_hiteData, htex, htexNrm );
+	m_treeLand = new TreeLand( m_hiteData, htexColor, htexNorms );
 	m_treeLand->build();
 }
 
@@ -301,11 +316,18 @@ void Bonsai::renderAll()
 
 	glActiveTexture( GL_TEXTURE1 );
 	glEnable( GL_TEXTURE_2D );
-	glBindTexture( GL_TEXTURE_2D, texId );
+	glBindTexture( GL_TEXTURE_2D, texIdNorm );
 
 	glUseProgram( m_progTreeland );
 	glUniform1i( m_paramTreeland_samplerDif0, 0 );
 	glUniform1i( m_paramTreeland_samplerNrm0, 1 );	
+
+	PVRTVec3 lightDir( 0.5, 1, 0 );
+	lightDir.normalize();
+	
+	// TODO: xform by camMVP
+
+	glUniform3f( m_paramTreeland_lightDir, lightDir.x, lightDir.y, lightDir.z );
 
 	m_treeLand->renderAll();
 
@@ -316,6 +338,9 @@ void Bonsai::setCamera( PVRTMat4 &camMVP )
 {
 	glUseProgram( m_progTreeland );
 	glUniformMatrix4fv( m_paramTreeland_PMV, 1, GL_FALSE, camMVP.f );	
+
+	// get eye dir from cam
+	glUniform3f( m_paramTreeland_eyeDir, -camMVP[2][0], -camMVP[2][1], -camMVP[2][2] );
 }
 
 void Bonsai::synthesize( size_t ndx, float ii, float jj )
@@ -404,7 +429,7 @@ void Bonsai::_cacheColorImage( const char *suffix, GLubyte *data, int sz )
 	DBG::info( "Wrote cache image %s\n", filename );
 }
 
-bool Bonsai::_checkCachedColorImage( const char *suffix, GLubyte *data, int sz )
+Luddite::HTexture Bonsai::_checkCachedColorImage( const char *suffix, GLubyte *data, int sz )
 {
 	char filename[256];
 	sprintf( filename, "./%s/%s_%s.png", CACHE_DIR, m_name, suffix );
@@ -413,9 +438,15 @@ bool Bonsai::_checkCachedColorImage( const char *suffix, GLubyte *data, int sz )
 	if (!fp)
 	{
 		// no cached image exists
-		return false;
+		return Luddite::HTexture();
 	}
 
+	Luddite::TextureDB &texDB = Luddite::TextureDB::singleton();
+	Luddite::HTexture htex = texDB.getTexture( filename );
+
+	return htex;
+
+#if 0
 	// cached image exists, load it
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL );
    if (!png_ptr)
@@ -451,6 +482,8 @@ bool Bonsai::_checkCachedColorImage( const char *suffix, GLubyte *data, int sz )
    png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
 
    return true;
+#endif
+
 }
 
 // FIXME: use a readable image format (like float tiff) so we
@@ -500,4 +533,12 @@ bool Bonsai::_checkCachedHeight( const char *suffix, float *data, int sz )
 	gzclose( fp );
 
 	return true;
+}
+
+float Bonsai::getHeight( PVRTVec3 pos )
+{	
+	pos.x /= 500.0;
+	pos.z /= 500.0;	
+
+	return m_treeLand->hite( pos.x, pos.z ) * 100;
 }

@@ -57,6 +57,8 @@ public:
 	void buildAll();
 	void renderAll();
 
+	float getHeight( PVRTVec3 pos );
+
 	void synthesize( size_t ndx, float ii, float jj );
 
 	void setCamera( PVRTMat4 &camMVP );	
@@ -69,7 +71,7 @@ protected:
 	void _cacheColorImage( const char *suffix, GLubyte *data, int sz );
 	void _cacheHeight( const char *suffix, float *data, int sz );
 
-	bool _checkCachedColorImage( const char *suffix, GLubyte *data, int sz );
+	Luddite::HTexture _checkCachedColorImage( const char *suffix, GLubyte *data, int sz );
 	bool _checkCachedHeight( const char *suffix, float *data, int sz );
 
 	const char *m_name;
@@ -78,6 +80,9 @@ protected:
 	GLuint m_progTreeland;	
 
 	GLint m_paramTreeland_PMV;
+	GLint m_paramTreeland_lightDir;	
+	GLint m_paramTreeland_eyeDir;
+
 	GLint m_paramTreeland_samplerDif0;
 	GLint m_paramTreeland_samplerNrm0;
 
