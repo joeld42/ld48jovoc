@@ -78,21 +78,23 @@ float pnoise(float x, float y, float z)
 		grad(p[BB+1], x-1, y-1, z-1 ))));
 }
 
-float pturb( float x, float y, float z, bool sgn )
+float pturb( float x, float y, float z, int octs, bool sgn )
 {
 	float scl = 1.0;
 	
 	float val;
-	for (int oct=0; oct < 6; oct++)
+	for (int oct=0; oct < octs; oct++)
 	{		
-		float n = pnoise( x * scl, y*scl, z*scl ) * (1.0/(oct+1));
+		float n = pnoise( (x * scl) + 123.45*oct, 
+						  y*scl + 243.2*oct, 
+						  z*scl - 934.1*oct) * (1.0/(oct+1));
 		if (!sgn)
 		{
 			n = fabs(n);
 		}
 		val = (oct)?val+n:n;
-		scl *= 2.0;
+		scl *= 1.78;
 	}
 	
-	return val;
+	return (sgn)?(val-0.3):val;
 }

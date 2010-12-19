@@ -43,10 +43,12 @@ protected:
 	float *m_hiteData; // doesn't own, borrowed from Bonsai	
 };
 
+// This is named bonsai for no good reason, it was a different idea
+// that morphed into this one.
 class Bonsai
 {
 public:
-	Bonsai();
+	Bonsai( const char *name );
 	~Bonsai();
 
 	void init();
@@ -56,21 +58,34 @@ public:
 
 	void synthesize( size_t ndx, float ii, float jj );
 
-	void setCamera( PVRTMat4 &camMVP );
+	void setCamera( PVRTMat4 &camMVP );	
 
 protected:
+
+	void _synthLand();
+	void _calcNormals();
+
+	void _cacheColorImage( const char *suffix, GLubyte *data, int sz );
+	void _cacheHeight( const char *suffix, float *data, int sz );
+
+	bool _checkCachedColorImage( const char *suffix, GLubyte *data, int sz );
+	bool _checkCachedHeight( const char *suffix, float *data, int sz );
+
+	const char *m_name;
 	TreeLand *m_treeLand;
 
 	GLuint m_progTreeland;	
 
 	GLint m_paramTreeland_PMV;
 	GLint m_paramTreeland_samplerDif0;
+	GLint m_paramTreeland_samplerNrm0;
 
 	// highfield	
 	float *m_hiteData;
 
 	// color data
 	GLubyte *m_terrainColor;
+	GLubyte *m_terrainNorm;
 
 };
 

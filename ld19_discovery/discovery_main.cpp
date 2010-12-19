@@ -271,7 +271,7 @@ void game_redraw()
 	// set up the camera
 	float aspect = 800.0 / 600.0;
 	PVRTMatrixPerspectiveFovLH( matProjection, 45.0, aspect,
-								0.01f, 1000.0f, false );
+								0.01f, 5000.0f, false );
 
 	glMatrixMode( GL_PROJECTION );
     glLoadIdentity();        
@@ -289,7 +289,8 @@ void game_redraw()
 	PVRTMatrixRotationQuaternion( m, quatCam );
 	PVRTMatrixMultiply( matModelview, matModelview, m );	
 
-	PVRTMatrixTranslation( m, 0.0, -0.75, 3.0 );
+	//PVRTMatrixTranslation( m, 0.0, -0.75, 3.0 );
+	PVRTMatrixTranslation( m, 0.0, -50.0, 3.0 );
 	PVRTMatrixMultiply( matModelview, matModelview, m );
 
 	PVRTMatrixMultiply( matMVP, matModelview, matProjection );
@@ -375,7 +376,7 @@ int main( int argc, char *argv[] )
     glViewport( 0, 0, 800, 600 );
 
 	// Build a treeland thinggy
-	g_treeLand = new Bonsai();
+	g_treeLand = new Bonsai( "test" );
 	g_treeLand->init();
 
 	g_treeLand->buildAll();
