@@ -190,6 +190,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\noise.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\noise.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\gamedata\shaders.glsl"
 				>
 			</File>

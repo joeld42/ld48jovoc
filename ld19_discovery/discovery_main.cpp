@@ -23,13 +23,14 @@
 #include <SDL.h>
 #include <SDL_endian.h>
 
-#include "bonsai.h"
-
 #include "glsw.h"
 
 #include "PVRT/PVRTVector.h"
 #include "PVRT/PVRTMatrix.h"
 #include "PVRT/PVRTQuaternion.h"
+
+#include "bonsai.h"
+#include "noise.h"
 
 // Stupid X11 uses 'Font' too
 using namespace Luddite;
@@ -218,6 +219,9 @@ void game_init()
     // set up the pulse Avar
     g_textX.pulse( 0, 800 - g_font32->calcWidth( "HELLO" ), 10.0, 0.0 );    
 
+	// init noise
+	initNoise();
+
 	// set up shaders
 	glswInit();
 	glswSetPath( "gamedata/", ".glsl" );
@@ -275,6 +279,8 @@ void game_redraw()
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();    
 
+	glEnable( GL_DEPTH_TEST );
+
 	PVRTMat4 m;
 	PVRTMatrixIdentity( matModelview );
 
@@ -283,7 +289,7 @@ void game_redraw()
 	PVRTMatrixRotationQuaternion( m, quatCam );
 	PVRTMatrixMultiply( matModelview, matModelview, m );	
 
-	PVRTMatrixTranslation( m, 0.0, 0.0, 5.0 );
+	PVRTMatrixTranslation( m, 0.0, -0.75, 3.0 );
 	PVRTMatrixMultiply( matModelview, matModelview, m );
 
 	PVRTMatrixMultiply( matMVP, matModelview, matProjection );
@@ -294,7 +300,9 @@ void game_redraw()
 	// draw land thinggy
 	g_treeLand->renderAll();
 
-    // set up camera
+    // set up 2d camera
+	glDisable( GL_DEPTH_TEST );
+
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();    
     glOrtho( 0, 800, 0, 600, -1.0, 1.0 );
