@@ -36,6 +36,14 @@ static float lerp(float t, float a, float b)
 	return a + t * (b - a); 
 }
 
+float clamp( float val, float minV, float maxV  )
+{
+	if (val < minV) return minV;
+	else if (val > maxV) return maxV;
+	else return val;
+}
+
+
 static float grad(int hash, float x, float y, float z) 
 {
       int h = hash & 15;                      // CONVERT LO 4 BITS OF HASH CODE
@@ -70,4 +78,21 @@ float pnoise(float x, float y, float z)
 		grad(p[BB+1], x-1, y-1, z-1 ))));
 }
 
-    
+float pturb( float x, float y, float z, bool sgn )
+{
+	float scl = 1.0;
+	
+	float val;
+	for (int oct=0; oct < 6; oct++)
+	{		
+		float n = pnoise( x * scl, y*scl, z*scl ) * (1.0/(oct+1));
+		if (!sgn)
+		{
+			n = fabs(n);
+		}
+		val = (oct)?val+n:n;
+		scl *= 2.0;
+	}
+	
+	return val;
+}

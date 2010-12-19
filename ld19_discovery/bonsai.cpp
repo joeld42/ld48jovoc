@@ -9,22 +9,21 @@
 #include "bonsai.h"
 #include "noise.h"
 
-#define TESS_AMOUNT (100)
+#define TESS_AMOUNT (200)
 
 #define HITE_RES (1024)
 
 bool loadShader( const char *shaderKey, GLuint &program );
 
-TreeLand::TreeLand( float *heightData ) : m_hiteData( heightData )
+TreeLand::TreeLand( float *heightData, 
+				   Luddite::HTexture htexColor ) : 
+	m_hiteData( heightData ),
+	m_htexTerrainColor( htexColor )
 {
 }
 
 void TreeLand::build()
 {
-	// TODO: generate height field
-	Luddite::TextureDB *texDB = Luddite::TextureDB::singletonPtr();
-	m_htexTerrainColor = texDB->getTexture("gamedata/ash_uvgrid03-1.png" );	
-
 	// land surface
 	for (int j=0; j < TESS_AMOUNT; j++)
 	{
@@ -54,13 +53,13 @@ void TreeLand::_makeQuad( int i, int j )
 	newVert = this->addQuad();
 
 	// TODO: un-hardcode this
-	const float stSize = 1.0/TESS_AMOUNT;	
-	const float tileSize = 2.0/TESS_AMOUNT;
+	const float stSize = 1.0/(TESS_AMOUNT+1);	
+	const float tileSize = 2.0/(TESS_AMOUNT+1);
 
 	float s0 = i * stSize;
-	float t0 = 1.0 - (j * stSize);
+	float t0 = j * stSize;
 	float s1 = s0 + stSize;
-	float t1 = t0 + stSize;
+	float t1 = t0 - stSize;
 
 	
 	// Upper triangle
@@ -156,6 +155,7 @@ void Bonsai::buildAll()
 {
 	// synthesize the height data
 	m_hiteData = new float [ HITE_RES * HITE_RES ];
+	m_terrainColor = new GLubyte [ HITE_RES * HITE_RES * 3 ];
 
 	// HERE -- set up params
 	
@@ -172,8 +172,16 @@ void Bonsai::buildAll()
 		}
 	}
 
+	// Build texture
+	static int treeId = 0;
+	char s[20];
+	sprintf( s, "treeland%d", treeId++);
+
+	Luddite::TextureDB *texDB = Luddite::TextureDB::singletonPtr();
+	Luddite::HTexture htex = texDB->buildTextureFromData( s, m_terrainColor, 1024, 1024 );
+
 	// Make a land part
-	m_treeLand = new TreeLand( m_hiteData );
+	m_treeLand = new TreeLand( m_hiteData, htex );
 	m_treeLand->build();
 }
 
@@ -196,8 +204,24 @@ void Bonsai::setCamera( PVRTMat4 &camMVP )
 
 void Bonsai::synthesize( size_t ndx, float ii, float jj )
 {	 
-	float rval = (1.0 - (sqrt( ii*ii + jj*jj ) / 2.0)) * 0.3;
+	float rval = (1.0 - (sqrt( ii*ii + jj*jj ) / 2.0));
 
-	//m_hiteData[ndx] = sin( sqrt( ii*ii + jj*jj ) * 20 ) * 0.15;
-	m_hiteData[ndx] = pnoise( ii * 4, 0.0, jj * 4 ) * 0.15 + pow( (float)rval, 3.0f) ;
+	// domain distortion
+	float distDir = pnoise( ii * 2, 10.0, jj * 2 );
+	float ii2 = ii + distDir * 0.4;
+	float jj2 = jj + distDir * 0.4;
+
+	float val = pturb( ii2 * 4, 0.0, jj2 * 4, false );
+	
+	// set color
+	float v2 = clamp(val);
+	m_terrainColor[ndx * 3 + 0] = fabs(v2) * 255.0;
+	m_terrainColor[ndx * 3 + 1] = 20;
+	m_terrainColor[ndx * 3 + 2] = (1.0 - fabs(v2)) * 255.0;
+
+	// todo: set normal
+
+	// set height
+	//m_hiteData[ndx] = val * 0.5 * rval;
+	m_hiteData[ndx] = rval + (val * 0.3);
 }
