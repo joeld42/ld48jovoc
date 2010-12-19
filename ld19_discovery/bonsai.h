@@ -3,6 +3,7 @@
 
 #include "glsw.h"
 #include "quadbuff.h"
+#include "pally.h"
 
 #include "PVRT/PVRTVector.h"
 #include "PVRT/PVRTMatrix.h"
@@ -63,13 +64,15 @@ public:
 
 	void setCamera( PVRTMat4 &camMVP );	
 
+	PVRTVec3 getSkyColor();
+
 protected:
 
 	void _synthLand();
 	void _calcNormals();
 
 	void _cacheColorImage( const char *suffix, GLubyte *data, int sz );
-	void _cacheHeight( const char *suffix, float *data, int sz );
+	void _cacheHeight( const char *suffix, float *data, int sz );	
 
 	Luddite::HTexture _checkCachedColorImage( const char *suffix, GLubyte *data, int sz );
 	bool _checkCachedHeight( const char *suffix, float *data, int sz );
@@ -85,6 +88,9 @@ protected:
 
 	GLint m_paramTreeland_samplerDif0;
 	GLint m_paramTreeland_samplerNrm0;
+
+	// src palette
+	Pally m_pally;
 
 	// highfield	
 	float *m_hiteData;

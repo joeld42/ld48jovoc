@@ -8,6 +8,7 @@
 
 #include "bonsai.h"
 #include "noise.h"
+#include "pally.h"
 
 #include "png.h"
 #include "zlib.h"
@@ -17,6 +18,10 @@
 #define HITE_RES (1024)
 
 #define CACHE_DIR "terrainCache"
+
+// debug flags for terrain
+#define NO_CACHE (1)   // turn off cache (for debugging)
+#define SYNTH_STEP (4)  // speed up synth
 
 bool loadShader( const char *shaderKey, GLuint &program );
 
@@ -186,6 +191,24 @@ void Bonsai::init()
 
 void Bonsai::buildAll()
 {
+	// generate a unique random seed for the whole thing from the name
+	DBG::info("Generate planet '%s'\n", m_name );
+	int master_seed = 1;
+	for (const char *ch=m_name; *ch; ch++)
+	{
+		master_seed *= (*ch);
+	}
+
+	// generate random seeds for each step .. this keeps them
+	// somewhat resistant to changes in the algoritms 
+	int pally_seed, terrain_seed;
+	srand( master_seed );
+	pally_seed = rand();
+	terrain_seed = rand();
+		
+	// Make the palette
+	m_pally.generate( pally_seed );
+
 	// synthesize the height data
 	m_hiteData = new float [ HITE_RES * HITE_RES ];
 	m_terrainColor = new GLubyte [ HITE_RES * HITE_RES * 3 ];
@@ -196,6 +219,7 @@ void Bonsai::buildAll()
 	Luddite::HTexture htexColor;
 	Luddite::HTexture htexNorms;
 	
+
 	// check if there is cached image data available		
 	htexColor = _checkCachedColorImage( "DIF0", m_terrainColor, HITE_RES);
 	if ( (!htexColor.isNull() ) && (_checkCachedHeight( "HITE", m_hiteData, HITE_RES ) ))
@@ -205,10 +229,11 @@ void Bonsai::buildAll()
 	else
 	{
 		// Synthesize
+		srand( terrain_seed );
 
 		// step for tuning/debugging quicker
 		// step=1 for final quality
-		int step = 1;
+		int step = SYNTH_STEP;
 		for (int j=0; j < HITE_RES; j += step)
 		{
 			for (int i=0; i < HITE_RES; i += step )
@@ -343,6 +368,11 @@ void Bonsai::setCamera( PVRTMat4 &camMVP )
 	glUniform3f( m_paramTreeland_eyeDir, -camMVP[2][0], -camMVP[2][1], -camMVP[2][2] );
 }
 
+PVRTVec3 mix( PVRTVec3 a, PVRTVec3 b, float t )
+{
+	return (a * t) + (b * (1.0-t));
+}
+
 void Bonsai::synthesize( size_t ndx, float ii, float jj )
 {	 
 	//float rval = (1.0 - (sqrt( ii*ii + jj*jj ) / 2.0));
@@ -360,9 +390,10 @@ void Bonsai::synthesize( size_t ndx, float ii, float jj )
 	
 	// set color
 	float v2 = clamp(val);
-	m_terrainColor[ndx * 3 + 0] = 0.0;
-	m_terrainColor[ndx * 3 + 1] = fabs(v2) * 255.0;
-	m_terrainColor[ndx * 3 + 2] = (1.0 - fabs(v2)) * 255.0;
+	PVRTVec3 clr = mix( m_pally.m_colorOrganic1, m_pally.m_colorOrganic2, v2 );
+	m_terrainColor[ndx * 3 + 0] = clr.x * 255.0;
+	m_terrainColor[ndx * 3 + 1] = clr.y * 255.0;
+	m_terrainColor[ndx * 3 + 2] = clr.z * 255.0;
 
 	// todo: set normal
 	
@@ -431,6 +462,10 @@ void Bonsai::_cacheColorImage( const char *suffix, GLubyte *data, int sz )
 
 Luddite::HTexture Bonsai::_checkCachedColorImage( const char *suffix, GLubyte *data, int sz )
 {
+#if NO_CACHE
+	return Luddite::HTexture();
+#endif
+
 	char filename[256];
 	sprintf( filename, "./%s/%s_%s.png", CACHE_DIR, m_name, suffix );
 
@@ -510,8 +545,14 @@ void Bonsai::_cacheHeight( const char *suffix, float *data, int sz )
 
 bool Bonsai::_checkCachedHeight( const char *suffix, float *data, int sz )
 {
+#if NO_CACHE
+	return false;
+#endif
+
 	char filename[256];
 	sprintf( filename, "./%s/%s_%s.dat.gz", CACHE_DIR, m_name, suffix );
+
+
 
 	// just open it to see if it exists
 	FILE *fp1 = fopen( filename, "rb" );
@@ -541,4 +582,9 @@ float Bonsai::getHeight( PVRTVec3 pos )
 	pos.z /= 500.0;	
 
 	return m_treeLand->hite( pos.x, pos.z ) * 100;
+}
+
+PVRTVec3 Bonsai::getSkyColor()
+{
+	return m_pally.m_colorSky;
 }

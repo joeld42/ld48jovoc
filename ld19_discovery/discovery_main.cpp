@@ -63,10 +63,13 @@ PVRTMat4 matProjection;
 PVRTMat4 matMVP;
 
 PVRTVec3 playerPos;
+PVRTQUATERNION quatCamX;
+PVRTQUATERNION quatCamY;
 PVRTQUATERNION quatCam;
 
 // wrt player -- +Z = move forward
 PVRTVec3 moveDir;
+PVRTVec2 lookMove;
 
 // ===========================================================================
 GLuint compileShader( const char *shaderText, GLenum shaderType )
@@ -234,6 +237,8 @@ void game_init()
 	// player
 	playerPos = PVRTVec3( 0.0, 0.0, 0.0 );	
 	PVRTMatrixQuaternionIdentity( quatCam );
+	PVRTMatrixQuaternionIdentity( quatCamX );
+	PVRTMatrixQuaternionIdentity( quatCamY );
 
 }
 
@@ -248,8 +253,14 @@ void game_updateSim( float dtFixed )
 	//PVRTMatrixQuaternionMultiply( quatCam, quatCam, qrot );
 
 	// Move player
-	const float moveRate = 100.0;	
-	playerPos += moveDir * moveRate * dtFixed;
+	const float moveRate = 100.0;		
+	PVRTMat4 m;
+	PVRTMatrixRotationQuaternion( m, quatCam );
+
+	PVRTVec3 worldMoveDir;
+	worldMoveDir = moveDir * m;
+
+	playerPos += worldMoveDir * moveRate * dtFixed;
 	playerPos.y = g_treeLand->getHeight( playerPos );
 
 	// push player back towards center if too far
@@ -261,7 +272,6 @@ void game_updateSim( float dtFixed )
 		centerDir.normalize();
 		playerPos += centerDir * outsideLen;
 	}
-
 
     // Updates all avars
     AnimFloat::updateAvars( dtFixed );    
@@ -288,7 +298,11 @@ void game_shutdown()
 // ===========================================================================
 void game_redraw()
 {
-    glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
+    //glClearColor( 0.592f, 0.509f, 0.274f, 1.0f );    
+	//glClearColor( 121.0f/255.0f, 49.0f/255.0f, 39.0f/255.0f, 1.0f );    
+	PVRTVec3 skyCol = g_treeLand->getSkyColor();
+	glClearColor( skyCol.x, skyCol.y, skyCol.z, 1.0 );
+
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	// set up the camera
@@ -307,15 +321,15 @@ void game_redraw()
 	PVRTMat4 m;
 	PVRTMatrixIdentity( matModelview );
 
-	//PVRTMatrixRotationY( m, 20.0 );
-	//PVRTMatrixMultiply( matModelview, matModelview, m );
-	PVRTMatrixRotationQuaternion( m, quatCam );
-	PVRTMatrixMultiply( matModelview, matModelview, m );	
-
 	//PVRTMatrixTranslation( m, 0.0, -0.75, 3.0 );
 	//PVRTMatrixTranslation( m, 0.0, -50.0, 3.0 );
 	PVRTMatrixTranslation( m, -playerPos.x, -(playerPos.y+3.0), -playerPos.z );
 	PVRTMatrixMultiply( matModelview, matModelview, m );
+
+	//PVRTMatrixRotationY( m, 20.0 );
+	//PVRTMatrixMultiply( matModelview, matModelview, m );
+	PVRTMatrixRotationQuaternion( m, quatCam );
+	PVRTMatrixMultiply( matModelview, matModelview, m );	
 
 	PVRTMatrixMultiply( matMVP, matModelview, matProjection );
 
@@ -400,20 +414,26 @@ int main( int argc, char *argv[] )
     glViewport( 0, 0, 800, 600 );
 
 	// Build a treeland thinggy
-	g_treeLand = new Bonsai( "test" );
+	g_treeLand = new Bonsai( "mortest" );
 	g_treeLand->init();
 
 	g_treeLand->buildAll();
 
 	playerPos.y = g_treeLand->getHeight( playerPos );
 
+	SDL_ShowCursor( 0 );
+	SDL_WM_GrabInput(SDL_GRAB_ON);
+
 	//=====[ Main loop ]======
 	bool done = false;
+	
 	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;	
 	while(!done)
 	{
-		SDL_Event event;
+		// reset lookmove
+		lookMove = PVRTVec2( 0.0, 0.0 );
 
+		SDL_Event event;
 		while (SDL_PollEvent( &event ) ) 
 		{
 			switch (event.type )
@@ -434,7 +454,9 @@ int main( int argc, char *argv[] )
 					//game->keypress( event.key );
 					break;
 
-				case SDL_MOUSEMOTION:					
+				case SDL_MOUSEMOTION:
+					lookMove.x = event.motion.xrel;
+					lookMove.y = event.motion.yrel;
 					break;
 
 				case SDL_MOUSEBUTTONDOWN:					
@@ -456,17 +478,31 @@ int main( int argc, char *argv[] )
 		keys = SDL_GetKeyState(NULL);
 		moveDir = PVRTVec3( 0.0, 0.0, 0.0 );
 		if (keys[SDLK_a] && !keys[SDLK_d]) {
-			moveDir.x = 1.0;
-		}
-		if (!keys[SDLK_a] && keys[SDLK_d]) {
 			moveDir.x = -1.0;
 		}
-		if (keys[SDLK_s] && !keys[SDLK_w]) {
-			moveDir.z = 1.0;
+		if (!keys[SDLK_a] && keys[SDLK_d]) {
+			moveDir.x = 1.0;
 		}
-		if (!keys[SDLK_s] && keys[SDLK_w]) {
+		if (keys[SDLK_s] && !keys[SDLK_w]) {
 			moveDir.z = -1.0;
 		}
+		if (!keys[SDLK_s] && keys[SDLK_w]) {
+			moveDir.z = 1.0;
+		}
+
+		// update mouselook (TODO: reorganize)		
+		const float mouseLookSpeed = 1.0;
+		PVRTQUATERNION qrot;		
+
+		PVRTMatrixQuaternionRotationAxis( qrot, PVRTVec3( 1.0, 0.0, 0.0 ), (M_PI/180.0)*lookMove.y*mouseLookSpeed  );
+		PVRTMatrixQuaternionMultiply( quatCamX, quatCamX, qrot );
+
+		PVRTMatrixQuaternionRotationAxis( qrot, PVRTVec3( 0.0, 1.0, 0.0 ), (M_PI/180.0)*lookMove.x*mouseLookSpeed  );
+		PVRTMatrixQuaternionMultiply( quatCamY, quatCamY, qrot );
+				
+		// combine both axes
+		PVRTMatrixQuaternionMultiply( quatCam, quatCamY, quatCamX );
+		
 		
 		// Timing
 		ticks_elapsed = SDL_GetTicks() - ticks;

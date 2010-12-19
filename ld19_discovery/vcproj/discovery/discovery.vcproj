@@ -198,6 +198,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pally.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pally.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\gamedata\shaders.glsl"
 				>
 			</File>
