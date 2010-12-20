@@ -23,7 +23,7 @@
 #define CACHE_DIR "terrainCache"
 
 // debug flags for terrain
-#define NO_CACHE (1)   // turn off cache (for debugging)
+#define NO_CACHE (0)   // turn off cache (for debugging)
 #define SYNTH_STEP (1)  // speed up synth (fucks up normals tho)
 
 bool loadShader( const char *shaderKey, GLuint &program );
@@ -89,7 +89,7 @@ void TreeLand::_makeQuad( int i, int j )
 	
 	newVert[2].st[0] = s1;     newVert[2].st[1] = t0;
 	newVert[2].pos[0] = (i+1)*tileSize  - 1.0; newVert[2].pos[1] = (j+1)*tileSize  - 1.0;
-	newVert[2].pos[2] = hite( newVert[2].pos[0], newVert[2].pos[1] );
+	newVert[2].pos[2] = hite( newVert[2].pos[0], newVert[2].pos[1] );	
 	
 	// Lower triangle
 	newVert[3].st[0] = s1;     newVert[3].st[1] = t0;	
@@ -240,10 +240,6 @@ void Bonsai::buildAll()
 	m_params.decoLavaScale = randUniform( 1.0, 10.0 );
 	m_params.decoLavaWidth = randUniform( 0.01, 0.1 );
 
-	// DBG
-	DBG::info( "lava width %f\n", m_params.decoLavaWidth );	
-	m_params.deco = DECORATION_LAVATUBES;
-
 	// =============================================
 
 	// build textures
@@ -317,8 +313,8 @@ void Bonsai::buildAll()
 	SDL_WM_SetCaption( " [Calc Norms ...] LD19 Jovoc - Discovery" , NULL );
 
 	// check if there is cached normal data available
-	// TODO
-	if (false && _checkCachedColorImage( "NRM", m_terrainNorm, HITE_RES ))
+	htexNorms = _checkCachedColorImage( "NRM", m_terrainNorm, HITE_RES);
+	if ( !htexNorms.isNull() )
 	{
 		DBG::info( "Land '%s' read cached normals.\n", m_name );
 	}
@@ -337,14 +333,17 @@ void Bonsai::buildAll()
 				float b = m_hiteData[ (j*HITE_RES)+(i+1) ];
 				float c = m_hiteData[ ((j+1)*HITE_RES)+i ];
 
-				float scl = 100.0;
-				float nx = (b - a) * scl;
-				float ny = (c - a) * scl;
-				float nz = 1.0 - sqrt( nx*nx + ny*ny );
+				//float scl = 5.4;
+				float scl = 50.0f;
+				float dy1 = (b - a) * scl;
+				float dy2 = (c - a) * scl;				
 
-				m_terrainNorm[ndx * 3 + 0] = (int)((nx * 128.0) + 128.0);
-				m_terrainNorm[ndx * 3 + 1] = (int)((ny * 128.0) + 128.0);
-				m_terrainNorm[ndx * 3 + 2] = (int)((nz * 128.0) + 128.0);
+				PVRTVec3 n( dy1, dy2, 1.0 - sqrt( dy1*dy1 + dy2*dy2 ) );
+				n.normalize();
+
+				m_terrainNorm[ndx * 3 + 0] = (int)((n.x * 128.0) + 128.0);
+				m_terrainNorm[ndx * 3 + 1] = (int)((n.y * 128.0) + 128.0);
+				m_terrainNorm[ndx * 3 + 2] = (int)((n.z * 128.0) + 128.0);
 			}
 		}
 
@@ -395,12 +394,11 @@ void Bonsai::renderAll()
 	glUniform1i( m_paramTreeland_samplerDif0, 0 );
 	glUniform1i( m_paramTreeland_samplerNrm0, 1 );	
 
-	PVRTVec3 lightDir( 0.5, 1, 0 );
+	PVRTVec3 lightDir( 1, 0, 0 );
 	lightDir.normalize();
-	
-	// TODO: xform by camMVP
 
-	glUniform3f( m_paramTreeland_lightDir, lightDir.x, lightDir.y, lightDir.z );
+	glUniform3f( m_paramTreeland_lightDir, 1.0, 0.0, 0.0 );
+	//glUniform3f( m_paramTreeland_lightDir, lightDir.x, lightDir.y, lightDir.z );
 
 	m_treeLand->renderAll();
 
@@ -499,13 +497,15 @@ void Bonsai::synthesize( size_t ndx, float ii, float jj )
 							jj * m_params.patchVeg_nscale );
 			v = fabs(v);
 
+			// FIXME: using accent color for this because there's no
+			// accents yet
 			if (m_params.patchMixMineral)
 			{
-				C = mix( m_pally.m_colorMineral1, m_pally.m_colorOrganic1, v );
+				C = mix( m_pally.m_colorMineral1, m_pally.m_colorAccent, v );
 			}
 			else
 			{
-				C = mix( m_pally.m_colorOrganic2, m_pally.m_colorOrganic1, v );
+				C = mix( m_pally.m_colorOrganic2, m_pally.m_colorAccent, v );
 			}
 
 			// Add a little bit of height
@@ -529,7 +529,7 @@ void Bonsai::synthesize( size_t ndx, float ii, float jj )
 			C = mix( m_pally.m_colorMineral2, m_pally.m_colorMineral1, v2 );
 			
 			// Replace Hf
-			Hf = v * m_params.decoLavaWidth * 0.5;
+			Hf = v2 * m_params.decoLavaWidth * 0.5;
 		}
 
 	}
@@ -597,7 +597,8 @@ void Bonsai::_cacheColorImage( const char *suffix, GLubyte *data, int sz )
 	png_byte *row_pointers[1024];
 	for (int i=0; i < sz; i++)
 	{
-		row_pointers[i] = &(data[i * sz * 3]);
+		// flip 
+		row_pointers[i] = &(data[(1023-i) * sz * 3]);
 	}
 	png_write_image( png_ptr, row_pointers );
 

@@ -129,7 +129,7 @@ public:
 
 	PVRTVec3 getSkyColor();
 
-protected:
+//protected:
 
 	void _synthLand();
 	void _calcNormals();

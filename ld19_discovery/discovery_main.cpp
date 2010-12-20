@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <ctype.h>
 
 #ifdef WIN32
 # define WIN32_LEAN_AND_MEAN
@@ -54,9 +55,11 @@ Luddite::Font *g_font20 = NULL;
 Luddite::Font *g_font32 = NULL;
 
 USE_AVAR( float );
-//AnimFloat g_textX;
+AnimFloat g_textPulse;
 
 Bonsai *g_treeLand;
+char g_title[100];
+char g_planetName[100];
 
 PVRTMat4 matModelview;
 PVRTMat4 matProjection;
@@ -224,7 +227,7 @@ void game_init()
     g_font32 = ::makeFont_Digistrip_32( texId );
 
     // set up the pulse Avar
-    //g_textX.pulse( 0, 800 - g_font32->calcWidth( "HELLO" ), 10.0, 0.0 );    
+    g_textPulse.pulse( 0.5, 1.0, 2.0, 0.0 );    
 
 	// init noise
 	initNoise();
@@ -273,8 +276,7 @@ void game_updateSim( float dtFixed )
 		playerPos += centerDir * outsideLen;
 	}
 
-    // Updates all avars
-    AnimFloat::updateAvars( dtFixed );    
+    
 }
 
 // Free running update, useful for stuff like particles or something
@@ -354,8 +356,48 @@ void game_redraw()
     glEnable( GL_TEXTURE_2D );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );    
 
-    //g_font32->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
-    //g_font32->drawString( g_textX.animValue(), 300, "HELLO" );    
+    g_font32->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
+    g_font32->drawString( 20, 20, g_title );    
+
+    // actually draw the text
+    g_font20->renderAll();
+    g_font32->renderAll();
+
+    g_font32->clear();
+    g_font20->clear();    
+}
+
+void title_redraw()
+{
+    glClearColor( 94.0f/255.0f, 117.0f/255.0f, 130.0f/255.0f, 1.0f );    		
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	
+    // set up 2d camera
+	glDisable( GL_DEPTH_TEST );
+
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();    
+    glOrtho( 0, 800, 0, 600, -1.0, 1.0 );
+
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();    
+
+    // do text
+    glEnable( GL_BLEND );
+    glEnable( GL_TEXTURE_2D );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );    
+
+    g_font32->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
+    g_font32->drawString( 100, 500, "LD19 TERRAIN THING" );    
+
+	g_font20->setColor( 1.0f, 1.0f, 1.0f, 1.0f );    
+    g_font20->drawString( 100, 480, "SO INCOMPLETE IT HAS NO NAME" );    
+
+	g_font20->setColor( 1.0f, 0.5f, 0.0f, 1.0f );  
+	g_font20->drawString( 100, 200, "ENTER NAME OF PLANET TO DISCOVER:" ); 
+	
+	g_font32->setColor( 1.0f, g_textPulse.animValue(), 0.0f, 1.0f );  
+	g_font32->drawString( 200, 150, g_planetName ); 
 
     // actually draw the text
     g_font20->renderAll();
@@ -372,11 +414,11 @@ int main( int argc, char *argv[] )
 
 	// I can't live without my precious printf's
 #ifdef WIN32
-#  ifndef NDEBUG
+//#  ifndef NDEBUG
 	AllocConsole();
 	SetConsoleTitle( L"ld19 Discovery CONSOLE" );
 	freopen("CONOUT$", "w", stdout );
-#  endif
+//#  endif
 #endif
 
 	// Test debug stuff
@@ -410,20 +452,28 @@ int main( int argc, char *argv[] )
     game_init();    
     atexit( game_shutdown );  
 
+	strcpy( g_planetName, "" );
+
     // init graphics
     glViewport( 0, 0, 800, 600 );
 
 	// Build a treeland thinggy
-	g_treeLand = new Bonsai( "snorf" );
-	g_treeLand->init();
-
-	g_treeLand->buildAll();
-
-	playerPos.y = g_treeLand->getHeight( playerPos );
+	g_treeLand = NULL;
+	
+	
+	//playerPos.y = g_treeLand->getHeight( playerPos );
 
 	int grab = 1;
 	SDL_ShowCursor( 0 );
 	SDL_WM_GrabInput(SDL_GRAB_ON);
+	
+	//sprintf( g_title, "PLANET %s\n", g_treeLand->m_name );
+	//for (char *ch=g_title; *ch; ch++)
+	//{
+//		*ch = toupper(*ch);
+	//}
+
+
 
 	//=====[ Main loop ]======
 	bool done = false;
@@ -440,6 +490,37 @@ int main( int argc, char *argv[] )
 			switch (event.type )
 			{
 				case SDL_KEYDOWN:
+
+					// text entry!
+					if (!g_treeLand)
+					{
+						if (event.key.keysym.sym == SDLK_ESCAPE)
+						{
+							done = true;
+						}
+						else if ( (event.key.keysym.sym >= SDLK_a) &&
+								  (event.key.keysym.sym <= SDLK_z) )
+						{
+							char *ch = g_planetName + strlen(g_planetName );
+							*ch++ = 'A' + (event.key.keysym.sym - SDLK_a);
+							*ch = 0;
+						}
+						else if (event.key.keysym.sym == SDLK_BACKSPACE)
+						{
+							if (strlen(g_planetName))
+							{
+								g_planetName[strlen(g_planetName)-1] = 0;
+							}
+						}
+						else if (event.key.keysym.sym == SDLK_RETURN)
+						{
+							sprintf( g_title, "PLANET %s\n", g_planetName );
+							g_treeLand = new Bonsai( g_planetName );
+							g_treeLand->init();
+							g_treeLand->buildAll();
+						}
+					}
+					else
 					switch( event.key.keysym.sym ) 
 					{						
 						case SDLK_ESCAPE:
@@ -525,14 +606,29 @@ int main( int argc, char *argv[] )
 			sim_ticks -= STEPTIME;						
 
 			//printf("update sim_ticks %d ticks_elapsed %d\n", sim_ticks, ticks_elapsed );
-			game_updateSim( (float)STEPTIME / 1000.0f );			
+			if (g_treeLand)
+			{
+				game_updateSim( (float)STEPTIME / 1000.0f );
+			}
+			
+			// Updates all avars
+			AnimFloat::updateAvars( (float)STEPTIME / 1000.0f );    
 		}	
 
 		// redraw as fast as possible		
 		float dtRaw = (float)(ticks_elapsed) / 1000.0f;
-				
-		game_updateFree( dtRaw ); 
-        game_redraw();        
+			
+		// Have we built the world yet or are in title mode?
+
+		if (!g_treeLand)
+		{
+			title_redraw();
+		}
+		else
+		{
+			game_updateFree( dtRaw ); 
+			game_redraw();        
+		}
 
 		SDL_GL_SwapBuffers();
 

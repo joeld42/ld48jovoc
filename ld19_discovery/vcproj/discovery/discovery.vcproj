@@ -118,6 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="C:\Projects\ld48jovoc\luddite\luddite;C:\Projects\ld48jovoc\luddite;C:\Toolkits\lpng1216\lpng1216;C:\Toolkits\lpng1216\zlib;&quot;C:\Toolkits\SDL-1.2.4\include&quot;;C:\Projects\ld48jovoc\extern\glsw"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -136,7 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="SDL.lib SDLmain.lib opengl32.lib libpng.lib zlib.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;c:\toolkits\SDL-1.2.4\lib&quot;;C:\Toolkits\lpng1216\lpng1216\projects\visualc6\Win32_LIB_Release;C:\Toolkits\lpng1216\zlib\projects\visualc6\Win32_LIB_Release"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
