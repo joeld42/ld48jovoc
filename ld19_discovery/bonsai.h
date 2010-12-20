@@ -18,12 +18,13 @@ enum
 	Attrib_NUM_ATTRIB        
 };
 
-
 struct TreeVert
 {
 	GLfloat pos[3];
 	GLfloat st[2];
 };
+
+
 
 // The land the tree sits on
 class TreeLand : public QuadBuff<TreeVert>
@@ -43,6 +44,68 @@ public:
 	Luddite::HTexture m_htexTerrainNorm;
 
 	float *m_hiteData; // doesn't own, borrowed from Bonsai	
+};
+
+// ===========================================
+//  texture synth params
+// ===========================================
+
+// Base height
+enum {
+	BASE_ROLLING_HILLS,
+
+	NUM_BASE
+};
+
+// Base Veg
+enum {
+	BASEVEG_HITE,
+	BASEVEG_TURBY,	
+
+	NUM_BASEVEG
+};
+
+// Patch Veg
+enum
+{
+	PATCHVEG_NONE,
+	PATCHVEG_PATCHY,
+
+	NUM_PATCHVEG
+};
+
+// Decoration (minerals)
+enum
+{
+	DECORATION_NONE,
+	DECORATION_LAVATUBES,
+
+	NUM_DECORATION
+};
+
+struct SynthParams
+{
+	// Base layer
+	int base;  // base type
+	float distAmt; // distortion amount
+
+	// Base veg
+	int baseVeg;	
+	int baseVeg_hite_repeats;
+
+	// Patch veg
+	int patchVeg;
+	int patchMixMineral;
+	float patchVeg_scale;
+	float patchVeg_nscale;
+	float patchVeg_thresh;
+
+	// Decoration
+	int deco;
+	float decoLavaWidth;
+	float decoLavaScale;
+
+
 };
 
 // This is named bonsai for no good reason, it was a different idea
@@ -91,6 +154,9 @@ protected:
 
 	// src palette
 	Pally m_pally;
+
+	// Synth Params 
+	SynthParams m_params;
 
 	// highfield	
 	float *m_hiteData;

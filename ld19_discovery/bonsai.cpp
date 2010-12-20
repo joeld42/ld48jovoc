@@ -5,6 +5,9 @@
 #include <luddite/debug.h>
 #include <luddite/resource.h>
 #include <luddite/texture.h>
+#include <luddite/random.h>
+
+#include <SDL.h>
 
 #include "bonsai.h"
 #include "noise.h"
@@ -21,7 +24,7 @@
 
 // debug flags for terrain
 #define NO_CACHE (1)   // turn off cache (for debugging)
-#define SYNTH_STEP (4)  // speed up synth
+#define SYNTH_STEP (1)  // speed up synth (fucks up normals tho)
 
 bool loadShader( const char *shaderKey, GLuint &program );
 
@@ -201,10 +204,11 @@ void Bonsai::buildAll()
 
 	// generate random seeds for each step .. this keeps them
 	// somewhat resistant to changes in the algoritms 
-	int pally_seed, terrain_seed;
+	int pally_seed, param_seed, terrain_seed;
 	srand( master_seed );
 	pally_seed = rand();
 	terrain_seed = rand();
+	param_seed = rand();
 		
 	// Make the palette
 	m_pally.generate( pally_seed );
@@ -214,10 +218,37 @@ void Bonsai::buildAll()
 	m_terrainColor = new GLubyte [ HITE_RES * HITE_RES * 3 ];
 	m_terrainNorm = new GLubyte [ HITE_RES * HITE_RES * 3 ];
 
-	// HERE -- set up params
+	// Set up params
+	srand( param_seed );
+	m_params.base = (int)randUniform( 0, NUM_BASE );	
+	m_params.distAmt = randUniform( 0.0, 0.3 );
 
+	m_params.baseVeg = (int)randUniform( 0, NUM_BASEVEG );	
+
+	m_params.baseVeg_hite_repeats = (int)randUniform( 1, 5 );		
+	m_params.baseVeg_hite_repeats *= m_params.baseVeg_hite_repeats;	
+
+	m_params.patchVeg = (int)randUniform( 0, NUM_PATCHVEG );	
+	m_params.patchVeg_scale = randUniform( 1.0, 20.0 );
+	m_params.patchVeg_nscale = randUniform( 0.01, 8.0 );
+	m_params.patchVeg_nscale *= m_params.patchVeg_nscale;
+	m_params.patchMixMineral = (randUniform() > 0.5)?1:0;
+	m_params.patchVeg_thresh = randUniform( 0.55, 0.85 );	
+
+	// Decoration
+	m_params.deco = (int)randUniform( 0, NUM_DECORATION );	
+	m_params.decoLavaScale = randUniform( 1.0, 10.0 );
+	m_params.decoLavaWidth = randUniform( 0.01, 0.1 );
+
+	// DBG
+	DBG::info( "lava width %f\n", m_params.decoLavaWidth );	
+	m_params.deco = DECORATION_LAVATUBES;
+
+	// =============================================
+
+	// build textures
 	Luddite::HTexture htexColor;
-	Luddite::HTexture htexNorms;
+	Luddite::HTexture htexNorms;	
 	
 
 	// check if there is cached image data available		
@@ -236,6 +267,19 @@ void Bonsai::buildAll()
 		int step = SYNTH_STEP;
 		for (int j=0; j < HITE_RES; j += step)
 		{
+			// status
+			static int lastPct = 0;
+			int pct = j * 100 / 1024;
+			if (pct != lastPct )
+			{
+				char buff[200];
+				sprintf( buff, " [Generating ... %d%%] LD19 Jovoc - Discovery", pct );
+				SDL_WM_SetCaption( buff , NULL );
+				DBG::info("Generating: %d\n", pct );
+				lastPct = pct;
+			}
+
+
 			for (int i=0; i < HITE_RES; i += step )
 			{
 				float ii = (((float)i / (float)HITE_RES) * 2.0) - 1.0;
@@ -269,6 +313,8 @@ void Bonsai::buildAll()
 		_cacheColorImage( "DIF0", m_terrainColor, HITE_RES );
 		_cacheHeight( "HITE", m_hiteData, HITE_RES );
 	}
+
+	SDL_WM_SetCaption( " [Calc Norms ...] LD19 Jovoc - Discovery" , NULL );
 
 	// check if there is cached normal data available
 	// TODO
@@ -305,6 +351,8 @@ void Bonsai::buildAll()
 		// Cache the normal map
 		_cacheColorImage( "NRM", m_terrainNorm, HITE_RES );
 	}
+
+	SDL_WM_SetCaption( "LD19 Jovoc - Discovery [Press TAB to ungrab mouse]", NULL );
 
 	// Build texture
 	static int treeId = 0;
@@ -373,32 +421,133 @@ PVRTVec3 mix( PVRTVec3 a, PVRTVec3 b, float t )
 	return (a * t) + (b * (1.0-t));
 }
 
+float step( float a, float b, float t )
+{
+	if (t < a) return 0.0;
+	else if (t > b) return (1.0);
+	return (t - a) / (b - a);
+}
+
 void Bonsai::synthesize( size_t ndx, float ii, float jj )
 {	 
+	// Results
+	PVRTVec3 C(0.0, 0.0, 0.0); // result color
+	float H=0.0; // result height
+
+	// intermediate heights
+	float Hs = 0.0; // structural height
+	float Hf = 0.0; // fine height (detail)
+
+	// Radius val .. make taller in middle
 	//float rval = (1.0 - (sqrt( ii*ii + jj*jj ) / 2.0));
 	float rval = ((sqrt( ii*ii + jj*jj ) / 2.0));
 
-	// domain distortion
-	float distDir = pnoise( ii * 2, 10.0, jj * 2 );
-	float ii2 = ii + distDir * 0.4;
-	float jj2 = jj + distDir * 0.4;
+	// ==========================================
+	// Layer -- Base Height
+	// ==========================================	
+	if (m_params.base == BASE_ROLLING_HILLS)
+	{
+		// "Rolling hills" -- base height
 
-	float hval = pnoise( ii2 * 2, 0.0, jj2 * 2 );
+		// domain distortion
+		float distDir = pnoise( ii * 2, 10.0, jj * 2 );
+		float ii2 = ii + distDir * m_params.distAmt;
+		float jj2 = jj + distDir * m_params.distAmt;
 
-	// color with turbulence
-	float val = pturb( ii * 4, 0.0, jj * 4, 8, false );
+		// structural height
+		Hs = pnoise( ii2 * 2, 0.0, jj2 * 2 );				
+		Hs = rval + (Hs * 0.3);	
+	}
+
+	// ==========================================
+	// Layer -- Base Veg
+	// ==========================================	
+	// Base veg
+	if (m_params.baseVeg == BASEVEG_TURBY)
+	{
+		// color with turbulence
+		float val = pturb( ii * 4, 0.0, jj * 4, 8, false );
+
+		// add some height detail
+		Hf = val * 0.05;
 	
-	// set color
-	float v2 = clamp(val);
-	PVRTVec3 clr = mix( m_pally.m_colorOrganic1, m_pally.m_colorOrganic2, v2 );
-	m_terrainColor[ndx * 3 + 0] = clr.x * 255.0;
-	m_terrainColor[ndx * 3 + 1] = clr.y * 255.0;
-	m_terrainColor[ndx * 3 + 2] = clr.z * 255.0;
+		// set color
+		float v2 = clamp(val);
+		C = mix( m_pally.m_colorOrganic1, m_pally.m_colorOrganic2, v2 );
+	}
+	else if (m_params.baseVeg == BASEVEG_HITE)
+	{
+		// Use height to drive color
+		float t = Hs * m_params.baseVeg_hite_repeats;
+		t = t - floor( t );
 
-	// todo: set normal
-	
-	// set height	
-	m_hiteData[ndx] = rval + (hval * 0.3) + (val*0.05);
+		C = mix( m_pally.m_colorOrganic2, m_pally.m_colorOrganic1, t );
+	}
+
+	// ==========================================
+	// Layer -- Patch Veg
+	// ==========================================	
+	if (m_params.patchVeg == PATCHVEG_PATCHY)
+	{
+		float val = pturb( ii * m_params.patchVeg_scale, 
+							0.0, 
+							jj * m_params.patchVeg_scale, 3, false );
+
+		if (val > m_params.patchVeg_thresh)
+		{			
+			float v = pnoise( ii * m_params.patchVeg_nscale, 0.0, 
+							jj * m_params.patchVeg_nscale );
+			v = fabs(v);
+
+			if (m_params.patchMixMineral)
+			{
+				C = mix( m_pally.m_colorMineral1, m_pally.m_colorOrganic1, v );
+			}
+			else
+			{
+				C = mix( m_pally.m_colorOrganic2, m_pally.m_colorOrganic1, v );
+			}
+
+			// Add a little bit of height
+			Hf += step( m_params.patchVeg_thresh, m_params.patchVeg_thresh + 0.05, val ) * 0.01;
+		}
+	}
+
+	// ==========================================
+	// Layer -- Decoration
+	// ==========================================	
+	if (m_params.deco == DECORATION_LAVATUBES)
+	{
+		float v = pnoise( ii * m_params.decoLavaScale, 0.0, 
+							jj * m_params.decoLavaScale );
+		float v2 = 1.0 - step( 0.0, m_params.decoLavaWidth, fabs(v) );
+
+		//C = PVRTVec3( clamp( -v, 0, 1),v2, clamp( v, 0, 1));
+		if (v2 > 0.01)
+		{
+			// replace color with tube
+			C = mix( m_pally.m_colorMineral2, m_pally.m_colorMineral1, v2 );
+			
+			// Replace Hf
+			Hf = v * m_params.decoLavaWidth * 0.5;
+		}
+
+	}
+
+
+	// ====================================================
+
+	// final height	
+	H = Hs + Hf;
+
+	// final color
+	m_terrainColor[ndx * 3 + 0] = C.x * 255.0;
+	m_terrainColor[ndx * 3 + 1] = C.y * 255.0;
+	m_terrainColor[ndx * 3 + 2] = C.z * 255.0;
+
+
+	// apply height
+	m_hiteData[ndx] = H;
 		
 }
 

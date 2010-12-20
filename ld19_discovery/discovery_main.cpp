@@ -404,7 +404,7 @@ int main( int argc, char *argv[] )
 		exit(1);
 	}
 		
-	SDL_WM_SetCaption( "LD19 Jovoc - Discovery", NULL );
+	SDL_WM_SetCaption( "LD19 Jovoc - Discovery [Press TAB to ungrab mouse]", NULL );
 
     // Initialize resources
     game_init();    
@@ -414,13 +414,14 @@ int main( int argc, char *argv[] )
     glViewport( 0, 0, 800, 600 );
 
 	// Build a treeland thinggy
-	g_treeLand = new Bonsai( "mortest" );
+	g_treeLand = new Bonsai( "snorf" );
 	g_treeLand->init();
 
 	g_treeLand->buildAll();
 
 	playerPos.y = g_treeLand->getHeight( playerPos );
 
+	int grab = 1;
 	SDL_ShowCursor( 0 );
 	SDL_WM_GrabInput(SDL_GRAB_ON);
 
@@ -447,6 +448,12 @@ int main( int argc, char *argv[] )
 
 						case SDLK_F6:
 							g_texDB.reportUsage();
+							break;
+
+						case SDLK_TAB:
+							grab = !grab;
+							SDL_ShowCursor( !grab );
+							SDL_WM_GrabInput( grab?SDL_GRAB_ON:SDL_GRAB_OFF );
 							break;
 					}
 
@@ -501,7 +508,10 @@ int main( int argc, char *argv[] )
 		PVRTMatrixQuaternionMultiply( quatCamY, quatCamY, qrot );
 				
 		// combine both axes
-		PVRTMatrixQuaternionMultiply( quatCam, quatCamY, quatCamX );
+		if (grab)
+		{
+			PVRTMatrixQuaternionMultiply( quatCam, quatCamY, quatCamX );
+		}
 		
 		
 		// Timing

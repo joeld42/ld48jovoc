@@ -31,8 +31,11 @@ void main()
 	float diff = max( 0.0, dot( nrm, lightDir0 ));
 	float spec = clamp( dot( nrm, halfAng ), 0.0, 1.0);
 	spec = pow( spec, 10 ) * 2.0;
-	vec3 lightColor = vec3( 0.27, 0.29, 0.3);
+	vec3 lightColor = vec3( 1.0, 1.0, 1.0 );
 	
 	gl_FragColor = vec4( dif0*diff*lightColor + spec, 1 );
+	
+	// DBG
+	//gl_FragColor = texture2D( sampler_dif0, st );	
 	
 }

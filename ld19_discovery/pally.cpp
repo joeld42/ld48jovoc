@@ -236,14 +236,17 @@ void Pally::generate( int seed )
 
 	if (randUniform() < 0.5 )
 	{
-		m_colorMineral2 = PVRTVec3( 0.0, 0.0, 0.0 );
+		m_colorMineral2 = sky * 0.1;
 		m_colorOrganic2 = PVRTVec3( 1.0, 1.0, 1.0 );
 	}
 	else
 	{
 		m_colorMineral2 = PVRTVec3( 1.0, 1.0, 1.0 );
-		m_colorOrganic2 = PVRTVec3( 0.0, 0.0, 0.0 );
+		m_colorOrganic2 = sky * 0.1;
 	}
+
+	printf("organic1 %f %f %f\n", m_colorOrganic1.x, m_colorOrganic1.y, m_colorOrganic1.z );
+	printf("organic2 %f %f %f\n", m_colorOrganic2.x, m_colorOrganic2.y, m_colorOrganic2.z );
 }
 
 	
