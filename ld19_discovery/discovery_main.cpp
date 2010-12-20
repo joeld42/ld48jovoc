@@ -453,7 +453,7 @@ int main( int argc, char *argv[] )
 		exit(1);
 	}
 		
-	SDL_WM_SetCaption( "LD19 Jovoc - Discovery [Press TAB to ungrab mouse]", NULL );
+	SDL_WM_SetCaption( "LD19 Jovoc - Discovery", NULL );
 
     // Initialize resources
     game_init();    

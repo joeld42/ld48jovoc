@@ -194,6 +194,32 @@ void Bonsai::init()
 	}
 }
 
+void progress( const char *task, int row, int totalrows )
+{
+	static char lastTask[100] = "";	
+	static int lastPct = 0;
+
+	// new section?
+	if (strcmp( lastTask, task))
+	{
+		lastPct = -1;
+		strcpy( lastTask, task );
+	}
+
+	// update display?	
+	int pct = row * 100 / totalrows;
+	if (pct != lastPct )
+	{
+		char buff[200];
+		sprintf( buff, " [%s %d%%] LD19 Jovoc - Discovery", task, pct );
+		SDL_WM_SetCaption( buff , NULL );
+
+		//DBG::info("%s: %d\n", task, pct );
+		
+		lastPct = pct;
+	}
+}
+
 void Bonsai::buildAll()
 {
 	// generate a unique random seed for the whole thing from the name
@@ -222,8 +248,11 @@ void Bonsai::buildAll()
 
 	// Set up params
 	srand( param_seed );
+	m_params.offs = randUniform( 0.0, 1000.0 );
+
 	m_params.base = (int)randUniform( 0, NUM_BASE );	
-	m_params.distAmt = randUniform( 0.0, 0.3 );
+	m_params.base_distAmt = randUniform( 0.0, 0.3 );
+	m_params.base_scale = randUniform( 0.3, 1.0 );	
 
 	m_params.baseVeg = (int)randUniform( 0, NUM_BASEVEG );	
 
@@ -266,17 +295,7 @@ void Bonsai::buildAll()
 		for (int j=0; j < HITE_RES; j += step)
 		{
 			// status
-			static int lastPct = 0;
-			int pct = j * 100 / 1024;
-			if (pct != lastPct )
-			{
-				char buff[200];
-				sprintf( buff, " [Generating ... %d%%] LD19 Jovoc - Discovery", pct );
-				SDL_WM_SetCaption( buff , NULL );
-				DBG::info("Generating: %d\n", pct );
-				lastPct = pct;
-			}
-
+			progress( "Generating", j, HITE_RES );			
 
 			for (int i=0; i < HITE_RES; i += step )
 			{
@@ -310,7 +329,7 @@ void Bonsai::buildAll()
 		// Calculate (fake) ambient occlusion
 		for (int j=0; j < HITE_RES; j += 1)
 		{
-			printf("amboccl row %d\n", j );
+			progress( "AmbOccl", j, HITE_RES );
 
 			for (int i=0; i < HITE_RES; i += 1 )
 			{
@@ -360,11 +379,11 @@ void Bonsai::buildAll()
 				
 
 		// Cache the height & color data
+		SDL_WM_SetCaption( "[Cache Height/Color] LD19 Jovoc - Discovery", NULL );
+
 		_cacheColorImage( "DIF0", m_terrainColor, HITE_RES );
 		_cacheHeight( "HITE", m_hiteData, HITE_RES );
 	}
-
-	SDL_WM_SetCaption( " [Calc Norms ...] LD19 Jovoc - Discovery" , NULL );
 
 	// check if there is cached normal data available
 	htexNorms = _checkCachedColorImage( "NRM", m_terrainNorm, HITE_RES);
@@ -379,6 +398,8 @@ void Bonsai::buildAll()
 		// way cause it's easier/faster
 		for (int j=0; j < HITE_RES-1; j++)
 		{
+			progress( "Calc Normals", j, HITE_RES );
+
 			for (int i=0; i < HITE_RES-1; i++ )
 			{
 				PVRTVec3 nrm;
@@ -402,6 +423,7 @@ void Bonsai::buildAll()
 		}
 
 		// Cache the normal map
+		SDL_WM_SetCaption( "[Cache Normals] LD19 Jovoc - Discovery", NULL );
 		_cacheColorImage( "NRM", m_terrainNorm, HITE_RES );
 	}
 
@@ -502,13 +524,28 @@ void Bonsai::synthesize( size_t ndx, float ii, float jj )
 		// "Rolling hills" -- base height
 
 		// domain distortion
-		float distDir = pnoise( ii * 2, 10.0, jj * 2 );
-		float ii2 = ii + distDir * m_params.distAmt;
-		float jj2 = jj + distDir * m_params.distAmt;
+		float distDir = pnoise( ii * m_params.base_scale, 
+			10.0 + m_params.offs, 
+			jj *  
+			m_params.base_scale );
+
+		float ii2 = ii + distDir * m_params.base_distAmt;
+		float jj2 = jj + distDir * m_params.base_distAmt;
 
 		// structural height
 		Hs = pnoise( ii2 * 2, 0.0, jj2 * 2 );				
 		Hs = rval + (Hs * 0.3);	
+	}
+	else if (m_params.base == BASE_JAGGY)
+	{
+		// "Jagged mountians" -- base height		
+
+		// structural height
+		Hs = 5.0 * fabs(pturb( ii * m_params.base_scale, 
+				m_params.offs - 5, 
+				jj * m_params.base_scale, 6, true ));
+		
+		Hs = (rval + Hs) / 2.0;	
 	}
 
 	// ==========================================
@@ -518,7 +555,7 @@ void Bonsai::synthesize( size_t ndx, float ii, float jj )
 	if (m_params.baseVeg == BASEVEG_TURBY)
 	{
 		// color with turbulence
-		float val = pturb( ii * 4, 0.0, jj * 4, 8, false );
+		float val = pturb( ii * 4, m_params.offs, jj * 4, 8, false );
 
 		// add some height detail
 		Hf = val * 0.05;
@@ -542,12 +579,12 @@ void Bonsai::synthesize( size_t ndx, float ii, float jj )
 	if (m_params.patchVeg == PATCHVEG_PATCHY)
 	{
 		float val = pturb( ii * m_params.patchVeg_scale, 
-							0.0, 
+							m_params.offs, 
 							jj * m_params.patchVeg_scale, 3, false );
 
 		if (val > m_params.patchVeg_thresh)
 		{			
-			float v = pnoise( ii * m_params.patchVeg_nscale, 0.0, 
+			float v = pnoise( ii * m_params.patchVeg_nscale, m_params.offs, 
 							jj * m_params.patchVeg_nscale );
 			v = fabs(v);
 

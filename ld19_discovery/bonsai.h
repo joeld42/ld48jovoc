@@ -53,6 +53,7 @@ public:
 // Base height
 enum {
 	BASE_ROLLING_HILLS,
+	BASE_JAGGY,
 
 	NUM_BASE
 };
@@ -85,9 +86,14 @@ enum
 
 struct SynthParams
 {
+
+	// global noise offset
+	float offs;
+
 	// Base layer
 	int base;  // base type
-	float distAmt; // distortion amount
+	float base_distAmt; // distortion amount
+	float base_scale;
 
 	// Base veg
 	int baseVeg;	
