@@ -28,6 +28,8 @@
 
 bool loadShader( const char *shaderKey, GLuint &program );
 
+float fstep( float a, float b, float t );
+
 TreeLand::TreeLand( float *heightData, 
 				   Luddite::HTexture htexColor,
 				   Luddite::HTexture htexNorm ) : 
@@ -305,7 +307,59 @@ void Bonsai::buildAll()
 			}
 		}
 
-		// Cache the height data
+		// Calculate (fake) ambient occlusion
+		for (int j=0; j < HITE_RES; j += 1)
+		{
+			printf("amboccl row %d\n", j );
+
+			for (int i=0; i < HITE_RES; i += 1 )
+			{
+				float ambOccl = 0.0f;
+				int c = 0;
+				size_t ndx = (j*HITE_RES)+i;
+
+				// TODO: gaussian weight
+				for (int ii=-8; ii < 8; ii += 2)
+				{
+					for (int jj=-8; jj < 8; jj += 2)
+					{
+						int i2 = i+ii;
+						int j2 = j+jj;
+						c += 1;
+						
+						float occl = 0.0;
+						if ((i2 >=0) && (i2 < HITE_RES)  &&
+							(j2 >=0) && (j2 < HITE_RES) )
+						{
+							size_t ndx2 = (j2*HITE_RES)+i2;
+							occl = m_hiteData[ndx2] - m_hiteData[ndx];							
+							occl = fstep( 0.0, 0.015, occl );														
+							
+							ambOccl += occl;
+						}						
+					}
+				}
+
+				// avg
+				ambOccl /= c;
+				ambOccl = clamp( 1.0-ambOccl, 0.0, 1.0 );
+
+				// darken color image (dbg replace)
+#if 0
+				m_terrainColor[ndx * 3 + 0] = (int)(ambOccl * 255);
+				m_terrainColor[ndx * 3 + 1] = (int)(ambOccl * 255);
+				m_terrainColor[ndx * 3 + 2] = (int)(ambOccl * 255);
+#else
+				m_terrainColor[ndx * 3 + 0] *= ambOccl;
+				m_terrainColor[ndx * 3 + 1] *= ambOccl;
+				m_terrainColor[ndx * 3 + 2] *= ambOccl;
+#endif
+
+			}
+		}
+				
+
+		// Cache the height & color data
 		_cacheColorImage( "DIF0", m_terrainColor, HITE_RES );
 		_cacheHeight( "HITE", m_hiteData, HITE_RES );
 	}
@@ -419,7 +473,7 @@ PVRTVec3 mix( PVRTVec3 a, PVRTVec3 b, float t )
 	return (a * t) + (b * (1.0-t));
 }
 
-float step( float a, float b, float t )
+float fstep( float a, float b, float t )
 {
 	if (t < a) return 0.0;
 	else if (t > b) return (1.0);
@@ -509,7 +563,7 @@ void Bonsai::synthesize( size_t ndx, float ii, float jj )
 			}
 
 			// Add a little bit of height
-			Hf += step( m_params.patchVeg_thresh, m_params.patchVeg_thresh + 0.05, val ) * 0.01;
+			Hf += fstep( m_params.patchVeg_thresh, m_params.patchVeg_thresh + 0.05, val ) * 0.01;
 		}
 	}
 
@@ -520,7 +574,7 @@ void Bonsai::synthesize( size_t ndx, float ii, float jj )
 	{
 		float v = pnoise( ii * m_params.decoLavaScale, 0.0, 
 							jj * m_params.decoLavaScale );
-		float v2 = 1.0 - step( 0.0, m_params.decoLavaWidth, fabs(v) );
+		float v2 = 1.0 - fstep( 0.0, m_params.decoLavaWidth, fabs(v) );
 
 		//C = PVRTVec3( clamp( -v, 0, 1),v2, clamp( v, 0, 1));
 		if (v2 > 0.01)

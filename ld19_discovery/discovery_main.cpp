@@ -408,6 +408,13 @@ void title_redraw()
 }
 
 
+void toggleGrabMouse( int &grab )
+{
+	grab = !grab;
+	SDL_ShowCursor( !grab );
+	SDL_WM_GrabInput( grab?SDL_GRAB_ON:SDL_GRAB_OFF );
+}
+
 // ===========================================================================
 int main( int argc, char *argv[] )
 {	
@@ -463,9 +470,9 @@ int main( int argc, char *argv[] )
 	
 	//playerPos.y = g_treeLand->getHeight( playerPos );
 
-	int grab = 1;
-	SDL_ShowCursor( 0 );
-	SDL_WM_GrabInput(SDL_GRAB_ON);
+	int grab = 0;
+	//SDL_ShowCursor( 0 );
+	//SDL_WM_GrabInput(SDL_GRAB_ON);
 	
 	//sprintf( g_title, "PLANET %s\n", g_treeLand->m_name );
 	//for (char *ch=g_title; *ch; ch++)
@@ -518,6 +525,11 @@ int main( int argc, char *argv[] )
 							g_treeLand = new Bonsai( g_planetName );
 							g_treeLand->init();
 							g_treeLand->buildAll();
+
+							if (!grab)
+							{
+								toggleGrabMouse( grab );
+							}
 						}
 					}
 					else
@@ -532,9 +544,7 @@ int main( int argc, char *argv[] )
 							break;
 
 						case SDLK_TAB:
-							grab = !grab;
-							SDL_ShowCursor( !grab );
-							SDL_WM_GrabInput( grab?SDL_GRAB_ON:SDL_GRAB_OFF );
+							toggleGrabMouse( grab );
 							break;
 					}
 
