@@ -293,6 +293,10 @@ void game_shutdown()
     
     g_texDB.freeTexture( hFontTexture );    
 
+    // ungrab mouse
+	SDL_ShowCursor( true );
+	SDL_WM_GrabInput( SDL_GRAB_OFF );
+
     delete g_font20;
     delete g_font32;    
 }

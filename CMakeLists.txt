@@ -121,6 +121,16 @@ if (SDL_FOUND AND OPENGL_FOUND)
 endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================
+# ld19 Discovery
+#  Dependancies: SDL/OpenGL
+# ==================================================
+if (SDL_FOUND AND OPENGL_FOUND)
+  ADD_SUBDIRECTORY( ld19_discovery )
+endif (SDL_FOUND AND OPENGL_FOUND)
+
+
+
+# ==================================================
 # luddite (toolkit/basecode)
 #  Dependancies: SDL (example only)/OpenGL
 # ==================================================
