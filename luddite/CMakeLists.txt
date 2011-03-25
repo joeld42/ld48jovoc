@@ -22,8 +22,6 @@ SET( luddite_SRCS
      luddite/digistrip.cpp
      luddite/GLee.c
      luddite/PNGLoader.cpp
-
-     example/luddite_demo.cpp
      )
 
 # Add Header files to Visual Studio project
@@ -78,8 +76,13 @@ endif (UNIX)
 ADD_DEFINITIONS( ${PNG_DEFINITIONS} )
 
 # The executable
-ADD_EXECUTABLE( luddite_demo ${luddite_SRCS} )
+ADD_EXECUTABLE( luddite_demo ${luddite_SRCS} example/luddite_demo.cpp )
 target_link_libraries( luddite_demo ${LIBS} )
 set_target_properties( luddite_demo
                        PROPERTIES
+                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/luddite/example )
+
+ADD_EXECUTABLE( resource_test ${luddite_SRCS} example/resource_test.cpp )
+target_link_libraries( resource_test ${LIBS} )
+set_target_properties( resource_test PROPERTIES
                        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/luddite/example )
