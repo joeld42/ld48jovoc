@@ -66,15 +66,19 @@ TakeThisGame::TakeThisGame()
 void TakeThisGame::init()
 {
     printf("In init..\n" );
-    chunk = VoxChunk::loadCSVFile( "gamedata/voxtiles/column.csv" );
-    //chunk = VoxChunk::loadCSVFile( "gamedata/voxtiles/grass_corner.csv" );
+    //chunk = VoxChunk::loadCSVFile( "gamedata/voxtiles/bush.csv" );
+    chunk = VoxChunk::loadCSVFile( "gamedata/voxtiles/grass_corner.csv" );
+    //chunk = VoxChunk::loadCSVFile( "gamedata/voxtiles/dbgshape.csv" );
     
     printf( "Loaded chunk, size is %d, %d, %d\n",
             chunk->m_xSize,
             chunk->m_ySize,
             chunk->m_zSize );
     
-    ang = 0;
+    ang = 180;
+    
+    glEnable( GL_CULL_FACE );
+    glEnable( GL_DEPTH_TEST );
 }
 
 void TakeThisGame::shutdown()
@@ -103,17 +107,18 @@ void TakeThisGame::redraw()
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
-    glhPerspectivef2( m_proj, 90.0, 800.0/600.0, 0.001, 1000.0 );
+    glhPerspectivef2( m_proj, 90.0, 800.0/600.0, 0.1, 1000.0 );
     
     glMatrixMode( GL_PROJECTION );
     glLoadMatrixf( (GLfloat*)(&m_proj) );
    
-    matrix4x4f xlate;
+    matrix4x4f xlate1, xlate2;
     matrix4x4f rot;
-    xlate.Translate( 0.0, -2, -20 );
+    xlate1.Translate( -4.0, -2.0, -4.0 );
+    xlate2.Translate( 0.0, -2, -10 );
     rot.RotateY( ang * 3.14/180.0 );
     
-    m_modelview = rot * xlate;
+    m_modelview = xlate1 * rot * xlate2;
                
     //m_modelview.Translate( 0.0, -2, -20 );
     

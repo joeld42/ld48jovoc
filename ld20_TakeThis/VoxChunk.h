@@ -63,6 +63,7 @@ public:
     
     // utils
     bool isClearCol( GLuint c );
+    bool isVisibleCol( GLuint c );
     
 //protected:
     int m_xSize;

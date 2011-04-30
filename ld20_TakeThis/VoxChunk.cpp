@@ -33,6 +33,10 @@ void VoxChunk::setVoxel( int x, int y, int z, GLuint col )
 
 GLuint VoxChunk::getVoxel( int x, int y, int z ) const
 {
+    if ((x<0)||(x>=m_xSize)||
+        (y<0)||(y>=m_ySize)||
+        (z<0)||(z>=m_zSize)) return BLOCKER_COL;
+    
     return m_voxdata[ index(x,y,z) ];
 }
 
@@ -70,14 +74,22 @@ VoxChunk *VoxChunk::loadCSVFile( const char *filename )
     }
     
     fclose(fp);
+    
+    printf("Loaded %s, size(%dx%dx%d)\n", filename, xsize, ysize, zsize);
 
     return chunk;
 }
 
-bool VoxChunk::isClearCol( GLuint col )
+bool VoxChunk::isVisibleCol( GLuint col )
 {
     return ((col & 0xff) && (col != FILLER_COL) && (col != BLOCKER_COL));
 }
+
+bool VoxChunk::isClearCol( GLuint col )
+{
+    return ((col & 0xff) && (col != BLOCKER_COL));
+}
+
 
 VoxVert *VoxChunk::genTris( size_t &numVerts )
 {
@@ -110,20 +122,24 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
                 
                 
                 // anything there?
-                if (isClearCol(col))
+                if (isVisibleCol(col))
                 {
                     // yep...
                     
-                    // no left neighbor?
-                    if ( (i > 0) && (!isClearCol( getVoxel(i-1,j,k))) )
+                    // left neighbor?
+                    if (!isClearCol( getVoxel(i-1,j,k)))
                     {
                         // Left face
                         VoxVert v;
-                        
+
                         v.m_col[0] = cr;
                         v.m_col[1] = cg;
                         v.m_col[2] = cb;
-#if 0
+                        
+                        //v.m_col[0]=255;
+                        //v.m_col[1]=0;
+                        //v.m_col[2]=0;
+                        
                         v.m_pos.x = i * voxSz;
                         v.m_pos.y = j * voxSz;
                         v.m_pos.z = k * voxSz;
@@ -135,11 +151,10 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
                         m_triData.push_back( v + vec3f( 0, voxSz, 0 ) );
                         m_triData.push_back( v + vec3f( 0, 0, voxSz ) );
                         m_triData.push_back( v + vec3f( 0, voxSz, voxSz ) );
-#endif
                     }
                     
-                    // no right neighbor?
-                    if ( (i < m_xSize-1) && (!isClearCol( getVoxel(i+1,j,k))) )
+                    // right neighbor?
+                    if (!isClearCol( getVoxel(i+1,j,k))) 
                     {
                         // Right face
                         VoxVert v;
@@ -147,9 +162,14 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
                         v.m_col[0] = cr;
                         v.m_col[1] = cg;
                         v.m_col[2] = cb;
-                        v.m_col[0] = 0xff;
-                        v.m_col[1] = 0xff;
-                        v.m_col[2] = 0xff;
+                        
+                        //v.m_col[0]=0;
+                        //v.m_col[1]=255;
+                        //v.m_col[2]=255;
+                        
+                        v.m_pos.x = (i+1) * voxSz;
+                        v.m_pos.y = j * voxSz;
+                        v.m_pos.z = k * voxSz;
                         
                         m_triData.push_back( v );
                         m_triData.push_back( v + vec3f( 0, voxSz, 0 ) );
@@ -161,11 +181,108 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
                         
                         
                     }
+
+                    // front neighbor?
+                    if (!isClearCol( getVoxel(i,j,k-1)))
+                    {
+                        // front face
+                        VoxVert v;
+                        
+                        v.m_col[0] = cr;
+                        v.m_col[1] = cg;
+                        v.m_col[2] = cb;
+                        
+                        v.m_pos.x = i * voxSz;
+                        v.m_pos.y = j * voxSz;
+                        v.m_pos.z = k * voxSz;
+                        
+                        m_triData.push_back( v + vec3f( 0, voxSz, 0 ) );
+                        m_triData.push_back( v + vec3f( voxSz, 0, 0 ) );
+                        m_triData.push_back( v );
+                        
+                        m_triData.push_back( v + vec3f( voxSz, 0, 0 ) );
+                        m_triData.push_back( v + vec3f( 0, voxSz, 0 ) );
+                        m_triData.push_back( v + vec3f( voxSz, voxSz, 0 ) );
+                    }
+
+                    // back neighbor?
+                    if (!isClearCol( getVoxel(i,j,k+1)))
+                    {
+                        // back face
+                        VoxVert v;
+                        
+                        v.m_col[0] = cr;
+                        v.m_col[1] = cg;
+                        v.m_col[2] = cb;
+                        
+                        v.m_pos.x = i * voxSz;
+                        v.m_pos.y = j * voxSz;
+                        v.m_pos.z = (k+1) * voxSz;
+                        
+                        
+                        m_triData.push_back( v );
+                        m_triData.push_back( v + vec3f( voxSz, 0, 0 ) );
+                        m_triData.push_back( v + vec3f( 0, voxSz, 0 ) );
+                        
+                        m_triData.push_back( v + vec3f( voxSz, voxSz, 0 ) );
+                        m_triData.push_back( v + vec3f( 0, voxSz, 0 ) );
+                        m_triData.push_back( v + vec3f( voxSz, 0, 0 ) );
+                        
+                    }
+                    
+                    // bottom neighbor?
+                    if (!isClearCol( getVoxel(i,j-1,k)))
+                    {
+                        // bottom face
+                        VoxVert v;
+                        
+                        v.m_col[0] = cr;
+                        v.m_col[1] = cg;
+                        v.m_col[2] = cb;
+                        
+                        v.m_pos.x = i * voxSz;
+                        v.m_pos.y = j * voxSz;
+                        v.m_pos.z = k * voxSz;
+                        
+                        m_triData.push_back( v + vec3f( voxSz, 0, 0 ) );
+                        m_triData.push_back( v + vec3f( 0, 0, voxSz ) );
+                        m_triData.push_back( v );
+                        
+                        m_triData.push_back( v + vec3f( 0, 0, voxSz ) );
+                        m_triData.push_back( v + vec3f( voxSz, 0, 0 ) );
+                        m_triData.push_back( v + vec3f( voxSz, 0, voxSz ) );
+                    }
+
+                    // top neighbor?
+                    if (!isClearCol( getVoxel(i,j+1,k)))
+                    {
+                        // front face
+                        VoxVert v;
+                        
+                        v.m_col[0] = cr;
+                        v.m_col[1] = cg;
+                        v.m_col[2] = cb;
+                        
+                        v.m_pos.x = i * voxSz;
+                        v.m_pos.y = (j+1) * voxSz;
+                        v.m_pos.z = k * voxSz;
+                        
+                        m_triData.push_back( v + vec3f( 0, 0, voxSz ) );
+                        m_triData.push_back( v + vec3f( voxSz, 0, 0 ) );
+                        m_triData.push_back( v );
+                        
+                        m_triData.push_back( v + vec3f( voxSz, 0, 0 ) );
+                        m_triData.push_back( v + vec3f( 0, 0, voxSz ) );
+                        m_triData.push_back( v + vec3f( voxSz, 0, voxSz ) );
+                    }
+
+                    
                 }
             }
         }
     }
     
+    printf("total tris %d\n", m_triData.size() );
     for (int i=0; i < 10; i++)
     {
         printf("m_triData[%d].m_pos %f %f %f\n", i, 
