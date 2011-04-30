@@ -9,6 +9,9 @@
 
 #include "TakeThisGame.h"
 
+#include "VoxChunk.h"
+#include "MapRoom.h"
+
 TakeThisGame *TakeThisGame::_singleton = NULL;
 
 // From http://www.opengl.org/wiki/GluPerspective_code
@@ -79,6 +82,9 @@ void TakeThisGame::init()
     
     glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
+    
+    // Load map tiles
+    MapRoom::initTiles();
 }
 
 void TakeThisGame::shutdown()

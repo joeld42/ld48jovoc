@@ -103,8 +103,8 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
     // nope. Generate voxels
     
     // size of a single voxel
-    //const float voxSz = 1.0 / 8.0;
-    const float voxSz = 1.0;
+    const float voxSz = 1.0 / 8.0;
+    //const float voxSz = 1.0;
     
     for (int i=0; i < m_xSize; i++)
     {
@@ -113,7 +113,6 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
             for (int k=0; k < m_zSize; k++)
             {
                 GLuint col = getVoxel(i,j,k);
-                printf("%d %d %d color #%010X\n", i,j,k, col );
                 
                 GLubyte cr, cg, cb;
                 cr = (col >> 24) & 0xff;
@@ -281,15 +280,7 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
             }
         }
     }
-    
-    printf("total tris %d\n", m_triData.size() );
-    for (int i=0; i < 10; i++)
-    {
-        printf("m_triData[%d].m_pos %f %f %f\n", i, 
-               m_triData[i].m_pos.x,
-               m_triData[i].m_pos.y,
-               m_triData[i].m_pos.z );
-    }
+
    
     numVerts = m_triData.size();
     return &(m_triData[0]);  
