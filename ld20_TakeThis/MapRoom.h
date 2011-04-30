@@ -18,22 +18,28 @@ struct MapTile
     MapTile() 
     {
         chunk = NULL;
+        rot = 0;
     }
     
     VoxChunk *chunk;
+    int rot;
 };
 
 //=========
 class MapRoom
 {
 public:
-    MapRoom( int x, int y, int z);
+    // note: zelda map size is 16x11
+    MapRoom( int x=16, int y=5, int z=11);
     
     static void initTiles();
     
     size_t index( int x, int y, int z ) const;
     
-protected:
+    // instances the map geo into the buffer
+    size_t instMapGeo( VoxVert *dest, size_t maxNumVert );
+    
+//protected:
     int m_xSize, m_ySize, m_zSize;
     std::vector<MapTile> m_map;
     

@@ -45,8 +45,11 @@ VoxChunk *VoxChunk::loadCSVFile( const char *filename )
     VoxChunk *chunk = NULL;
 
     FILE* fp = fopen(filename, "rt");
-    if (!fp) return false;
-    
+    if (!fp) 
+    {
+        printf("Couldn't open voxtile %s\n", filename );
+        return NULL;
+    }
     // Read the dimensions
     int xsize, ysize, zsize;
     fscanf(fp, "%d,%d,%d\n", &xsize, &ysize, &zsize);
@@ -103,7 +106,7 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
     // nope. Generate voxels
     
     // size of a single voxel
-    const float voxSz = 1.0 / 8.0;
+    const float voxSz = 1.0 / WORLD_TILE_SIZE;
     //const float voxSz = 1.0;
     
     for (int i=0; i < m_xSize; i++)

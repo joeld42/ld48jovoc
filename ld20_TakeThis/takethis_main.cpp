@@ -47,6 +47,11 @@ int main( int argc, char *argv[] )
 		}
 	}
     
+    // TODO: flag to control this
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 4 );
+
+    
 	if (SDL_SetVideoMode( 800, 600, 32, mode_flags ) == 0 ) 
 	{
 		printf( "Unable to set video mode: %s\n", SDL_GetError() ) ;
@@ -109,6 +114,21 @@ int main( int argc, char *argv[] )
                     break;
 			}
 		}
+        
+        // Do continuous keys
+		Uint8 *keyState = SDL_GetKeyState( NULL );
+        
+		// convert to btn mask
+		Uint32 btnMask = 0;
+		btnMask |= (keyState[SDLK_LEFT]||keyState[SDLK_a])?BTN_LEFT:0;
+		btnMask |= (keyState[SDLK_RIGHT]||keyState[SDLK_r])?BTN_RIGHT:0;
+		btnMask |= (keyState[SDLK_UP]||keyState[SDLK_w])?BTN_UP:0;
+		btnMask |= (keyState[SDLK_DOWN]||keyState[SDLK_s])?BTN_DOWN:0;
+        
+		btnMask |= (keyState[SDLK_z]||keyState[SDLK_COMMA])?BTN_A:0;
+		btnMask |= (keyState[SDLK_x]||keyState[SDLK_PERIOD])?BTN_B:0;
+        
+		game->updateButtons( btnMask );
 		
 		
 		// Timing

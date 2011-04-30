@@ -14,6 +14,11 @@
 
 TakeThisGame *TakeThisGame::_singleton = NULL;
 
+// How much memory to allocate for the map geo
+// let's try 10 MB
+#define MAP_VERT_MEM (10 * 1024*1024)
+
+
 // From http://www.opengl.org/wiki/GluPerspective_code
 
 void glhFrustumf2(matrix4x4f &matrix, 
@@ -59,7 +64,9 @@ void glhPerspectivef2(matrix4x4f &matrix, float fovyInDegrees, float aspectRatio
 }
 
 
-TakeThisGame::TakeThisGame()
+TakeThisGame::TakeThisGame() :
+    m_playerVel( 0.0, 0.0, 0.0 ),
+    m_playerAng( 0.0 )
 {
     assert( _singleton == NULL );
     _singleton = this;
@@ -78,29 +85,57 @@ void TakeThisGame::init()
             chunk->m_ySize,
             chunk->m_zSize );
     
-    ang = 180;
+    ang = 30;
     
     glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
     
+    // Make the map geom
+    m_mapVertCapacity = MAP_VERT_MEM / sizeof( VoxVert );
+    printf("Alloc %zu mapverts (%zu kb)\n",
+           m_mapVertCapacity, m_mapVertCapacity*sizeof(VoxVert) );
+    
+    m_mapVertData = new VoxVert[m_mapVertCapacity];
+    
+    // Load "sprites"
+    m_player = VoxChunk::loadCSVFile( "gamedata/player.csv" );
+    
+    
     // Load map tiles
     MapRoom::initTiles();
+    
+    room = new MapRoom( );
+    m_playerPos = vec3f( room->m_xSize/2, 1, room->m_zSize/2 );
+    
+    // tmp -- inst the map
+    m_mapVertSize = room->instMapGeo( m_mapVertData, m_mapVertCapacity);
+    printf("Map has %zu verts\n", m_mapVertSize );
+
 }
 
 void TakeThisGame::shutdown()
 {
     assert( _singleton );
     _singleton->_shutdown();
+    
+
 }
 
 void TakeThisGame::_shutdown()
 {
     // here .. release stuff
+    delete [] m_mapVertData;
+    
 }
 
 void TakeThisGame::updateSim( float dtFixed )
 {
     ang += dtFixed * 20.0;
+    
+    float PLAYER_SPEED = 8.0;
+    
+    // Update player pos
+    m_playerPos += PLAYER_SPEED * m_playerVel * dtFixed;
 }
 
 void TakeThisGame::updateFree( float dtRaw )
@@ -113,15 +148,17 @@ void TakeThisGame::redraw()
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
-    glhPerspectivef2( m_proj, 90.0, 800.0/600.0, 0.1, 1000.0 );
+    glhPerspectivef2( m_proj, 40.0, 800.0/600.0, 0.1, 1000.0 );
     
     glMatrixMode( GL_PROJECTION );
     glLoadMatrixf( (GLfloat*)(&m_proj) );
    
     matrix4x4f xlate1, xlate2;
     matrix4x4f rot;
-    xlate1.Translate( -4.0, -2.0, -4.0 );
-    xlate2.Translate( 0.0, -2, -10 );
+    xlate1.Translate( -(room->m_xSize/2), -2.0, -(room->m_zSize/2) );
+    xlate2.Translate( 0.0, -2, -20 );
+    //rot.RotateX( ang * 3.14/180.0 );
+    
     rot.RotateY( ang * 3.14/180.0 );
     
     m_modelview = xlate1 * rot * xlate2;
@@ -158,49 +195,104 @@ void TakeThisGame::redraw()
     
     for (int y=0; y < 2; y++)
     {
-        glVertex3f( 0.0, y*chunk->m_ySize, 0.0 );
-        glVertex3f( chunk->m_xSize, y*chunk->m_ySize, 0.0 );
+        glVertex3f( 0.0, y*room->m_ySize, 0.0 );
+        glVertex3f( room->m_xSize, y*room->m_ySize, 0.0 );
         
-        glVertex3f( 0.0, y*chunk->m_ySize, chunk->m_zSize );
-        glVertex3f( chunk->m_xSize, y*chunk->m_ySize, chunk->m_zSize );
+        glVertex3f( 0.0, y*room->m_ySize, room->m_zSize );
+        glVertex3f( room->m_xSize, y*room->m_ySize, room->m_zSize );
         
-        glVertex3f( 0.0, y*chunk->m_ySize, 0.0 );
-        glVertex3f( 0.0, y*chunk->m_ySize, chunk->m_zSize );
+        glVertex3f( 0.0, y*room->m_ySize, 0.0 );
+        glVertex3f( 0.0, y*room->m_ySize, room->m_zSize );
         
-        glVertex3f( chunk->m_xSize, y*chunk->m_ySize, 0.0 );
-        glVertex3f( chunk->m_xSize, y*chunk->m_ySize, chunk->m_zSize );
+        glVertex3f( room->m_xSize, y*room->m_ySize, 0.0 );
+        glVertex3f( room->m_xSize, y*room->m_ySize, room->m_zSize );
         
     }
     
     for (int x=0; x < 2; x++)
     {
-        glVertex3f(  chunk->m_xSize*x, 0.0, 0.0 );
-        glVertex3f(  chunk->m_xSize*x, chunk->m_ySize, 0.0 );
+        glVertex3f(  room->m_xSize*x, 0.0, 0.0 );
+        glVertex3f(  room->m_xSize*x, room->m_ySize, 0.0 );
 
-        glVertex3f(  chunk->m_xSize*x, 0.0, chunk->m_zSize );
-        glVertex3f(  chunk->m_xSize*x, chunk->m_ySize, chunk->m_zSize );
+        glVertex3f(  room->m_xSize*x, 0.0, room->m_zSize );
+        glVertex3f(  room->m_xSize*x, room->m_ySize, room->m_zSize );
     }
     
     glEnd();
 #endif
     
-    // alright draw the chunk
+    // alright draw the map
     VoxVert *vertData;
     size_t numVerts;
     
-    vertData = chunk->genTris( numVerts );
+    //vertData = chunk->genTris( numVerts );
+    
+    // Draw map
     
     glColor3f( 1.0, 1.0, 1.0 );
     glEnable( GL_CULL_FACE );
     
     glEnableClientState( GL_VERTEX_ARRAY );
-    glVertexPointer( 3, GL_FLOAT, sizeof( VoxVert ), vertData );
+    glVertexPointer( 3, GL_FLOAT, sizeof( VoxVert ), m_mapVertData );
     
     glEnableClientState( GL_COLOR_ARRAY );
-    glColorPointer( 3, GL_UNSIGNED_BYTE, sizeof( VoxVert ), &(vertData[0].m_col) );
+    glColorPointer( 3, GL_UNSIGNED_BYTE, sizeof( VoxVert ), &(m_mapVertData[0].m_col) );
     
-    glDrawArrays( GL_TRIANGLES, 0, numVerts );
+    glDrawArrays( GL_TRIANGLES, 0, m_mapVertSize );
     //printf("Draw %d triangle verts\n", numVerts );
+    
+    // Draw player
+    //matrix4x4f playerMat = m_modelview;
+    matrix4x4f pxform, prot, mat;
+    matrix4x4f center, centerI;
+    center.Translate( -0.5,-0.5,-0.5 );
+    centerI.Translate( 0.5, 0.5, 0.5 );
+    
+    pxform.Translate( int(m_playerPos.x*WORLD_TILE_SIZE) /WORLD_TILE_SIZE, 
+                      int(m_playerPos.y*WORLD_TILE_SIZE) / WORLD_TILE_SIZE, 
+                      int(m_playerPos.z*WORLD_TILE_SIZE) /WORLD_TILE_SIZE);
+    prot.RotateY( m_playerAng );
+    
+    
+    mat = center * prot * pxform * centerI * m_modelview;
+    glLoadMatrixf( (GLfloat*)(&mat) );
+    
+    size_t playerSz;
+    VoxVert *plrVert = m_player->genTris( playerSz );
+    glVertexPointer( 3, GL_FLOAT, sizeof( VoxVert ), plrVert );
+    glColorPointer( 3, GL_UNSIGNED_BYTE, sizeof( VoxVert ), &(plrVert[0].m_col) );
+    glDrawArrays( GL_TRIANGLES, 0, playerSz );
+    
     
     glDisable( GL_VERTEX_ARRAY );
 }
+
+void TakeThisGame::updateButtons( unsigned int btnMask )
+{
+	// Movment buttons
+	if ((btnMask & BTN_LEFT) && (!(btnMask & BTN_RIGHT)) )
+	{
+		m_playerVel.x = -1.0;
+	}
+	else if ((btnMask & BTN_RIGHT) && (!(btnMask & BTN_LEFT)) )
+	{
+		m_playerVel.x = 1.0;
+	}
+    else m_playerVel.x = 0;
+    
+    if ((btnMask & BTN_UP) && (!(btnMask & BTN_DOWN)) )
+	{
+		m_playerVel.z = -1.0;
+	}
+	else if ((btnMask & BTN_DOWN) && (!(btnMask & BTN_UP)) )
+	{
+		m_playerVel.z = 1.0;
+	}
+	else m_playerVel.z = 0.0;
+    
+    if ( prmath::LengthSquared( m_playerVel ) > 0.01)
+    {
+        m_playerAng = -atan2( m_playerVel.z, m_playerVel.x );
+    }
+}
+

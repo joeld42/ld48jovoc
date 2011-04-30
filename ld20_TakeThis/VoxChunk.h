@@ -10,11 +10,17 @@
 //
 
 
+#include <string>
 #include <vector>
+
 #include <prmath/prmath.hpp>
 
 #include "VoxChunk.h"
 #include "GLee.h"
+
+
+// How many voxels fit into a unit cube on a side
+#define WORLD_TILE_SIZE (16.0)
 
 // Filler acts like it's filled for drawing
 // neighbors but isn't drawn itself. Used for
@@ -73,6 +79,7 @@ public:
     GLuint *m_voxdata;
     
     std::vector<VoxVert> m_triData;
+    std::string m_chunkName;
     
 };
 
