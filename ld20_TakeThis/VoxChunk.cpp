@@ -115,6 +115,7 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
                         // Left face
                         VoxVert v;
                         
+                        
                         v.m_col.r = 0.5;
                         v.m_col.g = 0.6;
                         v.m_col.b = 0.5;
