@@ -81,6 +81,9 @@ int main( int argc, char *argv[] )
                     case SDLK_ESCAPE:
                         done = true;
                         break;
+
+                    default:
+                        break;
                 }
                     
 					// let the game handle it
@@ -101,6 +104,9 @@ int main( int argc, char *argv[] )
 				case SDL_QUIT:
 					done = true;
 					break;
+                    
+                default:
+                    break;
 			}
 		}
 		

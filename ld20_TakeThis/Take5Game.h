@@ -10,6 +10,10 @@
 
 #include "GLee.h"
 
+#include <prmath/prmath.hpp>
+
+#include "VoxChunk.h"
+
 class Take5Game
 {
 public:
@@ -28,6 +32,16 @@ private:
     void _shutdown();
     
     static Take5Game *_singleton;
+    
+    // camera stuff
+    matrix4x4f m_proj;
+    matrix4x4f m_modelview;
+    
+    matrix4x4f m_modelviewProj;
+    
+    // dbg
+    VoxChunk *chunk;
+    float ang;
     
 };
 
