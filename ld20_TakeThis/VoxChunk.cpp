@@ -103,6 +103,11 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
                 GLuint col = getVoxel(i,j,k);
                 printf("%d %d %d color #%010X\n", i,j,k, col );
                 
+                GLubyte cr, cg, cb;
+                cr = (col >> 24) & 0xff;
+                cg = (col >> 16) & 0xff;
+                cb = (col >> 8) & 0xff;
+                
                 
                 // anything there?
                 if (isClearCol(col))
@@ -115,11 +120,10 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
                         // Left face
                         VoxVert v;
                         
-                        
-                        v.m_col.r = 0.5;
-                        v.m_col.g = 0.6;
-                        v.m_col.b = 0.5;
-                        
+                        v.m_col[0] = cr;
+                        v.m_col[1] = cg;
+                        v.m_col[2] = cb;
+#if 0
                         v.m_pos.x = i * voxSz;
                         v.m_pos.y = j * voxSz;
                         v.m_pos.z = k * voxSz;
@@ -131,7 +135,7 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
                         m_triData.push_back( v + vec3f( 0, voxSz, 0 ) );
                         m_triData.push_back( v + vec3f( 0, 0, voxSz ) );
                         m_triData.push_back( v + vec3f( 0, voxSz, voxSz ) );
-                        
+#endif
                     }
                     
                     // no right neighbor?
@@ -140,13 +144,12 @@ VoxVert *VoxChunk::genTris( size_t &numVerts )
                         // Right face
                         VoxVert v;
                         
-                        v.m_col.r = 0.6;
-                        v.m_col.g = 0.5;
-                        v.m_col.b = 0.5;
-                        
-                        v.m_pos.x = i * voxSz;
-                        v.m_pos.y = j * voxSz;
-                        v.m_pos.z = k * voxSz;
+                        v.m_col[0] = cr;
+                        v.m_col[1] = cg;
+                        v.m_col[2] = cb;
+                        v.m_col[0] = 0xff;
+                        v.m_col[1] = 0xff;
+                        v.m_col[2] = 0xff;
                         
                         m_triData.push_back( v );
                         m_triData.push_back( v + vec3f( 0, voxSz, 0 ) );

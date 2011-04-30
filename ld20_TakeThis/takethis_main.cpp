@@ -20,7 +20,7 @@
 #define _stricmp strcasecmp
 #endif
 
-#include "Take5Game.h"
+#include "TakeThisGame.h"
 
 // 30 ticks per sim frame
 #define STEPTIME (33)
@@ -53,13 +53,13 @@ int main( int argc, char *argv[] )
 		exit(1);
 	}
     
-	SDL_WM_SetCaption( "Take Five", NULL );
+	SDL_WM_SetCaption( "Take This.", NULL );
 
     // Initialize resources
-    Take5Game *game = new Take5Game();
+    TakeThisGame *game = new TakeThisGame();
     game->init();   
     
-    atexit( Take5Game::shutdown );  
+    atexit( TakeThisGame::shutdown );  
     
     // init graphics
     glViewport( 0, 0, 800, 600 );    

@@ -1,5 +1,5 @@
 //
-//  Take5Game.cpp
+//  TakeThisGame.cpp
 //  ld48jovoc
 //
 //  Created by Joel Davis on 4/29/11.
@@ -7,9 +7,9 @@
 //
 #include <assert.h>
 
-#include "Take5Game.h"
+#include "TakeThisGame.h"
 
-Take5Game *Take5Game::_singleton = NULL;
+TakeThisGame *TakeThisGame::_singleton = NULL;
 
 // From http://www.opengl.org/wiki/GluPerspective_code
 
@@ -56,14 +56,14 @@ void glhPerspectivef2(matrix4x4f &matrix, float fovyInDegrees, float aspectRatio
 }
 
 
-Take5Game::Take5Game()
+TakeThisGame::TakeThisGame()
 {
     assert( _singleton == NULL );
     _singleton = this;
 }
 
 
-void Take5Game::init()
+void TakeThisGame::init()
 {
     printf("In init..\n" );
     chunk = VoxChunk::loadCSVFile( "gamedata/voxtiles/column.csv" );
@@ -77,28 +77,28 @@ void Take5Game::init()
     ang = 0;
 }
 
-void Take5Game::shutdown()
+void TakeThisGame::shutdown()
 {
     assert( _singleton );
     _singleton->_shutdown();
 }
 
-void Take5Game::_shutdown()
+void TakeThisGame::_shutdown()
 {
     // here .. release stuff
 }
 
-void Take5Game::updateSim( float dtFixed )
+void TakeThisGame::updateSim( float dtFixed )
 {
     ang += dtFixed * 20.0;
 }
 
-void Take5Game::updateFree( float dtRaw )
+void TakeThisGame::updateFree( float dtRaw )
 {
     
 }
 
-void Take5Game::redraw()
+void TakeThisGame::redraw()
 {
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -186,7 +186,7 @@ void Take5Game::redraw()
     glVertexPointer( 3, GL_FLOAT, sizeof( VoxVert ), vertData );
     
     glEnableClientState( GL_COLOR_ARRAY );
-    glColorPointer( 3, GL_FLOAT, sizeof( VoxVert ), &(vertData[0].m_col) );
+    glColorPointer( 3, GL_UNSIGNED_BYTE, sizeof( VoxVert ), &(vertData[0].m_col) );
     
     glDrawArrays( GL_TRIANGLES, 0, numVerts );
     //printf("Draw %d triangle verts\n", numVerts );

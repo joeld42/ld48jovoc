@@ -30,7 +30,7 @@
 struct VoxVert
 {
     vec3f m_pos;
-    vec3f m_col;
+    unsigned char m_col[3];
     
     // Adding a vec3 adds to pos
     VoxVert operator+( const vec3f &other )

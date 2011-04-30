@@ -1,7 +1,7 @@
 #ifndef TAKE5_GAME
 #define TAKE5_GAME
 //
-//  Take5Game.h
+//  TakeThisGame.h
 //  ld48jovoc
 //
 //  Created by Joel Davis on 4/29/11.
@@ -14,10 +14,10 @@
 
 #include "VoxChunk.h"
 
-class Take5Game
+class TakeThisGame
 {
 public:
-    Take5Game();
+    TakeThisGame();
     
     void init();
     
@@ -31,7 +31,7 @@ public:
 private:
     void _shutdown();
     
-    static Take5Game *_singleton;
+    static TakeThisGame *_singleton;
     
     // camera stuff
     matrix4x4f m_proj;
