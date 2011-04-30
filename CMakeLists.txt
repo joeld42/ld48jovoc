@@ -108,9 +108,9 @@ endif (ALLEGRO_FOUND)
 # miniLD9 - JamWheel (aka JamClock)
 #     Dependancies: SDL fmod
 # ==================================================
-if (SDL_FOUND AND OPENGL_FOUND)
+if (SDL_FOUND AND OPENGL_FOUND AND IL_FOUND)
    ADD_SUBDIRECTORY( miniLD9_jamclock/trunk )
-endif (SDL_FOUND AND OPENGL_FOUND)
+endif (SDL_FOUND AND OPENGL_FOUND AND IL_FOUND)
 
 # ==================================================
 # ld18 Iron Reflex
@@ -128,6 +128,13 @@ if (SDL_FOUND AND OPENGL_FOUND)
   ADD_SUBDIRECTORY( ld19_discovery )
 endif (SDL_FOUND AND OPENGL_FOUND)
 
+# ==================================================
+# ld20: It's Dangerous to go alone! Take this.
+#  Dependancies: SDL/OpenGL
+# ==================================================
+if (SDL_FOUND AND OPENGL_FOUND)
+  ADD_SUBDIRECTORY( ld20_TakeThis )
+endif (SDL_FOUND AND OPENGL_FOUND)
 
 
 # ==================================================
