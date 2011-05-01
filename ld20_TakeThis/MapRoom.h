@@ -39,6 +39,11 @@ public:
     // instances the map geo into the buffer
     size_t instMapGeo( VoxVert *dest, size_t maxNumVert );
     
+    
+    // queries -- right now it's pretty hacky 
+    bool isVacant( float x, float y, float z ) const;
+    float groundHeight( float x, float z ) const;
+    
 //protected:
     int m_xSize, m_ySize, m_zSize;
     std::vector<MapTile> m_map;

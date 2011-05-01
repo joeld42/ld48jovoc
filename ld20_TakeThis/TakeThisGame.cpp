@@ -108,7 +108,7 @@ void TakeThisGame::init()
     MapRoom::initTiles();
     
     room = new MapRoom( );
-    m_playerPos = vec3f( room->m_xSize/2, 1, room->m_zSize/2 );
+    m_playerPos = vec3f( room->m_xSize/2, 1, room->m_zSize - 2 );
     
     // tmp -- inst the map
     m_mapVertSize = room->instMapGeo( m_mapVertData, m_mapVertCapacity);
@@ -141,7 +141,19 @@ void TakeThisGame::updateSim( float dtFixed )
     float PLAYER_SPEED = 8.0;
     
     // Update player pos
-    m_playerPos += PLAYER_SPEED * m_playerVel * dtFixed;
+    vec3f newPos = m_playerPos;
+    
+    newPos = m_playerPos + (PLAYER_SPEED * m_playerVel * dtFixed);
+    
+    // DBG
+    if (true || room->isVacant( newPos.x + 0.5, newPos.y, newPos.z + 0.5))
+    {
+        // yep, can move there
+        m_playerPos = newPos;
+    }
+    
+    // adjust ground height
+    m_playerPos.y = room->groundHeight( m_playerPos.x, m_playerPos.z );
 }
 
 void TakeThisGame::updateFree( float dtRaw )
@@ -277,8 +289,27 @@ void TakeThisGame::redraw()
     glColorPointer( 3, GL_UNSIGNED_BYTE, sizeof( VoxVert ), &(plrVert[0].m_col) );
     glDrawArrays( GL_TRIANGLES, 0, playerSz );
     
-    
     glDisable( GL_VERTEX_ARRAY );
+    
+    // restore modelview
+    glLoadMatrixf( (GLfloat*)(&m_modelview) );
+    
+    // DBG: draw height test
+    glColor3f ( 1.0, 0.0, 1.0 );
+    glBegin( GL_LINES );
+    glVertex3f( m_playerPos.x, 0.0, m_playerPos.z );
+    glVertex3f( m_playerPos.x, room->m_ySize, m_playerPos.z );
+    
+    for (float t=0; t < 3.14; t += 0.4 )
+    {
+        float x = cos(t) * 0.2;
+        float z = sin(t) * 0.2;
+        glVertex3f( m_playerPos.x + x, m_playerPos.y + 0.1, m_playerPos.z + z );
+        glVertex3f( m_playerPos.x - x, m_playerPos.y + 0.1, m_playerPos.z - z );
+    }
+    
+    glEnd();
+    
 }
 
 void TakeThisGame::updateButtons( unsigned int btnMask )

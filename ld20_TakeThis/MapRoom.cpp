@@ -28,6 +28,7 @@ MapRoom::MapRoom( int x, int y, int z) :
     VoxChunk *ground3 = m_tileset["overland_ground_corner"];
     VoxChunk *bush = m_tileset["overland_tree"];
     VoxChunk *cave = m_tileset["overland_cave"];
+    VoxChunk *stairs = m_tileset["overland_stairs"];
     //VoxChunk *col1 = m_tileset["column"];
     //VoxChunk *col2 = m_tileset["column_vines"];
     //VoxChunk *col3 = m_tileset["column_ruins"];
@@ -65,6 +66,8 @@ MapRoom::MapRoom( int x, int y, int z) :
     m_map[index(4,1,5)].chunk = cave;
     m_map[index(4,1,5)].rot = 270;
 
+    m_map[index(7,1,6)].chunk = stairs;
+    m_map[index(7,1,6)].rot = 0;
     
     #if 0                       
     m_map[index(4,1,5)].chunk = col1;
@@ -282,4 +285,76 @@ size_t MapRoom::instMapGeo( VoxVert *dest, size_t maxNumVert )
     }
     
     return currSize;
+}
+
+bool MapRoom::isVacant( float x, float y, float z ) const
+{
+    // world bounds??
+    if ( (x < 0) || (x > m_xSize) ||
+         (y < 0) || (y > m_ySize) ||
+         (z < 0) || (z > m_zSize) )
+    {
+        //out of bounds
+        return false;
+    }
+    
+    // get map index
+    int xx, yy, zz;
+    xx = floor( x );
+    yy = floor( y );
+    zz = floor( z );
+        
+    //printf("index %d %d %d\n", xx, yy, zz );
+    const MapTile &t = m_map[index(xx,yy,zz)];
+    if (t.chunk)
+    {
+        // something there..
+        return false;
+    }
+    
+    // it's open
+    return true;
+}
+
+float MapRoom::groundHeight( float x, float z ) const
+{
+    // world bounds??
+    if ( (x < 0) || (x > m_xSize) ||
+         (z < 0) || (z > m_zSize) )
+    {
+        //out of bounds
+        return 0.0;
+    }   
+    
+    // find the top tile at this location
+    int yy = m_ySize-1;
+    int xx, zz;
+    xx = floor( x );
+    zz = floor( z );
+    
+    while ((yy > 0) &&  (!m_map[index(xx,yy,zz)].chunk))
+    {
+        yy -= 1;
+    }
+
+    const MapTile &t = m_map[index(xx,yy,zz)];
+    
+    // height within tile
+    float tileHeight = 1.0;
+    int ii = (x - floor(x)) * WORLD_TILE_SIZE;
+    int kk = (z - floor(z)) * WORLD_TILE_SIZE;
+    
+    // todo: handle rotate
+    int jj = t.chunk->m_ySize;
+    
+    while (jj > 0)
+    {
+        jj -= 1;
+        GLuint col = t.chunk->getVoxel( ii, jj, kk );
+        
+        if (!t.chunk->isClearCol(col)) break;
+    }
+    tileHeight = float(jj) / float(WORLD_TILE_SIZE);
+    
+    return float(yy) + tileHeight;
 }
