@@ -233,7 +233,7 @@ void TakeThisGame::updateFree( float dtRaw )
 
 void TakeThisGame::redraw()
 {
-    glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
+    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
     glhPerspectivef2( m_proj, 40.0, 800.0/600.0, 0.1, 1000.0 );
@@ -402,8 +402,16 @@ void TakeThisGame::redraw()
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     
-    m_nesFont->setColor(1.0,1.0, 1.0, 1.0);
-    m_nesFont->drawString(20, 20, "IT'S DANGEROUS TO GO ALONE" );
+    m_nesFont->setColor(224.0/255.0,80.0/255.0, 0.0, 1.0);
+    m_nesFont->drawString(630, 600 - 30, "- LIFE -" );
+    
+    char buff[11];
+    strcpy(buff, "          " );
+    buff[0] = HEART_FULL;
+    buff[1] = HEART_HALF;
+    buff[2] = HEART_EMPTY;
+    m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
+    m_nesFont->drawString(630, 600 - 40, buff );
 
     m_nesFont->renderAll();
     //m_newFont->c

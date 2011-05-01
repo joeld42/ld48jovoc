@@ -34,6 +34,14 @@ enum
 	BTN_B = ( 1 << 5 ),
 };
 
+// heart containers in font
+enum 
+{
+    HEART_FULL = 30,
+    HEART_HALF = 29,
+    HEART_EMPTY = 28
+};
+
 
 class TakeThisGame
 {
