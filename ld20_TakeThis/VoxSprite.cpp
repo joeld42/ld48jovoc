@@ -30,7 +30,7 @@ void VoxSprite::draw( const matrix4x4f &modelview )
     pxform.Translate( int(m_pos.x*WORLD_TILE_SIZE) /WORLD_TILE_SIZE, 
                      int(m_pos.y*WORLD_TILE_SIZE) / WORLD_TILE_SIZE, 
                      int(m_pos.z*WORLD_TILE_SIZE) /WORLD_TILE_SIZE);
-    prot.RotateY( (m_angle+90) * (3.1415/180.0) );
+    prot.RotateY( (-m_angle+90) * (3.1415/180.0) );
     
     
     mat = center * prot * pxform * centerI * modelview;
@@ -46,9 +46,10 @@ void VoxSprite::draw( const matrix4x4f &modelview )
 
 void VoxSprite::chooseRandomDir()
 {
-    int d = int( randUniform() * 4.0 );
+    int d = int( randUniform() * 5.0 );
     
     m_angle = d * 90.0;
+    m_timeout = randNormal( 4.0, 1.0 );
 }
 
 vec3f VoxSprite::getVelocity()

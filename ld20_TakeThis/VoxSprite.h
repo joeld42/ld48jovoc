@@ -26,6 +26,7 @@ public:
     
     vec3f m_pos;
     float m_angle;
+    float m_timeout;
 };
 
 

@@ -95,6 +95,8 @@ void TakeThisGame::init()
     glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
     
+    m_playerHurt = 0.0;
+    
     // Make the map geom
     m_mapVertCapacity = MAP_VERT_MEM / sizeof( VoxVert );
     printf("Alloc %zu mapverts (%zu kb)\n",
@@ -168,6 +170,16 @@ void TakeThisGame::updateSim( float dtFixed )
             m_playerPos = newPos;
         }
     }
+    
+    // update hurt effect
+    if (m_playerHurt > 0.0)
+    {
+        m_playerHurt -= dtFixed;
+        if (m_playerHurt < 0.5)
+        {
+            m_playerVel = 0.0;
+        }
+    }
 
     // allright, now update enemies
     for (size_t i=0; i < m_enemies.size(); i++)
@@ -186,10 +198,25 @@ void TakeThisGame::updateSim( float dtFixed )
             spr.chooseRandomDir();
         }
         
+        spr.m_timeout -= dtFixed;
+        if (spr.m_timeout < 0.0)
+        {
+            spr.chooseRandomDir();
+        }
         
         //spr.m_pos += (v * dtFixed);
-
     }
+    
+    // Check for player <> enemy collision
+    for (size_t i=0; i < m_enemies.size(); i++)
+    {
+        vec3f d = m_playerPos - m_enemies[i].m_pos;
+        if (prmath::LengthSquared(d) < 0.8)
+        {
+            m_playerHurt = 1.0;
+            m_playerVel = d * 0.5;
+        }
+    }     
     
 }
 
@@ -324,7 +351,18 @@ void TakeThisGame::redraw()
     VoxVert *plrVert = m_player->genTris( playerSz );
     glVertexPointer( 3, GL_FLOAT, sizeof( VoxVert ), plrVert );
     glColorPointer( 3, GL_UNSIGNED_BYTE, sizeof( VoxVert ), &(plrVert[0].m_col) );
-    glDrawArrays( GL_TRIANGLES, 0, playerSz );
+    
+    if (m_playerHurt > 0.0)
+    {
+        blink = !blink;
+    }
+    else
+    {
+        blink = true;
+    }
+    
+    if (blink)
+        glDrawArrays( GL_TRIANGLES, 0, playerSz );
   
     // draw enemies
     for (int i=0; i < m_enemies.size(); i++)
@@ -363,6 +401,10 @@ void TakeThisGame::redraw()
 
 void TakeThisGame::updateButtons( unsigned int btnMask )
 {
+    
+    // disable controls if hurt
+    if (m_playerHurt > 0.5) return;
+    
 	// Movment buttons
 	if ((btnMask & BTN_LEFT) && (!(btnMask & BTN_RIGHT)) )
 	{

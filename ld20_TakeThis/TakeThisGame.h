@@ -73,6 +73,8 @@ private:
     vec3f m_playerPos;
     vec3f m_playerVel;
     float m_playerAng;
+    float m_playerHurt; // timeout
+    bool blink;
     VoxChunk *m_player;
     
     // The Enemies
