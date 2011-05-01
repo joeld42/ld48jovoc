@@ -63,6 +63,7 @@ void glhPerspectivef2(matrix4x4f &matrix, float fovyInDegrees, float aspectRatio
     ymax = znear * tanf(fovyInDegrees * M_PI / 360.0);
     //ymin = -ymax;
     //xmin = -ymax * aspectRatio;
+
     xmax = ymax * aspectRatio;
     glhFrustumf2(matrix, -xmax, xmax, -ymax, ymax, znear, zfar);
 }
@@ -94,6 +95,12 @@ void TakeThisGame::init()
     doSpin = false;
     doWire = false;
     doBBox = false;
+    fpsMode = false;
+    triforce = 0;
+    
+    m_camQuat.SetAngleAxis( M_PI/2, vec3f( 0,1,0) );
+    m_camQuatX.Identity();
+    m_camQuatY.Identity();
     
     glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
@@ -145,6 +152,10 @@ void TakeThisGame::_shutdown()
 {
     // here .. release stuff
     delete [] m_mapVertData;
+    
+    SDL_ShowCursor( true );
+	SDL_WM_GrabInput( SDL_GRAB_OFF );
+
     
 }
 
@@ -312,13 +323,32 @@ void TakeThisGame::redraw()
     matrix4x4f xlate1, xlate2;
     matrix4x4f rot;
     matrix4x4f spin;
-    xlate1.Translate( -(room->m_xSize/2), 2.0, -(room->m_zSize/2) );
-    xlate2.Translate( 0.0, -2, -20 );
-    rot.RotateX( camAng * 3.14/180.0 );
     
-    spin.RotateY( ang * 3.14/180.0 );
+    if (fpsMode)
+    {
+        xlate1.Translate( -m_playerPos - vec3f( 0.0, 0.6, 0.0 ));
+        
+        rot = matrix4x4f( m_camQuat );
+                         
+        m_modelview = xlate1 * rot;
+    }
+    else
+    {
+        xlate1.Translate( -(room->m_xSize/2), 2.0, -(room->m_zSize/2) );
     
-    m_modelview = xlate1 *  spin * rot  * xlate2;
+        // shift camera slightly based on user's pos
+        float xval = ((m_playerPos.x / room->m_xSize) * 2.0) - 1.0;
+        float zval = ((m_playerPos.z / room->m_zSize) * 2.0) - 1.0;
+    
+        xlate2.Translate( -(xval*3), -2, -15 + (zval*-2) );
+    
+        rot.RotateX( (camAng + (zval*-5)) * 3.14/180.0 );
+    
+        spin.RotateY( ((ang+ (xval*45))  * 3.14/180.0) );
+        
+        m_modelview = xlate1 *  spin * rot  * xlate2;
+    }
+    
                
     //m_modelview.Translate( 0.0, -2, -20 );
     if (doWire)
@@ -335,6 +365,7 @@ void TakeThisGame::redraw()
     glLoadMatrixf( (GLfloat*)(&m_modelview) );
     
     glDisable( GL_TEXTURE_2D );
+    glDisable(GL_BLEND );
 
     if (doBBox)
     {
@@ -439,9 +470,11 @@ void TakeThisGame::redraw()
         blink = true;
     }
     
-    if (blink)
+    if ((blink) && (!fpsMode))
+    {
         glDrawArrays( GL_TRIANGLES, 0, playerSz );
-  
+    }
+    
     // draw enemies
     for (int i=0; i < room->m_enemies.size(); i++)
     {
@@ -458,6 +491,9 @@ void TakeThisGame::redraw()
     glEnable( GL_TEXTURE );
     glEnable( GL_TEXTURE_2D );
     
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    
     // restore modelview
     glLoadMatrixf( (GLfloat*)(&m_modelview) );
     
@@ -472,7 +508,7 @@ void TakeThisGame::redraw()
     m_nesFont->setColor(224.0/255.0,80.0/255.0, 0.0, 1.0);
     m_nesFont->drawString(630, 600 - 30, "- LIFE -" );
     
-    char buff[11];
+    char buff[100];
     mkHeartCtr(buff);
     
     m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
@@ -480,6 +516,11 @@ void TakeThisGame::redraw()
     if (blink)
         m_nesFont->drawString(630, 600 - 40, buff );
     
+    // stats, inv, etc
+    sprintf( buff, "TRIFORCE: %d/4", triforce );
+    m_nesFont->drawString( 20, 600-30, buff );
+    
+    m_nesFont->drawString( 20, 600-60, hasSword?"WEAPON: SWORD":"WEAPON: NONE" );
     
     // a message to the player?
     if (!room->m_message1.empty())
@@ -512,6 +553,27 @@ void TakeThisGame::redraw()
   
 }
 
+void TakeThisGame::mouseMotion( float lookMoveX, float lookMoveY )
+{
+    const float mouseLookSpeed = 1.0;
+
+    if (!fpsMode) return;
+    
+    quat4f qrot;		
+    
+    qrot.SetAngleAxis( (M_PI/180.0)*lookMoveY*mouseLookSpeed, vec3f( 1.0, 0.0, 0.0) );
+    m_camQuatX *= qrot;
+    
+    qrot.SetAngleAxis( (M_PI/180.0)*lookMoveX*mouseLookSpeed, vec3f( 0.0, 1.0, 0.0) );
+    m_camQuatY *= qrot;
+    
+    // combine both axes
+    m_camQuat = m_camQuatX * m_camQuatY;  
+    
+
+
+}
+
 void TakeThisGame::updateButtons( unsigned int btnMask )
 {
     
@@ -539,10 +601,19 @@ void TakeThisGame::updateButtons( unsigned int btnMask )
 	}
 	else m_playerVel.z = 0.0;
     
+    // fpsMode -- rotate by quat cam
+    if (fpsMode)
+    {
+        matrix4x4f rot( m_camQuat);
+        m_playerVel = m_playerVel * rot;
+    }
+    
+    
     if ( prmath::LengthSquared( m_playerVel ) > 0.01)
     {
         m_playerAng = -atan2( m_playerVel.z, m_playerVel.x );
     }
+    
 }
 
 void TakeThisGame::keypress( SDLKey &key )
@@ -565,10 +636,23 @@ void TakeThisGame::keypress( SDLKey &key )
             // BBox
             doBBox = !doBBox;
             break;
+        case 'f':
+            // First person
+            toggleFPSMode();
+            break;
             
         default:
             break;
     }
+}
+
+void TakeThisGame::toggleFPSMode()
+{
+    fpsMode = !fpsMode;
+    
+    SDL_ShowCursor( !fpsMode );
+	SDL_WM_GrabInput( fpsMode?SDL_GRAB_ON:SDL_GRAB_OFF );
+    
 }
 
 void TakeThisGame::visitRoom( int mapCode )

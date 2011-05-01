@@ -58,11 +58,15 @@ public:
    
     static void shutdown();
     
+    void mouseMotion( float x, float y );
+    
     void updateButtons( unsigned int btnMask );
     
     void keypress( SDLKey &key );
     
     void visitRoom( int mapCode );
+    
+    void toggleFPSMode();
     
 private:
     void _shutdown();
@@ -74,6 +78,10 @@ private:
     matrix4x4f m_modelview;
     
     matrix4x4f m_modelviewProj;
+    
+    quat4f m_camQuat; // for FPS mode
+    quat4f m_camQuatX;
+    quat4f m_camQuatY;
     
     // The raw triangle data for the map
     VoxVert *m_mapVertData;
@@ -87,6 +95,7 @@ private:
     float m_playerHurt; // timeout
     bool blink;
     bool hasSword;
+    int  triforce;
     VoxChunk *m_player;
     
     std::vector<std::pair<int,int> > foundCaves;
@@ -100,6 +109,8 @@ private:
     PNGImage m_fontImg;
     Luddite::Font *m_nesFont; 
     
+    
+    
     // dbg
     MapRoom *room;
     VoxChunk *chunk;
@@ -107,6 +118,7 @@ private:
     bool doSpin;
     bool doWire;
     bool doBBox;
+    bool fpsMode;
     
     
     

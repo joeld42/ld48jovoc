@@ -71,7 +71,8 @@ int main( int argc, char *argv[] )
     
 	//=====[ Main loop ]======
 	bool done = false;
-	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;	
+	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;
+	float lookMoveX, lookMoveY;
 	while(!done)
 	{
 		SDL_Event event;
@@ -91,10 +92,12 @@ int main( int argc, char *argv[] )
                         game->keypress( event.key.keysym.sym );
                         break;
                 }
+                    break;
                     
-				case SDL_MOUSEMOTION:					
+				case SDL_MOUSEMOTION:	
+                    game->mouseMotion( event.motion.xrel, event.motion.yrel ); 
 					break;
-                    
+
 				case SDL_MOUSEBUTTONDOWN:					
 					//game->mouse( event.button );
 					break;

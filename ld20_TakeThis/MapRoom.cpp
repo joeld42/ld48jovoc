@@ -455,11 +455,11 @@ void MapRoom::buildMap_StartRoom( bool unlocked )
     
     
     // lower cave
-    m_map[index(4,1,5)].chunk = cave;
-    m_map[index(4,1,5)].rot = 270;
-    m_map[index(4,1,6)].teleport = true;
-    m_map[index(4,1,6)].teleWhere = MAP_CAVE_X;
-    m_map[index(4,1,6)].telePos = vec3f( m_xSize/2, 1, m_zSize - 2 );
+    m_map[index(5,1,5)].chunk = cave;
+    m_map[index(5,1,5)].rot = 270;
+    m_map[index(5,1,6)].teleport = true;
+    m_map[index(5,1,6)].teleWhere = MAP_CAVE_X;
+    m_map[index(5,1,6)].telePos = vec3f( m_xSize/2, 1, m_zSize - 2 );
     
     m_map[index(7,1,6)].chunk = stairs;
     m_map[index(7,1,6)].rot = 0;
