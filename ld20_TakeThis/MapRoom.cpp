@@ -346,6 +346,7 @@ void MapRoom::clearMap()
     }
     
     m_enemies.clear();
+    m_items.clear();
     
     m_message1 = "";
     m_message2 = "";
@@ -354,6 +355,7 @@ void MapRoom::clearMap()
 void MapRoom::buildMap( int map )
 {
     clearMap();
+    m_mapCode = map;
     
     switch (map)
     {
@@ -392,6 +394,7 @@ void MapRoom::buildMap_StartRoom( bool unlocked )
     //VoxChunk *col3 = m_tileset["column_ruins"];
     //VoxChunk *tree = m_tileset["juniper"];
     
+    m_bgColor = vec3f( 0.0, 0.0, 0.5 );
    
     
     printf("Ground chunk is %p name %s\n", ground, ground->m_chunkName.c_str() );
@@ -503,7 +506,10 @@ void MapRoom::buildMap_Cave( int code )
     VoxChunk *cave = m_tileset["overland_cave"];
     VoxChunk *stairs = m_tileset["overland_stairs"];
     VoxChunk *rock = m_tileset["overland_rock"];
+    VoxChunk *fire = m_tileset["cave_fire"];
+    VoxChunk *oldguy = m_tileset["cave_oldguy"];
 
+    m_bgColor = vec3f( 0.0, 0.0, 0.0 );
     
     drawSlab( 0, 0, 0, m_xSize, 1, m_zSize, ground, ground2, ground3 );
     
@@ -560,7 +566,7 @@ void MapRoom::buildMap_Cave( int code )
     }
     else if (code==MAP_CAVE_SWORD)
     {
-        c = rock; // TODO: fire
+        c = fire;
         
         m_message1 = "IT'S DANGEROUS TO GO";
         m_message2 = "ALONE! TAKE THIS.";
@@ -568,6 +574,9 @@ void MapRoom::buildMap_Cave( int code )
     
     m_map[index(4,1,5)].chunk = c;
     m_map[index(12,1,5)].chunk = c;
+    
+    m_map[index(8,1,4)].chunk = oldguy;
+    m_map[index(8,1,4)].rot = 270;
     
     // the way back
     for (int x=7; x <=9; x++)

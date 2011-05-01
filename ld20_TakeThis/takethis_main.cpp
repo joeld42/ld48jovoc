@@ -121,7 +121,8 @@ int main( int argc, char *argv[] )
 		// convert to btn mask
 		Uint32 btnMask = 0;
 		btnMask |= (keyState[SDLK_LEFT]||keyState[SDLK_a])?BTN_LEFT:0;
-		btnMask |= (keyState[SDLK_RIGHT]||keyState[SDLK_r])?BTN_RIGHT:0;
+		btnMask |= (keyState[SDLK_RIGHT]||keyState[SDLK_d])?BTN_RIGHT:0;
+        
 		btnMask |= (keyState[SDLK_UP]||keyState[SDLK_w])?BTN_UP:0;
 		btnMask |= (keyState[SDLK_DOWN]||keyState[SDLK_s])?BTN_DOWN:0;
         

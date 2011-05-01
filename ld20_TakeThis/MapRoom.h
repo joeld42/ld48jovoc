@@ -79,14 +79,17 @@ public:
     // The Enemies
     static VoxChunk *m_octorok;
     std::vector<VoxSprite> m_enemies;
-
+    std::vector<VoxSprite> m_items;
+    
     // start pos
     vec3f m_playerStartPos;
+    vec3f m_bgColor;
     
     // pithy message for the player
     std::string m_message1, m_message2;
     
 //protected:
+    int m_mapCode;
     int m_xSize, m_ySize, m_zSize;
     std::vector<MapTile> m_map;
     

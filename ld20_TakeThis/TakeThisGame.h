@@ -96,7 +96,13 @@ private:
     bool blink;
     bool hasSword;
     int  triforce;
+    float msgShow;
     VoxChunk *m_player;
+    
+    bool messageDone();
+    
+    VoxChunk *m_itemSword;
+    VoxChunk *m_itemRubee;
     
     std::vector<std::pair<int,int> > foundCaves;
     

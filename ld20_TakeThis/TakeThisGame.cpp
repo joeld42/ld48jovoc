@@ -6,6 +6,7 @@
 //  Copyright 2011 Joel Davis. All rights reserved.
 //
 #include <assert.h>
+#include <algorithm>
 
 #include "TakeThisGame.h"
 
@@ -98,7 +99,10 @@ void TakeThisGame::init()
     fpsMode = false;
     triforce = 0;
     
-    m_camQuat.SetAngleAxis( M_PI/2, vec3f( 0,1,0) );
+    SDL_ShowCursor( false);
+	SDL_WM_GrabInput( SDL_GRAB_ON );
+    
+    m_camQuat.SetAngleAxis( M_PI/2, vec3f( 1,0,0) );
     m_camQuatX.Identity();
     m_camQuatY.Identity();
     
@@ -124,6 +128,9 @@ void TakeThisGame::init()
     
     // Load "sprites"
     m_player = VoxChunk::loadCSVFile( "gamedata/player.csv" );
+    
+    m_itemRubee = VoxChunk::loadCSVFile( "gamedata/item_rubee.csv" );
+    m_itemSword = VoxChunk::loadCSVFile( "gamedata/item_sword.csv" );
     
     
     // Load map tiles
@@ -190,6 +197,32 @@ void TakeThisGame::updateSim( float dtFixed )
     }
     
     float PLAYER_SPEED = 8.0;
+    
+    // update msg
+    msgShow += (hasSword?6.0:4.0)*dtFixed;
+    
+    // update cave joke
+    if (messageDone() && (room->m_mapCode==MAP_CAVE_DANCE) &&
+        (room->m_map[ room->index(8,1,4)].chunk ) )
+    {
+        // Turn the old guy into a "dancing" monster
+        room->m_enemies.push_back( VoxSprite( room->m_map[ room->index(8,1,4)].chunk ) );
+        room->m_enemies[0].m_pos = vec3f( 8,1,4 );
+        
+        room->m_map[ room->index(8,1,4)].chunk = NULL;
+        m_mapVertSize = room->instMapGeo( m_mapVertData, m_mapVertCapacity);
+        
+    }
+    
+    // Make the sword appear
+    if (messageDone() && (room->m_mapCode==MAP_CAVE_SWORD) &&
+        (!hasSword) && (room->m_items.size()==0))
+    {
+        room->m_items.push_back( VoxSprite( m_itemSword ) );
+        room->m_items[0].m_pos = vec3f( 8, 1, 6 );
+        room->m_items[0].m_angle = 90.0;
+        printf("GIVE SWORD\n" );
+    }
     
     // Update player pos
     vec3f newPos = m_playerPos;
@@ -302,6 +335,27 @@ void TakeThisGame::updateSim( float dtFixed )
         }
     }     
     
+    // Check for player <> item collision
+    std::vector<VoxSprite> itemsLeft;
+    for (size_t i=0; i < room->m_items.size(); i++)
+    {
+        vec3f d = m_playerPos - room->m_items[i].m_pos;
+        if (prmath::LengthSquared(d) < 0.8)
+        {
+            // Take item
+            if (room->m_items[i].m_chunk == m_itemSword)
+            {
+                hasSword = true;
+            }
+        }
+        else
+        {
+            itemsLeft.push_back( room->m_items[i] );
+        }
+    }     
+    room->m_items = itemsLeft;
+
+    
 }
 
 void TakeThisGame::updateFree( float dtRaw )
@@ -311,7 +365,10 @@ void TakeThisGame::updateFree( float dtRaw )
 
 void TakeThisGame::redraw()
 {
-    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    glClearColor( room->m_bgColor.r,
+                  room->m_bgColor.g,
+                  room->m_bgColor.b, 1.0 );
+                 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
     glhPerspectivef2( m_proj, 40.0, 800.0/600.0, 0.1, 1000.0 );
@@ -481,6 +538,12 @@ void TakeThisGame::redraw()
         room->m_enemies[i].draw( m_modelview );
     }
     
+    // draw items
+    for (int i=0; i < room->m_items.size(); i++)
+    {
+        room->m_items[i].draw( m_modelview );
+    }
+
     
     // restore stuff
     glDisable( GL_VERTEX_ARRAY );
@@ -522,11 +585,21 @@ void TakeThisGame::redraw()
     
     m_nesFont->drawString( 20, 600-60, hasSword?"WEAPON: SWORD":"WEAPON: NONE" );
     
+    //sprintf( buff, "V: %3.2f %3.2f %3.2f", 
+    //        m_playerVel.x, m_playerVel.y, m_playerVel.z ); 
+    //sprintf( buff, "msg %f\n", msgShow );
+    //m_nesFont->drawString( 20, 20, buff );
+    
     // a message to the player?
     if (!room->m_message1.empty())
     {
-        m_nesFont->drawStringCentered( 400, 450, room->m_message1.c_str() );
-        m_nesFont->drawStringCentered( 400, 420, room->m_message2.c_str() );
+        std::string msg1, msg2;
+        msg1 = room->m_message1.substr(0, int(msgShow) );
+        int pos2 =int(msgShow)-room->m_message1.size();
+        msg2 = room->m_message2.substr(0, pos2<0?0:pos2 );
+        
+        m_nesFont->drawStringCentered( 400, 450, msg1.c_str() );
+        m_nesFont->drawStringCentered( 400, 420, msg2.c_str() );
     }
 
     m_nesFont->renderAll();
@@ -574,6 +647,12 @@ void TakeThisGame::mouseMotion( float lookMoveX, float lookMoveY )
 
 }
 
+bool TakeThisGame::messageDone()
+{
+    return (int(msgShow) > 
+            room->m_message1.size() + room->m_message2.size() );
+}
+
 void TakeThisGame::updateButtons( unsigned int btnMask )
 {
     
@@ -606,6 +685,14 @@ void TakeThisGame::updateButtons( unsigned int btnMask )
     {
         matrix4x4f rot( m_camQuat);
         m_playerVel = m_playerVel * rot;
+        
+        // project to xz
+        if (prmath::LengthSquared(m_playerVel) > 0.01)
+        {
+            m_playerVel.y = 0.0;
+            m_playerVel.x *= -1;
+            m_playerVel.Normalize();
+        }
     }
     
     
@@ -650,9 +737,7 @@ void TakeThisGame::toggleFPSMode()
 {
     fpsMode = !fpsMode;
     
-    SDL_ShowCursor( !fpsMode );
-	SDL_WM_GrabInput( fpsMode?SDL_GRAB_ON:SDL_GRAB_OFF );
-    
+       
 }
 
 void TakeThisGame::visitRoom( int mapCode )
@@ -687,6 +772,14 @@ void TakeThisGame::visitRoom( int mapCode )
         {
             room->m_map[room->index(x,1, room->m_zSize-1 )].telePos = oldPos;
         }
+        
+        // caves are not FPS mode by default
+        //fpsMode = false;
+        
+        msgShow =  0;
     }
-
+    else
+    {
+        //fpsMode = true;
+    }
 }
