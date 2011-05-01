@@ -12,6 +12,8 @@
 #include "VoxChunk.h"
 #include "MapRoom.h"
 
+#include "VoxSprite.h"
+
 TakeThisGame *TakeThisGame::_singleton = NULL;
 
 // How much memory to allocate for the map geo
@@ -103,12 +105,21 @@ void TakeThisGame::init()
     // Load "sprites"
     m_player = VoxChunk::loadCSVFile( "gamedata/player.csv" );
     
+    m_octorok = VoxChunk::loadCSVFile( "gamedata/octaroc.csv" );
+    if (!m_octorok)
+    {
+        printf("FAIL to load octaroc\n" );
+    }
     
     // Load map tiles
     MapRoom::initTiles();
     
     room = new MapRoom( );
     m_playerPos = vec3f( room->m_xSize/2, 1, room->m_zSize - 2 );
+    
+    // Add some enemies
+    m_enemies.push_back( VoxSprite( m_octorok ) );
+    m_enemies[0].m_pos = vec3f( 9, 1, 8 );
     
     // tmp -- inst the map
     m_mapVertSize = room->instMapGeo( m_mapVertData, m_mapVertCapacity);
@@ -145,7 +156,6 @@ void TakeThisGame::updateSim( float dtFixed )
     
     newPos = m_playerPos + (PLAYER_SPEED * m_playerVel * dtFixed);
     
-    // DBG
     if (room->isVacant( newPos.x + 0.5, newPos.y + 0.6, newPos.z + 0.5))
     {
         
@@ -159,6 +169,28 @@ void TakeThisGame::updateSim( float dtFixed )
         }
     }
 
+    // allright, now update enemies
+    for (size_t i=0; i < m_enemies.size(); i++)
+    {
+        VoxSprite &spr = m_enemies[i];
+        
+        vec3f v = spr.getVelocity();
+        vec3f enewPos = spr.m_pos + (v * dtFixed);
+        
+        if (room->isVacant( enewPos.x + 0.5, enewPos.y + 0.2, enewPos.z + 0.5))
+        {
+            spr.m_pos = enewPos;
+        }
+        else
+        {
+            spr.chooseRandomDir();
+        }
+        
+        
+        //spr.m_pos += (v * dtFixed);
+
+    }
+    
 }
 
 void TakeThisGame::updateFree( float dtRaw )
@@ -293,11 +325,20 @@ void TakeThisGame::redraw()
     glVertexPointer( 3, GL_FLOAT, sizeof( VoxVert ), plrVert );
     glColorPointer( 3, GL_UNSIGNED_BYTE, sizeof( VoxVert ), &(plrVert[0].m_col) );
     glDrawArrays( GL_TRIANGLES, 0, playerSz );
+  
+    // draw enemies
+    for (int i=0; i < m_enemies.size(); i++)
+    {
+        m_enemies[i].draw( m_modelview );
+    }
     
+    
+    // restore stuff
     glDisable( GL_VERTEX_ARRAY );
     
     // restore modelview
     glLoadMatrixf( (GLfloat*)(&m_modelview) );
+
     
 #if 0
     // DBG: Player "flag"
@@ -317,6 +358,7 @@ void TakeThisGame::redraw()
     glEnd();
 #endif
     
+  
 }
 
 void TakeThisGame::updateButtons( unsigned int btnMask )

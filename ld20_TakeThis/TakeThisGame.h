@@ -14,6 +14,7 @@
 
 #include "VoxChunk.h"
 #include "MapRoom.h"
+#include "VoxSprite.h"
 
 
 #include <SDL.h>
@@ -74,12 +75,18 @@ private:
     float m_playerAng;
     VoxChunk *m_player;
     
+    // The Enemies
+    VoxChunk *m_octorok;
+    std::vector<VoxSprite> m_enemies;
+    
     // dbg
     MapRoom *room;
     VoxChunk *chunk;
     float ang, camAng;
     bool doSpin;
     bool doWire;
+    
+    
     
 };
 
