@@ -86,6 +86,10 @@ private:
     bool blink;
     VoxChunk *m_player;
     
+    void mkHeartCtr( char *buff );
+    int m_heartCtrs;
+    int m_hitPoints;
+    
     // The Enemies
     VoxChunk *m_octorok;
     std::vector<VoxSprite> m_enemies;

@@ -13,6 +13,8 @@
 
 #include "VoxChunk.h"
 
+//=========
+
 struct MapTile
 {
     MapTile() 
@@ -23,6 +25,15 @@ struct MapTile
     
     VoxChunk *chunk;
     int rot;
+};
+
+//=========
+
+// maps
+enum
+{
+    MAP_START_ZONE,
+    MAP_CAVE,
 };
 
 //=========
@@ -39,10 +50,15 @@ public:
     // instances the map geo into the buffer
     size_t instMapGeo( VoxVert *dest, size_t maxNumVert );
     
-    
     // queries -- right now it's pretty hacky 
     bool isVacant( float x, float y, float z ) const;
     float groundHeight( float x, float z ) const;
+    
+    void buildMap( int map );
+    
+    void clearMap();
+    void buildMap_StartRoom();
+    void buildMap_Cave();
     
 //protected:
     int m_xSize, m_ySize, m_zSize;

@@ -22,74 +22,7 @@ MapRoom::MapRoom( int x, int y, int z) :
 {
     m_map.resize( x*y*z );
     
-    // DBG: fill in some tiles
-    VoxChunk *ground = m_tileset["overland_ground_open"];
-    VoxChunk *ground2 = m_tileset["overland_ground_side"];
-    VoxChunk *ground3 = m_tileset["overland_ground_corner"];
-    VoxChunk *bush = m_tileset["overland_tree"];
-    VoxChunk *cave = m_tileset["overland_cave"];
-    VoxChunk *stairs = m_tileset["overland_stairs"];
-    //VoxChunk *col1 = m_tileset["column"];
-    //VoxChunk *col2 = m_tileset["column_vines"];
-    //VoxChunk *col3 = m_tileset["column_ruins"];
-    //VoxChunk *tree = m_tileset["juniper"];
-    
-    printf("Ground chunk is %p name %s\n", ground, ground->m_chunkName.c_str() );
-    printf("Bush chunk is %p name %s\n", bush, bush->m_chunkName.c_str() );
-    
-    m_map[index(m_xSize-1,1, m_zSize-1)].chunk = bush;
-    
-    drawSlab( 0, 0, 0,m_xSize, 1, m_zSize, ground, ground2, ground3 );
-    drawSlab( 2, 1, 0, m_xSize-1, 2, 6, ground, ground2, ground3 );
-    drawSlab( 2, 2, 0, 8, 2, 4, ground, ground2, ground3 );
-    drawSlab( 2, 3, 0, 4, 2, 4, ground, ground2, ground3 );
-    drawSlab( 2, 1, 7, 4, 2, 10, ground, ground2, ground3 );
-    
-#if 1
-    for (int i=0; i < 10; i++)
-    {
-        int x,y,z;
-        x = rand() % m_xSize;
-        z = rand() % m_zSize;
-        y=0;
-        while ( m_map[index(x,y,z)].chunk )
-        {
-            y++;
-            if (y >= m_ySize) break;
-        }
-        MapTile &t = m_map[index(x,y,z)];
-        t.chunk = bush;
-        t.rot = (rand() % 4 ) * 90;
-    }
-#endif
-    
-    m_map[index(4,1,5)].chunk = cave;
-    m_map[index(4,1,5)].rot = 270;
-
-    m_map[index(7,1,6)].chunk = stairs;
-    m_map[index(7,1,6)].rot = 0;
-    
-    #if 0                       
-    m_map[index(4,1,5)].chunk = col1;
-    m_map[index(4,1,5)].rot = 0;
-    
-    m_map[index(2,1,5)].chunk = col2;
-    m_map[index(2,1,5)].rot = 0;
-    
-    m_map[index(0,1,5)].chunk = col1;
-    m_map[index(0,1,5)].rot = 0;
-    
-    m_map[index(4,1,3)].chunk = col1;
-    m_map[index(4,1,3)].rot = 0;
-    
-    m_map[index(2,1,3)].chunk = col3;
-    m_map[index(2,1,3)].rot = 0;
-    
-    m_map[index(0,1,3)].chunk = col3;
-    m_map[index(0,1,3)].rot = 0;
-    
-
-#endif
+    buildMap( MAP_START_ZONE );
     
 }
 
@@ -380,4 +313,111 @@ float MapRoom::groundHeight( float x, float z ) const
 #endif
     
     return float(yy) + tileHeight;
+}
+
+void MapRoom::clearMap()
+{
+    for (int i=0; i < m_xSize; i++)
+    {
+        for (int j=0; j < m_ySize; j++)
+        {
+            for( int k=0; k < m_zSize; k++)
+            {
+                m_map[index(i,j,k)] = MapTile();
+            }
+        }
+    }
+}
+
+void MapRoom::buildMap( int map )
+{
+    clearMap();
+    
+    switch (map)
+    {
+        case MAP_START_ZONE:
+            buildMap_StartRoom();
+            break;
+            
+        default:
+            break;
+    }
+}
+
+void MapRoom::buildMap_StartRoom()
+{
+    // DBG: fill in some tiles
+    VoxChunk *ground = m_tileset["overland_ground_open"];
+    VoxChunk *ground2 = m_tileset["overland_ground_side"];
+    VoxChunk *ground3 = m_tileset["overland_ground_corner"];
+    VoxChunk *bush = m_tileset["overland_tree"];
+    VoxChunk *cave = m_tileset["overland_cave"];
+    VoxChunk *stairs = m_tileset["overland_stairs"];
+    //VoxChunk *col1 = m_tileset["column"];
+    //VoxChunk *col2 = m_tileset["column_vines"];
+    //VoxChunk *col3 = m_tileset["column_ruins"];
+    //VoxChunk *tree = m_tileset["juniper"];
+    
+   
+    
+    printf("Ground chunk is %p name %s\n", ground, ground->m_chunkName.c_str() );
+    printf("Bush chunk is %p name %s\n", bush, bush->m_chunkName.c_str() );
+    
+    m_map[index(m_xSize-1,1, m_zSize-1)].chunk = bush;
+    
+    drawSlab( 0, 0, 0,m_xSize, 1, m_zSize, ground, ground2, ground3 );
+    drawSlab( 2, 1, 0, m_xSize-1, 2, 6, ground, ground2, ground3 );
+    drawSlab( 2, 2, 0, 8, 2, 4, ground, ground2, ground3 );
+    drawSlab( 2, 3, 0, 4, 2, 4, ground, ground2, ground3 );
+    drawSlab( 2, 1, 7, 4, 2, 10, ground, ground2, ground3 );
+    
+#if 1
+    for (int i=0; i < 10; i++)
+    {
+        int x,y,z;
+        x = rand() % m_xSize;
+        z = rand() % m_zSize;
+        y=0;
+        while ( m_map[index(x,y,z)].chunk )
+        {
+            y++;
+            if (y >= m_ySize) break;
+        }
+        MapTile &t = m_map[index(x,y,z)];
+        t.chunk = bush;
+        t.rot = (rand() % 4 ) * 90;
+    }
+#endif
+    
+    // lower cave
+    m_map[index(4,1,5)].chunk = cave;
+    m_map[index(4,1,5)].rot = 270;
+    
+    m_map[index(7,1,6)].chunk = stairs;
+    m_map[index(7,1,6)].rot = 0;
+    
+    // upper cave
+    m_map[index(3,3,1)].chunk = cave;
+    m_map[index(3,3,1)].rot = 0;
+    
+    m_map[index(8,2,2)].chunk = stairs;
+    m_map[index(8,2,2)].rot = 90;
+    
+}
+
+void MapRoom::buildMap_Cave()
+{
+    VoxChunk *ground = m_tileset["overland_ground_open"];
+    VoxChunk *ground2 = m_tileset["overland_ground_side"];
+    VoxChunk *ground3 = m_tileset["overland_ground_corner"];
+    VoxChunk *bush = m_tileset["overland_tree"];
+    VoxChunk *cave = m_tileset["overland_cave"];
+    VoxChunk *stairs = m_tileset["overland_stairs"];
+    //VoxChunk *col1 = m_tileset["column"];
+    //VoxChunk *col2 = m_tileset["column_vines"];
+    //VoxChunk *col3 = m_tileset["column_ruins"];
+    //VoxChunk *tree = m_tileset["juniper"];
+    
+    drawSlab( 0, 0, 0,m_xSize, 1, m_zSize, ground, ground2, ground3 );
+   
 }

@@ -98,6 +98,8 @@ void TakeThisGame::init()
     glEnable( GL_DEPTH_TEST );
     
     m_playerHurt = 0.0;
+    m_heartCtrs = 12;
+    m_hitPoints = m_heartCtrs;
     
     // Load font
     m_fontImg = LoadImagePNG( "gamedata/nesfont.png" );
@@ -129,7 +131,10 @@ void TakeThisGame::init()
     m_enemies.push_back( VoxSprite( m_octorok ) );
     m_enemies[0].m_pos = vec3f( 9, 1, 8 );
     
-    // tmp -- inst the map
+    m_enemies.push_back( VoxSprite( m_octorok ) );
+    m_enemies[1].m_pos = vec3f( 4, 2, 4 );
+    
+    // inst the map
     m_mapVertSize = room->instMapGeo( m_mapVertData, m_mapVertCapacity);
     printf("Map has %zu verts\n", m_mapVertSize );
 
@@ -148,6 +153,29 @@ void TakeThisGame::_shutdown()
     // here .. release stuff
     delete [] m_mapVertData;
     
+}
+
+void TakeThisGame::mkHeartCtr( char *buff )
+{
+    char *ch = buff;
+    
+    for (int i=1; i < m_heartCtrs; i += 2)
+    {
+        if (i < m_hitPoints)
+        {
+            *ch = HEART_FULL;
+        }
+        else if (i==m_hitPoints)
+        {
+            *ch = HEART_HALF;
+        }
+        else
+        {
+            *ch = HEART_EMPTY;
+        }
+        *ch++;
+    }
+    *ch = 0;
 }
 
 void TakeThisGame::updateSim( float dtFixed )
@@ -185,6 +213,8 @@ void TakeThisGame::updateSim( float dtFixed )
         {
             m_playerVel = 0.0;
         }
+        
+        
     }
 
     // allright, now update enemies
@@ -197,7 +227,15 @@ void TakeThisGame::updateSim( float dtFixed )
         
         if (room->isVacant( enewPos.x + 0.5, enewPos.y + 0.2, enewPos.z + 0.5))
         {
-            spr.m_pos = enewPos;
+            // don't walk off a cliff
+            if (fabs(room->groundHeight(enewPos.x, enewPos.z) - spr.m_pos.y) < 0.25)
+            {
+                spr.m_pos = enewPos;
+            }
+            else
+            {
+                spr.chooseRandomDir();    
+            }
         }
         else
         {
@@ -216,11 +254,25 @@ void TakeThisGame::updateSim( float dtFixed )
     // Check for player <> enemy collision
     for (size_t i=0; i < m_enemies.size(); i++)
     {
+        // if already injured, don't check hit
+        if (m_playerHurt > 0) break;
+        
         vec3f d = m_playerPos - m_enemies[i].m_pos;
         if (prmath::LengthSquared(d) < 0.8)
         {
             m_playerHurt = 1.0;
             m_playerVel = d * 0.5;
+            
+            // ouchie
+            if (m_hitPoints > 1)
+            {
+                m_hitPoints--;
+            }
+            else
+            {
+                printf("TODO: Game overs...\n" );
+            }
+            printf("Current health %d/%d\n", m_hitPoints, m_heartCtrs );
         }
     }     
     
@@ -406,15 +458,15 @@ void TakeThisGame::redraw()
     m_nesFont->drawString(630, 600 - 30, "- LIFE -" );
     
     char buff[11];
-    strcpy(buff, "          " );
-    buff[0] = HEART_FULL;
-    buff[1] = HEART_HALF;
-    buff[2] = HEART_EMPTY;
+    mkHeartCtr(buff);
+    
     m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
-    m_nesFont->drawString(630, 600 - 40, buff );
+    
+    if (blink)
+        m_nesFont->drawString(630, 600 - 40, buff );
 
     m_nesFont->renderAll();
-    //m_newFont->c
+    m_nesFont->clear();
     
 #if 0
     // DBG: Player "flag"
@@ -486,6 +538,12 @@ void TakeThisGame::keypress( SDLKey &key )
             // wIre
             doWire = !doWire;
             break;
+            
+        case 'c':
+            room->buildMap( MAP_CAVE );
+            m_mapVertSize = room->instMapGeo( m_mapVertData, m_mapVertCapacity);
+            break;
+            
         default:
             break;
     }

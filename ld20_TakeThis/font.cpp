@@ -141,8 +141,8 @@ void Luddite::Font::_drawGlyph( const Glyph &g, int x, int y )
 	FontVert *newVert;
 	newVert = this->addQuad();
     
-    printf( "texcoords %f %f -> %f %f\n",
-           g.s0, g.t0, g.s1, g.t1 );
+    //printf( "texcoords %f %f -> %f %f\n",
+    //       g.s0, g.t0, g.s1, g.t1 );
 	
 	// Upper triangle
 	newVert[0].st[0] = g.s0;  newVert[0].st[1] = g.t0;
