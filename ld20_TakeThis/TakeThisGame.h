@@ -15,6 +15,11 @@
 #include "VoxChunk.h"
 #include "MapRoom.h"
 
+
+#include <SDL.h>
+#include <SDL_endian.h>
+
+
 // 'controller' presses (multiple can be pressed)
 enum 
 {
@@ -37,12 +42,15 @@ public:
     
     void updateSim( float dtFixed );
     void updateFree( float dtRaw );
+
     
     void redraw();
    
     static void shutdown();
     
     void updateButtons( unsigned int btnMask );
+    
+    void keypress( SDLKey &key );
     
 private:
     void _shutdown();
@@ -69,7 +77,9 @@ private:
     // dbg
     MapRoom *room;
     VoxChunk *chunk;
-    float ang;
+    float ang, camAng;
+    bool doSpin;
+    bool doWire;
     
 };
 

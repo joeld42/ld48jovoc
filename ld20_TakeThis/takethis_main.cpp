@@ -88,12 +88,9 @@ int main( int argc, char *argv[] )
                         break;
 
                     default:
+                        game->keypress( event.key.keysym.sym );
                         break;
                 }
-                    
-					// let the game handle it
-					//game->keypress( event.key );
-					break;
                     
 				case SDL_MOUSEMOTION:					
 					break;

@@ -45,6 +45,14 @@ public:
     
     // maprooms share a list of VoxChunk "tiles"
     static std::map<std::string,VoxChunk*> m_tileset;
+    
+    // map drawing stuff
+    void drawSlab( int x0, int y0, int z0,
+                   int x1, int y1, int z1,
+                  VoxChunk *mid,
+                  VoxChunk *side,
+                  VoxChunk *corner );
+    
 };
 
 #endif

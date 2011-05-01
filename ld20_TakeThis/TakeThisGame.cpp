@@ -15,8 +15,8 @@
 TakeThisGame *TakeThisGame::_singleton = NULL;
 
 // How much memory to allocate for the map geo
-// let's try 10 MB
-#define MAP_VERT_MEM (10 * 1024*1024)
+// let's try 20 MB
+#define MAP_VERT_MEM (20 * 1024*1024)
 
 
 // From http://www.opengl.org/wiki/GluPerspective_code
@@ -85,7 +85,10 @@ void TakeThisGame::init()
             chunk->m_ySize,
             chunk->m_zSize );
     
-    ang = 30;
+    camAng = 30;
+    ang = 0;
+    doSpin = false;
+    doWire = false;
     
     glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
@@ -130,7 +133,10 @@ void TakeThisGame::_shutdown()
 
 void TakeThisGame::updateSim( float dtFixed )
 {
-    ang += dtFixed * 20.0;
+    if (doSpin)
+    {
+        ang += dtFixed * 20.0;
+    }
     
     float PLAYER_SPEED = 8.0;
     
@@ -155,16 +161,24 @@ void TakeThisGame::redraw()
    
     matrix4x4f xlate1, xlate2;
     matrix4x4f rot;
-    xlate1.Translate( -(room->m_xSize/2), -2.0, -(room->m_zSize/2) );
+    matrix4x4f spin;
+    xlate1.Translate( -(room->m_xSize/2), 2.0, -(room->m_zSize/2) );
     xlate2.Translate( 0.0, -2, -20 );
-    //rot.RotateX( ang * 3.14/180.0 );
+    rot.RotateX( camAng * 3.14/180.0 );
     
-    rot.RotateY( ang * 3.14/180.0 );
+    spin.RotateY( ang * 3.14/180.0 );
     
-    m_modelview = xlate1 * rot * xlate2;
+    m_modelview = xlate1 *  spin * rot  * xlate2;
                
     //m_modelview.Translate( 0.0, -2, -20 );
-    
+    if (doWire)
+    {
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    }
+    else
+    {
+        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );    
+    }
     
     glMatrixMode( GL_MODELVIEW );
     glLoadMatrixf( (GLfloat*)(&m_modelview) );
@@ -296,3 +310,23 @@ void TakeThisGame::updateButtons( unsigned int btnMask )
     }
 }
 
+void TakeThisGame::keypress( SDLKey &key )
+{
+    printf("Key was %c\n", key );
+    
+    switch(key)
+    {
+        case 'o':
+            // orbit
+            doSpin = !doSpin;
+            printf("Orbit %s\n", doSpin?"true":"false" );
+            break;
+        
+        case 'i':
+            // wIre
+            doWire = !doWire;
+            break;
+        default:
+            break;
+    }
+}

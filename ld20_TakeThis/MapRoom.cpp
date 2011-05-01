@@ -26,72 +26,47 @@ MapRoom::MapRoom( int x, int y, int z) :
     VoxChunk *ground = m_tileset["overland_ground_open"];
     VoxChunk *ground2 = m_tileset["overland_ground_side"];
     VoxChunk *ground3 = m_tileset["overland_ground_corner"];
-    VoxChunk *bush = m_tileset["bush"];
-    VoxChunk *col1 = m_tileset["column"];
-    VoxChunk *col2 = m_tileset["column_vines"];
-    VoxChunk *col3 = m_tileset["column_ruins"];
-    VoxChunk *tree = m_tileset["juniper"];
+    VoxChunk *bush = m_tileset["overland_tree"];
+    VoxChunk *cave = m_tileset["overland_cave"];
+    //VoxChunk *col1 = m_tileset["column"];
+    //VoxChunk *col2 = m_tileset["column_vines"];
+    //VoxChunk *col3 = m_tileset["column_ruins"];
+    //VoxChunk *tree = m_tileset["juniper"];
     
     printf("Ground chunk is %p name %s\n", ground, ground->m_chunkName.c_str() );
     printf("Bush chunk is %p name %s\n", bush, bush->m_chunkName.c_str() );
     
     m_map[index(m_xSize-1,1, m_zSize-1)].chunk = bush;
     
+    drawSlab( 0, 0, 0,m_xSize, 1, m_zSize, ground, ground2, ground3 );
+    drawSlab( 2, 1, 0, m_xSize-1, 2, 6, ground, ground2, ground3 );
+    drawSlab( 2, 2, 0, 8, 2, 4, ground, ground2, ground3 );
+    drawSlab( 2, 3, 0, 4, 2, 4, ground, ground2, ground3 );
+    drawSlab( 2, 1, 7, 4, 2, 10, ground, ground2, ground3 );
     
-    for (int i=1; i < m_xSize-1; i++)
-    {
-        for (int j=0; j < m_zSize-1; j++)
-        {
-            MapTile &t = m_map[index(i,0,j)];
-            t.chunk = ground;
-            t.rot = (rand() % 4 ) * 90;
-        }
-    }
-    
-    for (int i=1; i < m_xSize-1; i++)
-    {
-        MapTile &t = m_map[index(i,0,0)];
-        t.chunk = ground2;
-        t.rot=90;
-        
-        MapTile &t2 = m_map[index(i,0,m_zSize-1)];
-        t2.chunk = ground2;
-        t2.rot=270;
-    }
-    
-    for (int i=1; i < m_zSize-1; i++)
-    {
-        MapTile &t = m_map[index(0,0,i)];
-        t.chunk = ground2;
-        t.rot=180;
-        
-        MapTile &t2 = m_map[index(m_xSize-1,0,i)];
-        t2.chunk = ground2;
-        t2.rot=0;
-    }
-
-    
+#if 1
     for (int i=0; i < 10; i++)
     {
-        MapTile &t = m_map[index(rand() % m_xSize,
-                                 1,
-                                 rand() % m_zSize)];
+        int x,y,z;
+        x = rand() % m_xSize;
+        z = rand() % m_zSize;
+        y=0;
+        while ( m_map[index(x,y,z)].chunk )
+        {
+            y++;
+            if (y >= m_ySize) break;
+        }
+        MapTile &t = m_map[index(x,y,z)];
         t.chunk = bush;
         t.rot = (rand() % 4 ) * 90;
     }
+#endif
     
-    m_map[index(0,0,0)].chunk = ground3;
-    m_map[index(0,0,0)].rot = 90;
+    m_map[index(4,1,5)].chunk = cave;
+    m_map[index(4,1,5)].rot = 270;
+
     
-    m_map[index(m_xSize-1,0,0)].chunk = ground3;
-    m_map[index(m_xSize-1,0,0)].rot = 0;
-    
-    m_map[index(0,0,m_zSize-1)].chunk = ground3;
-    m_map[index(0,0,m_zSize-1)].rot = 180;
-    
-    m_map[index(m_xSize-1,0,m_zSize-1)].chunk = ground3;
-    m_map[index(m_xSize-1,0,m_zSize-1)].rot = 270;
-                               
+    #if 0                       
     m_map[index(4,1,5)].chunk = col1;
     m_map[index(4,1,5)].rot = 0;
     
@@ -110,8 +85,65 @@ MapRoom::MapRoom( int x, int y, int z) :
     m_map[index(0,1,3)].chunk = col3;
     m_map[index(0,1,3)].rot = 0;
     
-    m_map[index(12,1,4)].chunk = tree;
-    m_map[index(12,1,4)].rot = 0;
+
+#endif
+    
+}
+
+void MapRoom::drawSlab( int x0, int y0, int z0,
+                       int x1, int y1, int z1,
+                       VoxChunk *mid,
+                       VoxChunk *side,
+                       VoxChunk *corner )
+{
+    
+    
+    for (int i=x0; i < x1; i++)
+    {
+        for (int j=z0; j < z1; j++)
+        {
+            MapTile &t = m_map[index(i,y0,j)];
+            t.chunk = mid;
+            t.rot = (rand() % 4 ) * 90;
+        }
+    }
+    
+    for (int i=x0; i < x1; i++)
+    {
+        MapTile &t = m_map[index(i,y0,z0)];
+        t.chunk = side;
+        t.rot=90;
+        
+        MapTile &t2 = m_map[index(i,y0,z1-1)];
+        t2.chunk = side;
+        t2.rot=270;
+    }
+    
+    for (int i=z0; i < z1; i++)
+    {
+        MapTile &t = m_map[index(x0,y0,i)];
+        t.chunk = side;
+        t.rot=180;
+        
+        MapTile &t2 = m_map[index(x1-1,y0,i)];
+        t2.chunk = side;
+        t2.rot=0;
+    }
+    
+    
+
+    m_map[index(x0,y0,z0)].chunk = corner;
+    m_map[index(x0,y0,z0)].rot = 90;
+    
+    m_map[index(x1-1,y0,z0)].chunk = corner;
+    m_map[index(x1-1,y0,z0)].rot = 0;
+    
+    m_map[index(x0,y0,z1-1)].chunk = corner;
+    m_map[index(x0,y0,z1-1)].rot = 180;
+    
+    m_map[index(x1-1,y0,z1-1)].chunk = corner;
+    m_map[index(x1-1,y0,z1-1)].rot = 270;
+
     
 }
 
@@ -180,6 +212,36 @@ size_t MapRoom::instMapGeo( VoxVert *dest, size_t maxNumVert )
                 VoxVert *vtile;
                 
                 size_t ndx = index(i,j,k);
+                
+                
+                // check if is surrounded
+                bool isSurround = false;
+                if ((i>0) && (i < m_xSize-1) &&
+                             (j < m_ySize-1) &&
+                    (k>0) && (k < m_zSize-1))
+                {
+                    isSurround = true;
+                    for (int ii=-1; ii<= 1; ii++)
+                    {
+                        for (int jj=0; jj <= 1; jj++)
+                        {
+                            for (int kk=-1; kk <= 1; kk++)
+                            {
+                                size_t ndx2 = index(i+ii,j+jj, k+kk);
+                                if (!m_map[ndx2].chunk)
+                                {
+                                    isSurround = false;
+                                    break;
+                                }
+                            }
+                            if (!isSurround) break;
+                        }
+                        if (!isSurround) break;
+                    }
+                }
+                if (isSurround) continue;
+                    
+                
                 //printf("Ndx %zu size %zu\n", ndx, m_map.size() );
                 MapTile &t = m_map[ndx];
                 if (!t.chunk) continue;
