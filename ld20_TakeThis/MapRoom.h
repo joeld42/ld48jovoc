@@ -20,7 +20,12 @@
 enum
 {
     MAP_START_ZONE,
-    MAP_CAVE,
+    MAP_START_OPEN, // unlocked
+    
+    MAP_CAVE_X,
+    MAP_CAVE_COLD,
+    MAP_CAVE_DANCE,
+    MAP_CAVE_SWORD,
 };
 
 
@@ -68,8 +73,8 @@ public:
     void buildMap( int map );
     
     void clearMap();
-    void buildMap_StartRoom();
-    void buildMap_Cave();
+    void buildMap_StartRoom( bool unlocked );
+    void buildMap_Cave( int mapCode );
     
     // The Enemies
     static VoxChunk *m_octorok;

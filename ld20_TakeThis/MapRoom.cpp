@@ -358,11 +358,18 @@ void MapRoom::buildMap( int map )
     switch (map)
     {
         case MAP_START_ZONE:
-            buildMap_StartRoom();
+            buildMap_StartRoom( false );
             break;
             
-        case MAP_CAVE:
-            buildMap_Cave();
+        case MAP_START_OPEN:
+            buildMap_StartRoom( true );
+            break;
+            
+            
+        case MAP_CAVE_COLD:
+        case MAP_CAVE_DANCE:
+        case MAP_CAVE_SWORD:
+            buildMap_Cave( map);
             break;
             
         default:
@@ -370,7 +377,7 @@ void MapRoom::buildMap( int map )
     }
 }
 
-void MapRoom::buildMap_StartRoom()
+void MapRoom::buildMap_StartRoom( bool unlocked )
 {
     // DBG: fill in some tiles
     VoxChunk *ground = m_tileset["overland_ground_open"];
@@ -379,6 +386,7 @@ void MapRoom::buildMap_StartRoom()
     VoxChunk *bush = m_tileset["overland_tree"];
     VoxChunk *cave = m_tileset["overland_cave"];
     VoxChunk *stairs = m_tileset["overland_stairs"];
+    VoxChunk *rock = m_tileset["overland_rock"];
     //VoxChunk *col1 = m_tileset["column"];
     //VoxChunk *col2 = m_tileset["column_vines"];
     //VoxChunk *col3 = m_tileset["column_ruins"];
@@ -392,7 +400,7 @@ void MapRoom::buildMap_StartRoom()
     m_map[index(m_xSize-1,1, m_zSize-1)].chunk = bush;
     
     drawSlab( 0, 0, 0,m_xSize, 1, m_zSize, ground, ground2, ground3 );
-    drawSlab( 2, 1, 0, m_xSize-1, 2, 6, ground, ground2, ground3 );
+    drawSlab( 2, 1, 0, m_xSize-2, 2, 6, ground, ground2, ground3 );
     drawSlab( 2, 2, 0, 8, 2, 4, ground, ground2, ground3 );
     drawSlab( 2, 3, 0, 4, 2, 4, ground, ground2, ground3 );
     drawSlab( 2, 1, 7, 4, 2, 10, ground, ground2, ground3 );
@@ -430,19 +438,47 @@ void MapRoom::buildMap_StartRoom()
         t.rot = (rand() % 4 ) * 90;
     }
     
+    // barriers or passages to other place
+    for (int z=0; z < m_zSize; z++)
+    {
+        if (!m_map[index(0,1,z)].chunk)
+        {
+            m_map[index(0,1,z)].chunk = rock;
+        }
+        
+        if (!m_map[index(m_xSize-1,1,z)].chunk)
+        {
+            m_map[index(m_xSize-1,1,z)].chunk = rock;
+        }
+
+    }
+    
+    
     // lower cave
     m_map[index(4,1,5)].chunk = cave;
     m_map[index(4,1,5)].rot = 270;
     m_map[index(4,1,6)].teleport = true;
-    m_map[index(4,1,6)].teleWhere = MAP_CAVE;
+    m_map[index(4,1,6)].teleWhere = MAP_CAVE_X;
     m_map[index(4,1,6)].telePos = vec3f( m_xSize/2, 1, m_zSize - 2 );
     
     m_map[index(7,1,6)].chunk = stairs;
     m_map[index(7,1,6)].rot = 0;
     
+    // middle cave
+    m_map[index(6,2,3)].chunk = cave;
+    m_map[index(6,2,3)].rot = 270;
+    m_map[index(6,2,4)].teleport = true;
+    m_map[index(6,2,4)].teleWhere = MAP_CAVE_X;
+    m_map[index(6,2,4)].telePos = vec3f( m_xSize/2, 1, m_zSize - 2 );
+
+    
+    
     // upper cave
     m_map[index(3,3,1)].chunk = cave;
     m_map[index(3,3,1)].rot = 0;
+    m_map[index(4,3,1)].teleport = true;
+    m_map[index(4,3,1)].teleWhere = MAP_CAVE_X;
+    m_map[index(4,3,1)].telePos = vec3f( m_xSize/2, 1, m_zSize - 2 );
     
     m_map[index(8,2,2)].chunk = stairs;
     m_map[index(8,2,2)].rot = 90;
@@ -458,7 +494,7 @@ void MapRoom::buildMap_StartRoom()
     
 }
 
-void MapRoom::buildMap_Cave()
+void MapRoom::buildMap_Cave( int code )
 {
     VoxChunk *ground = m_tileset["cave_ground_open"];
     VoxChunk *ground2 = m_tileset["cave_wall_side"];
@@ -466,6 +502,7 @@ void MapRoom::buildMap_Cave()
     VoxChunk *bush = m_tileset["overland_tree"];
     VoxChunk *cave = m_tileset["overland_cave"];
     VoxChunk *stairs = m_tileset["overland_stairs"];
+    VoxChunk *rock = m_tileset["overland_rock"];
 
     
     drawSlab( 0, 0, 0, m_xSize, 1, m_zSize, ground, ground2, ground3 );
@@ -507,6 +544,32 @@ void MapRoom::buildMap_Cave()
     
     m_playerStartPos = vec3f( m_xSize/2, 1, m_zSize - 2 );
     
+       
+    VoxChunk *c = NULL;
+    if (code==MAP_CAVE_COLD)
+    {
+        c = rock;
+        m_message1 = "IT'S DANG COLD IN";
+        m_message2 = "HERE. BRRRRRRRRRR.";
+    }
+    else if (code==MAP_CAVE_DANCE)
+    {
+        c = bush;
+        m_message1 = "IT'S DANCING TIME!";
+        m_message2 = "";
+    }
+    else if (code==MAP_CAVE_SWORD)
+    {
+        c = rock; // TODO: fire
+        
+        m_message1 = "IT'S DANGEROUS TO GO";
+        m_message2 = "ALONE! TAKE THIS.";
+    }
+    
+    m_map[index(4,1,5)].chunk = c;
+    m_map[index(12,1,5)].chunk = c;
+    
+    // the way back
     for (int x=7; x <=9; x++)
     {
         m_map[index(x,1, m_zSize-1 )].teleport = true;
@@ -514,6 +577,5 @@ void MapRoom::buildMap_Cave()
         m_map[index(x,1, m_zSize-1 )].telePos = vec3f( 4.5, 1.0, 6.5);
     }
 
-    m_message1 = "IT'S DANGEROUS TO GO";
-    m_message2 = "ALONE! TAKE THIS."; 
+    
 }

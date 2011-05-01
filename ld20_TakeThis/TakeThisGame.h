@@ -86,7 +86,10 @@ private:
     float m_playerAng;
     float m_playerHurt; // timeout
     bool blink;
+    bool hasSword;
     VoxChunk *m_player;
+    
+    std::vector<std::pair<int,int> > foundCaves;
     
     void mkHeartCtr( char *buff );
     int m_heartCtrs;
@@ -103,6 +106,7 @@ private:
     float ang, camAng;
     bool doSpin;
     bool doWire;
+    bool doBBox;
     
     
     

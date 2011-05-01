@@ -93,6 +93,7 @@ void TakeThisGame::init()
     ang = 0;
     doSpin = false;
     doWire = false;
+    doBBox = false;
     
     glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
@@ -100,6 +101,8 @@ void TakeThisGame::init()
     m_playerHurt = 0.0;
     m_heartCtrs = 12;
     m_hitPoints = m_heartCtrs;
+    foundCaves.clear();
+    hasSword = false;
     
     // Load font
     m_fontImg = LoadImagePNG( "gamedata/nesfont.png" );
@@ -203,6 +206,15 @@ void TakeThisGame::updateSim( float dtFixed )
     MapTile &t = room->m_map[room->index(xx,yy,zz)];
     if (t.teleport)
     {
+        
+        // Special case -- if the room is CAVE_X, pick
+        // a cave based on how many we've visited.
+        if (t.teleWhere == MAP_CAVE_X)
+        {
+            foundCaves.push_back( std::pair<int,int>( xx, zz ) );
+            t.teleWhere = MAP_CAVE_X + foundCaves.size();
+        }
+        
         vec3f pos = t.telePos;
         visitRoom( t.teleWhere );
         m_playerPos = pos;
@@ -323,58 +335,58 @@ void TakeThisGame::redraw()
     glLoadMatrixf( (GLfloat*)(&m_modelview) );
     
     glDisable( GL_TEXTURE_2D );
-    
-#if 1
-    // DBG: draw axes
-    glBegin( GL_LINES );
-    
-    glColor3f( 1.0, 0.0, 0.0 );
-    glVertex3f( 0.0, 0.0, 0.0 );
-    glVertex3f( 1.0, 0.0, 0.0 );
-   
-    glColor3f( 0.0, 1.0, 0.0 );
-    glVertex3f( 0.0, 0.0, 0.0 );
-    glVertex3f( 0.0, 1.0, 0.0 );
-   
-    glColor3f( 0.0, 0.0, 1.0 );
-    glVertex3f( 0.0, 0.0, 0.0 );
-    glVertex3f( 0.0, 0.0, 1.0 );
-    
-    glEnd();
-#endif
-    
-    // dbg draw the chunk border
-    glColor3f( 1.0, 1.0, 1.0 );
-#if 1
-    glBegin( GL_LINES );
-    
-    for (int y=0; y < 2; y++)
-    {
-        glVertex3f( 0.0, y*room->m_ySize, 0.0 );
-        glVertex3f( room->m_xSize, y*room->m_ySize, 0.0 );
-        
-        glVertex3f( 0.0, y*room->m_ySize, room->m_zSize );
-        glVertex3f( room->m_xSize, y*room->m_ySize, room->m_zSize );
-        
-        glVertex3f( 0.0, y*room->m_ySize, 0.0 );
-        glVertex3f( 0.0, y*room->m_ySize, room->m_zSize );
-        
-        glVertex3f( room->m_xSize, y*room->m_ySize, 0.0 );
-        glVertex3f( room->m_xSize, y*room->m_ySize, room->m_zSize );
-        
-    }
-    
-    for (int x=0; x < 2; x++)
-    {
-        glVertex3f(  room->m_xSize*x, 0.0, 0.0 );
-        glVertex3f(  room->m_xSize*x, room->m_ySize, 0.0 );
 
-        glVertex3f(  room->m_xSize*x, 0.0, room->m_zSize );
-        glVertex3f(  room->m_xSize*x, room->m_ySize, room->m_zSize );
+    if (doBBox)
+    {
+        // DBG: draw axes
+        glBegin( GL_LINES );
+        
+        glColor3f( 1.0, 0.0, 0.0 );
+        glVertex3f( 0.0, 0.0, 0.0 );
+        glVertex3f( 1.0, 0.0, 0.0 );
+       
+        glColor3f( 0.0, 1.0, 0.0 );
+        glVertex3f( 0.0, 0.0, 0.0 );
+        glVertex3f( 0.0, 1.0, 0.0 );
+       
+        glColor3f( 0.0, 0.0, 1.0 );
+        glVertex3f( 0.0, 0.0, 0.0 );
+        glVertex3f( 0.0, 0.0, 1.0 );
+        
+        glEnd();
+        
+        // dbg draw the chunk border
+        glColor3f( 1.0, 1.0, 1.0 );
+
+        glBegin( GL_LINES );
+        
+        for (int y=0; y < 2; y++)
+        {
+            glVertex3f( 0.0, y*room->m_ySize, 0.0 );
+            glVertex3f( room->m_xSize, y*room->m_ySize, 0.0 );
+            
+            glVertex3f( 0.0, y*room->m_ySize, room->m_zSize );
+            glVertex3f( room->m_xSize, y*room->m_ySize, room->m_zSize );
+            
+            glVertex3f( 0.0, y*room->m_ySize, 0.0 );
+            glVertex3f( 0.0, y*room->m_ySize, room->m_zSize );
+            
+            glVertex3f( room->m_xSize, y*room->m_ySize, 0.0 );
+            glVertex3f( room->m_xSize, y*room->m_ySize, room->m_zSize );
+            
+        }
+        
+        for (int x=0; x < 2; x++)
+        {
+            glVertex3f(  room->m_xSize*x, 0.0, 0.0 );
+            glVertex3f(  room->m_xSize*x, room->m_ySize, 0.0 );
+
+            glVertex3f(  room->m_xSize*x, 0.0, room->m_zSize );
+            glVertex3f(  room->m_xSize*x, room->m_ySize, room->m_zSize );
+        }
+        
+        glEnd();
     }
-    
-    glEnd();
-#endif
 
     // alright draw the map
     VoxVert *vertData;
@@ -549,6 +561,10 @@ void TakeThisGame::keypress( SDLKey &key )
             // wIre
             doWire = !doWire;
             break;
+        case 'b':
+            // BBox
+            doBBox = !doBBox;
+            break;
             
         default:
             break;
@@ -557,10 +573,36 @@ void TakeThisGame::keypress( SDLKey &key )
 
 void TakeThisGame::visitRoom( int mapCode )
 {
+    vec3f oldPos = m_playerPos - m_playerVel;
+    
     room->buildMap( mapCode );
     m_mapVertSize = room->instMapGeo( m_mapVertData, m_mapVertCapacity);
     
     m_playerPos = room->m_playerStartPos;
     m_playerPos.y = room->groundHeight( m_playerPos.x, m_playerPos.z );
     
+    // ugly -- restore any found caves over CAVEX
+    for (size_t i=0; i < foundCaves.size(); i++)
+    {
+        for (int j=0; j < room->m_ySize; j++)
+        {
+            
+            MapTile &t = room->m_map[room->index( foundCaves[i].first,j,
+                                                 foundCaves[i].second)];
+            if (t.teleWhere == MAP_CAVE_X)
+            {
+                t.teleWhere = MAP_CAVE_X + (i+1);
+            }
+        }
+    }
+    
+    // If it's a cave, put a back-loc
+    if ((mapCode >= MAP_CAVE_X) && (mapCode <= MAP_CAVE_SWORD))
+    {
+        for (int x=7; x <=9; x++)
+        {
+            room->m_map[room->index(x,1, room->m_zSize-1 )].telePos = oldPos;
+        }
+    }
+
 }
