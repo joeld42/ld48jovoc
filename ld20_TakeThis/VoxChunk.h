@@ -81,6 +81,10 @@ public:
     std::vector<VoxVert> m_triData;
     std::string m_chunkName;
     
+    // HACK: pixel-height is not working, 
+    // just hack it for now
+    float m_floorHeight;
+    
 };
 
 #endif

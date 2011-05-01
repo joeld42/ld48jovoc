@@ -189,6 +189,17 @@ void MapRoom::initTiles()
         VoxChunk *tile = VoxChunk::loadCSVFile( buff );
         tile->m_chunkName = tileId;
         
+        // HACK the floor height
+        if (tileId.find( "overland" ) != std::string::npos)
+        {
+            tile->m_floorHeight = 1.0;
+        }
+        
+        if (tileId.find( "stairs" ) != std::string::npos)
+        {
+            tile->m_floorHeight = 0.5;
+        }
+        
         m_tileset[ tileId ] = tile;
     }
     closedir(dp);
@@ -308,8 +319,10 @@ bool MapRoom::isVacant( float x, float y, float z ) const
     const MapTile &t = m_map[index(xx,yy,zz)];
     if (t.chunk)
     {
-        // something there..
-        return false;
+        if (y - floor(y) < t.chunk->m_floorHeight)
+        {
+            return false;
+        }
     }
     
     // it's open
@@ -341,8 +354,17 @@ float MapRoom::groundHeight( float x, float z ) const
     
     // height within tile
     float tileHeight = 1.0;
+    
+#if 1
+    // HACK
+    tileHeight = t.chunk->m_floorHeight;
+    
+#else
     int ii = (x - floor(x)) * WORLD_TILE_SIZE;
     int kk = (z - floor(z)) * WORLD_TILE_SIZE;
+    
+    //printf("tile %s pos %d %d\n", 
+    //       t.chunk->m_chunkName.c_str(), ii, kk );
     
     // todo: handle rotate
     int jj = t.chunk->m_ySize;
@@ -355,6 +377,7 @@ float MapRoom::groundHeight( float x, float z ) const
         if (!t.chunk->isClearCol(col)) break;
     }
     tileHeight = float(jj) / float(WORLD_TILE_SIZE);
+#endif
     
     return float(yy) + tileHeight;
 }

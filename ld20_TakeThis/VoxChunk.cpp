@@ -14,6 +14,8 @@ VoxChunk::VoxChunk( int x, int y, int z ) :
     m_zSize( z )
 {
     m_voxdata = new GLuint[ x*y*z ];
+    
+    m_floorHeight = 0.0;
 }
 
 VoxChunk::~VoxChunk()

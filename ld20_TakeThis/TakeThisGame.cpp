@@ -146,14 +146,19 @@ void TakeThisGame::updateSim( float dtFixed )
     newPos = m_playerPos + (PLAYER_SPEED * m_playerVel * dtFixed);
     
     // DBG
-    if (true || room->isVacant( newPos.x + 0.5, newPos.y, newPos.z + 0.5))
+    if (room->isVacant( newPos.x + 0.5, newPos.y + 0.6, newPos.z + 0.5))
     {
-        // yep, can move there
-        m_playerPos = newPos;
+        
+        // adjust ground height
+        newPos.y = room->groundHeight( newPos.x + 0.5, newPos.z + 0.5 );
+        
+        // make sure it's not too great a fall
+        if (fabs(newPos.y - m_playerPos.y) < 0.75)
+        {
+            m_playerPos = newPos;
+        }
     }
-    
-    // adjust ground height
-    m_playerPos.y = room->groundHeight( m_playerPos.x, m_playerPos.z );
+
 }
 
 void TakeThisGame::updateFree( float dtRaw )
@@ -294,7 +299,8 @@ void TakeThisGame::redraw()
     // restore modelview
     glLoadMatrixf( (GLfloat*)(&m_modelview) );
     
-    // DBG: draw height test
+#if 0
+    // DBG: Player "flag"
     glColor3f ( 1.0, 0.0, 1.0 );
     glBegin( GL_LINES );
     glVertex3f( m_playerPos.x, 0.0, m_playerPos.z );
@@ -309,6 +315,7 @@ void TakeThisGame::redraw()
     }
     
     glEnd();
+#endif
     
 }
 
