@@ -15,7 +15,8 @@
 #include "VoxChunk.h"
 #include "MapRoom.h"
 #include "VoxSprite.h"
-
+#include "PNGLoader.h"
+#include "font.h"
 
 #include <SDL.h>
 #include <SDL_endian.h>
@@ -80,6 +81,10 @@ private:
     // The Enemies
     VoxChunk *m_octorok;
     std::vector<VoxSprite> m_enemies;
+    
+    // The font
+    PNGImage m_fontImg;
+    Luddite::Font *m_nesFont; 
     
     // dbg
     MapRoom *room;

@@ -14,6 +14,8 @@
 
 #include "VoxSprite.h"
 
+#include "PNGLoader.h"
+
 TakeThisGame *TakeThisGame::_singleton = NULL;
 
 // How much memory to allocate for the map geo
@@ -96,6 +98,10 @@ void TakeThisGame::init()
     glEnable( GL_DEPTH_TEST );
     
     m_playerHurt = 0.0;
+    
+    // Load font
+    m_fontImg = LoadImagePNG( "gamedata/nesfont.png" );
+    m_nesFont = makeFont_nesfont_8( m_fontImg.textureId );
     
     // Make the map geom
     m_mapVertCapacity = MAP_VERT_MEM / sizeof( VoxVert );
@@ -227,9 +233,10 @@ void TakeThisGame::updateFree( float dtRaw )
 
 void TakeThisGame::redraw()
 {
-    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
+#if 0
     glhPerspectivef2( m_proj, 40.0, 800.0/600.0, 0.1, 1000.0 );
     
     glMatrixMode( GL_PROJECTION );
@@ -374,9 +381,29 @@ void TakeThisGame::redraw()
     // restore stuff
     glDisable( GL_VERTEX_ARRAY );
     
+    glDisableClientState( GL_VERTEX_ARRAY );
+    glDisableClientState( GL_COLOR_ARRAY );
+#endif
+    
+    glEnable( GL_TEXTURE );
+    glEnable( GL_TEXTURE_2D );
+    
     // restore modelview
     glLoadMatrixf( (GLfloat*)(&m_modelview) );
+    
+    // Draw text stuff
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    glOrtho( 0, 800, 0, 600, -1, 1 );
+    
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+    
+    m_nesFont->setColor(1.0,1.0, 1.0, 1.0);
+    m_nesFont->drawString(20, 20, "IT'S DANGEROUS TO GO ALONE" );
 
+    m_nesFont->renderAll();
+    //m_newFont->c
     
 #if 0
     // DBG: Player "flag"
