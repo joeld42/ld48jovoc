@@ -62,6 +62,8 @@ public:
     
     void keypress( SDLKey &key );
     
+    void visitRoom( int mapCode );
+    
 private:
     void _shutdown();
     
@@ -90,10 +92,7 @@ private:
     int m_heartCtrs;
     int m_hitPoints;
     
-    // The Enemies
-    VoxChunk *m_octorok;
-    std::vector<VoxSprite> m_enemies;
-    
+        
     // The font
     PNGImage m_fontImg;
     Luddite::Font *m_nesFont; 

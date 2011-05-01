@@ -115,24 +115,14 @@ void TakeThisGame::init()
     // Load "sprites"
     m_player = VoxChunk::loadCSVFile( "gamedata/player.csv" );
     
-    m_octorok = VoxChunk::loadCSVFile( "gamedata/octaroc.csv" );
-    if (!m_octorok)
-    {
-        printf("FAIL to load octaroc\n" );
-    }
     
     // Load map tiles
     MapRoom::initTiles();
     
     room = new MapRoom( );
     m_playerPos = vec3f( room->m_xSize/2, 1, room->m_zSize - 2 );
+    m_playerPos.y = room->groundHeight( m_playerPos.x, m_playerPos.z );
     
-    // Add some enemies
-    m_enemies.push_back( VoxSprite( m_octorok ) );
-    m_enemies[0].m_pos = vec3f( 9, 1, 8 );
-    
-    m_enemies.push_back( VoxSprite( m_octorok ) );
-    m_enemies[1].m_pos = vec3f( 4, 2, 4 );
     
     // inst the map
     m_mapVertSize = room->instMapGeo( m_mapVertData, m_mapVertCapacity);
@@ -205,6 +195,19 @@ void TakeThisGame::updateSim( float dtFixed )
         }
     }
     
+    // did we teleport somewhere?
+    int xx,yy,zz;
+    xx = floor( m_playerPos.x+0.5 );
+    yy = floor( m_playerPos.y+0.5 );
+    zz = floor( m_playerPos.z+0.5 );
+    MapTile &t = room->m_map[room->index(xx,yy,zz)];
+    if (t.teleport)
+    {
+        vec3f pos = t.telePos;
+        visitRoom( t.teleWhere );
+        m_playerPos = pos;
+    }
+    
     // update hurt effect
     if (m_playerHurt > 0.0)
     {
@@ -218,9 +221,9 @@ void TakeThisGame::updateSim( float dtFixed )
     }
 
     // allright, now update enemies
-    for (size_t i=0; i < m_enemies.size(); i++)
+    for (size_t i=0; i < room->m_enemies.size(); i++)
     {
-        VoxSprite &spr = m_enemies[i];
+        VoxSprite &spr = room->m_enemies[i];
         
         vec3f v = spr.getVelocity();
         vec3f enewPos = spr.m_pos + (v * dtFixed);
@@ -252,12 +255,12 @@ void TakeThisGame::updateSim( float dtFixed )
     }
     
     // Check for player <> enemy collision
-    for (size_t i=0; i < m_enemies.size(); i++)
+    for (size_t i=0; i < room->m_enemies.size(); i++)
     {
         // if already injured, don't check hit
         if (m_playerHurt > 0) break;
         
-        vec3f d = m_playerPos - m_enemies[i].m_pos;
+        vec3f d = m_playerPos - room->m_enemies[i].m_pos;
         if (prmath::LengthSquared(d) < 0.8)
         {
             m_playerHurt = 1.0;
@@ -428,9 +431,9 @@ void TakeThisGame::redraw()
         glDrawArrays( GL_TRIANGLES, 0, playerSz );
   
     // draw enemies
-    for (int i=0; i < m_enemies.size(); i++)
+    for (int i=0; i < room->m_enemies.size(); i++)
     {
-        m_enemies[i].draw( m_modelview );
+        room->m_enemies[i].draw( m_modelview );
     }
     
     
@@ -464,6 +467,14 @@ void TakeThisGame::redraw()
     
     if (blink)
         m_nesFont->drawString(630, 600 - 40, buff );
+    
+    
+    // a message to the player?
+    if (!room->m_message1.empty())
+    {
+        m_nesFont->drawStringCentered( 400, 450, room->m_message1.c_str() );
+        m_nesFont->drawStringCentered( 400, 420, room->m_message2.c_str() );
+    }
 
     m_nesFont->renderAll();
     m_nesFont->clear();
@@ -539,12 +550,17 @@ void TakeThisGame::keypress( SDLKey &key )
             doWire = !doWire;
             break;
             
-        case 'c':
-            room->buildMap( MAP_CAVE );
-            m_mapVertSize = room->instMapGeo( m_mapVertData, m_mapVertCapacity);
-            break;
-            
         default:
             break;
     }
+}
+
+void TakeThisGame::visitRoom( int mapCode )
+{
+    room->buildMap( mapCode );
+    m_mapVertSize = room->instMapGeo( m_mapVertData, m_mapVertCapacity);
+    
+    m_playerPos = room->m_playerStartPos;
+    m_playerPos.y = room->groundHeight( m_playerPos.x, m_playerPos.z );
+    
 }

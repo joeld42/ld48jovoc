@@ -12,7 +12,7 @@
 #include "MapRoom.h"
 
 std::map<std::string,VoxChunk*> MapRoom::m_tileset;
-
+VoxChunk *MapRoom::m_octorok;
 
 // note: zelda map size is 16x11
 MapRoom::MapRoom( int x, int y, int z) :
@@ -23,6 +23,7 @@ MapRoom::MapRoom( int x, int y, int z) :
     m_map.resize( x*y*z );
     
     buildMap( MAP_START_ZONE );
+    //buildMap( MAP_CAVE );
     
 }
 
@@ -123,7 +124,8 @@ void MapRoom::initTiles()
         tile->m_chunkName = tileId;
         
         // HACK the floor height
-        if (tileId.find( "overland" ) != std::string::npos)
+        if ( (tileId.find( "overland" ) != std::string::npos) ||
+             (tileId.find( "cave" ) != std::string::npos) )
         {
             tile->m_floorHeight = 1.0;
         }
@@ -136,6 +138,16 @@ void MapRoom::initTiles()
         m_tileset[ tileId ] = tile;
     }
     closedir(dp);
+    
+    
+    // Now load enemies
+    m_octorok = VoxChunk::loadCSVFile( "gamedata/octaroc.csv" );
+    if (!m_octorok)
+    {
+        printf("FAIL to load octaroc\n" );
+    }
+    
+    
 }
 
 size_t MapRoom::instMapGeo( VoxVert *dest, size_t maxNumVert )
@@ -203,7 +215,7 @@ size_t MapRoom::instMapGeo( VoxVert *dest, size_t maxNumVert )
                            currSize );
                     return currSize;
                 }
-                printf("Adding tile %d,%d,%d size %zu\n", i,j,k, tileSz );
+                //printf("Adding tile %d,%d,%d size %zu\n", i,j,k, tileSz );
                 
                 // copy tile int dest
                 memcpy( curr, vtile, sizeof(VoxVert)*tileSz );
@@ -282,7 +294,12 @@ float MapRoom::groundHeight( float x, float z ) const
     {
         yy -= 1;
     }
-
+    
+    // Did we hit the bottom of the map?
+    if ((yy==0)&& (!m_map[index(xx,yy,zz)].chunk))
+    {
+        return 0.0;
+    }
     const MapTile &t = m_map[index(xx,yy,zz)];
     
     // height within tile
@@ -327,6 +344,11 @@ void MapRoom::clearMap()
             }
         }
     }
+    
+    m_enemies.clear();
+    
+    m_message1 = "";
+    m_message2 = "";
 }
 
 void MapRoom::buildMap( int map )
@@ -337,6 +359,10 @@ void MapRoom::buildMap( int map )
     {
         case MAP_START_ZONE:
             buildMap_StartRoom();
+            break;
+            
+        case MAP_CAVE:
+            buildMap_Cave();
             break;
             
         default:
@@ -370,14 +396,30 @@ void MapRoom::buildMap_StartRoom()
     drawSlab( 2, 2, 0, 8, 2, 4, ground, ground2, ground3 );
     drawSlab( 2, 3, 0, 4, 2, 4, ground, ground2, ground3 );
     drawSlab( 2, 1, 7, 4, 2, 10, ground, ground2, ground3 );
+        
+    srand( 8 );
+    int treePos[10][2] = { {8, 7},
+        {3, 5},
+        {0, 6},
+        {15, 1},
+        {6, 7},
+        {12, 3},
+        {3, 10},
+        {13, 4},
+        {6, 2},
+        {5, 4} };
     
-#if 1
     for (int i=0; i < 10; i++)
     {
         int x,y,z;
-        x = rand() % m_xSize;
-        z = rand() % m_zSize;
+        //x = rand() % m_xSize;
+        //z = rand() % m_zSize;
+        x = treePos[i][0];
+        z = treePos[i][1];
         y=0;
+        
+        //printf( "{%d, %d},\n", x, z );
+        
         while ( m_map[index(x,y,z)].chunk )
         {
             y++;
@@ -387,11 +429,13 @@ void MapRoom::buildMap_StartRoom()
         t.chunk = bush;
         t.rot = (rand() % 4 ) * 90;
     }
-#endif
     
     // lower cave
     m_map[index(4,1,5)].chunk = cave;
     m_map[index(4,1,5)].rot = 270;
+    m_map[index(4,1,6)].teleport = true;
+    m_map[index(4,1,6)].teleWhere = MAP_CAVE;
+    m_map[index(4,1,6)].telePos = vec3f( m_xSize/2, 1, m_zSize - 2 );
     
     m_map[index(7,1,6)].chunk = stairs;
     m_map[index(7,1,6)].rot = 0;
@@ -403,21 +447,73 @@ void MapRoom::buildMap_StartRoom()
     m_map[index(8,2,2)].chunk = stairs;
     m_map[index(8,2,2)].rot = 90;
     
+    // Add some enemies
+    m_enemies.push_back( VoxSprite( m_octorok ) );
+    m_enemies[0].m_pos = vec3f( 9, 1, 8 );
+    
+    m_enemies.push_back( VoxSprite( m_octorok ) );
+    m_enemies[1].m_pos = vec3f( 4, 2, 4 );
+    
+    m_playerStartPos = vec3f( m_xSize/2, 1, m_zSize - 2 );
+    
 }
 
 void MapRoom::buildMap_Cave()
 {
-    VoxChunk *ground = m_tileset["overland_ground_open"];
-    VoxChunk *ground2 = m_tileset["overland_ground_side"];
-    VoxChunk *ground3 = m_tileset["overland_ground_corner"];
+    VoxChunk *ground = m_tileset["cave_ground_open"];
+    VoxChunk *ground2 = m_tileset["cave_wall_side"];
+    VoxChunk *ground3 = m_tileset["cave_wall_corner"];
     VoxChunk *bush = m_tileset["overland_tree"];
     VoxChunk *cave = m_tileset["overland_cave"];
     VoxChunk *stairs = m_tileset["overland_stairs"];
-    //VoxChunk *col1 = m_tileset["column"];
-    //VoxChunk *col2 = m_tileset["column_vines"];
-    //VoxChunk *col3 = m_tileset["column_ruins"];
-    //VoxChunk *tree = m_tileset["juniper"];
+
     
-    drawSlab( 0, 0, 0,m_xSize, 1, m_zSize, ground, ground2, ground3 );
-   
+    drawSlab( 0, 0, 0, m_xSize, 1, m_zSize, ground, ground2, ground3 );
+    
+    for (int x=0; x < m_xSize; x++)
+    {
+        for (int y=0; y < 3; y++)
+        {
+            MapTile &t = m_map[index(x,1+y,0 )];
+            t.chunk = ground2;
+            t.rot = 270;
+        }
+        
+        if ((x<7)||(x>9))
+        {
+            MapTile &t = m_map[index(x,1, m_zSize-1 )];
+            t.chunk = ground2;
+            t.rot = 270;
+        }
+    }
+    m_map[index(6,1,m_zSize-1)].chunk = ground3;
+    
+    m_map[index(10,1,m_zSize-1)].chunk = ground3;
+    m_map[index(10,1,m_zSize-1)].rot = 180;
+    
+    for (int z=0; z < m_zSize; z++)
+    {
+        MapTile &t = m_map[index(0,1,z )];
+        t.chunk = ground2;
+        t.rot = 0;
+        
+        MapTile &t2 = m_map[index(m_xSize-1,1,z )];
+        t2.chunk = ground2;
+        t2.rot = 180;
+    }
+    
+    drawSlab( 0, 1, 0, 3, 2, 4, ground, ground2, ground3 );
+    drawSlab( 0, 2, 0, 3, 2, 4, ground, ground2, ground3 );
+    
+    m_playerStartPos = vec3f( m_xSize/2, 1, m_zSize - 2 );
+    
+    for (int x=7; x <=9; x++)
+    {
+        m_map[index(x,1, m_zSize-1 )].teleport = true;
+        m_map[index(x,1, m_zSize-1 )].teleWhere = MAP_START_ZONE;
+        m_map[index(x,1, m_zSize-1 )].telePos = vec3f( 4.5, 1.0, 6.5);
+    }
+
+    m_message1 = "IT'S DANGEROUS TO GO";
+    m_message2 = "ALONE! TAKE THIS."; 
 }

@@ -12,20 +12,7 @@
 #include <string>
 
 #include "VoxChunk.h"
-
-//=========
-
-struct MapTile
-{
-    MapTile() 
-    {
-        chunk = NULL;
-        rot = 0;
-    }
-    
-    VoxChunk *chunk;
-    int rot;
-};
+#include "VoxSprite.h"
 
 //=========
 
@@ -35,6 +22,30 @@ enum
     MAP_START_ZONE,
     MAP_CAVE,
 };
+
+
+//=========
+
+struct MapTile
+{
+    MapTile() 
+    {
+        chunk = NULL;
+        rot = 0;
+        teleport = false;
+        teleWhere = MAP_START_ZONE;
+    }
+    
+    VoxChunk *chunk;
+    int rot;
+    
+    // does this tile teleport you somewhere else?
+    bool teleport;
+    int  teleWhere; // if so, where? (map enum)
+    vec3f telePos; //start pos;
+    
+};
+
 
 //=========
 class MapRoom
@@ -59,6 +70,16 @@ public:
     void clearMap();
     void buildMap_StartRoom();
     void buildMap_Cave();
+    
+    // The Enemies
+    static VoxChunk *m_octorok;
+    std::vector<VoxSprite> m_enemies;
+
+    // start pos
+    vec3f m_playerStartPos;
+    
+    // pithy message for the player
+    std::string m_message1, m_message2;
     
 //protected:
     int m_xSize, m_ySize, m_zSize;

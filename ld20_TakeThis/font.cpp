@@ -112,12 +112,12 @@ float Luddite::Font::calcWidth( const char *s )
 		if (*ch=='\n') {
 			curr_w = 0;
 		} else if (*ch==' ') {
-			curr_w += (m_fontSz*0.5f); /* todo: fix this */
+			curr_w += (m_fontSz*0.5f)*SCL; /* todo: fix this */
 		} else {
 			Glyph &g = m_glyphs[*ch];
 			if (g.h) {
 				// Advance cursor (FIXME: hacky spacing)
-				curr_w += g.w + (m_fontSz > 14?1:0);
+				curr_w += (g.w*SCL) + (m_fontSz > 14?1:0);
 			}
 		}
 		
