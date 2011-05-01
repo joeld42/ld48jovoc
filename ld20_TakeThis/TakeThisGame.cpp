@@ -236,10 +236,10 @@ void TakeThisGame::redraw()
     glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
-#if 0
     glhPerspectivef2( m_proj, 40.0, 800.0/600.0, 0.1, 1000.0 );
     
     glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
     glLoadMatrixf( (GLfloat*)(&m_proj) );
    
     matrix4x4f xlate1, xlate2;
@@ -264,7 +264,10 @@ void TakeThisGame::redraw()
     }
     
     glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
     glLoadMatrixf( (GLfloat*)(&m_modelview) );
+    
+    glDisable( GL_TEXTURE_2D );
     
 #if 1
     // DBG: draw axes
@@ -317,7 +320,7 @@ void TakeThisGame::redraw()
     
     glEnd();
 #endif
-    
+
     // alright draw the map
     VoxVert *vertData;
     size_t numVerts;
@@ -338,6 +341,7 @@ void TakeThisGame::redraw()
     glDrawArrays( GL_TRIANGLES, 0, m_mapVertSize );
     //printf("Draw %d triangle verts\n", numVerts );
     
+    // ----------------------------------
     // Draw player
     //matrix4x4f playerMat = m_modelview;
     matrix4x4f pxform, prot, mat;
@@ -383,7 +387,6 @@ void TakeThisGame::redraw()
     
     glDisableClientState( GL_VERTEX_ARRAY );
     glDisableClientState( GL_COLOR_ARRAY );
-#endif
     
     glEnable( GL_TEXTURE );
     glEnable( GL_TEXTURE_2D );

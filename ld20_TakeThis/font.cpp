@@ -199,6 +199,9 @@ void Luddite::Font::renderAll()
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	glDisableClientState( GL_COLOR_ARRAY );
 	glDisableClientState( GL_VERTEX_ARRAY );
+    
+    // Unbind any buffer
+    glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
 
