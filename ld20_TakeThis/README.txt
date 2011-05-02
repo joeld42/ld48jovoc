@@ -9,6 +9,43 @@ This game was developed during the Ludum Dare 48 hour game contest.
 
 Everything created by Joel Davis aka jovoc during the 48 hours.
 
+==============================
+LINUX NOTES:
+==============================
+
+I did include a linux binary, but that might not work if you don't
+have the right libs installed. However, on linux (unlike other
+platforms) it's very easy to build it for yourself.
+
+Here's some build instructions:
+
+Make sure the following things are installed:
+
+SDL (incl. dev stuff)
+libpng, zlib 
+
+These are very often preinstalled for you, but if not it's pretty
+easy but it depends on your distro. For example:
+
+Ubuntu:
+$ apt-get install libsdl-dev
+
+Fedora:
+$ yum install libsdl-dev
+
+You also need to install CMake to build if it's not preinstalled.
+
+To build (using Cmake):
+$ cmake .
+$ make
+
+Then just run it:
+$ ./takethis
+
+
+
+==============================
+
 INSTRUCTIONS:
 
 Collect all three Triforces to win!!!

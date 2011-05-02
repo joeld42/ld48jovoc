@@ -5,13 +5,15 @@
 //  Created by Joel Davis on 4/30/11.
 //  Copyright 2011 Joel Davis. All rights reserved.
 //
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifndef WIN32
 #  include <dirent.h>
 #else
 #  include <windows.h>
 #endif
-
 
 #include <prmath/prmath.hpp>
 

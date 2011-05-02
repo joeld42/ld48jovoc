@@ -6,6 +6,10 @@
 //  Copyright 2011 Joel Davis. All rights reserved.
 //
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "VoxChunk.h"
 
 VoxChunk::VoxChunk( int x, int y, int z ) :

@@ -10,6 +10,7 @@ SET ( takethis_SRCS
       font.cpp
       nesfont.cpp
       random.cpp
+      ResourceFile.cpp
       takethis_main.cpp 
 
       GLee.h
