@@ -18,6 +18,9 @@
 #include "VoxChunk.h"
 #include "GLee.h"
 
+#ifndef M_PI
+#define M_PI (3.1415926535897932384626433832795)
+#endif
 
 // How many voxels fit into a unit cube on a side
 #define WORLD_TILE_SIZE (16.0)

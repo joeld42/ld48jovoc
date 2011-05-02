@@ -17,6 +17,7 @@
 
 #include "PNGLoader.h"
 
+
 TakeThisGame *TakeThisGame::_singleton = NULL;
 
 // How much memory to allocate for the map geo

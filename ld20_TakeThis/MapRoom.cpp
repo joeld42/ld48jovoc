@@ -6,7 +6,13 @@
 //  Copyright 2011 Joel Davis. All rights reserved.
 //
 
-#include <dirent.h>
+#ifndef WIN32
+#  include <dirent.h>
+#else
+#  include <windows.h>
+#endif
+
+
 #include <prmath/prmath.hpp>
 
 #include "MapRoom.h"
@@ -92,15 +98,33 @@ size_t MapRoom::index( int x, int y, int z ) const
 // load the tileset
 void MapRoom::initTiles()
 {
+
+#ifndef WIN32
     DIR *dp;
     struct dirent *dirp;
+
+
     if((dp  = opendir("gamedata/voxtiles")) == NULL) {
         printf("Can't open tiles dir gamedata/voxtiles\n" );
         exit(1);
     }
-    
-    while ((dirp = readdir(dp)) != NULL) {
+#else
+	WIN32_FIND_DATAA ffd;
+	TCHAR szDir[MAX_PATH];
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+
+	hFind = FindFirstFileA( "gamedata/voxtiles/*", &ffd );
+
+#endif
+
+#ifndef WIN32
+	while ((dirp = readdir(dp)) != NULL) {
         char *tilename = dirp->d_name;
+#else    
+	do
+	{
+		char *tilename = ffd.cFileName;
+#endif
         
         char buff[1024];
         sprintf( buff, "gamedata/voxtiles/%s", tilename );
@@ -113,32 +137,38 @@ void MapRoom::initTiles()
         {
             tileExt = tileId.substr( extPos );
             tileId = tileId.substr( 0, extPos );
-        }
-        else continue;
-       
-        if (tileExt != ".csv") continue;
+              
+			if (tileExt != ".csv") continue;
         
-        printf("Load tile %s for tile id %s\n", 
-               buff, tileId.c_str() );
-        VoxChunk *tile = VoxChunk::loadCSVFile( buff );
-        tile->m_chunkName = tileId;
+			printf("Load tile %s for tile id %s\n", 
+				buff, tileId.c_str() );
+			VoxChunk *tile = VoxChunk::loadCSVFile( buff );
+			tile->m_chunkName = tileId;
         
-        // HACK the floor height
-        if ( (tileId.find( "overland" ) != std::string::npos) ||
-             (tileId.find( "cave" ) != std::string::npos) )
-        {
-            tile->m_floorHeight = 1.0;
-        }
+			// HACK the floor height
+			if ( (tileId.find( "overland" ) != std::string::npos) ||
+				 (tileId.find( "cave" ) != std::string::npos) )
+			{
+				tile->m_floorHeight = 1.0;
+			}
         
-        if (tileId.find( "stairs" ) != std::string::npos)
-        {
-            tile->m_floorHeight = 0.5;
-        }
-        
-        m_tileset[ tileId ] = tile;
+			if (tileId.find( "stairs" ) != std::string::npos)
+			{
+				tile->m_floorHeight = 0.5;
+			}        
+
+			m_tileset[ tileId ] = tile;
+		}
+#ifndef WIN32
     }
     closedir(dp);
-    
+#else
+	} 
+	while (FindNextFileA( hFind, &ffd) != 0 );
+
+	FindClose( hFind );
+#endif
+
     
     // Now load enemies
     m_octorok = VoxChunk::loadCSVFile( "gamedata/octaroc.csv" );
