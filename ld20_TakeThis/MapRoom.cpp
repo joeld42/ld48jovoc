@@ -16,6 +16,7 @@
 #include <prmath/prmath.hpp>
 
 #include "MapRoom.h"
+#include "ResourceFile.h"
 
 std::map<std::string,VoxChunk*> MapRoom::m_tileset;
 VoxChunk *MapRoom::m_octorok;
@@ -98,14 +99,19 @@ size_t MapRoom::index( int x, int y, int z ) const
 // load the tileset
 void MapRoom::initTiles()
 {
-
+    
+#ifdef __APPLE__
+    std::string voxtileDir = getResourceDir();
+#else
+    std::string voxtileDir = getResourceDir() + "/voxtiles";
+#endif
+    
 #ifndef WIN32
     DIR *dp;
     struct dirent *dirp;
 
-
-    if((dp  = opendir("gamedata/voxtiles")) == NULL) {
-        printf("Can't open tiles dir gamedata/voxtiles\n" );
+    if((dp  = opendir( voxtileDir.c_str() )) == NULL) {
+        printf("Can't open tiles dir %s\n", voxtileDir.c_str() );
         exit(1);
     }
 #else
@@ -113,7 +119,7 @@ void MapRoom::initTiles()
 	TCHAR szDir[MAX_PATH];
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 
-	hFind = FindFirstFileA( "gamedata/voxtiles/*", &ffd );
+	hFind = FindFirstFileA( voxtileDir + "/*").c_str(), &ffd );
 
 #endif
 
@@ -127,7 +133,7 @@ void MapRoom::initTiles()
 #endif
         
         char buff[1024];
-        sprintf( buff, "gamedata/voxtiles/%s", tilename );
+        sprintf( buff, "%s/%s", voxtileDir.c_str(), tilename );
         
         std::string tileId = tilename;
         std::string tileExt;
@@ -171,7 +177,7 @@ void MapRoom::initTiles()
 
     
     // Now load enemies
-    m_octorok = VoxChunk::loadCSVFile( "gamedata/octaroc.csv" );
+    m_octorok = VoxChunk::loadCSVFile( gameDataFile( "", "octaroc.csv").c_str() );
     if (!m_octorok)
     {
         printf("FAIL to load octaroc\n" );

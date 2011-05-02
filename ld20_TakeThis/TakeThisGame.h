@@ -136,7 +136,6 @@ private:
     
     // dbg
     MapRoom *room;
-    VoxChunk *chunk;
     float ang, camAng;
     bool doSpin;
     bool doWire;

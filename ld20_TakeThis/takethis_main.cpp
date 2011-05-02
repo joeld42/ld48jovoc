@@ -21,6 +21,7 @@
 #endif
 
 #include "TakeThisGame.h"
+#include "ResourceFile.h"
 
 // 30 ticks per sim frame
 #define STEPTIME (33)
@@ -29,6 +30,8 @@
 int main( int argc, char *argv[] )
 {
   printf("It's dangerous to go alone! Take this.\n" );
+    
+    printf("Game Data Dir: %s\n", getResourceDir().c_str() );
     
 	// Initialize SDL
 	if (SDL_Init( SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO ) < 0 ) 

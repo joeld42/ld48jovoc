@@ -14,7 +14,7 @@
 #include "MapRoom.h"
 
 #include "VoxSprite.h"
-
+#include "ResourceFile.h"
 #include "PNGLoader.h"
 
 
@@ -83,15 +83,7 @@ TakeThisGame::TakeThisGame() :
 void TakeThisGame::init()
 {
     printf("In init..\n" );
-    //chunk = VoxChunk::loadCSVFile( "gamedata/voxtiles/bush.csv" );
-    chunk = VoxChunk::loadCSVFile( "gamedata/voxtiles/grass_corner.csv" );
-    //chunk = VoxChunk::loadCSVFile( "gamedata/voxtiles/dbgshape.csv" );
-    
-    printf( "Loaded chunk, size is %d, %d, %d\n",
-            chunk->m_xSize,
-            chunk->m_ySize,
-            chunk->m_zSize );
-    
+
     camAng = 30;
     ang = 0;
     doSpin = false;
@@ -119,7 +111,7 @@ void TakeThisGame::init()
     m_playerStrike = 0.0;
     
     // Load font
-    m_fontImg = LoadImagePNG( "gamedata/nesfont.png" );
+    m_fontImg = LoadImagePNG( gameDataFile("", "nesfont.png" ).c_str() );
     m_nesFont = makeFont_nesfont_8( m_fontImg.textureId );
     
     // Make the map geom
@@ -130,12 +122,12 @@ void TakeThisGame::init()
     m_mapVertData = new VoxVert[m_mapVertCapacity];
     
     // Load "sprites"
-    m_player = VoxChunk::loadCSVFile( "gamedata/player.csv" );
+    m_player = VoxChunk::loadCSVFile(gameDataFile("", "player.csv" ).c_str() );
     
-    m_itemRubee = VoxChunk::loadCSVFile( "gamedata/item_rubee.csv" );
-    m_itemSword = VoxChunk::loadCSVFile( "gamedata/item_sword.csv" );
-    m_itemHeart = VoxChunk::loadCSVFile( "gamedata/item_heart.csv" );
-    m_itemTriforce = VoxChunk::loadCSVFile( "gamedata/item_triforce.csv" );
+    m_itemRubee = VoxChunk::loadCSVFile( gameDataFile("", "item_rubee.csv").c_str() );
+    m_itemSword = VoxChunk::loadCSVFile( gameDataFile("", "item_sword.csv").c_str() );
+    m_itemHeart = VoxChunk::loadCSVFile( gameDataFile("", "item_heart.csv").c_str() );
+    m_itemTriforce = VoxChunk::loadCSVFile( gameDataFile("", "item_triforce.csv").c_str() );
     
     m_weapon = new VoxSprite( m_itemSword );
     
