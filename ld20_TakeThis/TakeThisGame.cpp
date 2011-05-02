@@ -705,6 +705,10 @@ void TakeThisGame::redraw()
         {
             m_nesFont->setColor( 0, 1.0, 0.5, 1.0 );
             m_nesFont->drawStringCentered( 400, 250, "YOU WIN!" );
+            
+            // Orbit mode
+            doSpin = true;
+            
         }
         else
         {
@@ -853,10 +857,10 @@ void TakeThisGame::keypress( SDLKey &key )
             break;
            
         // DBG
-        case 'p':
+        //case 'p':
             // insta-sword
-            hasSword = true;
-            break;
+         //   hasSword = true;
+         //   break;
             
         case 'z':
             m_playerStrike = 0.25;
