@@ -13,6 +13,7 @@
 VoxSprite::VoxSprite( VoxChunk *chunk ) :
     m_pos(0.0, 0.0, 0.0),
     m_angle( 0 ),
+    m_xRot(0),
     m_chunk( chunk )
 {
     chooseRandomDir();
@@ -21,7 +22,7 @@ VoxSprite::VoxSprite( VoxChunk *chunk ) :
 void VoxSprite::draw( const matrix4x4f &modelview )
 {
     // Draw sprite
-    matrix4x4f pxform, prot, mat;
+    matrix4x4f pxform, prot, protX, protZ, mat;
     matrix4x4f center, centerI;
     center.Translate( -0.5,-0.5,-0.5 );
     centerI.Translate( 0.5, 0.5, 0.5 );
@@ -32,8 +33,10 @@ void VoxSprite::draw( const matrix4x4f &modelview )
                      int(m_pos.z*WORLD_TILE_SIZE) /WORLD_TILE_SIZE);
     prot.RotateY( (-m_angle+90) * (3.1415/180.0) );
     
+    protX.RotateX( -m_xRot * (3.1415/180.0) );
+    protZ.RotateZ( -m_xRot * (3.1415/180.0) );
     
-    mat = center * prot * pxform * centerI * modelview;
+    mat = center *  protZ * protX * prot * pxform * centerI * modelview;
     glLoadMatrixf( (GLfloat*)(&mat) );
     
     size_t spriteSz;

@@ -42,6 +42,14 @@ enum
     HEART_EMPTY = 28
 };
 
+enum 
+{
+    TRIFORCE_0 = 0x01,
+    TRIFORCE_1 = 0x02,
+    TRIFORCE_2 = 0x04,
+    TRIFORCE_3 = 0x08
+};
+
 
 class TakeThisGame
 {
@@ -93,16 +101,21 @@ private:
     vec3f m_playerVel;
     float m_playerAng;
     float m_playerHurt; // timeout
+    float m_playerStrike; // timeout
     bool blink;
     bool hasSword;
-    int  triforce;
+    int  triforce; // bitfield
+    int rubees;
     float msgShow;
     VoxChunk *m_player;
+    VoxSprite *m_weapon;
     
     bool messageDone();
     
     VoxChunk *m_itemSword;
     VoxChunk *m_itemRubee;
+    VoxChunk *m_itemHeart;
+    VoxChunk *m_itemTriforce;
     
     std::vector<std::pair<int,int> > foundCaves;
     

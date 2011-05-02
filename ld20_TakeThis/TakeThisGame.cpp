@@ -98,6 +98,7 @@ void TakeThisGame::init()
     doBBox = false;
     fpsMode = false;
     triforce = 0;
+    rubees = 0;
     
     SDL_ShowCursor( false);
 	SDL_WM_GrabInput( SDL_GRAB_ON );
@@ -110,10 +111,11 @@ void TakeThisGame::init()
     glEnable( GL_DEPTH_TEST );
     
     m_playerHurt = 0.0;
-    m_heartCtrs = 12;
+    m_heartCtrs = 6; // start with 3 hearts
     m_hitPoints = m_heartCtrs;
     foundCaves.clear();
     hasSword = false;
+    m_playerStrike = 0.0;
     
     // Load font
     m_fontImg = LoadImagePNG( "gamedata/nesfont.png" );
@@ -131,7 +133,10 @@ void TakeThisGame::init()
     
     m_itemRubee = VoxChunk::loadCSVFile( "gamedata/item_rubee.csv" );
     m_itemSword = VoxChunk::loadCSVFile( "gamedata/item_sword.csv" );
+    m_itemHeart = VoxChunk::loadCSVFile( "gamedata/item_heart.csv" );
+    m_itemTriforce = VoxChunk::loadCSVFile( "gamedata/item_triforce.csv" );
     
+    m_weapon = new VoxSprite( m_itemSword );
     
     // Load map tiles
     MapRoom::initTiles();
@@ -201,6 +206,13 @@ void TakeThisGame::updateSim( float dtFixed )
     // update msg
     msgShow += (hasSword?6.0:4.0)*dtFixed;
     
+    // update attack
+    if (m_playerStrike > 0.0)
+    {
+        m_playerStrike -= dtFixed;
+        printf("Strike %f\n", m_playerStrike );
+    }
+    
     // update cave joke
     if (messageDone() && (room->m_mapCode==MAP_CAVE_DANCE) &&
         (room->m_map[ room->index(8,1,4)].chunk ) )
@@ -241,6 +253,8 @@ void TakeThisGame::updateSim( float dtFixed )
             m_playerPos = newPos;
         }
     }
+    
+    
     
     // did we teleport somewhere?
     int xx,yy,zz;
@@ -311,29 +325,43 @@ void TakeThisGame::updateSim( float dtFixed )
     }
     
     // Check for player <> enemy collision
+    std::vector<VoxSprite> enemiesLeft;
     for (size_t i=0; i < room->m_enemies.size(); i++)
     {
-        // if already injured, don't check hit
-        if (m_playerHurt > 0) break;
-        
         vec3f d = m_playerPos - room->m_enemies[i].m_pos;
-        if (prmath::LengthSquared(d) < 0.8)
+        if ((m_playerHurt < 0.01) && (prmath::LengthSquared(d) < 0.8))
         {
-            m_playerHurt = 1.0;
-            m_playerVel = d * 0.5;
-            
-            // ouchie
-            if (m_hitPoints > 1)
+            // super-crappy combat -- only doing this because
+            // im short on time.
+            if ((m_playerHurt < 0.01) && (m_playerStrike > 0.01))
             {
-                m_hitPoints--;
+                // spawn a rubee
+                int r = rand() % 4;
+                VoxSprite rubee = VoxSprite( true?m_itemHeart:m_itemRubee );
+                rubee.m_angle = 90;
+                
+                d.Normalize();
+                rubee.m_pos = room->m_enemies[i].m_pos - d;
+                room->m_items.push_back( rubee );
+                
+                // don't keep the enemy
+                continue;
             }
+            // ouchie
             else
             {
-                printf("TODO: Game overs...\n" );
+                m_playerHurt = 1.0;
+                m_playerVel = d * 0.5;
+                
+                if (m_hitPoints>0) m_hitPoints--;
+                printf("Current health %d/%d\n", m_hitPoints, m_heartCtrs );
             }
-            printf("Current health %d/%d\n", m_hitPoints, m_heartCtrs );
         }
+        
+        enemiesLeft.push_back( room->m_enemies[i] );
+        
     }     
+    room->m_enemies = enemiesLeft;
     
     // Check for player <> item collision
     std::vector<VoxSprite> itemsLeft;
@@ -346,6 +374,17 @@ void TakeThisGame::updateSim( float dtFixed )
             if (room->m_items[i].m_chunk == m_itemSword)
             {
                 hasSword = true;
+            }
+            else if (room->m_items[i].m_chunk == m_itemHeart)
+            {
+                if (m_hitPoints < m_heartCtrs)
+                {
+                    m_hitPoints++;
+                }
+            }
+            else if (room->m_items[i].m_chunk == m_itemRubee)
+            {
+                rubees++;
             }
         }
         else
@@ -532,6 +571,27 @@ void TakeThisGame::redraw()
         glDrawArrays( GL_TRIANGLES, 0, playerSz );
     }
     
+    // draw sword
+    if ((hasSword) && (blink))
+    {
+        m_weapon->m_pos = vec3f( 0.08, 0, -0.4);
+        
+        
+        if (m_playerStrike > 0.001)
+        {
+            m_weapon->m_xRot = 90.0;
+            m_weapon->m_angle = 90.0;
+            m_weapon->m_pos += vec3f( 0.5-m_playerStrike, 0.2, 0.4 );
+        }
+        else
+        {
+            m_weapon->m_angle = -90.0;
+            m_weapon->m_xRot = 0.0;
+        }
+        
+        m_weapon->draw( mat );
+    }
+    
     // draw enemies
     for (int i=0; i < room->m_enemies.size(); i++)
     {
@@ -580,10 +640,15 @@ void TakeThisGame::redraw()
         m_nesFont->drawString(630, 600 - 40, buff );
     
     // stats, inv, etc
-    sprintf( buff, "TRIFORCE: %d/4", triforce );
+    sprintf( buff, "TRIFORCE: ....", triforce );
+    if (triforce & TRIFORCE_0) buff[11] = '*';
+    
     m_nesFont->drawString( 20, 600-30, buff );
     
     m_nesFont->drawString( 20, 600-60, hasSword?"WEAPON: SWORD":"WEAPON: NONE" );
+    
+    sprintf( buff, "R$: %d", rubees );
+    m_nesFont->drawString( 350, 600-30, buff );
     
     //sprintf( buff, "V: %3.2f %3.2f %3.2f", 
     //        m_playerVel.x, m_playerVel.y, m_playerVel.z ); 
@@ -727,6 +792,16 @@ void TakeThisGame::keypress( SDLKey &key )
             // First person
             toggleFPSMode();
             break;
+           
+        // DBG
+        case 'p':
+            // insta-sword
+            hasSword = true;
+            break;
+            
+        case 'z':
+            m_playerStrike = 0.25;
+            break;
             
         default:
             break;
@@ -781,5 +856,14 @@ void TakeThisGame::visitRoom( int mapCode )
     else
     {
         //fpsMode = true;
+        
+        // Place a triforce to find if they haven't found it yet
+        if (!triforce & TRIFORCE_0)
+        {
+            VoxSprite triforce( m_itemTriforce );
+            triforce.m_pos = vec3f( 0, 1, 10 );
+            room->m_items.push_back( triforce );
+        }
+        
     }
 }
