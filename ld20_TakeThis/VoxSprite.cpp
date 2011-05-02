@@ -14,6 +14,7 @@ VoxSprite::VoxSprite( VoxChunk *chunk ) :
     m_pos(0.0, 0.0, 0.0),
     m_angle( 0 ),
     m_xRot(0),
+    m_triforce(0),
     m_chunk( chunk )
 {
     chooseRandomDir();

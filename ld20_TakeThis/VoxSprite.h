@@ -28,6 +28,7 @@ public:
     float m_angle;
     float m_xRot;
     float m_timeout;
+    int m_triforce;
 };
 
 

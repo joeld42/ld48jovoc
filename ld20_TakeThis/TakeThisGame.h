@@ -46,8 +46,7 @@ enum
 {
     TRIFORCE_0 = 0x01,
     TRIFORCE_1 = 0x02,
-    TRIFORCE_2 = 0x04,
-    TRIFORCE_3 = 0x08
+    TRIFORCE_2 = 0x04
 };
 
 
@@ -75,6 +74,9 @@ public:
     void visitRoom( int mapCode );
     
     void toggleFPSMode();
+    
+    // return -1 if you lose, 1 if you win, 0 otherwise
+    int isGameOver();
     
 private:
     void _shutdown();
@@ -126,7 +128,9 @@ private:
         
     // The font
     PNGImage m_fontImg;
-    Luddite::Font *m_nesFont; 
+    Luddite::Font *m_nesFont;
+    
+    
     
     
     

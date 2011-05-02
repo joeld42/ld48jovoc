@@ -236,6 +236,18 @@ void TakeThisGame::updateSim( float dtFixed )
         printf("GIVE SWORD\n" );
     }
     
+    // Place a triforce to find if they haven't found it yet
+    if ((!(triforce & TRIFORCE_1)) && messageDone() && 
+        (room->m_mapCode==MAP_CAVE_COLD) && (room->m_items.size()==0) )
+    {
+        VoxSprite triforce( m_itemTriforce );
+        triforce.m_pos = vec3f( room->m_xSize-3, 1,2 );
+        triforce.m_triforce = TRIFORCE_1;
+        room->m_items.push_back( triforce );
+    }
+
+    
+    
     // Update player pos
     vec3f newPos = m_playerPos;
     
@@ -243,7 +255,6 @@ void TakeThisGame::updateSim( float dtFixed )
     
     if (room->isVacant( newPos.x + 0.5, newPos.y + 0.6, newPos.z + 0.5))
     {
-        
         // adjust ground height
         newPos.y = room->groundHeight( newPos.x + 0.5, newPos.z + 0.5 );
         
@@ -336,8 +347,21 @@ void TakeThisGame::updateSim( float dtFixed )
             if ((m_playerHurt < 0.01) && (m_playerStrike > 0.01))
             {
                 // spawn a rubee
-                int r = rand() % 4;
-                VoxSprite rubee = VoxSprite( true?m_itemHeart:m_itemRubee );
+                VoxChunk *itemContents;
+                int r = rand() % 3;
+                VoxSprite rubee = VoxSprite( r==0?m_itemHeart:m_itemRubee );
+                
+                if (room->m_enemies[i].m_chunk != room->m_octorok)
+                {
+                    // it's the old guy .. spawn a triforce if we don't have
+                    // have it
+                    if (!(triforce & TRIFORCE_2))
+                    {
+                        rubee.m_chunk = m_itemTriforce;
+                        rubee.m_triforce = TRIFORCE_2;
+                    }
+                }
+                
                 rubee.m_angle = 90;
                 
                 d.Normalize();
@@ -385,6 +409,10 @@ void TakeThisGame::updateSim( float dtFixed )
             else if (room->m_items[i].m_chunk == m_itemRubee)
             {
                 rubees++;
+            }
+            else if (room->m_items[i].m_chunk == m_itemTriforce)
+            {
+                triforce |= room->m_items[i].m_triforce;
             }
         }
         else
@@ -640,8 +668,10 @@ void TakeThisGame::redraw()
         m_nesFont->drawString(630, 600 - 40, buff );
     
     // stats, inv, etc
-    sprintf( buff, "TRIFORCE: ....", triforce );
-    if (triforce & TRIFORCE_0) buff[11] = '*';
+    sprintf( buff, "TRIFORCE: ...", triforce );
+    if (triforce & TRIFORCE_0) buff[10] = '*';
+    if (triforce & TRIFORCE_1) buff[11] = '*';
+    if (triforce & TRIFORCE_2) buff[12] = '*';
     
     m_nesFont->drawString( 20, 600-30, buff );
     
@@ -666,6 +696,22 @@ void TakeThisGame::redraw()
         m_nesFont->drawStringCentered( 400, 450, msg1.c_str() );
         m_nesFont->drawStringCentered( 400, 420, msg2.c_str() );
     }
+    
+    // GAME OVER message
+    int go = isGameOver();
+    if (go)
+    {
+        if (go > 0)
+        {
+            m_nesFont->setColor( 0, 1.0, 0.5, 1.0 );
+            m_nesFont->drawStringCentered( 400, 250, "YOU WIN!" );
+        }
+        else
+        {
+            m_nesFont->setColor( 1.0, 0.0, 0.0, 1.0 );
+            m_nesFont->drawStringCentered( 400, 250, "GAME OVER" );
+        }
+    }
 
     m_nesFont->renderAll();
     m_nesFont->clear();
@@ -689,6 +735,19 @@ void TakeThisGame::redraw()
 #endif
     
   
+}
+
+int TakeThisGame::isGameOver()
+{
+        if (m_hitPoints <=0)
+        {
+            return -1;
+        }
+        else if (triforce == (TRIFORCE_0|TRIFORCE_1|TRIFORCE_2 ))
+        {
+            return 1;
+        }
+        else return 0;
 }
 
 void TakeThisGame::mouseMotion( float lookMoveX, float lookMoveY )
@@ -850,18 +909,20 @@ void TakeThisGame::visitRoom( int mapCode )
         
         // caves are not FPS mode by default
         //fpsMode = false;
-        
         msgShow =  0;
+        
+        
     }
     else
     {
         //fpsMode = true;
         
         // Place a triforce to find if they haven't found it yet
-        if (!triforce & TRIFORCE_0)
+        if (!(triforce & TRIFORCE_0))
         {
             VoxSprite triforce( m_itemTriforce );
-            triforce.m_pos = vec3f( 0, 1, 10 );
+            triforce.m_pos = vec3f( 12, 2, 2 );
+            triforce.m_triforce = TRIFORCE_0;
             room->m_items.push_back( triforce );
         }
         
