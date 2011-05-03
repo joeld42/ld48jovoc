@@ -1,6 +1,12 @@
 #include <luddite/GLee.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
+
+#ifndef __APPLE__
+#  include <GL/gl.h>
+#  include <GL/glu.h>
+#else
+#  include <OpenGL/gl.h>
+#  include <OpenGL/glu.h>
+#endif 
 
 #include <luddite/debug.h>
 #include <luddite/resource.h>
@@ -13,7 +19,7 @@
 #include "noise.h"
 #include "pally.h"
 
-#include "png.h"
+#include <png.h>
 #include "zlib.h"
 
 #define TESS_AMOUNT (200)

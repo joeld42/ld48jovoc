@@ -8,6 +8,8 @@
 #include <assert.h>
 #include <algorithm>
 
+#include <glsw.h>
+
 #include "TakeThisGame.h"
 
 #include "VoxChunk.h"
@@ -16,6 +18,7 @@
 #include "VoxSprite.h"
 #include "ResourceFile.h"
 #include "PNGLoader.h"
+
 
 
 TakeThisGame *TakeThisGame::_singleton = NULL;
@@ -100,6 +103,14 @@ void TakeThisGame::init()
     m_camQuatX.Identity();
     m_camQuatY.Identity();
     
+    // load shaders
+    glswInit();
+    glswSetPath( getResourceDir().c_str(), ".glsl");
+    
+    const char *s = glswGetShader( "TakeThis.Vertex" );
+    printf("shader %s\n", s );
+    
+    // gl settings
     glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
     

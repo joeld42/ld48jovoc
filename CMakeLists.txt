@@ -45,6 +45,7 @@ ENDIF (UNIX)
 #no worky
 #ADD_SUBDIRECTORY( extern/jpgd )
 ADD_SUBDIRECTORY( extern/tinyxml )
+ADD_SUBDIRECTORY( extern/glsw )
 
 # ==================================================
 # LD1 - Zillagame

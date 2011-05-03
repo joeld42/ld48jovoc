@@ -26,6 +26,8 @@ SET ( takethis_SRCS
 
 include_directories( 
 		     ${CMAKE_SOURCE_DIR}/extern/
+		     ${CMAKE_SOURCE_DIR}/extern/glsw/
+
 		     ${OPENGL_INCLUDE_DIR}
 		     ${SDL_INCLUDE_DIR}
 		     ${PNG_PNG_INCLUDE_DIR}
@@ -35,6 +37,7 @@ set ( LIBS ${LIBS}
       ${OPENGL_LIBRARIES}
       ${SDL_LIBRARY}
       ${PNG_LIBRARY}
+      glsw
       )
 
 ADD_DEFINITIONS( ${PNG_DEFINITIONS} )
