@@ -12,6 +12,7 @@
 
 @synthesize sprite=_sprite;
 @synthesize movable=_movable;
+@synthesize coins=_coins;
 
 - (id) initWithSprite:(CCSprite *)spr
 {
@@ -20,6 +21,7 @@
     {
         self.sprite = spr;
         self.movable = TRUE;
+        self.coins = [NSMutableArray arrayWithCapacity: 20];
     }
     
     return self;

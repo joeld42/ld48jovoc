@@ -15,10 +15,13 @@
 
 #define INITIAL_SPEED (200)
 
+#define TAG_COIN (100)
+
 @implementation GameLayer
 
 @synthesize bgImage=_bgImage;
 @synthesize player=_player;
+@synthesize marker=_marker;
 @synthesize target=_target;
 @synthesize midgroundImage=_midgroundImage;
 
@@ -66,26 +69,37 @@
                                  labelWithString:@"0" 
                                  fntFile:@"font.fnt"];         
     
-    coinsLbl.position = ccp( 10, 280 );
+    coinsLbl.position = ccp( 30, 280 );
     coinsLbl.anchorPoint = ccp( 0.0, 0.0 );
     [hudLayer addChild: coinsLbl z:3 ];
     
     layer.coinsLabel = coinsLbl;
-
+    
+    CCSprite *coin = [CCSprite spriteWithFile: @"coin.png"];
+    coin.position = ccp( 10, 300);
+//    coin.scale = 0.5;
+    [hudLayer addChild: coin ];
+    
     // Distance label
     CCLabelBMFont *distLbl = [CCLabelBMFont
                                labelWithString:@"0" 
                                fntFile:@"font.fnt"];         
     
-    distLbl.position = ccp( 450, 280 );
+    distLbl.position = ccp( 440, 280 );
     distLbl.anchorPoint = ccp( 1.0, 0.0 );
     [hudLayer addChild: distLbl z:3 ];
 
     layer.distLabel = distLbl;
     
+    CCSprite *distIcon = [CCSprite spriteWithFile: @"distance.png"];
+    distIcon.position = ccp( 460, 300);
+    [hudLayer addChild: distIcon ];
+
+    
+    
+    // add HUD
     [scene addChild: hudLayer ];
-
-
+    
     
 	// return the scene
 	return scene;
@@ -127,7 +141,12 @@
 //        [_player setAnchorPoint: ccp( 0.5, 0.0 ) ];
 //        [self addChild: _player z:1 ];
 //        
-        playerYVel = 0.0;
+        // ================================================
+        // Player marker
+        self.marker = [CCSprite spriteWithFile: @"dinomarker.png" ];
+        [_marker setAnchorPoint: ccp( 0.5, 1.0 ) ];        
+        _marker.visible = NO;
+        [self addChild: _marker z:3 ];
         
         // ================================================
         // Player animation
@@ -151,7 +170,7 @@
         
         self.player = [CCSprite spriteWithSpriteFrameName:@"DinoRun0001.png"];        
         [_player setPosition: ccp( PLAYER_HPOS, 160 ) ];
-        [_player setAnchorPoint: ccp( 0.5, 0.3 ) ];
+        [_player setAnchorPoint: ccp( 0.5, 0.0 ) ];
         
         self.animRun = [CCRepeatForever actionWithAction:
                            [CCAnimate actionWithAnimation:runAnim restoreOriginalFrame:NO]];
@@ -171,9 +190,8 @@
               [NSString stringWithFormat:@"Coin%04d.png", i]]];
         }
         
-        _coinAnim = [CCAnimation animationWithFrames:_coinAnimFrames delay:0.04f];
-
-        
+        _coinAnim = [[CCAnimation animationWithFrames:_coinAnimFrames delay:0.04f] retain];
+            
         
         // ----------------------------------------------
         // Add the target
@@ -194,10 +212,13 @@
         _scrollSpeed = INITIAL_SPEED;
         
         // build the platforms
-        _platforms = [[NSMutableArray arrayWithCapacity: 100] retain];
-        
+        _platforms = [[NSMutableArray arrayWithCapacity: 100] retain];        
         _levelCoins = [[NSMutableArray arrayWithCapacity: 1000] retain];
-        
+
+        // initial build
+        _levelExtentX = 0.0;
+        _lastLandIndex = Land_LONG;
+        _landFirst = TRUE;
         [self buildPlatforms];
 
         // Start playing background music
@@ -229,12 +250,12 @@
     float oldVel = playerYVel;
     CGPoint oldPos = _player.position;
     
-//    NSLog( @"tick.. %d platforms", [_platforms count] );
+    NSLog( @"tick.. %d plat %d coins", [_platforms count], [_levelCoins count] );
     
     // move player in x first
     _player.position = ccp(_player.position.x + (_scrollSpeed * dt), 
                            _player.position.y );
-
+    
     // hit platforms?
     for (Platform *p in _platforms)
     {
@@ -242,22 +263,28 @@
         if (CGRectIntersectsRect( [_player boundingBox],
                                  platBound ))
         {
+//            NSLog( @"Collide X...\n" );
+            
             // hit something .. back to old pos
             _player.position = oldPos;
-                            
+            
             // slow down
             _scrollSpeed = INITIAL_SPEED;
             
             break;
         }
     }
-    
+
+
+
     // gravity
     playerYVel = playerYVel + (-1000 * dt );
 
     // move player in y
     _player.position = ccp(_player.position.x, 
                            _player.position.y + (playerYVel * dt) );
+    //dbg
+    _player.position = ccp( _player.position.x, 300 );
     
     for (Platform *p in _platforms)
     {
@@ -284,41 +311,16 @@
                 // Move the player up to the contact
 //                NSLog( @"Diff %f, snapping up\n", platY - _player.position.y );
                 _player.position = ccp( _player.position.x, platY );
-                
+                                
                 // yes, we hit something
+                playerYVel = 0.0;
                 isCollide = YES;
             }
-            else
-            {
-//                NSLog( @"collide side of wall\n" );
-                // Otherwise -- splat ... push the player out of platform
-//                if (_player.position.x < p.sprite.position.x )
-//                {
-//                    // left side of the platform
-//                    _player.position = ccp( platBound.origin.x - 32,
-//                                           _player.position.y );
-//                }
-//                else
-//                {
-//                    // right side of the platform
-//                    _player.position = ccp( platBound.origin.x + platBound.size.width + 32,
-//                                           _player.position.y );
-//   
-//                }
-//                
-                // Slow down the scroll speed
-//                _scrollSpeed = INITIAL_SPEED;
-                
-                // keep isCollide false cause we're still in free fall
-            }
-                
-//            NSLog( @"Hit platform, player %f %f\n",
-//                   _player.position.x, 
-//                   _player.position.y );
             break;
         }            
     }
     
+
     
     // coin get?
     NSMutableArray *coinsToRemove = [NSMutableArray arrayWithCapacity: 10];
@@ -362,17 +364,6 @@
     
 //    NSLog( @"Is Collide: %s\n", isCollide?"TRUE":"FALSE" );
     
-    if (!isCollide)
-    {
-//        // gravity
-//        playerYVel = playerYVel + (-1000 * dt );
-    }
-    else
-    {
-        // zero vel
-        playerYVel = 0.0;
-    }
-    
     
     // move target
 
@@ -390,14 +381,14 @@
     
         
     // update vel
-    float yvel = (_player.position.y - oldPos.y) / dt;
-    yvel = MIN(yvel, 2500.0 );
-    playerYVel = yvel;
+//    float yvel = (_player.position.y - oldPos.y) / dt;
+//    yvel = MIN(yvel, 2500.0 );
+//    playerYVel = yvel;
     
     // Don't let player fly away
-    if ((_player.position.y > 340) && (playerYVel > 0))
+    if ((_player.position.y > 500) && (playerYVel > 0))
     {
-        playerYVel = -200.0;
+        playerYVel = -100.0;
     }
     
 //    // jump sound
@@ -439,10 +430,20 @@
     _scrollSpeed += 30.0 * dt;
     
     
+    // Update the player marker
+    _marker.position = ccp( _player.position.x, 320 );
+    _marker.visible = (_player.position.y > 320);
+    
     // Update the distance 
     _gameDist = _player.position.x / 32.0;
     
     _distLabel.string = [NSString stringWithFormat: @"%d", (int)(_gameDist) ];
+    
+    // Build more stuff
+    [self buildPlatforms];
+    
+    // clean up stuff
+    [self cleanupPassedStuff];
 }
 
 - (void)ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -502,14 +503,50 @@
         // Did we hit the player?
         CGRect platBound = [_dragPlatform.sprite boundingBox];
         if (CGRectIntersectsRect( [_player boundingBox],
-                                 platBound ))
+                                 platBound ))            
         {
+            float dragDist = (platBound.origin.y + platBound.size.height) -
+                    _player.position.y;
+            
             // Yes.. first just scoot them up to where we are
             _player.position = ccp( _player.position.x, 
                                    platBound.origin.y + platBound.size.height );
             
             // Depending on push speed, trigger a jump
-            // TODO
+            printf("dragDistance... %f\n", dragDist );
+            
+            // if we're not already jumping
+            if (playerYVel <= 0.001)
+            {
+                float jumpGain = 0.0;
+                if (dragDist < 5.0)
+                {
+                    playerYVel = 0.0; // no jump, just stick to the ground
+                }
+                else if (dragDist < 10.0)
+                {
+                    // small jump
+                    playerYVel = 200.0;
+                    jumpGain = 0.25;
+                }
+                else 
+                {
+                    // big jump
+                    playerYVel = 700.0;
+                    jumpGain = 1.0;
+                }
+                
+                // play sound
+                if (jumpGain > 0.0)
+                {
+                    printf("Jump %f\n", jumpGain );
+                    
+                    [_soundEngine playEffect:@"Jump.wav" 
+                                       pitch:1.0f
+                                         pan:0.0f gain: jumpGain];
+
+                }
+            }
             
         }
 
@@ -523,15 +560,15 @@
     CGPoint locationScreen = [touch locationInView: [touch view]];
     locationScreen = [[CCDirector sharedDirector] convertToGL: locationScreen];
     
-    CGPoint location = [self convertToNodeSpace: locationScreen];
+//    CGPoint location = [self convertToNodeSpace: locationScreen];
 
     _dragPlatform = nil;
     
     // DBG: tap top of screen to redrop dino
-    if (locationScreen.y > 300)
-    {
-        _player.position = ccp( _player.position.x, 300 );
-    }
+//    if (locationScreen.y > 300)
+//    {
+//        _player.position = ccp( _player.position.x, 300 );
+//    }
     
 }
 
@@ -575,23 +612,18 @@
 
 - (void) buildPlatforms
 {
-//    CCSprite *landSprites[3];
-//    landSprites[0] = [CCSprite spriteWithFile: @"land1.png" ];
-//    landSprites[1] = [CCSprite spriteWithFile: @"land2.png" ];
-//    landSprites[2] = [CCSprite spriteWithFile: @"land3.png" ];
     
-    float currX = 0;
-    int lastLandIndex = Land_LONG;
-    for (int i=0; i < 20; i++)
+    while (_levelExtentX < _player.position.x + 800)
     {
         int landSpriteIndex = Land_LONG;
         float platHeight;
         
         // preset first platform
-        if (i==0)
+        if (_landFirst)
         {
             landSpriteIndex=Land_LONG;
             platHeight = -100;
+            _landFirst = FALSE;
         }
         else
         {
@@ -603,7 +635,7 @@
                 landSpriteIndex = (int)(CCRANDOM_0_1() * 3);
                 
                 // don't put to rocks in a row
-                if ((landSpriteIndex == Land_ROCK) && (lastLandIndex==Land_ROCK))
+                if ((landSpriteIndex == Land_ROCK) && (_lastLandIndex==Land_ROCK))
                 {
                     good = false;
                 }
@@ -619,7 +651,7 @@
         landSprite.anchorPoint = ccp( 0.0, 0.5 );
         
         Platform *p = [[[Platform alloc] initWithSprite: landSprite ] retain];
-        lastLandIndex = landSpriteIndex;
+        _lastLandIndex = landSpriteIndex;
         if (landSpriteIndex==1)
         {
             p.movable = FALSE;
@@ -628,24 +660,26 @@
         [_platforms addObject: p ];
         
         
-        p.sprite.position = ccp( currX, platHeight );
+        p.sprite.position = ccp( _levelExtentX, platHeight );
         
         // Platform with no gap
-        currX += [landSprite boundingBox].size.width;
+        _levelExtentX += [landSprite boundingBox].size.width;
         
         // Add a gap??
-        if ((currX > 1000) && (CCRANDOM_0_1() < 0.5))
+        if ((_levelExtentX > 1000) && (CCRANDOM_0_1() < 0.75))
         {
-            currX += CCRANDOM_0_1() * 150;
+            _levelExtentX += 100 + (CCRANDOM_0_1() * 150);
         }
         
         // Add some coins??
-        if (CCRANDOM_0_1() < 0.5)
+        if (CCRANDOM_0_1() < 0.25)
         {
             //                CCSprite *coin = [CCSprite spriteWithFile: @"coin.png" ];
             CCSpriteBatchNode *spriteSheet = [CCSpriteBatchNode 
                                               batchNodeWithFile:@"coin_loop.png"];
+            spriteSheet.tag = TAG_COIN;
             [p.sprite addChild:spriteSheet];
+            
 
             CGRect platBounds = p.sprite.boundingBox;
             for (float cx = 15.0; cx < platBounds.size.width; cx += 30)
@@ -658,6 +692,7 @@
                 [coin runAction:animCoin];
                 [spriteSheet addChild: coin z:2 ];                
                 coin.position = ccp( cx, platBounds.size.height + 20 );            
+                coin.tag = TAG_COIN;
                 
                 [_levelCoins addObject: coin];
             }
@@ -666,6 +701,39 @@
         [self addChild: p.sprite];
     }
     
+}
+
+- (void) cleanupPassedStuff
+{    
+    NSMutableArray *platformsToClean = [NSMutableArray arrayWithCapacity:10 ];
+    for (Platform *p in _platforms)
+    {
+        CGRect platBound = [p.sprite boundingBox];
+        if (platBound.origin.x + platBound.size.width < _player.position.x - 480)
+        {
+            // get any coins under this platform
+            NSLog( @"remove platform ---- %d childs", [p.sprite.children count] );
+            for (CCNode *ch in p.sprite.children)
+            {
+                NSLog( @"child tag is %d\n", ch.tag );
+                if (ch.tag==TAG_COIN)
+                {
+                    [_levelCoins removeObject: ch];
+                }
+            }
+            
+            
+            // remove from parent (with childs)
+            [p.sprite removeFromParentAndCleanup:YES ];
+            p.sprite = nil;
+            
+            // mark to remove from platforms
+            [platformsToClean addObject: p];
+        }    
+    }
+    
+    // remove the skipped coins
+    [_platforms removeObjectsInArray: platformsToClean];
 }
 
 @end

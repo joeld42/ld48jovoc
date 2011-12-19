@@ -25,6 +25,14 @@ enum
     Land_LONG
 };
 
+enum
+{
+    Gem_AMETHYST,
+    Gem_EMERALD,
+    Gem_RUBY,
+    Gem_DIAMOND
+};
+
 @interface GameLayer : CCLayer
 {
     float playerYVel;
@@ -49,6 +57,9 @@ enum
     CCAnimation *_coinAnim;
     
     // level build
+    float _levelExtentX; // how far we've built out
+    int _lastLandIndex;
+    BOOL _landFirst;
     
     // audio
     SimpleAudioEngine *_soundEngine;
@@ -57,6 +68,7 @@ enum
 @property (nonatomic, retain) CCSprite *bgImage;
 @property (nonatomic, retain) CCSprite *midgroundImage;
 @property (nonatomic, retain) CCSprite *player;
+@property (nonatomic, retain) CCSprite *marker; // for when dino is offscreen
 @property (nonatomic, retain) CCSprite *target;
 
 @property (nonatomic, retain) CCLabelBMFont *coinsLabel;
@@ -74,5 +86,8 @@ enum
 
 // build platforms
 - (void) buildPlatforms;
+
+// clean up stuff we've passed
+- (void) cleanupPassedStuff;
 
 @end

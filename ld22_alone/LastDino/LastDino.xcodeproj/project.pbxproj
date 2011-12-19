@@ -14,6 +14,15 @@
 		6D2466CE149EDC6900B2B809 /* Jump.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466C9149EDC6900B2B809 /* Jump.wav */; };
 		6D2466CF149EDC6900B2B809 /* CoinFairy.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466CA149EDC6900B2B809 /* CoinFairy.wav */; };
 		6D2466D1149EDF8A00B2B809 /* Fall.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466D0149EDF8A00B2B809 /* Fall.wav */; };
+		6D2466DE149F034C00B2B809 /* GemPickup.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466DD149F034C00B2B809 /* GemPickup.wav */; };
+		6D2466E4149F036C00B2B809 /* ruby.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466E0149F036C00B2B809 /* ruby.png */; };
+		6D2466E5149F036C00B2B809 /* emerald.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466E1149F036C00B2B809 /* emerald.png */; };
+		6D2466E6149F036C00B2B809 /* diamond.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466E2149F036C00B2B809 /* diamond.png */; };
+		6D2466E7149F036C00B2B809 /* amethest.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466E3149F036C00B2B809 /* amethest.png */; };
+		6D2466EA149F03AA00B2B809 /* dinomarker.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466E8149F03AA00B2B809 /* dinomarker.png */; };
+		6D2466EB149F03AA00B2B809 /* dinomarker-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466E9149F03AA00B2B809 /* dinomarker-hd.png */; };
+		6D2466EE149F12B400B2B809 /* distance.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466EC149F12B300B2B809 /* distance.png */; };
+		6D2466EF149F12B400B2B809 /* distance-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466ED149F12B400B2B809 /* distance-hd.png */; };
 		6D381D49149DE65B0067EE94 /* target.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D48149DE65B0067EE94 /* target.png */; };
 		6D381D58149DE85E0067EE94 /* background-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D4B149DE85E0067EE94 /* background-hd.png */; };
 		6D381D59149DE85E0067EE94 /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D4C149DE85E0067EE94 /* background.png */; };
@@ -188,6 +197,15 @@
 		6D2466C9149EDC6900B2B809 /* Jump.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = Jump.wav; path = gamedata/Jump.wav; sourceTree = SOURCE_ROOT; };
 		6D2466CA149EDC6900B2B809 /* CoinFairy.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = CoinFairy.wav; path = gamedata/CoinFairy.wav; sourceTree = SOURCE_ROOT; };
 		6D2466D0149EDF8A00B2B809 /* Fall.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = Fall.wav; path = gamedata/Fall.wav; sourceTree = SOURCE_ROOT; };
+		6D2466DD149F034C00B2B809 /* GemPickup.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = GemPickup.wav; path = gamedata/GemPickup.wav; sourceTree = SOURCE_ROOT; };
+		6D2466E0149F036C00B2B809 /* ruby.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ruby.png; path = gamedata/ruby.png; sourceTree = SOURCE_ROOT; };
+		6D2466E1149F036C00B2B809 /* emerald.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = emerald.png; path = gamedata/emerald.png; sourceTree = SOURCE_ROOT; };
+		6D2466E2149F036C00B2B809 /* diamond.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = diamond.png; path = gamedata/diamond.png; sourceTree = SOURCE_ROOT; };
+		6D2466E3149F036C00B2B809 /* amethest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = amethest.png; path = gamedata/amethest.png; sourceTree = SOURCE_ROOT; };
+		6D2466E8149F03AA00B2B809 /* dinomarker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dinomarker.png; path = gamedata/dinomarker.png; sourceTree = SOURCE_ROOT; };
+		6D2466E9149F03AA00B2B809 /* dinomarker-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dinomarker-hd.png"; path = "gamedata/dinomarker-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D2466EC149F12B300B2B809 /* distance.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = distance.png; path = gamedata/distance.png; sourceTree = SOURCE_ROOT; };
+		6D2466ED149F12B400B2B809 /* distance-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "distance-hd.png"; path = "gamedata/distance-hd.png"; sourceTree = SOURCE_ROOT; };
 		6D381D48149DE65B0067EE94 /* target.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = target.png; path = gamedata/target.png; sourceTree = SOURCE_ROOT; };
 		6D381D4B149DE85E0067EE94 /* background-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "background-hd.png"; path = "../gamedata/background-hd.png"; sourceTree = "<group>"; };
 		6D381D4C149DE85E0067EE94 /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = background.png; path = ../gamedata/background.png; sourceTree = "<group>"; };
@@ -500,6 +518,7 @@
 		6D2466C5149EDC4A00B2B809 /* Sound Effects */ = {
 			isa = PBXGroup;
 			children = (
+				6D2466DD149F034C00B2B809 /* GemPickup.wav */,
 				6D2466D0149EDF8A00B2B809 /* Fall.wav */,
 				6D2466C6149EDC6900B2B809 /* Stumble.wav */,
 				6D2466C7149EDC6900B2B809 /* Powerup.wav */,
@@ -508,6 +527,17 @@
 				6D2466CA149EDC6900B2B809 /* CoinFairy.wav */,
 			);
 			name = "Sound Effects";
+			sourceTree = "<group>";
+		};
+		6D2466DF149F035700B2B809 /* Gems */ = {
+			isa = PBXGroup;
+			children = (
+				6D2466E0149F036C00B2B809 /* ruby.png */,
+				6D2466E1149F036C00B2B809 /* emerald.png */,
+				6D2466E2149F036C00B2B809 /* diamond.png */,
+				6D2466E3149F036C00B2B809 /* amethest.png */,
+			);
+			name = Gems;
 			sourceTree = "<group>";
 		};
 		6D57275C149C6B6F00DA71E1 = {
@@ -572,6 +602,11 @@
 		6D57277C149C6B7000DA71E1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6D2466EC149F12B300B2B809 /* distance.png */,
+				6D2466ED149F12B400B2B809 /* distance-hd.png */,
+				6D2466E8149F03AA00B2B809 /* dinomarker.png */,
+				6D2466E9149F03AA00B2B809 /* dinomarker-hd.png */,
+				6D2466DF149F035700B2B809 /* Gems */,
 				6D2466C5149EDC4A00B2B809 /* Sound Effects */,
 				6D381D8E149ECFA30067EE94 /* aloneasaurus.m4a */,
 				6D381D86149EB1510067EE94 /* coin_loop.png */,
@@ -1052,6 +1087,15 @@
 				6D2466CE149EDC6900B2B809 /* Jump.wav in Resources */,
 				6D2466CF149EDC6900B2B809 /* CoinFairy.wav in Resources */,
 				6D2466D1149EDF8A00B2B809 /* Fall.wav in Resources */,
+				6D2466DE149F034C00B2B809 /* GemPickup.wav in Resources */,
+				6D2466E4149F036C00B2B809 /* ruby.png in Resources */,
+				6D2466E5149F036C00B2B809 /* emerald.png in Resources */,
+				6D2466E6149F036C00B2B809 /* diamond.png in Resources */,
+				6D2466E7149F036C00B2B809 /* amethest.png in Resources */,
+				6D2466EA149F03AA00B2B809 /* dinomarker.png in Resources */,
+				6D2466EB149F03AA00B2B809 /* dinomarker-hd.png in Resources */,
+				6D2466EE149F12B400B2B809 /* distance.png in Resources */,
+				6D2466EF149F12B400B2B809 /* distance-hd.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
