@@ -137,6 +137,14 @@ if (SDL_FOUND AND OPENGL_FOUND)
   ADD_SUBDIRECTORY( ld20_TakeThis )
 endif (SDL_FOUND AND OPENGL_FOUND)
 
+# ==================================================
+# ld21: Escape
+#  Dependancies: SDL/OpenGL
+# ==================================================
+if (SDL_FOUND AND OPENGL_FOUND)
+  ADD_SUBDIRECTORY( ld21_escape )
+endif (SDL_FOUND AND OPENGL_FOUND)
+
 
 # ==================================================
 # luddite (toolkit/basecode)
