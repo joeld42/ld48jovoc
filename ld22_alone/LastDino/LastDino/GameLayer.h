@@ -50,9 +50,7 @@ enum
     
     // game dist
     float _gameDist;
-    
-    NSMutableArray *_levelCoins;
-    
+        
     NSMutableArray *_coinAnimFrames;
     CCAnimation *_coinAnim;
     

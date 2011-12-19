@@ -186,6 +186,18 @@
 		6D572903149DCBFA00DA71E1 /* midground.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D572901149DCBFA00DA71E1 /* midground.png */; };
 		6D572906149DCE9C00DA71E1 /* land2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D572904149DCE9C00DA71E1 /* land2-hd.png */; };
 		6D572907149DCE9C00DA71E1 /* land2.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D572905149DCE9C00DA71E1 /* land2.png */; };
+		6D9B1E64149FE5160001EFF9 /* title_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E62149FE5160001EFF9 /* title_bg.png */; };
+		6D9B1E65149FE5160001EFF9 /* title_bg-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E63149FE5160001EFF9 /* title_bg-hd.png */; };
+		6D9B1E68149FE71F0001EFF9 /* StartGame.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E67149FE71F0001EFF9 /* StartGame.png */; };
+		6D9B1E6A149FE8450001EFF9 /* StartGame-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E69149FE8450001EFF9 /* StartGame-hd.png */; };
+		6D9B1E6F149FEA990001EFF9 /* Brontosaur-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E6D149FEA990001EFF9 /* Brontosaur-hd.png */; };
+		6D9B1E70149FEA990001EFF9 /* Brontosaur.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E6E149FEA990001EFF9 /* Brontosaur.png */; };
+		6D9B1E75149FEAA90001EFF9 /* Stegasaur-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E71149FEAA90001EFF9 /* Stegasaur-hd.png */; };
+		6D9B1E76149FEAA90001EFF9 /* Stegasaur.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E72149FEAA90001EFF9 /* Stegasaur.png */; };
+		6D9B1E77149FEAA90001EFF9 /* Triceratop-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E73149FEAA90001EFF9 /* Triceratop-hd.png */; };
+		6D9B1E78149FEAA90001EFF9 /* Triceratop.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E74149FEAA90001EFF9 /* Triceratop.png */; };
+		6D9B1E7A149FF2970001EFF9 /* meteor1.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E79149FF2970001EFF9 /* meteor1.png */; };
+		6D9B1E7C149FF65D0001EFF9 /* allwhite.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E7B149FF65D0001EFF9 /* allwhite.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -494,6 +506,18 @@
 		6D572901149DCBFA00DA71E1 /* midground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = midground.png; path = gamedata/midground.png; sourceTree = SOURCE_ROOT; };
 		6D572904149DCE9C00DA71E1 /* land2-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "land2-hd.png"; path = "gamedata/land2-hd.png"; sourceTree = SOURCE_ROOT; };
 		6D572905149DCE9C00DA71E1 /* land2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = land2.png; path = gamedata/land2.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E62149FE5160001EFF9 /* title_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = title_bg.png; path = gamedata/title_bg.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E63149FE5160001EFF9 /* title_bg-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "title_bg-hd.png"; path = "gamedata/title_bg-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D9B1E67149FE71F0001EFF9 /* StartGame.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = StartGame.png; path = gamedata/StartGame.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E69149FE8450001EFF9 /* StartGame-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "StartGame-hd.png"; path = "gamedata/StartGame-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D9B1E6D149FEA990001EFF9 /* Brontosaur-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Brontosaur-hd.png"; path = "gamedata/Brontosaur-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D9B1E6E149FEA990001EFF9 /* Brontosaur.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Brontosaur.png; path = gamedata/Brontosaur.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E71149FEAA90001EFF9 /* Stegasaur-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Stegasaur-hd.png"; path = "gamedata/Stegasaur-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D9B1E72149FEAA90001EFF9 /* Stegasaur.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Stegasaur.png; path = gamedata/Stegasaur.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E73149FEAA90001EFF9 /* Triceratop-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Triceratop-hd.png"; path = "gamedata/Triceratop-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D9B1E74149FEAA90001EFF9 /* Triceratop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Triceratop.png; path = gamedata/Triceratop.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E79149FF2970001EFF9 /* meteor1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = meteor1.png; path = gamedata/meteor1.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E7B149FF65D0001EFF9 /* allwhite.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = allwhite.png; path = gamedata/allwhite.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -602,6 +626,8 @@
 		6D57277C149C6B7000DA71E1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6D9B1E6C149FEA3A0001EFF9 /* Dinos */,
+				6D9B1E6B149FEA220001EFF9 /* Title Screen */,
 				6D2466EC149F12B300B2B809 /* distance.png */,
 				6D2466ED149F12B400B2B809 /* distance-hd.png */,
 				6D2466E8149F03AA00B2B809 /* dinomarker.png */,
@@ -625,8 +651,6 @@
 				6D381D6D149DF3FE0067EE94 /* dino_sheet.png */,
 				6D381D4B149DE85E0067EE94 /* background-hd.png */,
 				6D381D4C149DE85E0067EE94 /* background.png */,
-				6D381D4D149DE85E0067EE94 /* Dino-hd.png */,
-				6D381D4E149DE85E0067EE94 /* Dino.png */,
 				6D381D4F149DE85E0067EE94 /* land1-hd.png */,
 				6D381D50149DE85E0067EE94 /* land1.png */,
 				6D381D51149DE85E0067EE94 /* land2-hd.png */,
@@ -978,6 +1002,34 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		6D9B1E6B149FEA220001EFF9 /* Title Screen */ = {
+			isa = PBXGroup;
+			children = (
+				6D9B1E69149FE8450001EFF9 /* StartGame-hd.png */,
+				6D9B1E67149FE71F0001EFF9 /* StartGame.png */,
+				6D9B1E62149FE5160001EFF9 /* title_bg.png */,
+				6D9B1E63149FE5160001EFF9 /* title_bg-hd.png */,
+			);
+			name = "Title Screen";
+			sourceTree = "<group>";
+		};
+		6D9B1E6C149FEA3A0001EFF9 /* Dinos */ = {
+			isa = PBXGroup;
+			children = (
+				6D9B1E7B149FF65D0001EFF9 /* allwhite.png */,
+				6D9B1E79149FF2970001EFF9 /* meteor1.png */,
+				6D9B1E71149FEAA90001EFF9 /* Stegasaur-hd.png */,
+				6D9B1E72149FEAA90001EFF9 /* Stegasaur.png */,
+				6D9B1E73149FEAA90001EFF9 /* Triceratop-hd.png */,
+				6D9B1E74149FEAA90001EFF9 /* Triceratop.png */,
+				6D9B1E6D149FEA990001EFF9 /* Brontosaur-hd.png */,
+				6D9B1E6E149FEA990001EFF9 /* Brontosaur.png */,
+				6D381D4D149DE85E0067EE94 /* Dino-hd.png */,
+				6D381D4E149DE85E0067EE94 /* Dino.png */,
+			);
+			name = Dinos;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1096,6 +1148,18 @@
 				6D2466EB149F03AA00B2B809 /* dinomarker-hd.png in Resources */,
 				6D2466EE149F12B400B2B809 /* distance.png in Resources */,
 				6D2466EF149F12B400B2B809 /* distance-hd.png in Resources */,
+				6D9B1E64149FE5160001EFF9 /* title_bg.png in Resources */,
+				6D9B1E65149FE5160001EFF9 /* title_bg-hd.png in Resources */,
+				6D9B1E68149FE71F0001EFF9 /* StartGame.png in Resources */,
+				6D9B1E6A149FE8450001EFF9 /* StartGame-hd.png in Resources */,
+				6D9B1E6F149FEA990001EFF9 /* Brontosaur-hd.png in Resources */,
+				6D9B1E70149FEA990001EFF9 /* Brontosaur.png in Resources */,
+				6D9B1E75149FEAA90001EFF9 /* Stegasaur-hd.png in Resources */,
+				6D9B1E76149FEAA90001EFF9 /* Stegasaur.png in Resources */,
+				6D9B1E77149FEAA90001EFF9 /* Triceratop-hd.png in Resources */,
+				6D9B1E78149FEAA90001EFF9 /* Triceratop.png in Resources */,
+				6D9B1E7A149FF2970001EFF9 /* meteor1.png in Resources */,
+				6D9B1E7C149FF65D0001EFF9 /* allwhite.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

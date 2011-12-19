@@ -27,6 +27,13 @@
     return self;
 }
 
+- (void) dealloc
+{
+    self.sprite = nil;
+    self.coins = nil;
+    [super dealloc];
+}
+
 //- (void) dbgDraw
 //{
 //    

@@ -11,8 +11,11 @@
 #import "cocos2d.h"
 
 @interface Platform : NSObject
+{
+}
 
 @property (nonatomic, retain) CCSprite *sprite;
+@property (nonatomic, retain) NSMutableArray *coins;
 @property (nonatomic, assign) BOOL movable;
 
 - (id) initWithSprite: (CCSprite*)spr;

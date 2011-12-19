@@ -17,6 +17,8 @@
 
 #define TAG_COIN (100)
 
+#define TARG_OFFS (150)
+
 @implementation GameLayer
 
 @synthesize bgImage=_bgImage;
@@ -196,7 +198,7 @@
         // ----------------------------------------------
         // Add the target
         self.target = [CCSprite spriteWithFile: @"target.png" ];
-        _target.position = _player.position;
+        _target.position = ccp( _player.position.x + TARG_OFFS, _player.position.y );
         [self addChild: _target z:2 ];
 
         _target.visible = NO;
@@ -213,7 +215,6 @@
         
         // build the platforms
         _platforms = [[NSMutableArray arrayWithCapacity: 100] retain];        
-        _levelCoins = [[NSMutableArray arrayWithCapacity: 1000] retain];
 
         // initial build
         _levelExtentX = 0.0;
@@ -247,10 +248,9 @@
     // Check if collision with the ground
     BOOL isCollide = NO;
     
-    float oldVel = playerYVel;
     CGPoint oldPos = _player.position;
     
-    NSLog( @"tick.. %d plat %d coins", [_platforms count], [_levelCoins count] );
+//    NSLog( @"tick.. %d plat", [_platforms count] );
     
     // move player in x first
     _player.position = ccp(_player.position.x + (_scrollSpeed * dt), 
@@ -283,8 +283,9 @@
     // move player in y
     _player.position = ccp(_player.position.x, 
                            _player.position.y + (playerYVel * dt) );
-    //dbg
-    _player.position = ccp( _player.position.x, 300 );
+
+    //dbg -- fly over everything to test scrolling/building
+//    _player.position = ccp( _player.position.x, 300 );
     
     for (Platform *p in _platforms)
     {
@@ -323,44 +324,41 @@
 
     
     // coin get?
-    NSMutableArray *coinsToRemove = [NSMutableArray arrayWithCapacity: 10];
     CGRect playerBound = [_player boundingBox];
-    for (CCSprite *coin in _levelCoins)
+    for (Platform *p in _platforms)
     {
-        CGRect coinBox = [coin boundingBox];
-        
-        CGRect coinBound = coinBox;
-        
-        // direct parent is spritesheet, next parent is platform
-        coinBound.origin = ccpAdd( coin.parent.parent.position, coinBound.origin );
-        
-        // subtract half a platform worth of height
-        coinBound.origin = ccpSub( coinBound.origin, ccp( 0, 160) );
-        
-        if (CGRectIntersectsRect( playerBound, coinBound ))
+        NSMutableArray *platCoins = p.coins;
+        for (CCSprite *coin in platCoins)
         {
-            [self getCoin: coin];
+            CGRect coinBox = [coin boundingBox];
             
-            printf("COIN GET #%d %f %f (coinBox %f %f) (coin %f %f) (parent %f %f)\n", 
-                   _coins, 
-                   
-                   coinBound.origin.x, coinBound.origin.y,
-                   coinBox.origin.x, coinBox.origin.y,
-                   
-                   coin.position.x, coin.position.y, 
-                   coin.parent.position.x, coin.parent.position.y                   
-                   );
+            CGRect coinBound = coinBox;
             
-            // remove from parent
-            [coin removeFromParentAndCleanup:YES ];
+            // direct parent is spritesheet, next parent is platform
+            coinBound.origin = ccpAdd( coin.parent.parent.position, coinBound.origin );
             
-            // mark to remove from level coins
-            [coinsToRemove addObject: coin];
-        }    
+            // subtract half a platform worth of height
+            coinBound.origin = ccpSub( coinBound.origin, ccp( 0, 160) );
+            
+            if (CGRectIntersectsRect( playerBound, coinBound ))
+            {
+                [self getCoin: coin];
+                
+                printf("COIN GET #%d %f %f (coinBox %f %f) (coin %f %f) (parent %f %f)\n", 
+                       _coins, 
+                       
+                       coinBound.origin.x, coinBound.origin.y,
+                       coinBox.origin.x, coinBox.origin.y,
+                       
+                       coin.position.x, coin.position.y, 
+                       coin.parent.position.x, coin.parent.position.y                   
+                       );
+                
+                // remove from parent
+                [coin removeFromParentAndCleanup:YES ];
+            }    
+        }
     }
-    
-    // remove the got coins
-    [_levelCoins removeObjectsInArray: coinsToRemove];
     
 //    NSLog( @"Is Collide: %s\n", isCollide?"TRUE":"FALSE" );
     
@@ -371,7 +369,7 @@
     float targDrag = 1.0;
     float targDiff = (_target.position.x - _player.position.x);
     
-    if (targDiff > 0.0)
+    if (targDiff > TARG_OFFS)
     {
         targDrag = 1.0f - MIN( targDiff / 260.0, 1.0 );
     }
@@ -421,6 +419,16 @@
                            pitch:1.0f
                              pan:0.0f gain: 1.0];
 
+        
+        // High score?
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        int bestDist = [userDefaults integerForKey: @"bestDistance"];
+        int gameDist = (int)_gameDist;
+        if (gameDist > bestDist)
+        {
+            [userDefaults setInteger: gameDist forKey:@"bestDistance"];            
+            [userDefaults synchronize];
+        }
         
         // Go back to menu screen 
         [[CCDirector sharedDirector] replaceScene: [MenuLayer scene] ];
@@ -604,7 +612,7 @@
     [_soundEngine playEffect:@"Pickup_Coin.wav" 
                       pitch:1.0f + ( CCRANDOM_MINUS1_1() * 0.01)
                         pan: CCRANDOM_MINUS1_1() 
-                        gain: 1.0];
+                        gain: 0.75];
 
 }
 
@@ -668,7 +676,7 @@
         // Add a gap??
         if ((_levelExtentX > 1000) && (CCRANDOM_0_1() < 0.75))
         {
-            _levelExtentX += 100 + (CCRANDOM_0_1() * 150);
+            _levelExtentX += 70 + (CCRANDOM_0_1() * 100);
         }
         
         // Add some coins??
@@ -694,7 +702,7 @@
                 coin.position = ccp( cx, platBounds.size.height + 20 );            
                 coin.tag = TAG_COIN;
                 
-                [_levelCoins addObject: coin];
+                [p.coins addObject: coin];
             }
         }
         
@@ -711,18 +719,6 @@
         CGRect platBound = [p.sprite boundingBox];
         if (platBound.origin.x + platBound.size.width < _player.position.x - 480)
         {
-            // get any coins under this platform
-            NSLog( @"remove platform ---- %d childs", [p.sprite.children count] );
-            for (CCNode *ch in p.sprite.children)
-            {
-                NSLog( @"child tag is %d\n", ch.tag );
-                if (ch.tag==TAG_COIN)
-                {
-                    [_levelCoins removeObject: ch];
-                }
-            }
-            
-            
             // remove from parent (with childs)
             [p.sprite removeFromParentAndCleanup:YES ];
             p.sprite = nil;
