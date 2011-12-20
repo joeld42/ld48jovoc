@@ -205,6 +205,8 @@
 		6D9B1E8C14A005E90001EFF9 /* bush-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E8A14A005E90001EFF9 /* bush-hd.png */; };
 		6D9B1E8D14A005E90001EFF9 /* bush.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E8B14A005E90001EFF9 /* bush.png */; };
 		6D9B1E8F14A01D180001EFF9 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D67149DEAE90067EE94 /* Default.png */; };
+		6D9B1E9214A064BF0001EFF9 /* pminesAd-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E9014A064BF0001EFF9 /* pminesAd-hd.png */; };
+		6D9B1E9314A064BF0001EFF9 /* pminesAd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E9114A064BF0001EFF9 /* pminesAd.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -258,7 +260,7 @@
 		6D381D8E149ECFA30067EE94 /* aloneasaurus.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; name = aloneasaurus.m4a; path = gamedata/aloneasaurus.m4a; sourceTree = SOURCE_ROOT; };
 		6D381DCC149ED19C0067EE94 /* GameSoundManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameSoundManager.m; sourceTree = "<group>"; };
 		6D381DCD149ED19D0067EE94 /* GameSoundManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameSoundManager.h; sourceTree = "<group>"; };
-		6D572767149C6B6F00DA71E1 /* LastDino.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LastDino.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D572767149C6B6F00DA71E1 /* Aloneasaurus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Aloneasaurus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D57276B149C6B6F00DA71E1 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		6D57276D149C6B6F00DA71E1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		6D57276F149C6B6F00DA71E1 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
@@ -532,6 +534,8 @@
 		6D9B1E8314A0058F0001EFF9 /* SpikedMeteor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SpikedMeteor.png; path = gamedata/SpikedMeteor.png; sourceTree = SOURCE_ROOT; };
 		6D9B1E8A14A005E90001EFF9 /* bush-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "bush-hd.png"; path = "gamedata/bush-hd.png"; sourceTree = SOURCE_ROOT; };
 		6D9B1E8B14A005E90001EFF9 /* bush.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bush.png; path = gamedata/bush.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E9014A064BF0001EFF9 /* pminesAd-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "pminesAd-hd.png"; path = "gamedata/pminesAd-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D9B1E9114A064BF0001EFF9 /* pminesAd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = pminesAd.png; path = gamedata/pminesAd.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -592,7 +596,7 @@
 		6D572768149C6B6F00DA71E1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6D572767149C6B6F00DA71E1 /* LastDino.app */,
+				6D572767149C6B6F00DA71E1 /* Aloneasaurus.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1019,6 +1023,8 @@
 		6D9B1E6B149FEA220001EFF9 /* Title Screen */ = {
 			isa = PBXGroup;
 			children = (
+				6D9B1E9014A064BF0001EFF9 /* pminesAd-hd.png */,
+				6D9B1E9114A064BF0001EFF9 /* pminesAd.png */,
 				6D9B1E69149FE8450001EFF9 /* StartGame-hd.png */,
 				6D9B1E67149FE71F0001EFF9 /* StartGame.png */,
 				6D9B1E62149FE5160001EFF9 /* title_bg.png */,
@@ -1076,7 +1082,7 @@
 			);
 			name = LastDino;
 			productName = LastDino;
-			productReference = 6D572767149C6B6F00DA71E1 /* LastDino.app */;
+			productReference = 6D572767149C6B6F00DA71E1 /* Aloneasaurus.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -1196,6 +1202,8 @@
 				6D9B1E8C14A005E90001EFF9 /* bush-hd.png in Resources */,
 				6D9B1E8D14A005E90001EFF9 /* bush.png in Resources */,
 				6D9B1E8F14A01D180001EFF9 /* Default.png in Resources */,
+				6D9B1E9214A064BF0001EFF9 /* pminesAd-hd.png in Resources */,
+				6D9B1E9314A064BF0001EFF9 /* pminesAd.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1320,8 +1328,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Joel Davis";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Joel Davis";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1333,7 +1341,8 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "8EB0705A-4F5C-4BA9-B9F5-729CFA1E030F";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "8EB0705A-4F5C-4BA9-B9F5-729CFA1E030F";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -1341,9 +1350,12 @@
 		6D5728DB149C6B7100DA71E1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ARCHS = (
+					armv7,
+					armv6,
+				);
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Joel Davis";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Joel Davis";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
@@ -1351,7 +1363,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "8EB0705A-4F5C-4BA9-B9F5-729CFA1E030F";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "8EB0705A-4F5C-4BA9-B9F5-729CFA1E030F";
 				SDKROOT = iphoneos;
 			};
 			name = Release;
@@ -1367,7 +1380,7 @@
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				INFOPLIST_FILE = LastDino/Resources/Info.plist;
 				OTHER_LDFLAGS = "-lz";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Aloneasaurus;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1382,7 +1395,7 @@
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				INFOPLIST_FILE = LastDino/Resources/Info.plist;
 				OTHER_LDFLAGS = "-lz";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Aloneasaurus;
 				VALIDATE_PRODUCT = YES;
 				WRAPPER_EXTENSION = app;
 			};

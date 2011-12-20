@@ -17,6 +17,7 @@
 @property (nonatomic, readwrite, retain) NSMutableArray *dinos;
 
 @property (nonatomic, readwrite, retain) CCMenu *menu;
+@property (nonatomic, readwrite, retain) CCMenu *adMenu;
 
 @end;
 
@@ -29,6 +30,7 @@
 @synthesize whiteCard=_whiteCard;
 
 @synthesize menu=_menu;
+@synthesize adMenu=_adMenu;
 
 +(CCScene *) scene
 {
@@ -128,10 +130,20 @@
         CCSprite *startGameSpr = [CCSprite spriteWithFile: @"StartGame.png"];
         CCSprite *startGameSelSpr = [CCSprite spriteWithFile: @"StartGame.png"];
         
+        CCSprite *pminesAdSpr = [CCSprite spriteWithFile: @"pminesAd.png"];
+        CCSprite *pminesAdSelSpr = [CCSprite spriteWithFile: @"pminesAd.png"];
+        
         CCMenuItem *start = [CCMenuItemSprite itemFromNormalSprite: startGameSpr
                                                     selectedSprite: startGameSelSpr
                                                             target:self
                                                           selector: @selector(startGame:)];
+        
+        CCMenuItem *pmines = [CCMenuItemSprite itemFromNormalSprite: pminesAdSpr
+                                                    selectedSprite: pminesAdSelSpr
+                                                            target:self
+                                                          selector: @selector(visitPmines:)];
+
+        
 //		[CCMenuItemFont setFontSize:20];
 //        [CCMenuItemFont setFontName:@"Helvetica"];                
 //        CCMenuItem *start = [CCMenuItemSprite itemFromString:@"Start Game"
@@ -143,7 +155,26 @@
         self.menu = [CCMenu menuWithItems:start,  nil];
         [_menu alignItemsHorizontallyWithPadding: 100 ];
         _menu.position = ccp( _menu.position.x, 130 );
+        
         [self addChild: _menu];
+        
+        // Add another menu for the pmines ad
+        float adY = 280;
+        self.adMenu = [CCMenu menuWithItems:pmines,  nil];
+        _adMenu.position = ccp( -200, adY );
+        
+        [self addChild: _adMenu];
+        
+        // Set the menu to slide in after 20 seconds
+        id delay1 = [CCDelayTime actionWithDuration:  10.0 ];
+        id slideIn = [CCMoveTo actionWithDuration: 0.5 position: ccp( 127, adY )];
+        id delay2 = [CCDelayTime actionWithDuration:  15.0 ];
+        id slideOut = [CCMoveTo actionWithDuration: 0.5 position: ccp( -200, adY )];
+        
+        [_adMenu runAction: [CCRepeatForever actionWithAction: 
+                            [CCSequence actions: delay1, slideIn, delay2, slideOut, nil ]
+                            ] ];
+        
 	}
 	return self;
 }
@@ -177,6 +208,7 @@
 {
     [self removeChild: _meteor cleanup: YES ];
     
+    
     for (CCSprite *dino in _dinos)
     {
         if (dino.tag!=42)
@@ -197,6 +229,15 @@
 	[super dealloc];
 }
 
+- (void)visitPmines: (id)sender
+{
+    //     http://itunes.apple.com/us/app/planet-minesweeper/id397998531
+    
+    // Send them to the app store!
+    [[UIApplication sharedApplication] 
+     openURL:[NSURL URLWithString:@"http://itunes.apple.com/us/app/planet-minesweeper/id397998531"]];
+}
+
 -(void)startGame: (id)sender 
 {
     NSLog(@"start game");
@@ -204,6 +245,9 @@
     // Fade title
     CCAction *fadeOut = [CCFadeTo actionWithDuration:1.5 opacity:0.0];    
     [_title runAction: fadeOut ];
+    
+    // get rid of ad
+    [self removeChild:_adMenu cleanup:YES ];
     
     // Show meteor
     [self addChild: _meteor];
