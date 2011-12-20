@@ -38,8 +38,6 @@
 		6D381D63149DE85E0067EE94 /* Title-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D56149DE85E0067EE94 /* Title-hd.png */; };
 		6D381D64149DE85E0067EE94 /* Title.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D57149DE85E0067EE94 /* Title.png */; };
 		6D381D66149DE9EF0067EE94 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D65149DE9EF0067EE94 /* Default@2x.png */; };
-		6D381D68149DEAE90067EE94 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D67149DEAE90067EE94 /* Default.png */; };
-		6D381D69149DEBC80067EE94 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D57277D149C6B7000DA71E1 /* Default.png */; };
 		6D381D6E149DF3FE0067EE94 /* dino_sheet-hd.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D6A149DF3FE0067EE94 /* dino_sheet-hd.plist */; };
 		6D381D6F149DF3FE0067EE94 /* dino_sheet-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D6B149DF3FE0067EE94 /* dino_sheet-hd.png */; };
 		6D381D70149DF3FE0067EE94 /* dino_sheet.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D6C149DF3FE0067EE94 /* dino_sheet.plist */; };
@@ -198,6 +196,15 @@
 		6D9B1E78149FEAA90001EFF9 /* Triceratop.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E74149FEAA90001EFF9 /* Triceratop.png */; };
 		6D9B1E7A149FF2970001EFF9 /* meteor1.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E79149FF2970001EFF9 /* meteor1.png */; };
 		6D9B1E7C149FF65D0001EFF9 /* allwhite.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E7B149FF65D0001EFF9 /* allwhite.png */; };
+		6D9B1E8414A0058F0001EFF9 /* PileOfBones-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E7E14A0058F0001EFF9 /* PileOfBones-hd.png */; };
+		6D9B1E8514A0058F0001EFF9 /* PileOfBones.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E7F14A0058F0001EFF9 /* PileOfBones.png */; };
+		6D9B1E8614A0058F0001EFF9 /* PileOfBones2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E8014A0058F0001EFF9 /* PileOfBones2-hd.png */; };
+		6D9B1E8714A0058F0001EFF9 /* PileOfBones2.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E8114A0058F0001EFF9 /* PileOfBones2.png */; };
+		6D9B1E8814A0058F0001EFF9 /* SpikedMeteor-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E8214A0058F0001EFF9 /* SpikedMeteor-hd.png */; };
+		6D9B1E8914A0058F0001EFF9 /* SpikedMeteor.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E8314A0058F0001EFF9 /* SpikedMeteor.png */; };
+		6D9B1E8C14A005E90001EFF9 /* bush-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E8A14A005E90001EFF9 /* bush-hd.png */; };
+		6D9B1E8D14A005E90001EFF9 /* bush.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D9B1E8B14A005E90001EFF9 /* bush.png */; };
+		6D9B1E8F14A01D180001EFF9 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D67149DEAE90067EE94 /* Default.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -260,7 +267,6 @@
 		6D572775149C6B6F00DA71E1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		6D572777149C6B6F00DA71E1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6D572779149C6B7000DA71E1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		6D57277D149C6B7000DA71E1 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = Resources/Default.png; sourceTree = "<group>"; };
 		6D57277F149C6B7000DA71E1 /* fps_images.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = fps_images.png; path = Resources/fps_images.png; sourceTree = "<group>"; };
 		6D572781149C6B7000DA71E1 /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-72.png"; path = "Resources/Icon-72.png"; sourceTree = "<group>"; };
 		6D572783149C6B7000DA71E1 /* Icon-Small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small-50.png"; path = "Resources/Icon-Small-50.png"; sourceTree = "<group>"; };
@@ -518,6 +524,14 @@
 		6D9B1E74149FEAA90001EFF9 /* Triceratop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Triceratop.png; path = gamedata/Triceratop.png; sourceTree = SOURCE_ROOT; };
 		6D9B1E79149FF2970001EFF9 /* meteor1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = meteor1.png; path = gamedata/meteor1.png; sourceTree = SOURCE_ROOT; };
 		6D9B1E7B149FF65D0001EFF9 /* allwhite.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = allwhite.png; path = gamedata/allwhite.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E7E14A0058F0001EFF9 /* PileOfBones-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "PileOfBones-hd.png"; path = "gamedata/PileOfBones-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D9B1E7F14A0058F0001EFF9 /* PileOfBones.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PileOfBones.png; path = gamedata/PileOfBones.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E8014A0058F0001EFF9 /* PileOfBones2-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "PileOfBones2-hd.png"; path = "gamedata/PileOfBones2-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D9B1E8114A0058F0001EFF9 /* PileOfBones2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PileOfBones2.png; path = gamedata/PileOfBones2.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E8214A0058F0001EFF9 /* SpikedMeteor-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "SpikedMeteor-hd.png"; path = "gamedata/SpikedMeteor-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D9B1E8314A0058F0001EFF9 /* SpikedMeteor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SpikedMeteor.png; path = gamedata/SpikedMeteor.png; sourceTree = SOURCE_ROOT; };
+		6D9B1E8A14A005E90001EFF9 /* bush-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "bush-hd.png"; path = "gamedata/bush-hd.png"; sourceTree = SOURCE_ROOT; };
+		6D9B1E8B14A005E90001EFF9 /* bush.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bush.png; path = gamedata/bush.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -626,6 +640,7 @@
 		6D57277C149C6B7000DA71E1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6D9B1E7D14A005590001EFF9 /* Obstacles */,
 				6D9B1E6C149FEA3A0001EFF9 /* Dinos */,
 				6D9B1E6B149FEA220001EFF9 /* Title Screen */,
 				6D2466EC149F12B300B2B809 /* distance.png */,
@@ -673,7 +688,6 @@
 				6D5728E3149C71E500DA71E1 /* background.png */,
 				6D5728E6149C71E500DA71E1 /* land1-hd.png */,
 				6D5728E7149C71E500DA71E1 /* land1.png */,
-				6D57277D149C6B7000DA71E1 /* Default.png */,
 				6D57277F149C6B7000DA71E1 /* fps_images.png */,
 				6D572781149C6B7000DA71E1 /* Icon-72.png */,
 				6D572783149C6B7000DA71E1 /* Icon-Small-50.png */,
@@ -1030,6 +1044,21 @@
 			name = Dinos;
 			sourceTree = "<group>";
 		};
+		6D9B1E7D14A005590001EFF9 /* Obstacles */ = {
+			isa = PBXGroup;
+			children = (
+				6D9B1E8A14A005E90001EFF9 /* bush-hd.png */,
+				6D9B1E8B14A005E90001EFF9 /* bush.png */,
+				6D9B1E7E14A0058F0001EFF9 /* PileOfBones-hd.png */,
+				6D9B1E7F14A0058F0001EFF9 /* PileOfBones.png */,
+				6D9B1E8014A0058F0001EFF9 /* PileOfBones2-hd.png */,
+				6D9B1E8114A0058F0001EFF9 /* PileOfBones2.png */,
+				6D9B1E8214A0058F0001EFF9 /* SpikedMeteor-hd.png */,
+				6D9B1E8314A0058F0001EFF9 /* SpikedMeteor.png */,
+			);
+			name = Obstacles;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1116,8 +1145,6 @@
 				6D381D63149DE85E0067EE94 /* Title-hd.png in Resources */,
 				6D381D64149DE85E0067EE94 /* Title.png in Resources */,
 				6D381D66149DE9EF0067EE94 /* Default@2x.png in Resources */,
-				6D381D68149DEAE90067EE94 /* Default.png in Resources */,
-				6D381D69149DEBC80067EE94 /* Default.png in Resources */,
 				6D381D6E149DF3FE0067EE94 /* dino_sheet-hd.plist in Resources */,
 				6D381D6F149DF3FE0067EE94 /* dino_sheet-hd.png in Resources */,
 				6D381D70149DF3FE0067EE94 /* dino_sheet.plist in Resources */,
@@ -1160,6 +1187,15 @@
 				6D9B1E78149FEAA90001EFF9 /* Triceratop.png in Resources */,
 				6D9B1E7A149FF2970001EFF9 /* meteor1.png in Resources */,
 				6D9B1E7C149FF65D0001EFF9 /* allwhite.png in Resources */,
+				6D9B1E8414A0058F0001EFF9 /* PileOfBones-hd.png in Resources */,
+				6D9B1E8514A0058F0001EFF9 /* PileOfBones.png in Resources */,
+				6D9B1E8614A0058F0001EFF9 /* PileOfBones2-hd.png in Resources */,
+				6D9B1E8714A0058F0001EFF9 /* PileOfBones2.png in Resources */,
+				6D9B1E8814A0058F0001EFF9 /* SpikedMeteor-hd.png in Resources */,
+				6D9B1E8914A0058F0001EFF9 /* SpikedMeteor.png in Resources */,
+				6D9B1E8C14A005E90001EFF9 /* bush-hd.png in Resources */,
+				6D9B1E8D14A005E90001EFF9 /* bush.png in Resources */,
+				6D9B1E8F14A01D180001EFF9 /* Default.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

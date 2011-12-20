@@ -141,8 +141,11 @@
 //        self.player = [CCSprite spriteWithFile: @"Dino.png" ];
 //        [_player setPosition: ccp( PLAYER_HPOS, 160 ) ];
 //        [_player setAnchorPoint: ccp( 0.5, 0.0 ) ];
-//        [self addChild: _player z:1 ];
+//        [self addChild: _player z:1 ];        
 //        
+        
+        _blink = 0.0;
+        
         // ================================================
         // Player marker
         self.marker = [CCSprite spriteWithFile: @"dinomarker.png" ];
@@ -275,8 +278,6 @@
         }
     }
 
-
-
     // gravity
     playerYVel = playerYVel + (-1000 * dt );
 
@@ -323,8 +324,47 @@
     
 
     
-    // coin get?
+    // Hit stuff?
     CGRect playerBound = [_player boundingBox];
+    
+    
+    // Hit obstacles??
+    bool dead = FALSE;
+    for (Platform *p in _platforms)
+    {
+        for (CCNode *node in p.sprite.children)
+        {
+            int tag = node.tag;
+            if ((tag >= Obstacle_BUSH) && (tag <= Obstacle_SPIKES))
+            {
+                CGRect nodeBox = [node boundingBox];            
+                CGRect nodeBound = nodeBox;
+                
+                // add parent (platform) position
+                nodeBound.origin = ccpAdd( node.parent.position, nodeBound.origin );
+                
+                // subtract half a platform worth of height
+                nodeBound.origin = ccpSub( nodeBound.origin, ccp( 0, 160) );
+                
+                if (CGRectIntersectsRect( playerBound, nodeBound ))
+                {
+                    NSLog( @"Hit obstacle..." );
+                    
+                    // Ouch! Slow down...
+                    _blink = 1.5;
+                    _scrollSpeed = INITIAL_SPEED;
+                    
+                    if (tag == Obstacle_SPIKES)
+                    {
+                        dead = TRUE;
+                    }
+                }
+            }
+        }
+    }
+    
+
+    // coin get?    
     for (Platform *p in _platforms)
     {
         NSMutableArray *platCoins = p.coins;
@@ -407,7 +447,7 @@
 //           screenX );
     
     // GAME OVERS
-    if ((_player.position.y < -64) || (screenX < 0) )
+    if ((dead) || (_player.position.y < -64) || (screenX < 0) )
     {
         // Stop updates..
         [self unschedule: @selector(tick:)];
@@ -446,6 +486,19 @@
     _gameDist = _player.position.x / 32.0;
     
     _distLabel.string = [NSString stringWithFormat: @"%d", (int)(_gameDist) ];
+    
+    // update blink
+    if (_blink > 0.0)
+    {
+        _player.visible = !_player.visible;
+        _blink -= dt;
+        
+        if (_blink <= 0.0)
+        {
+            _blink = 0.0;
+            _player.visible = TRUE;
+        }
+    }    
     
     // Build more stuff
     [self buildPlatforms];
@@ -631,7 +684,6 @@
         {
             landSpriteIndex=Land_LONG;
             platHeight = -100;
-            _landFirst = FALSE;
         }
         else
         {
@@ -679,6 +731,8 @@
             _levelExtentX += 70 + (CCRANDOM_0_1() * 100);
         }
         
+        CGRect platBounds = p.sprite.boundingBox;
+        
         // Add some coins??
         if (CCRANDOM_0_1() < 0.25)
         {
@@ -689,7 +743,6 @@
             [p.sprite addChild:spriteSheet];
             
 
-            CGRect platBounds = p.sprite.boundingBox;
             for (float cx = 15.0; cx < platBounds.size.width; cx += 30)
             {
                 CCSprite *coin = [CCSprite spriteWithSpriteFrameName: @"Coin0001.png"];     
@@ -706,7 +759,46 @@
             }
         }
         
+        // Add some obstacles?
+        else if ( (CCRANDOM_0_1() < 0.3) && (!_landFirst))
+        {
+            CCSprite *obstacle = nil;
+            NSString *obstacleName;
+            int obstacleType = (int)(CCRANDOM_0_1() * 4) + Obstacle_BUSH;
+            int offs = 10;
+            
+            // Don't but spikes on the rock platform -- too mean
+            if ((landSpriteIndex == Land_ROCK) && 
+                (obstacleType == Obstacle_SPIKES) )
+            {
+                obstacleType = Obstacle_BUSH;
+            }
+            
+            switch (obstacleType)
+            {
+                case Obstacle_BUSH: obstacleName = @"bush.png"; break;
+                case Obstacle_BONES: obstacleName = @"PileOfBones.png"; break;
+                case Obstacle_BONES2: obstacleName = @"PileOfBones2.png"; break;
+                case Obstacle_SPIKES: obstacleName = @"SpikedMeteor.png"; offs = 20; break;
+                default: obstacleName = @"bush.png"; break;
+            }
+            
+            obstacle = [CCSprite spriteWithFile: obstacleName];
+            obstacle.anchorPoint = ccp( 0.5, 0.0 );
+            obstacle.position = ccp ( (CCRANDOM_0_1() * (platBounds.size.width * 0.8)) 
+                                 + (platBounds.size.width * 0.2),
+                                     platBounds.size.height - offs );
+         
+            obstacle.tag = obstacleType;
+            
+            [p.sprite addChild: obstacle];
+        }
+
+        
         [self addChild: p.sprite];
+        
+        // Not first platform
+        _landFirst = FALSE;
     }
     
 }

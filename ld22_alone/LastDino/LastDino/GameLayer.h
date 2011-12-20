@@ -27,10 +27,18 @@ enum
 
 enum
 {
-    Gem_AMETHYST,
+    Gem_AMETHYST = 600,
     Gem_EMERALD,
     Gem_RUBY,
     Gem_DIAMOND
+};
+
+enum   
+{
+    Obstacle_BUSH = 700,
+    Obstacle_BONES,    
+    Obstacle_BONES2,
+    Obstacle_SPIKES
 };
 
 @interface GameLayer : CCLayer
@@ -58,6 +66,9 @@ enum
     float _levelExtentX; // how far we've built out
     int _lastLandIndex;
     BOOL _landFirst;
+    
+    // blink timeout
+    float _blink;
     
     // audio
     SimpleAudioEngine *_soundEngine;

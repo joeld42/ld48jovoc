@@ -62,6 +62,7 @@
 	viewController = [[RootViewController alloc] initWithNibName:nil bundle:nil];
 	viewController.wantsFullScreenLayout = YES;
 	
+    
 	//
 	// Create the EAGLView manually
 	//  1. Create a RGB565 format. Alternative: RGBA8
@@ -97,7 +98,9 @@
 #endif
 	
 	[director setAnimationInterval:1.0/60];
-	[director setDisplayFPS:YES];
+
+    // FPS meter?
+	[director setDisplayFPS:NO];
 	
 	
 	// make the OpenGLView a child of the view controller
