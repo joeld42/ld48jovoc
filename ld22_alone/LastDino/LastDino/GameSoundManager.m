@@ -23,7 +23,7 @@
 	
 	//Preload the background music too but there is no point in preloading multiple background music files so only
 	//preload the first one you will play
-	[soundEngine_ preloadBackgroundMusic:@"aloneasaurus.m4a"];
+	[soundEngine_ preloadBackgroundMusic:@"Extinctasaurus.mp3"];
 	
 }	
 

@@ -7,6 +7,7 @@
 
 #include <ctype.h>
 
+#include "GLee.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -15,6 +16,7 @@
 
 #include <assert.h>
 #include "GameState.h"
+#include "ResourceFile.h"
 
 // in seconds
 #define NEW_TILE_TIMEOUT (1.0)
@@ -29,7 +31,7 @@
 
 
 GameState::GameState() :
-	m_boardSizeX( 15 ), m_boardSizeY( 15 ), m_level(0)
+	m_level(0), m_boardSizeX( 15 ), m_boardSizeY( 15 )
 {
 	// init car pos
 	m_carPos.x = (float)m_boardSizeX / 2.0;
@@ -40,7 +42,7 @@ GameState::GameState() :
 	m_maxTiles = INITIAL_MAX_TILES;
 
 	// read the wordlist
-	loadWordList( "gamedata/2of12inf.txt" );	
+	loadWordList( gameDataFile("", "2of12inf.txt").c_str() );	
 	
 }
 
@@ -48,6 +50,8 @@ void GameState::loadWordList( const char *wordlist )
 {
 	FILE *fp = fopen( wordlist, "rt" );
 	char word[100], clean_word[100];
+    printf ("Word list: %s", wordlist );
+    
 	while(!feof(fp))
 	{
 		fscanf( fp, "%s", word );
@@ -61,7 +65,7 @@ void GameState::loadWordList( const char *wordlist )
 			if ((*ch!='%') && ( (*ch!='u') || (lastchar!='q') ) )
 			{
 				*ch2 = toupper(*ch);
-				*ch2++;
+				ch2++;
 			}
 			lastchar = *ch;
 		}
@@ -76,7 +80,7 @@ void GameState::loadWordList( const char *wordlist )
 	m_wordList["LUDUM"] = true;
 	m_wordList["JOVOC"] = true;
 
-	printf( "Loaded %d words\n", m_wordList.size() );
+	printf( "Loaded %lu words\n", m_wordList.size() );
 }
 
 void GameState::makeSymmetric()
@@ -153,8 +157,8 @@ void GameState::nextLevel()
 
 	char buff[64];	
 	m_level++;
-	sprintf( buff, "gamedata/level_%02d.txt", m_level );
-	loadLevel( buff );
+	sprintf( buff, "level_%02d.txt", m_level );
+	loadLevel( gameDataFile( "", buff ).c_str() );
 }
 
 void GameState::restartLevel()
@@ -374,7 +378,7 @@ void GameState::updateRoute()
 		m_tile[c.x][c.y].visited = true;
 		bfs_queue.push_back( c );
 
-		int count = 0;
+//		int count = 0;
 		while (bfs_queue.size())
 		{
 			CandidateTile c;
@@ -591,7 +595,7 @@ void GameState::commitWord()
 	// check all the words on the board
 	// check rows
 	bool inWord = false;
-	char lastLetter = ' ';
+//	char lastLetter = ' ';
 	CheckWord ck;
 
 	for (int j=0; j <= m_boardSizeY; ++j )

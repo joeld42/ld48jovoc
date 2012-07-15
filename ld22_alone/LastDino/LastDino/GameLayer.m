@@ -230,7 +230,7 @@
         
 		_soundEngine.backgroundMusicVolume = 0.0f;
 		[_soundEngine rewindBackgroundMusic];
-		[_soundEngine playBackgroundMusic:@"aloneasaurus.m4a"];
+		[_soundEngine playBackgroundMusic:@"Extinctasaurus.mp3"];
         
         [[GameSoundManager sharedManager] fadeUpMusic];
 

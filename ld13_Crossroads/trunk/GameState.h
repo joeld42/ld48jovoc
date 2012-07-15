@@ -20,7 +20,8 @@ struct Tile
 	Tile():blocked(false), 
 		letter(' '), 
 		ghost_letter(' '), 
-		error( 0.0 ), target(false) {}
+        target(false),
+        error( 0.0 ) {}
 	bool blocked;
 	char letter; // space means no letter
 	char ghost_letter;
@@ -36,7 +37,7 @@ struct Tile
 // tiles a player can choose from
 struct PickTile
 {
-	PickTile() : pending( false), dragging(false) {}
+	PickTile() : dragging(false), pending( false) {}
 
 	char letter;
 	float xpos;

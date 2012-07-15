@@ -1,13 +1,11 @@
 #include <assert.h>
 
-#include <IL/il.h>
-#include <IL/ilu.h>
-#include <IL/ilut.h>
-
 #define M_PI (3.1415926535897932384626433832795)
 #define D2R (M_PI/180.0)
 #define R2D (180.0/M_PI)
 
+#include "ResourceFile.h"
+#include "PNGLoader.h"
 #include "GameViewGL.h"
 
 enum 
@@ -123,7 +121,7 @@ void GameViewGL::drawTile( const Tile &t, int drawPass, float i, float j )
 			}
 			break;
 		case DRAWPASS_LETTERS:
-			if ((t.target) || ((!t.blocked) && (t.letter != ' ') || (t.ghost_letter != ' ')) )
+			if ((t.target) || (((!t.blocked) && (t.letter != ' ')) || (t.ghost_letter != ' ')) )
 			{
 				// draw with special texture coordinates				
 				float index;
@@ -384,7 +382,6 @@ void GameViewGL::redraw( float dt )
 		float targxpos = i;
 		
 		// ease tile pos
-		float amt2 = 0.2;
 		float dxpos = (targxpos -picks[i].xpos) * dt * 5.0;
 		
 		picks[i].xpos = picks[i].xpos + dxpos;				
@@ -473,21 +470,27 @@ void GameViewGL::initResources()
 	glEnable( GL_DEPTH_TEST );
 
 	// Load Meshes
-	m_idCar = LoadObjFile( "gamedata/car.obj" );
-	m_idTile = LoadObjFile( "gamedata/tile.obj" );
-	m_idTileBlocked = LoadObjFile( "gamedata/tile_blocked.obj" );
+	m_idCar = LoadObjFile(  gameDataFile("", "car.obj").c_str() );
+	m_idTile = LoadObjFile(  gameDataFile("", "tile.obj" ).c_str() );
+	m_idTileBlocked = LoadObjFile( gameDataFile("", "tile_blocked.obj" ).c_str() );
 
 	// load textures
-	m_glTileFontTexId = loadTexture( "gamedata/tilefont.png" );
-	m_glTileTexId = loadTexture( "gamedata/tile.png" );
-	m_glBlockTexId = loadTexture( "gamedata/block.png" );
-	m_glGrassTexId = loadTexture( "gamedata/grass.png" );
-	m_glCarTexId = loadTexture( "gamedata/car.png" );	
+	m_glTileFontTexId = loadTexture( gameDataFile("", "tilefont.png").c_str() );
+	m_glTileTexId = loadTexture(  gameDataFile("","tile.png").c_str() );
+	m_glBlockTexId = loadTexture(  gameDataFile("","block.png").c_str() );
+	m_glGrassTexId = loadTexture(  gameDataFile("","grass.png").c_str() );
+	m_glCarTexId = loadTexture(  gameDataFile("","car.png").c_str() );	
 }
 
 GLuint GameViewGL::loadTexture( const char *filename )
 {
 	// Load the font image
+    PNGImage pngImage;    
+    pngImage = LoadImagePNG( filename );
+    
+    return pngImage.textureId;
+    
+#if 0
 	ILuint ilId;
 	ilGenImages( 1, &ilId );
 	ilBindImage( ilId );		
@@ -501,8 +504,9 @@ GLuint GameViewGL::loadTexture( const char *filename )
 	// Make a GL texture for it
 	GLuint glTexId;
 	glTexId = ilutGLBindTexImage();
-	
+    
 	return glTexId;
+#endif
 }
 
 void GameViewGL::mouseMove( int x, int y )

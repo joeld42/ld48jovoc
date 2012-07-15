@@ -9,10 +9,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include <IL/il.h>
-#include <IL/ilu.h>
-#include <IL/ilut.h>
-
 #include "GameState.h"
 #include "AVar.h"
 
@@ -54,7 +50,6 @@ protected:
 	GLuint m_idTileBlocked;
 	GLuint m_idCar;
 
-	ILuint m_ilTileFontId;
 	GLuint m_glTileFontTexId;
 	GLuint m_glTileTexId;
 	GLuint m_glBlockTexId;

@@ -85,12 +85,12 @@ endif (ALLEGRO_FOUND)
 # LD13 - Crossroads
 #     Dependancies: SDL, OpenGL, OpenIL
 # ==================================================
-if (SDL_FOUND AND OPENGL_FOUND AND ALLEGRO_FOUND)
+if (SDL_FOUND AND OPENGL_FOUND)
    ADD_SUBDIRECTORY( ld13_Crossroads/trunk )
-endif (SDL_FOUND AND OPENGL_FOUND AND ALLEGRO_FOUND)
+endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================
-# LD13 - Spaceship in a Cave
+# LD15 - Spaceship in a Cave
 #     Dependancies: SDL, OpenGL, OpenIL, enet
 # ==================================================
 if (SDL_FOUND AND OPENGL_FOUND AND ALLEGRO_FOUND)
@@ -145,6 +145,13 @@ if (SDL_FOUND AND OPENGL_FOUND)
   ADD_SUBDIRECTORY( ld21_escape )
 endif (SDL_FOUND AND OPENGL_FOUND)
 
+# ==================================================
+# ld23: tinyworld
+#  Dependancies: SDL/OpenGL
+# ==================================================
+if (SDL_FOUND AND OPENGL_FOUND)
+  ADD_SUBDIRECTORY( ld23_tinyworld )
+endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================
 # luddite (toolkit/basecode)

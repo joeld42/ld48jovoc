@@ -8,15 +8,14 @@
 #include <SDL.h>
 #include <SDL_endian.h>
 
+#include "GLee.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include <IL/il.h>
-#include <IL/ilu.h>
-#include <IL/ilut.h>
-
 #include "GameState.h"
 #include "GameViewGL.h"
+
+#import "ResourceFile.h"
 
 // 30 ticks per sim frame
 #define STEPTIME (33)
@@ -24,6 +23,8 @@
 //============================================================================
 int main( int argc, char *argv[] )
 {	
+    
+    printf("Game Data Dir: %s\n", getResourceDir().c_str() );
 	// Initialize SDL
 	if (SDL_Init( SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO ) < 0 ) 
 	{
@@ -40,10 +41,6 @@ int main( int argc, char *argv[] )
 
 	// seed rand
 	srand( time(0) );
-
-	// initialize DevIL
-	ilInit();
-	ilutRenderer( ILUT_OPENGL );
 
 	// Game
 	GameState game;
@@ -78,6 +75,8 @@ int main( int argc, char *argv[] )
 						case SDLK_n:
 							game.nextLevel();
 							break;
+                        default:
+                            break;
 					}
 					break;
 				case SDL_MOUSEMOTION:

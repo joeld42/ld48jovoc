@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6D1501B114D3CF9E007E7EA0 /* Extinctasaurus.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6D1501B014D3CF9E007E7EA0 /* Extinctasaurus.mp3 */; };
 		6D2466C3149ED6F500B2B809 /* CDXPropertyModifierAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D2466C1149ED6F500B2B809 /* CDXPropertyModifierAction.m */; };
 		6D2466CB149EDC6900B2B809 /* Stumble.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466C6149EDC6900B2B809 /* Stumble.wav */; };
 		6D2466CC149EDC6900B2B809 /* Powerup.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6D2466C7149EDC6900B2B809 /* Powerup.wav */; };
@@ -52,7 +53,6 @@
 		6D381D85149EA27B0067EE94 /* sign-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D83149EA27B0067EE94 /* sign-hd.png */; };
 		6D381D8A149EB1520067EE94 /* coin_loop.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D86149EB1510067EE94 /* coin_loop.png */; };
 		6D381D8B149EB1520067EE94 /* coin_loop.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D87149EB1510067EE94 /* coin_loop.plist */; };
-		6D381D8F149ECFA30067EE94 /* aloneasaurus.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 6D381D8E149ECFA30067EE94 /* aloneasaurus.m4a */; };
 		6D381DCE149ED19D0067EE94 /* GameSoundManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D381DCC149ED19C0067EE94 /* GameSoundManager.m */; };
 		6D57276C149C6B6F00DA71E1 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D57276B149C6B6F00DA71E1 /* QuartzCore.framework */; };
 		6D57276E149C6B6F00DA71E1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D57276D149C6B6F00DA71E1 /* OpenGLES.framework */; };
@@ -210,6 +210,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6D1501B014D3CF9E007E7EA0 /* Extinctasaurus.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = Extinctasaurus.mp3; path = gamedata/Extinctasaurus.mp3; sourceTree = SOURCE_ROOT; };
 		6D2466C1149ED6F500B2B809 /* CDXPropertyModifierAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDXPropertyModifierAction.m; path = libs/CocosDenshion/CDXPropertyModifierAction.m; sourceTree = "<group>"; };
 		6D2466C2149ED6F500B2B809 /* CDXPropertyModifierAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDXPropertyModifierAction.h; path = libs/CocosDenshion/CDXPropertyModifierAction.h; sourceTree = "<group>"; };
 		6D2466C6149EDC6900B2B809 /* Stumble.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = Stumble.wav; path = gamedata/Stumble.wav; sourceTree = SOURCE_ROOT; };
@@ -257,7 +258,6 @@
 		6D381D83149EA27B0067EE94 /* sign-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "sign-hd.png"; path = "gamedata/sign-hd.png"; sourceTree = SOURCE_ROOT; };
 		6D381D86149EB1510067EE94 /* coin_loop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = coin_loop.png; path = gamedata/coin_loop.png; sourceTree = SOURCE_ROOT; };
 		6D381D87149EB1510067EE94 /* coin_loop.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = coin_loop.plist; path = gamedata/coin_loop.plist; sourceTree = SOURCE_ROOT; };
-		6D381D8E149ECFA30067EE94 /* aloneasaurus.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; name = aloneasaurus.m4a; path = gamedata/aloneasaurus.m4a; sourceTree = SOURCE_ROOT; };
 		6D381DCC149ED19C0067EE94 /* GameSoundManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameSoundManager.m; sourceTree = "<group>"; };
 		6D381DCD149ED19D0067EE94 /* GameSoundManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameSoundManager.h; sourceTree = "<group>"; };
 		6D572767149C6B6F00DA71E1 /* Aloneasaurus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Aloneasaurus.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -560,6 +560,7 @@
 		6D2466C5149EDC4A00B2B809 /* Sound Effects */ = {
 			isa = PBXGroup;
 			children = (
+				6D1501B014D3CF9E007E7EA0 /* Extinctasaurus.mp3 */,
 				6D2466DD149F034C00B2B809 /* GemPickup.wav */,
 				6D2466D0149EDF8A00B2B809 /* Fall.wav */,
 				6D2466C6149EDC6900B2B809 /* Stumble.wav */,
@@ -653,7 +654,6 @@
 				6D2466E9149F03AA00B2B809 /* dinomarker-hd.png */,
 				6D2466DF149F035700B2B809 /* Gems */,
 				6D2466C5149EDC4A00B2B809 /* Sound Effects */,
-				6D381D8E149ECFA30067EE94 /* aloneasaurus.m4a */,
 				6D381D86149EB1510067EE94 /* coin_loop.png */,
 				6D381D87149EB1510067EE94 /* coin_loop.plist */,
 				6D381D82149EA27B0067EE94 /* sign.png */,
@@ -1165,7 +1165,6 @@
 				6D381D85149EA27B0067EE94 /* sign-hd.png in Resources */,
 				6D381D8A149EB1520067EE94 /* coin_loop.png in Resources */,
 				6D381D8B149EB1520067EE94 /* coin_loop.plist in Resources */,
-				6D381D8F149ECFA30067EE94 /* aloneasaurus.m4a in Resources */,
 				6D2466CB149EDC6900B2B809 /* Stumble.wav in Resources */,
 				6D2466CC149EDC6900B2B809 /* Powerup.wav in Resources */,
 				6D2466CD149EDC6900B2B809 /* Pickup_Coin.wav in Resources */,
@@ -1204,6 +1203,7 @@
 				6D9B1E8F14A01D180001EFF9 /* Default.png in Resources */,
 				6D9B1E9214A064BF0001EFF9 /* pminesAd-hd.png in Resources */,
 				6D9B1E9314A064BF0001EFF9 /* pminesAd.png in Resources */,
+				6D1501B114D3CF9E007E7EA0 /* Extinctasaurus.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
