@@ -4,6 +4,8 @@ set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 project( ld48jovoc )
 
+# blah
+
 message ("CMAKE_SOURCE_DIR is ${CMAKE_SOURCE_DIR}" )
 message ("Module path is  ${CMAKE_MODULE_PATH} " )
 
