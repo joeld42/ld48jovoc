@@ -5,6 +5,7 @@ import readline
 TEMPLATE_FILES = [
 	'CMakeLists.txt',
 	'gamedata/nesfont.png',
+	'gamedata/simpletex.png',
 	'gamedata/template.glsl',
 	'nesfont.cpp',
 	'template_game.cpp',

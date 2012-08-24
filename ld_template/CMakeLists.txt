@@ -13,6 +13,7 @@ SOURCE_GROUP( src FILES ${template_SRCS} )
 # and add them there.
 SET ( gamedata_FILES
     gamedata/nesfont.png
+    gamedata/simpletex.png
     gamedata/template.glsl
 )
 SOURCE_GROUP( gamedata FILES ${gamedata_FILES} )

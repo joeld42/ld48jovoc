@@ -171,7 +171,7 @@ endif (SDL_FOUND AND OPENGL_FOUND)
 #  Dependancies: SDL/OpenGL
 # ==================================================
 if (SDL_FOUND AND OPENGL_FOUND)
-  ADD_SUBDIRECTORY( ld99_ludtest )
+  ADD_SUBDIRECTORY( ld74_blargy )
 endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================
