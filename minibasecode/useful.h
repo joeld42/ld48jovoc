@@ -1,5 +1,11 @@
-#ifndef RANDOM_H
-#define RANDOM_H
+#ifndef USEFUL_H
+#define USEFUL_H
+
+#include <prmath/prmath.hpp>
+
+// ==============================
+//  Random numbers
+// ==============================
 
 // Generates a uniform random number between 0 and 1
 float randUniform();
@@ -18,6 +24,17 @@ float randNormal();
 //
 // NOTE: not threadsafe
 float randNormal( float mean, float stddev );
+
+// ==============================
+//  GL camera math
+// ==============================
+
+void glhFrustumf2(matrix4x4f &matrix, 
+                  float left, float right, float bottom, float top,
+                  float znear, float zfar);
+
+void glhPerspectivef2(matrix4x4f &matrix, float fovyInDegrees, float aspectRatio,
+                      float znear, float zfar);
 
 #endif
 

@@ -10,8 +10,8 @@
 #include <SDL_endian.h>
 
 // "minibasecode"
-#include "gamedata.h"
-#include "font.h"
+#include <gamedata.h>
+#include <font.h>
 
 // Game
 #include "template_game.h"
@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
     
     // Initialize GLSW
     glswInit();
-    glswSetPath( getResourceDir().c_str(), "glsl" );
+    glswSetPath( getResourceDir().c_str(), ".glsl" );
     
 	// Initialize SDL
 	if (SDL_Init( SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO ) < 0 ) 

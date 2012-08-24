@@ -6,13 +6,19 @@ SET ( minibasecode_SRCS
 	png_loader.h
 	gamedata.cpp
 	gamedata.h
-	random.cpp
-	random.h
+	useful.cpp
+	useful.h
 	font.h
 	font.cpp
+	quadbuff.h
+	shapes.h
+	shapes.cpp
+	shader.h
+	shader.cpp
 )
 
 include_directories( 
+	         ${CMAKE_SOURCE_DIR}/minibasecode/
 		     ${CMAKE_SOURCE_DIR}/extern/
 		     ${CMAKE_SOURCE_DIR}/extern/glsw/
 

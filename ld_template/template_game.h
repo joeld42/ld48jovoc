@@ -16,6 +16,7 @@
 // minibasecode
 #include <font.h>
 #include <png_loader.h>
+#include <shapes.h>
 
 // Simple 'controller'-like presses (multiple can be pressed)
 // for movement
@@ -56,10 +57,24 @@ protected:
     void _draw3d();
     void _draw2d();
 
+    // Helper to draw a DrawVert based mesh
+    void _drawMesh( QuadBuff<DrawVert> *mesh );
+    
 private:
     // The font
     PNGImage m_fontImg;
     Font *m_nesFont;  
+    
+    // A shape to draw
+    QuadBuff<DrawVert> *m_cube;
+    GLint m_basicShader;
+    
+    // camera stuff
+    matrix4x4f m_proj;
+    matrix4x4f m_modelview;
+    
+    matrix4x4f m_modelviewProj;
+
 };
 
 // The generated font data

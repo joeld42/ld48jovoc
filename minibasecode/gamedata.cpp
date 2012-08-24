@@ -24,9 +24,9 @@ std::string getResourceDir()
     }
     CFRelease(resourcesURL);
     
-    return std::string(path);
+    return std::string(path) +"/";
 #else
-    return std::string("./gamedata");
+    return std::string("./gamedata/");
 #endif
 }
 

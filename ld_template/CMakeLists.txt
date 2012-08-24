@@ -6,6 +6,16 @@ SET ( template_SRCS
       template_game.h
       template_main.cpp
 )
+SOURCE_GROUP( src FILES ${template_SRCS} )
+
+# Include the gamedata files in their own group.
+# Note you still need to manually add the "Copy Resources to Bundle"
+# and add them there.
+SET ( gamedata_FILES
+    gamedata/nesfont.png
+    gamedata/template.glsl
+)
+SOURCE_GROUP( gamedata FILES ${gamedata_FILES} )
 
 include_directories( 
          ${CMAKE_SOURCE_DIR}/minibasecode/
@@ -33,7 +43,7 @@ ADD_DEFINITIONS( ${PNG_DEFINITIONS} )
 
 
 
-ADD_EXECUTABLE( template MACOSX_BUNDLE ${template_SRCS} )
+ADD_EXECUTABLE( template MACOSX_BUNDLE ${template_SRCS} ${gamedata_FILES} )
 target_link_libraries( template ${LIBS} )
 set_target_properties( template PROPERTIES
 		       		 RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/ld_template/ )

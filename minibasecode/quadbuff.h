@@ -28,6 +28,8 @@
 // QuadBuff is a growable buffer of quads, usually screen-aligned
 // and good for using for stuff like text rendering or sprites.
 //
+// It's not really limited to quads
+//
 // FIXME: the 'grow' stuff is a bit misleading and still needs work
 template <typename VertexT>
 class QuadBuff
@@ -43,11 +45,13 @@ public:
     // yourself. For example:
     //   MyVert *quad = buff->addQuad();
     //   quad[0].p = VEC3( 0.0, 0.0, 0.0 );
-    //   quad[1].p = VEC3( 1.0, 0.0, 0.0 );
-    //   quad[2].p = VEC3( 1.0, 1.0, 0.0 );
-    //   quad[3].p = VEC3( 0.0, 1.0, 0.0 );    
-    VertexT *addQuad();
-
+    //   note returns 6 verts..
+    //  etc...
+    // NOTE: I think this old code is buggy if you try to add quads after drawing 
+    VertexT *addQuad();    
+    VertexT *addTris( size_t numTris );
+    VertexT *addVerts( size_t numVerts );
+    
     // returns the raw buffer
     VertexT *data();
 
@@ -135,16 +139,28 @@ void QuadBuff<VertexT>::clear()
 	m_buffSize = 0;
 }
 
-
 template <typename VertexT>
 VertexT *QuadBuff<VertexT>::addQuad()
 {
-    VertexT *newQuad;
+    return addVerts( 6 );
+}
 
+template <typename VertexT>
+VertexT *QuadBuff<VertexT>::addTris( size_t numTris )
+{
+    return addVerts( numTris * 3 );
+}
+
+template <typename VertexT>
+VertexT *QuadBuff<VertexT>::addVerts( size_t numVerts )
+
+{
+    VertexT *newQuad;
+    
 	// Do we need to make more space for this quad??
 	// NOTE: potentially confusing: size/capacity is in # of verts,
 	// not num quads
-	if (m_buffSize + 6 >= m_buffCapacity)
+	if (m_buffSize + numVerts >= m_buffCapacity)
 	{
 
         // Can't grow if we've used this as a VBO ... todo add a
@@ -155,8 +171,8 @@ VertexT *QuadBuff<VertexT>::addQuad()
 		int buffTargetCapacity;
 		if (m_buffCapacity==0)
 		{
-			// start with 8192 because it's a nice number
-			buffTargetCapacity = 8192;
+			// start with 36 because it'll hold a cube
+			buffTargetCapacity = 36;
 		}
 		else
 		{
@@ -183,7 +199,7 @@ VertexT *QuadBuff<VertexT>::addQuad()
 
 	// Ok, now we know there's space for the new quad
 	newQuad = &m_bufferData[m_buffSize];
-	m_buffSize += 6;
+	m_buffSize += numVerts;
 
 	return newQuad;
 }

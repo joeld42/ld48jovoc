@@ -170,9 +170,9 @@ endif (SDL_FOUND AND OPENGL_FOUND)
 # ld99: ludtest (testing out template)
 #  Dependancies: SDL/OpenGL
 # ==================================================
-#if (SDL_FOUND AND OPENGL_FOUND)
-#  ADD_SUBDIRECTORY( ld99_ludtest )
-#endif (SDL_FOUND AND OPENGL_FOUND)
+if (SDL_FOUND AND OPENGL_FOUND)
+  ADD_SUBDIRECTORY( ld99_ludtest )
+endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================
 # luddite (toolkit/basecode)

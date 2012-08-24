@@ -5,6 +5,7 @@ import readline
 TEMPLATE_FILES = [
 	'CMakeLists.txt',
 	'gamedata/nesfont.png',
+	'gamedata/template.glsl',
 	'nesfont.cpp',
 	'template_game.cpp',
 	'template_game.h',
@@ -49,7 +50,8 @@ class LDProject (object):
 
 		# Process the file
 		print destFile
-		if os.path.splitext( destFile )[-1] in ['.png','.jpg' ]:
+		destExt = os.path.splitext( destFile )[-1] 
+		if destExt in ['.png','.jpg' ]:
 			# Copy binary files unmodified
 			shutil.copyfile( srcFile, destFile )
 		else:
@@ -61,7 +63,15 @@ class LDProject (object):
 				# Replace strings. Could be more elegant with re stuff but
 				# this should work OK for now
 				l = l.replace( 'ld_template', self.ldProject() )
-				l = l.replace( 'template', self.projectId )
+
+				# didn't really think this through for c++, instead, use template_
+				# to if it's c++ code
+				if destExt in ['.h', '.cpp']:
+					l = l.replace( 'template_', self.projectId+"_" )
+					l = l.replace( 'template.', self.projectId+"." )
+				else:
+					l = l.replace( 'template', self.projectId )
+
 				l = l.replace( '{{number}}', str(self.ludumNumber) )
 				l = l.replace( '{{Project}}', self.projectName )
 				l = l.replace( 'Template', self.classPrefix )
