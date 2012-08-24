@@ -28,6 +28,9 @@ TemplateGame::TemplateGame()
 
 void TemplateGame::init()
 {
+    // Load texture
+    m_simpleTex = LoadImagePNG( gameDataFile("", "simpletex.png" ).c_str() );
+
     // Load font
     m_fontImg = LoadImagePNG( gameDataFile("", "nesfont.png" ).c_str() );
     m_nesFont = makeFont_nesfont_8( m_fontImg.textureId );    
@@ -37,11 +40,16 @@ void TemplateGame::init()
     
     m_basicShader = loadShader( "template.Plastic" );
     
+    m_rotate = 0.0;
+    
+    glEnable( GL_DEPTH_TEST );
+    
 }
 
 void TemplateGame::updateSim( float dtFixed )
 {
     // Update stuff with a fixed timestep
+    m_rotate += (M_PI/180.0) * (10.0) * dtFixed;
 }
 
 void TemplateGame::updateFree( float dtRaw )
@@ -51,17 +59,16 @@ void TemplateGame::updateFree( float dtRaw )
 
 void TemplateGame::redraw()
 {
-    glClearColor( 0.2, 0.1, 1.0, 1.0 );
+    glClearColor( 78.0/255.0, 114.0/255.0, 136.0/255.0, 1.0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
     // 3d stuff    
     glhPerspectivef2( m_proj, 40.0, 800.0/600.0, 0.1, 1000.0 );
 
-    matrix4x4f xlate;
-    xlate.Translate( 0.0, 0.1, -5.0 );
-    
-//    rot.RotateX( (camAng + (zval*-5)) * 3.14/180.0 );
-    m_modelview = xlate;
+    matrix4x4f xlate, rot;
+    xlate.Translate( 0.0, 0.1, -3.0 );
+    rot.RotateY( m_rotate );
+    m_modelview = rot * xlate;
     
     m_modelviewProj = m_modelview * m_proj;
 
@@ -134,10 +141,19 @@ void TemplateGame::keypress( SDLKey &key )
     // Draw 3d stuff
 void TemplateGame::_draw3d()
 {    
+    glEnable( GL_TEXTURE );
+    glEnable( GL_TEXTURE_2D );
+
     // Set up basic shader
     glUseProgram( m_basicShader );    
     GLint mvp = glGetUniformLocation( m_basicShader, "matrixPMV");
     glUniformMatrix4fv( mvp, 1, 0, (GLfloat*)(&m_modelviewProj)  );
+    
+    glActiveTexture(GL_TEXTURE0 );
+    glBindTexture( GL_TEXTURE_2D, m_simpleTex.textureId );
+    
+    GLint paramTex = glGetUniformLocation( m_basicShader, "sampler_dif0" );
+    glUniform1i( paramTex, 0 );        
     
     // Draw something
     _drawMesh( m_cube );

@@ -64,17 +64,19 @@ private:
     // The font
     PNGImage m_fontImg;
     Font *m_nesFont;  
-    
+        
     // A shape to draw
     QuadBuff<DrawVert> *m_cube;
     GLint m_basicShader;
+    PNGImage m_simpleTex;
     
     // camera stuff
     matrix4x4f m_proj;
-    matrix4x4f m_modelview;
-    
+    matrix4x4f m_modelview;    
     matrix4x4f m_modelviewProj;
 
+    float m_rotate;
+    
 };
 
 // The generated font data

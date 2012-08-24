@@ -73,6 +73,16 @@ QuadBuff<DrawVert> *make_cube( float size, vec3f center )
                                  (_cubeVertData[i*6 + 4] * size) - center.y,
                                  (_cubeVertData[i*6 + 5] * size) - center.z );
         
+        // TODO: better cube texture coords
+        if ( ((i/6)==2) || ((i/6)==5) )
+        {
+            cubeVert->m_st = vec4f( _cubeVertData[i*6 + 1] + 0.5, _cubeVertData[i*6 + 2] + 0.5, 0.0, 0.0 );
+        }
+        else
+        {
+            cubeVert->m_st = vec4f( _cubeVertData[i*6 + 0] + 0.5, _cubeVertData[i*6 + 1] + 0.5, 0.0, 0.0 );            
+        }
+        
         cubeVert++;
     }
     
