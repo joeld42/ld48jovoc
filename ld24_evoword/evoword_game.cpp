@@ -330,7 +330,8 @@ void EvoWordGame::updateButtons( unsigned int btnMask )
 
 void EvoWordGame::keypress( SDLKey &key )
 {
-    if (m_gamestate == GameState_MENU)
+    if ( (m_gamestate == GameState_MENU) ||
+         (m_gamestate == GameState_REVIEW) )
     {
         switch(key)
         {
@@ -350,6 +351,29 @@ void EvoWordGame::keypress( SDLKey &key )
             case ' ':
                 m_gamestate = GameState_MENU;
                 break;
+
+            case SDLK_RETURN:
+                if (m_checkWordTimeleft <= 0.0)
+                {
+                    saveCreature( true );
+                }
+                break;
+                
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':                
+                {
+                    // restore a saved creature
+                    int ndx = key - '1';
+                    if (m_savedCreatures.size() > ndx)
+                    {
+                        m_currWord = m_savedCreatures[ndx];
+                        initCreatureFragments();
+                    }
+                    break;
+                }
                 
             default:
                 break;
@@ -396,6 +420,27 @@ void EvoWordGame::_draw2d()
         m_nesFont->renderAll();
         m_nesFont->clear();
     }
+    else if (m_gamestate==GameState_REVIEW)
+    {
+        // Game over.. show their awesome word tree
+        char buff[256];
+        sprintf( buff, "Great Job! You earned %zu points!", m_score );
+        m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
+        m_nesFont->drawStringCentered( 400, 560, buff );    
+
+        // draw jarred creatures
+        m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);                        
+        int currY = 500;
+        for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
+        {
+            m_nesFont->drawStringCentered( 400, currY, (*wi).c_str() );        
+            currY -= 30;
+        }
+
+        m_nesFont->renderAll();
+        m_nesFont->clear();
+
+    }
     else if (m_gamestate==GameState_GAME)
     {
         // draw current word
@@ -421,39 +466,65 @@ void EvoWordGame::_draw2d()
             m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);                        
         }
         m_nesFont->drawString( 650, 580, buff );    
-        m_nesFont->renderAll();
-        m_nesFont->clear();
 
-        
-        // draw creature
-        m_creature.draw( m_nesFont);
-        
-        // draw "fragments"
-        m_nesFont->setColor(0.5, 1.0, 0.5, 1.0);
-        for ( std::vector<Fragment>::iterator fi = m_floatyFrags.begin();
-             fi != m_floatyFrags.end(); ++fi )
+        // draw saved creatures
+        m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);                        
+        int currY = 580;
+        int index = 1;
+        for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
         {
-            Fragment &f = (*fi);
-            char buff[2];
-            buff[1] = '\0';
-            buff[0] = f.m_letter;
-            
-            m_nesFont->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
+            char slotbuf[100];
+            sprintf( slotbuf, "%d. %s", index, (*wi).c_str() );
+            m_nesFont->drawString( 20, currY, slotbuf );        
+            currY -= 30;
+            index += 1;
         }
         
-        // draw current word genome
-        m_nesFont->setColor(1.0, 1.0, 0.5, 1.0);
-        for ( auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi )
-        {
-            Fragment &f = (*fi);
-            char buff[2];
-            buff[1] = '\0';
-            buff[0] = f.m_letter;
-            
-            m_nesFont->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
-        }
-
         
+        if (m_currWord.empty())
+        {
+            // Make user pick another word
+            m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
+            m_nesFont->drawStringCentered( 400, 300, "Choose a creature" );    
+            m_nesFont->renderAll();
+            m_nesFont->clear();
+        }
+        else
+        {
+            
+            // draw creature
+            m_creature.draw( m_nesFont);
+            
+            
+            // draw "fragments"
+            m_nesFont->setColor(0.5, 1.0, 0.5, 1.0);
+            for ( std::vector<Fragment>::iterator fi = m_floatyFrags.begin();
+                 fi != m_floatyFrags.end(); ++fi )
+            {
+                Fragment &f = (*fi);
+                char buff[2];
+                buff[1] = '\0';
+                buff[0] = f.m_letter;
+                
+                m_nesFont->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
+            }
+            
+            // draw current word genome
+            m_nesFont->setColor(1.0, 1.0, 0.5, 1.0);
+            for ( auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi )
+            {
+                Fragment &f = (*fi);
+                
+                if (f.m_letter=='$') continue; // skip marker
+                
+                char buff[2];
+                buff[1] = '\0';
+                buff[0] = f.m_letter;
+                
+                m_nesFont->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
+            }
+
+        }
         m_nesFont->renderAll();
         m_nesFont->clear();
 
@@ -511,7 +582,26 @@ void EvoWordGame::startGame()
         }
     }
     printf("CurrWord is %s", m_currWord.c_str() );
+        
+    initCreatureFragments();
     
+    saveCreature( false );
+    
+    // Start playing
+    m_startWord = m_currWord;
+    m_checkWordTimeleft = -1.0;
+    m_gamestate = GameState_GAME;
+    
+    // Score
+    m_usedWords.clear();
+    m_usedWords.push_back( m_currWord );
+    
+    m_score = 0;
+    m_displayedScore = 0;
+}
+
+void EvoWordGame::initCreatureFragments()
+{    
     // Make word fragments
     m_creatureFrags.clear();
     m_creatureFrags.push_back( Fragment( '$', vec2f( 400.0, 100 ) ) ); // extra frags to make word boundries easier
@@ -524,16 +614,9 @@ void EvoWordGame::startGame()
     m_creatureFrags.push_back( Fragment( '$', vec2f( 400.0, 100 ) ) ); // extra frags to make word boundries easier
     
     updateCreatureFrags();
-
+    
     m_creature.evolveCreature( m_currWord );
-    
-    // Start playing
-    m_checkWordTimeleft = -1.0;
-    m_gamestate = GameState_GAME;
-    
-    // Score
-    m_score = 0;
-    m_displayedScore = 0;
+
 }
 
 void EvoWordGame::updateCreatureFrags( )
@@ -569,7 +652,18 @@ void EvoWordGame::checkWord()
         wordScore += g_letterPoints[ (*ch) - 'A' ];
     }
 
-    if (isWord(testWord))
+    bool alreadyUsed = false;
+    for (auto wi = m_usedWords.begin(); wi != m_usedWords.end(); ++wi)
+    {
+        if ((*wi)==testWord)
+        {
+            printf("Already used '%s'....\n", testWord.c_str() );
+            alreadyUsed = true;
+            break;
+        }
+    }
+    
+    if ((!alreadyUsed) && (isWord(testWord)) )
     {
         // Yay, it's a real word
         printf("GOOD WORD!\n" );
@@ -581,13 +675,16 @@ void EvoWordGame::checkWord()
         // Final score is base score squared
         wordScore = wordScore*wordScore;
         
+        // Remember it was used
+        m_usedWords.push_back( m_currWord );
+        
         // Add to score
         m_score += wordScore;        
     }
     else
     {
         // Not a real word
-        printf("NOT A WORD! Lose %d points\n", wordScore );
+        printf("NOT A VALID WORD! Lose %d points\n", wordScore );
         m_creatureFrags = m_oldCreatureFrags;
         
         // Lose points!
@@ -598,6 +695,25 @@ void EvoWordGame::checkWord()
         else m_score = 0;
         
         printf("m_creatureFrags.size() %lu", m_creatureFrags.size() );
+    }
+}
+
+void EvoWordGame::saveCreature( bool pickNow )
+{
+    // TODO: also save creature
+    m_savedCreatures.push_back( m_currWord );
+    
+    if (pickNow)
+    {
+        // Make user pick a new word
+        m_currWord = "";
+    }
+    
+    // Are all the jars full???
+    if (m_savedCreatures.size() == 5)
+    {
+        // Yep, go to review state
+        m_gamestate = GameState_REVIEW;
     }
 }
 

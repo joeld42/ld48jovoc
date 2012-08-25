@@ -30,7 +30,8 @@
 enum
 {
     GameState_MENU,
-    GameState_GAME
+    GameState_GAME,
+    GameState_REVIEW
 };
 
 // Simple 'controller'-like presses (multiple can be pressed)
@@ -81,6 +82,9 @@ protected:
     void startGame();
     void updateCreatureFrags( );
     void checkWord();
+    void saveCreature( bool pickNow );
+    
+    void initCreatureFragments();
     
 private:
     // The font
@@ -116,7 +120,11 @@ private:
     // Gameplay stuff 
     size_t m_score;
     size_t m_displayedScore;
-    
+    std::vector<std::string> m_usedWords;
+
+    std::vector<std::string> m_savedCreatures;
+
+    std::string m_startWord;
     std::string m_currWord;
     Creature m_creature;
     
