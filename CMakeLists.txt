@@ -167,11 +167,11 @@ if (SDL_FOUND AND OPENGL_FOUND)
 endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================
-# ld99: ludtest (testing out template)
+# ld24: Evolution
 #  Dependancies: SDL/OpenGL
 # ==================================================
 if (SDL_FOUND AND OPENGL_FOUND)
-  ADD_SUBDIRECTORY( ld74_blargy )
+  ADD_SUBDIRECTORY( ld24_evoword )
 endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================
