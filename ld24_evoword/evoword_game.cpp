@@ -56,7 +56,7 @@ void EvoWordGame::init()
 void EvoWordGame::updateSim( float dtFixed )
 {
     // Update stuff with a fixed timestep
-    m_rotate += (M_PI/180.0) * (10.0) * dtFixed;
+//    m_rotate += (M_PI/180.0) * (10.0) * dtFixed;
     
     // Add some floating fragments
     while (m_floatyFrags.size() < NUM_FLOATIES)
@@ -86,6 +86,24 @@ void EvoWordGame::updateSim( float dtFixed )
         if (f.m_pos.y > 620)
         {
             f.initBubble();
+        }
+    }
+    
+    // Move genome fragments
+    for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
+    {
+        float dx = fi->m_bubbleBaseX - fi->m_pos.x;
+        fi->m_pos.x += (dx * dtFixed);
+    }
+    
+    // Check timer?
+    if (m_checkWordTimeleft > 0.0)
+    {
+        m_checkWordTimeleft -= dtFixed;
+        if ( m_checkWordTimeleft <= 0.0)
+        {
+            // Timer ran out, check if word is valid
+            checkWord();
         }
     }
 }
@@ -162,6 +180,73 @@ void EvoWordGame::mouseButton( SDL_MouseButtonEvent &btnEvent )
     {
         if (btnEvent.state == SDL_RELEASED)
         {
+            
+            // See if this is close to a current creature fragment            
+            if (m_floatyPicked)
+                printf("ydist %f\n", fabs(m_floatyPicked->m_pos.y - 100) );
+            
+            const float letterDist = 10.0;
+            const float checkTime = 2.0;
+            
+            if ((m_checkWordTimeleft<=0.0) && (m_floatyPicked) && (fabs(m_floatyPicked->m_pos.y - 100) < 10))
+            {
+                printf("Checking frags: xpos %f\n", m_floatyPicked->m_pos.x );
+                
+                bool changedWord = false;
+                for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
+                {
+                    // insert between this letter and the next?
+                    auto fiNext = fi+1;
+                    if (fiNext != m_creatureFrags.end())
+                    {
+                        float insX = (fi->m_pos.x + fiNext->m_pos.x) / 2.0;
+                        printf("xdists between %c, %c = %f\n", 
+                                fi->m_letter, fiNext->m_letter, insX );
+                                
+                        if (fabs(m_floatyPicked->m_pos.x - insX) < letterDist)
+                        {
+                            // Save the old fragments in case the new
+                            // word isn't real
+                            m_oldCreatureFrags = m_creatureFrags;
+                            
+                            printf("INSERT BETWEEN LETTERS %c %c", fi->m_letter, fiNext->m_letter );
+                            Fragment fnew( m_floatyPicked->m_letter, vec2f( insX, fi->m_pos.y ) );
+                            m_creatureFrags.insert( fiNext, fnew );
+                            changedWord = true;
+                            break;
+                        }
+                    }
+                    
+                    // Replace a letter?
+                    printf( "Replace dist %c = %f\n", fi->m_letter, m_floatyPicked->m_pos.x - fi->m_pos.x );
+                    if ((fi->m_letter != '$') && (fabs(m_floatyPicked->m_pos.x - fi->m_pos.x) < letterDist))
+                    {
+                        // Save the old fragments in case the new
+                        // word isn't real
+                        m_oldCreatureFrags = m_creatureFrags;
+
+                        printf("REPLACE LETTER %c", fi->m_letter );
+                        fi->m_letter = m_floatyPicked->m_letter;                                                
+                        changedWord = true;
+                        break;
+                    }
+                }
+                
+                // if we changed the word, do stuff
+                if (changedWord)
+                {
+                    // Start the check timer
+                    m_checkWordTimeleft = checkTime;
+                }
+                
+                
+                // reset floatyPicked's yval so it will get recycled
+                m_floatyPicked->m_pos.y = 5000.0;
+                
+                // update positions in case the word changed
+                updateCreatureFrags();
+            }
+            
             m_floatyPicked = NULL; // release picked floaty
         }
         else if (btnEvent.state == SDL_PRESSED)
@@ -215,7 +300,21 @@ void EvoWordGame::keypress( SDLKey &key )
                 break;
         }
     }
-    else m_gamestate = GameState_MENU;
+    else
+    {
+        // gameplay keys
+        switch(key)
+        {
+            case ' ':
+                m_gamestate = GameState_MENU;
+                break;
+                
+            default:
+                break;
+        }
+
+    }
+
 }
 
     // Draw 3d stuff
@@ -258,8 +357,8 @@ void EvoWordGame::_draw2d()
     else if (m_gamestate==GameState_GAME)
     {
         // draw current word
-        m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
-        m_nesFont->drawStringCentered( 400, 100, m_currWord.c_str() );    
+//        m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
+//        m_nesFont->drawStringCentered( 400, 100, m_currWord.c_str() );    
         
         // draw creature
         m_creature.draw( m_nesFont);
@@ -276,6 +375,19 @@ void EvoWordGame::_draw2d()
             
             m_nesFont->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
         }
+        
+        // draw current word genome
+        m_nesFont->setColor(1.0, 1.0, 0.5, 1.0);
+        for ( auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi )
+        {
+            Fragment &f = (*fi);
+            char buff[2];
+            buff[1] = '\0';
+            buff[0] = f.m_letter;
+            
+            m_nesFont->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
+        }
+
         
         m_nesFont->renderAll();
         m_nesFont->clear();
@@ -334,11 +446,69 @@ void EvoWordGame::startGame()
         }
     }
     printf("CurrWord is %s", m_currWord.c_str() );
+    
+    // Make word fragments
+    m_creatureFrags.clear();
+    m_creatureFrags.push_back( Fragment( '$', vec2f( 400.0, 100 ) ) ); // extra frags to make word boundries easier
+    for (auto ch = m_currWord.begin(); ch != m_currWord.end(); ++ch)
+    {
+        Fragment f( (*ch), vec2f( 400.0, 100 ) );
+        
+        m_creatureFrags.push_back(f);
+    }
+    m_creatureFrags.push_back( Fragment( '$', vec2f( 400.0, 100 ) ) ); // extra frags to make word boundries easier
+    
+    updateCreatureFrags();
 
     m_creature.evolveCreature( m_currWord );
     
     // Start playing
+    m_checkWordTimeleft = -1.0;
     m_gamestate = GameState_GAME;
+}
+
+void EvoWordGame::updateCreatureFrags( )
+{
+    // just update the positions of the creature's DNA
+    // target fragments (letters)
+    const float letterSize = 30;
+    float wordStartX = 400 - (m_creatureFrags.size() * (letterSize/2) );
+    for (int i=0; i < m_creatureFrags.size(); i++)
+    {
+        m_creatureFrags[i].m_bubbleBaseX = wordStartX + (i*letterSize);
+    }
+}
+
+void EvoWordGame::checkWord()
+{
+    // Build a candidate word from the creature fragments
+    std::string testWord;
+    for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)    
+     {
+         if (fi->m_letter != '$')
+         {
+             testWord += fi->m_letter;
+         }
+     };
+    
+    printf("Checking test word %s\n", testWord.c_str() );
+    if (isWord(testWord))
+    {
+        // Yay, it's a real word
+        printf("GOOD WORD!\n" );
+        m_currWord = testWord;
+        m_creature.evolveCreature( m_currWord );
+        
+        // TODO: award points 
+    }
+    else
+    {
+        // Not a real word
+        printf("NOT A WORD!\n" );
+        m_creatureFrags = m_oldCreatureFrags;
+        
+        printf("m_creatureFrags.size() %lu", m_creatureFrags.size() );
+    }
 }
 
 #pragma mark - Word Stuff

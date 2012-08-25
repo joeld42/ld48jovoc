@@ -35,13 +35,14 @@ void Creature::draw( Font *font )
     static const char *tailNames[] = { "None", "Slender", "Spiked Club", "Horsewhip", "Prehensile" };
     static const char *bodyNames[] = { "Trilobite", "Fishlike", "Turtle", "Bearish", "Biped", "Elegant" };
     
-    font->setColor(1.0, 1.0, 1.0, 1.0);
-    font->drawStringCentered( 400, 500, "CREATURE" );
-    font->drawString( 200, 450, (std::string("Body   : ")+bodyNames[m_bodySculptNum]).c_str() );
-    font->drawString( 200, 420, (std::string("Eyes   : ")+eyeNames[m_eyeNum]).c_str() );
-    font->drawString( 200, 390, (std::string("Mouth  : ")+mouthNames[m_mouthNum]).c_str() );
-    font->drawString( 200, 360, (std::string("Legs   : ")+legNames[m_legNum]).c_str() );
-    font->drawString( 200, 330, (std::string("Tail   : ")+tailNames[m_tailNum]).c_str() );
+    int baseY = 550;
+    font->setColor(1.0, 1.0, 1.0, 1.0);    
+    font->drawStringCentered( 400, baseY, "CREATURE" );
+    font->drawString( 200, baseY-30, (std::string("Body   : ")+bodyNames[m_bodySculptNum]).c_str() );
+    font->drawString( 200, baseY-60, (std::string("Eyes   : ")+eyeNames[m_eyeNum]).c_str() );
+    font->drawString( 200, baseY-90, (std::string("Mouth  : ")+mouthNames[m_mouthNum]).c_str() );
+    font->drawString( 200, baseY-120, (std::string("Legs   : ")+legNames[m_legNum]).c_str() );
+    font->drawString( 200, baseY-150, (std::string("Tail   : ")+tailNames[m_tailNum]).c_str() );
 }
 
 void Creature::evolveCreature( std::string genomeWord )

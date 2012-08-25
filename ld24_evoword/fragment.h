@@ -27,11 +27,13 @@ public:
     char m_letter;
     
     // Bubbling up behavior
-    float m_bubbleBaseX; // unwiggled x
+    float m_bubbleBaseX; // unwiggled x (target x for word fragments)
     float m_bubbleVel; // how fast it rises
     float m_bubbleTval; // for the wiggle
     float m_wiggleAmount; // How much wiggle
     float m_tScale; // How fast wiggle
+    
+    
 };
 
 #endif

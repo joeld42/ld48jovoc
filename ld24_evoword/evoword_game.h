@@ -9,6 +9,7 @@
 #ifndef ld48jovoc_evoword_game_h
 #define ld48jovoc_evoword_game_h
 
+#include <functional>
 #include <string>
 #include <vector>
 #include <map>
@@ -78,6 +79,8 @@ protected:
     void loadWordList( const char *wordlist );
     
     void startGame();
+    void updateCreatureFrags( );
+    void checkWord();
     
 private:
     // The font
@@ -94,7 +97,9 @@ private:
     matrix4x4f m_modelview;    
     matrix4x4f m_modelviewProj;
 
-    float m_rotate;
+    float m_rotate;        
+    float m_checkWordTimeleft;
+//    std::function<void> m_undoLetter;
 
     typedef std::map<std::string,bool> WordList;
 	WordList m_wordList;    
@@ -103,7 +108,8 @@ private:
     Fragment *m_floatyPicked;
     
     std::vector<Fragment> m_creatureFrags;
-
+    std::vector<Fragment> m_oldCreatureFrags;
+    
     // count of the number of 3 letter words in the list
     int m_startWords;
     
