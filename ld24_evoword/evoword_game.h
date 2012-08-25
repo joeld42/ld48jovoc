@@ -23,6 +23,7 @@
 
 // Game
 #include "creature.h"
+#include "fragment.h"
 
 // Gamestate
 enum
@@ -97,6 +98,11 @@ private:
 
     typedef std::map<std::string,bool> WordList;
 	WordList m_wordList;    
+    
+    std::vector<Fragment> m_floatyFrags;
+    Fragment *m_floatyPicked;
+    
+    std::vector<Fragment> m_creatureFrags;
 
     // count of the number of 3 letter words in the list
     int m_startWords;

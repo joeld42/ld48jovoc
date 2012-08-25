@@ -94,7 +94,8 @@ int main( int argc, char *argv[] )
                     break;
                     
 				case SDL_MOUSEMOTION:	
-                    game->mouseMotion( event.motion.xrel, event.motion.yrel ); 
+//                    game->mouseMotion( event.motion.xrel, event.motion.yrel ); 
+                    game->mouseMotion( event.motion.x, event.motion.y ); 
 					break;
                     
 				case SDL_MOUSEBUTTONDOWN:					

@@ -21,6 +21,7 @@ void Creature::reset()
     m_eyeNum = 0;
     m_legNum = 0;
     m_mouthNum = 0;
+    m_tailNum = 0;
     m_bodySculptNum = 0;
     m_size = 1.0;
 }
@@ -41,9 +42,6 @@ void Creature::draw( Font *font )
     font->drawString( 200, 390, (std::string("Mouth  : ")+mouthNames[m_mouthNum]).c_str() );
     font->drawString( 200, 360, (std::string("Legs   : ")+legNames[m_legNum]).c_str() );
     font->drawString( 200, 330, (std::string("Tail   : ")+tailNames[m_tailNum]).c_str() );
-    
-    font->renderAll();
-    font->clear();
 }
 
 void Creature::evolveCreature( std::string genomeWord )

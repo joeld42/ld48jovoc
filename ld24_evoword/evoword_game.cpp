@@ -19,6 +19,8 @@
 #define offset_d(i,f)    (long(&(i)->f) - long(i))
 #define offset_s(t,f)    offset_d((t*)1000, f)
 
+#define NUM_FLOATIES (30)
+
 #include "evoword_game.h"
 
 EvoWordGame::EvoWordGame()
@@ -48,12 +50,44 @@ void EvoWordGame::init()
     glEnable( GL_DEPTH_TEST );
     
     m_gamestate = GameState_MENU;
+    m_floatyPicked = NULL;
 }
 
 void EvoWordGame::updateSim( float dtFixed )
 {
     // Update stuff with a fixed timestep
     m_rotate += (M_PI/180.0) * (10.0) * dtFixed;
+    
+    // Add some floating fragments
+    while (m_floatyFrags.size() < NUM_FLOATIES)
+    {
+        Fragment f;
+        
+        // since this is the new bubbles, init all over ths screen
+        f.m_pos.y = randUniform( 0.0, 600.0 ); 
+        m_floatyFrags.push_back(f);
+    }
+ 
+    // make fragments bubble up
+    for (std::vector<Fragment>::iterator fi = m_floatyFrags.begin();
+         fi != m_floatyFrags.end(); ++fi )
+    {            
+        Fragment &f = (*fi);
+        
+        // DON'T update floatyPicked
+        if (&f == m_floatyPicked) continue;
+        
+        f.m_pos.x = f.m_bubbleBaseX + sin( f.m_bubbleTval * f.m_tScale) * f.m_wiggleAmount;
+        f.m_pos.y += f.m_bubbleVel * dtFixed;
+        
+        f.m_bubbleTval += dtFixed;
+        
+        // If bubble went offscreen, recycle it
+        if (f.m_pos.y > 620)
+        {
+            f.initBubble();
+        }
+    }
 }
 
 void EvoWordGame::updateFree( float dtRaw )
@@ -112,13 +146,53 @@ void EvoWordGame::shutdown()
 
 void EvoWordGame::mouseMotion( float x, float y )
 {
-    
+    if (m_floatyPicked)
+    {
+        m_floatyPicked->m_pos = vec2f(x, 600-y);
+        m_floatyPicked->m_bubbleBaseX = x;
+    }
 }
 
 // For instantanious button effects 
 void EvoWordGame::mouseButton( SDL_MouseButtonEvent &btnEvent )
 {
+    printf("EvoWordGame::mouseButton (button %d state %d)\n", btnEvent.button, btnEvent.state );
     
+    if (btnEvent.button == SDL_BUTTON_LEFT)
+    {
+        if (btnEvent.state == SDL_RELEASED)
+        {
+            m_floatyPicked = NULL; // release picked floaty
+        }
+        else if (btnEvent.state == SDL_PRESSED)
+        {
+
+            // Pick closest floaty
+            vec2f mousePos( btnEvent.x, 600-btnEvent.y );
+            
+            printf("Looking for closest floaty mouse pos %f %f\n", 
+                   mousePos.x, mousePos.y );
+            
+            Fragment *closestF = NULL;
+            float bestDist = 0.0;
+            for (auto fi = m_floatyFrags.begin(); fi != m_floatyFrags.end(); ++fi )
+            {
+                float d = prmath::Length( (fi->m_pos - mousePos) );
+//                printf("Letter %c dist %f\n", fi->m_letter, d );
+                if (d < 20.0)
+                {
+                    if ((!closestF) || (d < bestDist))
+                    {
+                        bestDist = d;
+                        closestF = &(*fi);
+                    }
+                }
+            }
+            
+            m_floatyPicked = closestF;
+        }
+            
+    }
 }
 
 // For "continuous" button events
@@ -186,11 +260,26 @@ void EvoWordGame::_draw2d()
         // draw current word
         m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
         m_nesFont->drawStringCentered( 400, 100, m_currWord.c_str() );    
-        m_nesFont->renderAll();
-        m_nesFont->clear();
         
         // draw creature
         m_creature.draw( m_nesFont);
+        
+        // draw "fragments"
+        m_nesFont->setColor(0.5, 1.0, 0.5, 1.0);
+        for ( std::vector<Fragment>::iterator fi = m_floatyFrags.begin();
+             fi != m_floatyFrags.end(); ++fi )
+        {
+            Fragment &f = (*fi);
+            char buff[2];
+            buff[1] = '\0';
+            buff[0] = f.m_letter;
+            
+            m_nesFont->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
+        }
+        
+        m_nesFont->renderAll();
+        m_nesFont->clear();
+
     }
 }
 

@@ -5,7 +5,7 @@
 
 float randUniform()
 {
-    return (float)rand() / (float)RAND_MAX;    
+    return drand48();
 }
 
 float randUniform( float minVal, float maxVal )

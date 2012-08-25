@@ -8,7 +8,13 @@ float randUniform()
 
 float randUniform( float minVal, float maxVal )
 {
-    return minVal + (randUniform() * (maxVal-minVal));    
+    float ru = randUniform();
+    printf("randUniform is %f\n", ru );
+    
+    printf("range is %f", (maxVal-minVal) );
+
+    return minVal + (ru * (maxVal-minVal));    
+//    return minVal + (randUniform() * (maxVal-minVal));    
 }
 
 float randNormal()
