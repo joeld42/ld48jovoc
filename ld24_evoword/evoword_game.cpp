@@ -23,6 +23,38 @@
 
 #include "evoword_game.h"
 
+// award points 
+// scoring is like "BuyWord" game
+const int g_letterPoints[] = { 
+    1, // A
+    3, // B
+    2, // C
+    2, // D
+    1, // E
+    3, // F
+    2, // G
+    2, // H
+    1, // I
+    4, // J
+    2, // K
+    2, // L
+    3, // M
+    1, // N
+    1, // O
+    2, // P
+    4, // Q    
+    1, // R
+    1, // S
+    1, // T
+    1, // U
+    3, // V
+    3, // W
+    4, // X
+    3, // Y    
+    4  // Z
+};
+
+
 EvoWordGame::EvoWordGame()
 {
     
@@ -105,6 +137,16 @@ void EvoWordGame::updateSim( float dtFixed )
             // Timer ran out, check if word is valid
             checkWord();
         }
+    }
+    
+    // Add points to displayed score
+    if (m_score > m_displayedScore)
+    {
+        m_displayedScore++;
+    }
+    else if (m_score < m_displayedScore)
+    {
+        m_displayedScore--;
     }
 }
 
@@ -360,6 +402,29 @@ void EvoWordGame::_draw2d()
 //        m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
 //        m_nesFont->drawStringCentered( 400, 100, m_currWord.c_str() );    
         
+        // Draw score
+        char buff[100];
+        sprintf( buff, "S: %zu", m_displayedScore );
+        if (m_displayedScore > m_score)
+        {
+            // Losing points, bad
+            m_nesFont->setColor(1.0, 0.0, 0.0, 1.0);
+        }
+        else if (m_displayedScore < m_score )
+        {
+            // earning points, good!
+            m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);            
+        }
+        else
+        {
+            // stable score
+            m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);                        
+        }
+        m_nesFont->drawString( 650, 580, buff );    
+        m_nesFont->renderAll();
+        m_nesFont->clear();
+
+        
         // draw creature
         m_creature.draw( m_nesFont);
         
@@ -465,6 +530,10 @@ void EvoWordGame::startGame()
     // Start playing
     m_checkWordTimeleft = -1.0;
     m_gamestate = GameState_GAME;
+    
+    // Score
+    m_score = 0;
+    m_displayedScore = 0;
 }
 
 void EvoWordGame::updateCreatureFrags( )
@@ -492,20 +561,41 @@ void EvoWordGame::checkWord()
      };
     
     printf("Checking test word %s\n", testWord.c_str() );
+
+    // base score = sum of letter tiles
+    int wordScore = 0;
+    for (auto ch=m_currWord.begin(); ch != m_currWord.end(); ++ch)
+    {
+        wordScore += g_letterPoints[ (*ch) - 'A' ];
+    }
+
     if (isWord(testWord))
     {
         // Yay, it's a real word
         printf("GOOD WORD!\n" );
         m_currWord = testWord;
         m_creature.evolveCreature( m_currWord );
+
+        printf("BaseScore %d, finalScore %d", wordScore, wordScore*wordScore );
         
-        // TODO: award points 
+        // Final score is base score squared
+        wordScore = wordScore*wordScore;
+        
+        // Add to score
+        m_score += wordScore;        
     }
     else
     {
         // Not a real word
-        printf("NOT A WORD!\n" );
+        printf("NOT A WORD! Lose %d points\n", wordScore );
         m_creatureFrags = m_oldCreatureFrags;
+        
+        // Lose points!
+        if (m_score > wordScore)
+        {
+            m_score -= wordScore;
+        }
+        else m_score = 0;
         
         printf("m_creatureFrags.size() %lu", m_creatureFrags.size() );
     }

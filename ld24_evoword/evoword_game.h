@@ -113,6 +113,10 @@ private:
     // count of the number of 3 letter words in the list
     int m_startWords;
     
+    // Gameplay stuff 
+    size_t m_score;
+    size_t m_displayedScore;
+    
     std::string m_currWord;
     Creature m_creature;
     
