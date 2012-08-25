@@ -28,6 +28,9 @@ EvoWordGame::EvoWordGame()
 
 void EvoWordGame::init()
 {
+    // Load dictionary
+    loadWordList(gameDataFile("", "2of12inf.txt" ).c_str() );
+    
     // Load texture
     m_simpleTex = LoadImagePNG( gameDataFile("", "simpletex.png" ).c_str() );
 
@@ -44,6 +47,7 @@ void EvoWordGame::init()
     
     glEnable( GL_DEPTH_TEST );
     
+    m_gamestate = GameState_MENU;
 }
 
 void EvoWordGame::updateSim( float dtFixed )
@@ -125,22 +129,27 @@ void EvoWordGame::updateButtons( unsigned int btnMask )
 
 void EvoWordGame::keypress( SDLKey &key )
 {
-    switch(key)
+    if (m_gamestate == GameState_MENU)
     {
-        case 'o':
-            // orbit
-//            doSpin = !doSpin;
-//            printf("Orbit %s\n", doSpin?"true":"false" );
-            break;
+        switch(key)
+        {
+            case ' ':
+                startGame();
+                break;
 
-        default:
-            break;
+            default:
+                break;
+        }
     }
+    else m_gamestate = GameState_MENU;
 }
 
     // Draw 3d stuff
 void EvoWordGame::_draw3d()
 {    
+    // don't draw the scene if not playing
+    if (m_gamestate==GameState_MENU) return;
+    
     glEnable( GL_TEXTURE );
     glEnable( GL_TEXTURE_2D );
 
@@ -165,11 +174,24 @@ void EvoWordGame::_draw2d()
     // disable shaders (TODO: make a text shader so this ports to ES2 easier)
     glUseProgram(0);
     
-    m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
-    m_nesFont->drawStringCentered( 400, 580, "Hello Evo Word" );    
-    m_nesFont->renderAll();
-    m_nesFont->clear();
-
+    if (m_gamestate==GameState_MENU)
+    {
+        m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
+        m_nesFont->drawStringCentered( 400, 580, "Press Start" );    
+        m_nesFont->renderAll();
+        m_nesFont->clear();
+    }
+    else if (m_gamestate==GameState_GAME)
+    {
+        // draw current word
+        m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
+        m_nesFont->drawStringCentered( 400, 100, m_currWord.c_str() );    
+        m_nesFont->renderAll();
+        m_nesFont->clear();
+        
+        // draw creature
+        m_creature.draw( m_nesFont);
+    }
 }
 
 void EvoWordGame::_drawMesh( QuadBuff<DrawVert> *mesh )
@@ -197,4 +219,84 @@ void EvoWordGame::_drawMesh( QuadBuff<DrawVert> *mesh )
 
     // Draw it!
     glDrawArrays(GL_TRIANGLES, 0, mesh->size() );
+}
+
+#pragma mark - Game Stuff
+
+void EvoWordGame::startGame()
+{
+    srand48( SDL_GetTicks() );
+    
+    // Pick a new startword
+    int startWordNdx = (int)randUniform(1, m_startWords);
+    printf("startWordNdx %d\n", startWordNdx );
+    
+    for (WordList::iterator wi = m_wordList.begin(); wi != m_wordList.end(); ++wi )
+    {
+        const std::string &w = wi->first;
+        if (w.size() == 3)
+        {
+            startWordNdx--;
+            if (startWordNdx==0)
+            {
+                m_currWord = w;
+                break;
+            }
+        }
+    }
+    printf("CurrWord is %s", m_currWord.c_str() );
+
+    m_creature.evolveCreature( m_currWord );
+    
+    // Start playing
+    m_gamestate = GameState_GAME;
+}
+
+#pragma mark - Word Stuff
+
+void EvoWordGame::loadWordList( const char *wordlist )
+{
+	FILE *fp = fopen( wordlist, "rt" );
+	char word[100], clean_word[100];
+    printf ("Word list: %s\n", wordlist );
+    
+    m_startWords = 0;
+	while(!feof(fp))
+	{
+		fscanf( fp, "%s", word );
+		char *ch2 = clean_word;
+		char lastchar = 'z';
+		for (char *ch=word; *ch; ++ch)
+		{
+			// remove %'s (indicates plurals)..
+			// remove u's following q, for gameplay purposes
+			// q is "qu"
+			if ((*ch!='%') && ( (*ch!='u') || (lastchar!='q') ) )
+			{
+				*ch2 = toupper(*ch);
+				ch2++;
+			}
+			lastchar = *ch;
+		}
+		*ch2 = '\0';
+		
+		// add word
+		std::string strword(clean_word );
+		m_wordList[strword] = true;
+        
+        // If this is a startword, count it
+        if (strword.size()==3) m_startWords++;
+	}
+    
+	// hack? easter egg?
+	m_wordList["LUDUM"] = true;
+	m_wordList["JOVOC"] = true;
+    
+	printf( "Loaded %lu words, %d startWords\n", m_wordList.size(), m_startWords );
+}
+
+bool EvoWordGame::isWord( const std::string &word )
+{
+    WordList::iterator wi = m_wordList.find( word );
+    return (wi != m_wordList.end());
 }

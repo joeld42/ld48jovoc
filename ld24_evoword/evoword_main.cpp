@@ -27,7 +27,7 @@
 int main( int argc, char *argv[] )
 {
     printf("Game Data Dir: %s\n", getResourceDir().c_str() );
-    
+        
     // Initialize GLSW
     glswInit();
     glswSetPath( getResourceDir().c_str(), ".glsl" );

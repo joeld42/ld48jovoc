@@ -9,6 +9,9 @@
 #ifndef ld48jovoc_evoword_game_h
 #define ld48jovoc_evoword_game_h
 
+#include <string>
+#include <vector>
+#include <map>
 
 #include <SDL.h>
 #include <SDL_endian.h>
@@ -17,6 +20,16 @@
 #include <font.h>
 #include <png_loader.h>
 #include <shapes.h>
+
+// Game
+#include "creature.h"
+
+// Gamestate
+enum
+{
+    GameState_MENU,
+    GameState_GAME
+};
 
 // Simple 'controller'-like presses (multiple can be pressed)
 // for movement
@@ -53,12 +66,17 @@ public:
     
     void keypress( SDLKey &key );
     
+    bool isWord( const std::string &word );
+    
 protected:
     void _draw3d();
     void _draw2d();
 
     // Helper to draw a DrawVert based mesh
-    void _drawMesh( QuadBuff<DrawVert> *mesh );
+    void _drawMesh( QuadBuff<DrawVert> *mesh );    
+    void loadWordList( const char *wordlist );
+    
+    void startGame();
     
 private:
     // The font
@@ -76,7 +94,17 @@ private:
     matrix4x4f m_modelviewProj;
 
     float m_rotate;
+
+    typedef std::map<std::string,bool> WordList;
+	WordList m_wordList;    
+
+    // count of the number of 3 letter words in the list
+    int m_startWords;
     
+    std::string m_currWord;
+    Creature m_creature;
+    
+    int m_gamestate;
 };
 
 // The generated font data
