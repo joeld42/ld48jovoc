@@ -88,6 +88,8 @@ protected:
     
     void drawTree();
     
+    void drawCreatureEyes();
+    
 private:
     // The font
     PNGImage m_fontImg;
@@ -116,6 +118,10 @@ private:
     std::vector<Fragment> m_creatureFrags;
     std::vector<Fragment> m_oldCreatureFrags;
     
+    // Creature viz parts
+    QuadBuff<DrawVert> *m_eyeball;
+    QuadBuff<DrawVert> *m_eyelid;
+    
     // count of the number of 3 letter words in the list
     int m_startWords;
     
@@ -134,6 +140,11 @@ private:
     std::string m_startWord;
     std::string m_currWord;
     Creature m_creature;
+    
+    // Shader params
+    GLint m_uColorBase;
+    GLint m_uColorAlt;
+    GLint m_uColorAccent;
     
     int m_gamestate;
 };

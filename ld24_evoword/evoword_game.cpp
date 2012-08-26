@@ -12,6 +12,7 @@
 #include <gamedata.h>
 #include <useful.h>
 #include <shader.h>
+#include <load_obj.h>
 
 // offsetof() gives a warning about non-POD types with xcode, so use these old
 // school macros. This is OK because while VertType is non-POD, it doesn't have
@@ -68,16 +69,23 @@ void EvoWordGame::init()
     loadWordList(gameDataFile("", "2of12inf.txt" ).c_str() );
     
     // Load texture
-    m_simpleTex = LoadImagePNG( gameDataFile("", "simpletex.png" ).c_str() );
+    m_simpleTex = LoadImagePNG( gameDataFile("", "critter_map.png" ).c_str() );
 
     // Load font
     m_fontImg = LoadImagePNG( gameDataFile("", "nesfont.png" ).c_str() );
     m_nesFont = makeFont_nesfont_8( m_fontImg.textureId );    
     
-    m_cube = make_cube();
+//    m_cube = make_cube();
+    m_cube = load_obj( gameDataFile("", "urchin.obj" ).c_str()  );
+    
 //    setColorConstant( m_cube, vec4f( 1.0, 1.0, 1.0 ) );
     
     m_basicShader = loadShader( "evoword.Plastic" );
+    
+    m_uColorBase = glGetUniformLocation( m_basicShader, "colorBase" );
+    m_uColorAlt = glGetUniformLocation( m_basicShader, "colorAlt" ) ;
+    m_uColorAccent = glGetUniformLocation( m_basicShader, "colorAccent" ) ;
+
     
     m_rotate = 0.0;
     
@@ -92,7 +100,7 @@ void EvoWordGame::init()
 void EvoWordGame::updateSim( float dtFixed )
 {
     // Update stuff with a fixed timestep
-//    m_rotate += (M_PI/180.0) * (10.0) * dtFixed;
+    m_rotate += (M_PI/180.0) * (10.0) * dtFixed;
     
     // Add some floating fragments
     while (m_floatyFrags.size() < NUM_FLOATIES)
@@ -168,7 +176,7 @@ void EvoWordGame::redraw()
     glhPerspectivef2( m_proj, 40.0, 800.0/600.0, 0.1, 1000.0 );
 
     matrix4x4f xlate, rot;
-    xlate.Translate( 0.0, 0.1, -3.0 );
+    xlate.Translate( 0.0, -0.3, -5.0 );
     rot.RotateY( m_rotate );
     m_modelview = rot * xlate;
     
@@ -420,6 +428,17 @@ void EvoWordGame::_draw3d()
     GLint mvp = glGetUniformLocation( m_basicShader, "matrixPMV");
     glUniformMatrix4fv( mvp, 1, 0, (GLfloat*)(&m_modelviewProj)  );
     
+    glUniform3f( m_uColorBase, 
+                m_creature.m_colorScheme.m_colorOrganic1.x,
+                m_creature.m_colorScheme.m_colorOrganic1.y,
+                m_creature.m_colorScheme.m_colorOrganic1.z );
+
+    glUniform3f( m_uColorAlt, 
+                m_creature.m_colorScheme.m_colorMineral1.x,
+                m_creature.m_colorScheme.m_colorMineral1.y,
+                m_creature.m_colorScheme.m_colorMineral1.z );
+
+    
     glActiveTexture(GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, m_simpleTex.textureId );
     
@@ -583,6 +602,12 @@ void EvoWordGame::_draw2d()
         m_nesFont->clear();
 
     }
+}
+
+void EvoWordGame::drawCreatureEyes()
+{
+    // TODO: get from creature
+    
 }
 
 void EvoWordGame::_drawMesh( QuadBuff<DrawVert> *mesh )
@@ -816,9 +841,7 @@ void EvoWordGame::loadWordList( const char *wordlist )
 		for (char *ch=word; *ch; ++ch)
 		{
 			// remove %'s (indicates plurals)..
-			// remove u's following q, for gameplay purposes
-			// q is "qu"
-			if ((*ch!='%') && ( (*ch!='u') || (lastchar!='q') ) )
+			if (*ch!='%')
 			{
 				*ch2 = toupper(*ch);
 				ch2++;

@@ -34,16 +34,19 @@ void Creature::draw( Font *font )
     static const char *legNames[] = { "Legless", "Flagellum",  "Flippers", "Insect Legs", "Human Legs" };
     static const char *mouthNames[] = { "Mouthless", "Fish Pucker", "Beak", "Thick Lips", "Teethy", "Tentacles Bunch" };
     static const char *tailNames[] = { "None", "Slender", "Spiked Club", "Horsewhip", "Prehensile" };
-    static const char *bodyNames[] = { "Trilobite", "Fishlike", "Turtle", "Bearish", "Biped", "Elegant" };
+    static const char *bodyNames[] = { "Blob", "Trilobite", "Fishlike", "Turtle", "Bearish", "Biped", "Elegant" };
     
     int baseY = 550;
+    char cschm[10];
+    
     font->setColor(1.0, 1.0, 1.0, 1.0);    
     font->drawStringCentered( 400, baseY, "CREATURE" );
-    font->drawString( 200, baseY-30, (std::string("Body   : ")+bodyNames[m_bodySculptNum]).c_str() );
-    font->drawString( 200, baseY-60, (std::string("Eyes   : ")+eyeNames[m_eyeNum]).c_str() );
-    font->drawString( 200, baseY-90, (std::string("Mouth  : ")+mouthNames[m_mouthNum]).c_str() );
-    font->drawString( 200, baseY-120, (std::string("Legs   : ")+legNames[m_legNum]).c_str() );
-    font->drawString( 200, baseY-150, (std::string("Tail   : ")+tailNames[m_tailNum]).c_str() );
+    font->drawString( 200, baseY-30, (std::string("Colors   : ")+cschm).c_str() );
+    font->drawString( 200, baseY-60, (std::string("Body   : ")+bodyNames[m_bodySculptNum]).c_str() );
+//    font->drawString( 200, baseY-90, (std::string("Eyes   : ")+eyeNames[m_eyeNum]).c_str() );
+//    font->drawString( 200, baseY-90, (std::string("Mouth  : ")+mouthNames[m_mouthNum]).c_str() );
+//    font->drawString( 200, baseY-120, (std::string("Legs   : ")+legNames[m_legNum]).c_str() );
+//    font->drawString( 200, baseY-150, (std::string("Tail   : ")+tailNames[m_tailNum]).c_str() );
 }
 
 void Creature::evolveCreature( std::string genomeWord )
@@ -53,7 +56,18 @@ void Creature::evolveCreature( std::string genomeWord )
     
     m_word = genomeWord;
     
-    for (int i=0; i < genomeWord.size(); i++)
+    // First character defines the color scheme
+    m_colorScheme.generate( genomeWord[0] - 'A' );
+    
+    // Length of word defines the body type
+    m_bodySculptNum = (genomeWord.size() - 3);
+    if (m_bodySculptNum >= NUM_BodyType)
+    {
+        m_bodySculptNum = NUM_BodyType-1;
+    }
+    
+    // Remaining character alter genome 
+    for (int i=1; i < genomeWord.size(); i++)
     {
         switch (genomeWord[i])
         {

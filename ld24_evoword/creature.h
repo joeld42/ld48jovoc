@@ -10,6 +10,7 @@
 #define ld48jovoc_creature_h
 
 #include <string>
+#include <pally.h>
 
 #define NUM_EYES (5)
 #define NUM_LEGS (4)
@@ -19,6 +20,21 @@
 
 class Font;
 struct HistoryNode;
+
+//static const char *bodyNames[] = { "Blob", "Trilobite", "Fishlike", "Turtle", "Bearish", "Biped", "Elegant" };
+
+enum
+{
+    BodyType_BLOB,
+    BodyType_TRILOBITE,
+    BodyType_FISHLIKE,
+    BodyType_TURTLE,
+    BodyType_BEARISH,
+    BodyType_BIPED,
+    BodyType_ELEGANT,
+    
+    NUM_BodyType
+};
 
 class Creature
 {
@@ -43,6 +59,8 @@ public:
     void evolveBody();
     void evolveTail();
     void evolvePattern();
+        
+    Pally m_colorScheme;
     
     int m_eyeNum;
     int m_legNum;
