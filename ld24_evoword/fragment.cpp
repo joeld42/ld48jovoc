@@ -16,7 +16,9 @@ Fragment::Fragment()
 
 Fragment::Fragment( char letter, vec2f pos ) :
     m_pos( pos),
-    m_letter(letter)
+    m_letter(letter),
+    m_selected(false),
+    m_bubbleSprite( NULL )
 {
 }
 
@@ -33,8 +35,10 @@ void Fragment::initBubble()
     
     // Make bubbly
     m_bubbleVel = randNormal( 30.0, 15.0 );
+    if (m_bubbleVel < 1.0) m_bubbleVel = 1.0;
+    
     m_bubbleTval = 0.0;
     m_wiggleAmount = randUniform( 3.0, 30.0 );
     m_bubbleBaseX = m_pos.x;  
-    m_tScale = randNormal( 5.0, 2.0 );
+    m_tScale = randNormal( 5.0, 2.0 );    
 }

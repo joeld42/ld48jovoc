@@ -81,16 +81,18 @@ void EvoWordGame::init()
     m_mouths.push_back( LoadImagePNG( gameDataFile("", "mouth1.png" ).c_str() ));
     
     PNGImage bubbleImage = LoadImagePNG( gameDataFile( "", "bubble.png" ).c_str() );
-    m_sbBubbles = new SpriteBuff(bubbleImage.textureId);
-    m_testBubble = m_sbBubbles->makeSprite();
-    m_testBubble->x = 100.0;
-    m_testBubble->y = 100.0;    
-
-    m_testBubble->sx = 64.0;
-    m_testBubble->sy = 64.0;    
-    m_testBubble->update();
+    m_sbBubbles = new SpriteBuff(bubbleImage.textureId, 3000 );
+        
+//    m_testBubble = m_sbBubbles->makeSprite();
+//    m_testBubble->x = 100.0;
+//    m_testBubble->y = 100.0;    
+//
+//    m_testBubble->sx = 64.0;
+//    m_testBubble->sy = 64.0;    
+//    m_testBubble->update();
     
     m_vboThumbnail = 0;
+    m_cursorOn = false;
     
 //    m_sbThumb = NULL;
 //    m_testThumb = NULL;
@@ -98,6 +100,15 @@ void EvoWordGame::init()
     // Load font
     m_fontImg = LoadImagePNG( gameDataFile("", "nesfont.png" ).c_str() );
     m_nesFont = makeFont_nesfont_8( m_fontImg.textureId );    
+    
+//    PNGImage m_fontImgGrobold;
+//    Font *m_fontGrobold12;  
+//    Font *m_fontGrobold20;  
+//    Font *m_fontGrobold48;  
+    m_fontImgGrobold = LoadImagePNG( gameDataFile("", "grobold.png" ).c_str() );
+    m_fontGrobold12 = makeFont_grobold_12( m_fontImgGrobold.textureId );
+    m_fontGrobold20 = makeFont_grobold_20( m_fontImgGrobold.textureId );
+    m_fontGrobold48 = makeFont_grobold_48( m_fontImgGrobold.textureId );
     
 //    m_cube = make_cube();
     m_cube = load_obj( gameDataFile("", "urchin.obj" ).c_str()  );
@@ -160,6 +171,15 @@ void EvoWordGame::updateSim( float dtFixed )
     {            
         Fragment &f = (*fi);
         
+        // make sure it has a sprite
+        if (!f.m_bubbleSprite)
+        {
+            f.m_bubbleSprite = m_sbBubbles->makeSprite( 0.0, 1.0, 1.0, 0.0 );            
+            f.m_bubbleSprite->sx = randUniform( 32.0, 64.0 );
+            f.m_bubbleSprite->sy =  f.m_bubbleSprite->sx;
+            f.m_bubbleSprite->update();
+        }
+        
         // DON'T update floatyPicked
         if (&f == m_floatyPicked) continue;
         
@@ -172,8 +192,20 @@ void EvoWordGame::updateSim( float dtFixed )
         if (f.m_pos.y > 620)
         {
             f.initBubble();
-        }
+        }                
+        
+        // Update bubble sprite
+        f.m_bubbleSprite->x = f.m_pos.x;
+        f.m_bubbleSprite->y = f.m_pos.y;   
+        f.m_bubbleSprite->update();
     }
+    
+    // Update all bubble sprites
+//    for (std::vector<Fragment>::iterator fi = m_floatyFrags.begin();
+//         fi != m_floatyFrags.end(); ++fi )
+//    {
+//        if (fi->m_bubbleSprite) fi->m_bubbleSprite->update();
+//    }
     
     // Move genome fragments
     for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
@@ -351,6 +383,12 @@ void EvoWordGame::mouseMotion( float x, float y )
     {
         m_floatyPicked->m_pos = vec2f(x, 600-y);
         m_floatyPicked->m_bubbleBaseX = x;
+        
+        m_floatyPicked->m_bubbleSprite->x = m_floatyPicked->m_pos.x;
+        m_floatyPicked->m_bubbleSprite->y = m_floatyPicked->m_pos.y;
+        m_floatyPicked->m_bubbleSprite->update();
+        
+        replaceLetter( true );
     }
 }
 
@@ -364,71 +402,7 @@ void EvoWordGame::mouseButton( SDL_MouseButtonEvent &btnEvent )
         if (btnEvent.state == SDL_RELEASED)
         {
             
-            // See if this is close to a current creature fragment            
-            if (m_floatyPicked)
-                printf("ydist %f\n", fabs(m_floatyPicked->m_pos.y - 100) );
-            
-            const float letterDist = 10.0;
-            const float checkTime = 0.3;
-            
-            if ((m_checkWordTimeleft<=0.0) && (m_floatyPicked) && (fabs(m_floatyPicked->m_pos.y - 100) < 10))
-            {
-                printf("Checking frags: xpos %f\n", m_floatyPicked->m_pos.x );
-                
-                bool changedWord = false;
-                for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
-                {
-                    // insert between this letter and the next?
-                    auto fiNext = fi+1;
-                    if (fiNext != m_creatureFrags.end())
-                    {
-                        float insX = (fi->m_pos.x + fiNext->m_pos.x) / 2.0;
-                        printf("xdists between %c, %c = %f\n", 
-                                fi->m_letter, fiNext->m_letter, insX );
-                                
-                        if (fabs(m_floatyPicked->m_pos.x - insX) < letterDist)
-                        {
-                            // Save the old fragments in case the new
-                            // word isn't real
-                            m_oldCreatureFrags = m_creatureFrags;
-                            
-                            printf("INSERT BETWEEN LETTERS %c %c", fi->m_letter, fiNext->m_letter );
-                            Fragment fnew( m_floatyPicked->m_letter, vec2f( insX, fi->m_pos.y ) );
-                            m_creatureFrags.insert( fiNext, fnew );
-                            changedWord = true;
-                            break;
-                        }
-                    }
-                    
-                    // Replace a letter?
-                    printf( "Replace dist %c = %f\n", fi->m_letter, m_floatyPicked->m_pos.x - fi->m_pos.x );
-                    if ((fi->m_letter != '$') && (fabs(m_floatyPicked->m_pos.x - fi->m_pos.x) < letterDist))
-                    {
-                        // Save the old fragments in case the new
-                        // word isn't real
-                        m_oldCreatureFrags = m_creatureFrags;
-
-                        printf("REPLACE LETTER %c", fi->m_letter );
-                        fi->m_letter = m_floatyPicked->m_letter;                                                
-                        changedWord = true;
-                        break;
-                    }
-                }
-                
-                // if we changed the word, do stuff
-                if (changedWord)
-                {
-                    // Start the check timer
-                    m_checkWordTimeleft = checkTime;
-                }
-                
-                
-                // reset floatyPicked's yval so it will get recycled
-                m_floatyPicked->m_pos.y = 5000.0;
-                
-                // update positions in case the word changed
-                updateCreatureFrags();
-            }
+            replaceLetter( false );
             
             m_floatyPicked = NULL; // release picked floaty
         }
@@ -463,6 +437,103 @@ void EvoWordGame::mouseButton( SDL_MouseButtonEvent &btnEvent )
     }
 }
 
+void EvoWordGame::replaceLetter( bool preview )
+{
+    // See if this is close to a current creature fragment            
+    if (m_floatyPicked)
+        printf("ydist %f\n", fabs(m_floatyPicked->m_pos.y - 100) );
+    
+    const float letterDist = 15.0;
+    const float checkTime = 0.3;
+    
+    m_cursorOn = false;
+    
+    // clear selected flags
+    for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
+    {
+        fi->m_selected = false;
+    }
+    
+    if ((m_checkWordTimeleft<=0.0) && (m_floatyPicked) && (fabs(m_floatyPicked->m_pos.y - 100) < 20))
+    {
+        printf("Checking frags: xpos %f\n", m_floatyPicked->m_pos.x );
+        
+        bool changedWord = false;
+        for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
+        {
+            // insert between this letter and the next?
+            auto fiNext = fi+1;
+            if (fiNext != m_creatureFrags.end())
+            {
+                float insX = (fi->m_pos.x + fiNext->m_pos.x) / 2.0;
+                printf("xdists between %c, %c = %f\n", 
+                       fi->m_letter, fiNext->m_letter, insX );
+                
+                if (fabs(m_floatyPicked->m_pos.x - insX) < letterDist)
+                {
+                    if (preview)
+                    {
+                        printf("TODO: cursor at %f", insX );
+                        m_cursorOn = true;
+                        m_cursorX = insX;
+                    }
+                    else
+                    {
+                        // Save the old fragments in case the new
+                        // word isn't real
+                        m_oldCreatureFrags = m_creatureFrags;
+                        
+                        printf("INSERT BETWEEN LETTERS %c %c", fi->m_letter, fiNext->m_letter );
+                        Fragment fnew( m_floatyPicked->m_letter, vec2f( insX, fi->m_pos.y ) );
+                        m_creatureFrags.insert( fiNext, fnew );
+                        changedWord = true;
+                    }
+                    break;
+                }
+            }
+            
+            // Replace a letter?
+            printf( "Replace dist %c = %f\n", fi->m_letter, m_floatyPicked->m_pos.x - fi->m_pos.x );
+            if ((fi->m_letter != '$') && (fabs(m_floatyPicked->m_pos.x - fi->m_pos.x) < letterDist))
+            {
+                if (preview)
+                {
+                    // Just highlight the letter
+                    fi->m_selected = true;
+                }
+                else
+                {
+                    // Save the old fragments in case the new
+                    // word isn't real
+                    m_oldCreatureFrags = m_creatureFrags;
+                    
+                    printf("REPLACE LETTER %c", fi->m_letter );
+                    fi->m_letter = m_floatyPicked->m_letter;                                                
+                    changedWord = true;
+                }
+                break;
+            }
+        }
+        
+        // if we changed the word, do stuff
+        if (changedWord)
+        {
+            // Start the check timer
+            m_checkWordTimeleft = checkTime;
+        }
+        
+        if (!preview)
+        {
+            // reset floatyPicked's yval so it will get recycled
+            m_floatyPicked->m_pos.y = 5000.0;
+            
+            // update positions in case the word changed
+            updateCreatureFrags();
+        }
+    }
+    
+}
+
 // For "continuous" button events
 void EvoWordGame::updateButtons( unsigned int btnMask )
 {
@@ -477,12 +548,17 @@ void EvoWordGame::keypress( SDLKey &key )
         switch(key)
         {
             case ' ':
-                startGame();
+                 if (m_gamestate != GameState_REVIEW)
+                 {
+                    startGame();
+                 }
                 break;
                 
             // DBG: Toggle review tree
             case 'r':
-                m_gamestate = GameState_GAME;
+                if (m_savedCreatures.size() < NUM_SLOTS)
+                    m_gamestate = GameState_GAME;
+                
                 break;
 
 
@@ -507,12 +583,12 @@ void EvoWordGame::keypress( SDLKey &key )
                 break;
                 
             // DBG: save color palete
-            case 'p':
-                saveCurrentPalette();
-                break;
+//            case 'p':
+//                saveCurrentPalette();
+//                break;
 
             case SDLK_RETURN:
-                if (m_checkWordTimeleft <= 0.0)
+                if ((m_checkWordTimeleft <= 0.0) && (!m_currWord.empty()))
                 {
                     saveCreature( true );
                 }
@@ -615,14 +691,21 @@ void EvoWordGame::_draw2d()
     // disable shaders (TODO: make a text shader so this ports to ES2 easier)
     glUseProgram(0);
     
+    glColor3f( 1.0, 1.0, 1.0 );
+    
     glDisable( GL_DEPTH_TEST );
     
     if (m_gamestate==GameState_MENU)
     {
-        m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
-        m_nesFont->drawStringCentered( 400, 300, "Press SPACE to start" );    
-        m_nesFont->renderAll();
-        m_nesFont->clear();
+        m_fontGrobold48 ->setColor(0.5, 1.0, 0.5, 1.0);
+        m_fontGrobold48->drawStringCentered( 400, 500, "EvoWord" );    
+        m_fontGrobold48->renderAll();
+        m_fontGrobold48->clear();
+
+        m_fontGrobold20->setColor(1.0, 1.0, 1.0, 1.0);
+        m_fontGrobold20->drawStringCentered( 400, 300, "Press SPACE to start" );    
+        m_fontGrobold20->renderAll();
+        m_fontGrobold20->clear();
     }
     else if (m_gamestate==GameState_REVIEW)
     {
@@ -631,18 +714,21 @@ void EvoWordGame::_draw2d()
         // Game over.. show their awesome word tree
         char buff[256];
         sprintf( buff, "You earned %zu points!", m_score );
-        m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
-        m_nesFont->drawStringCentered( 400, 560, buff );    
+        m_fontGrobold20->setColor(1.0, 1.0, 1.0, 1.0);
+        m_fontGrobold20->drawStringCentered( 400, 560, buff );    
 
+        m_fontGrobold12->setColor(1.0, 1.0, 1.0, 1.0);                        
+        m_fontGrobold12->drawStringCentered( 400, 535, "Press ESC to quit." );    
+        
         // draw saved creatures
-        m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);                        
+        m_fontGrobold12->setColor(1.0, 1.0, 0.0, 1.0);                        
         int currY = 580;
         int index = 1;
         for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
         {
             char slotbuf[100];
             sprintf( slotbuf, "%d. %s", index, (*wi).m_word.c_str() );
-            m_nesFont->drawString( 20, currY, slotbuf );        
+            m_fontGrobold12->drawString( 20, currY, slotbuf );        
             currY -= 30;
             index += 1;
         }
@@ -657,14 +743,14 @@ void EvoWordGame::_draw2d()
         
         CHECKGL( "before tree" );
         currY = 500 + m_scrollPos;
-        m_nesFont->setColor(0.0, 1.0, 1.0, 1.0);
+        m_fontGrobold12->setColor(0.0, 1.0, 1.0, 1.0);
         glDisable( GL_TEXTURE_2D );
         CHECKGL( "disable texture" );
         
         glLineWidth( 4.0 );
         glBegin( GL_LINES );
         glColor3f( 1.0, 1.0, 1.0 );
-        m_historyRoot->drawSubtree( m_nesFont, vec2f( 400, currY), currY );
+        m_historyRoot->drawSubtree( m_fontGrobold12, vec2f( 400, currY), currY );
         glEnd();        
         glEnable( GL_TEXTURE_2D );
         CHECKGL( "tree done" );
@@ -673,12 +759,19 @@ void EvoWordGame::_draw2d()
         m_historyRoot->drawThumbnails();
 
         // DBG scroll
-        sprintf( buff, "%3.2f (%3.2f)", m_scrollPos, m_scrollLimit );
-        m_nesFont->drawString( 500, 550, buff );    
+//        sprintf( buff, "%3.2f (%3.2f)", m_scrollPos, m_scrollLimit );
+//        m_nesFont->drawString( 500, 550, buff );    
         
         // Draw all text
-        m_nesFont->renderAll();
-        m_nesFont->clear();
+        m_fontGrobold12->renderAll();
+        m_fontGrobold12->clear();
+
+        m_fontGrobold20->renderAll();
+        m_fontGrobold20->clear();
+
+        m_fontGrobold48->renderAll();
+        m_fontGrobold48->clear();
+        
         CHECKGL( "after text" );
 
     }
@@ -694,23 +787,25 @@ void EvoWordGame::_draw2d()
         if (m_displayedScore > m_score)
         {
             // Losing points, bad
-            m_nesFont->setColor(1.0, 0.0, 0.0, 1.0);
+            m_fontGrobold20->setColor(1.0, 0.0, 0.0, 1.0);
         }
         else if (m_displayedScore < m_score )
         {
             // earning points, good!
-            m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);            
+            m_fontGrobold20->setColor(1.0, 1.0, 0.0, 1.0);            
         }
         else
         {
             // stable score
-            m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);                        
+            m_fontGrobold20->setColor(1.0, 1.0, 1.0, 1.0);                        
         }
-        m_nesFont->drawString( 650, 50, buff );    
+        m_fontGrobold20->drawString( 650, 50, buff );    
         
         
         // draw saved creatures
-        m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);                        
+        m_fontGrobold20->setColor(1.0, 1.0, 0.0, 1.0);                        
+        m_fontGrobold12->setColor(1.0, 1.0, 0.0, 1.0);                        
+        
         int currY = 580;
 #if 0
         int index = 1;
@@ -735,10 +830,10 @@ void EvoWordGame::_draw2d()
         if (m_currWord.empty())
         {
             // Make user pick another word
-            m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
-            m_nesFont->drawStringCentered( 400, 300, "Choose a creature" );    
-            m_nesFont->renderAll();
-            m_nesFont->clear();
+            m_fontGrobold20->setColor(1.0, 1.0, 1.0, 1.0);
+            m_fontGrobold20->drawStringCentered( 400, 300, "Choose a creature [1-5]" );    
+            m_fontGrobold20->renderAll();
+            m_fontGrobold20->clear();
         }
         else
         {
@@ -746,9 +841,24 @@ void EvoWordGame::_draw2d()
             // draw creature
 //            m_creature.draw( m_nesFont);
             
+            // draw insert cursor
+            if (m_cursorOn)
+            {
+                glDisable( GL_TEXTURE_2D );
+                glLineWidth( 4.0 );
+                glBegin( GL_LINES );
+                glColor3f( 0.0, 1.0, 1.0 );
+                glVertex2f( m_cursorX, 50 );
+                glVertex2f( m_cursorX, 150 );
+                glEnd();        
+                glEnable( GL_TEXTURE_2D );
+                
+                glColor3f( 1.0, 1.0, 1.0 );
+            }
+
             
             // draw "fragments"
-            m_nesFont->setColor(0.5, 1.0, 0.5, 1.0);
+            m_fontGrobold20->setColor(0.5, 1.0, 0.5, 1.0);
             for ( std::vector<Fragment>::iterator fi = m_floatyFrags.begin();
                  fi != m_floatyFrags.end(); ++fi )
             {
@@ -757,11 +867,11 @@ void EvoWordGame::_draw2d()
                 buff[1] = '\0';
                 buff[0] = f.m_letter;
                 
-                m_nesFont->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
+                m_fontGrobold20->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
             }
             
             // draw current word genome
-            m_nesFont->setColor(1.0, 1.0, 0.5, 1.0);
+            m_fontGrobold48->setColor(1.0, 1.0, 0.5, 1.0);
             for ( auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi )
             {
                 Fragment &f = (*fi);
@@ -772,13 +882,29 @@ void EvoWordGame::_draw2d()
                 buff[1] = '\0';
                 buff[0] = f.m_letter;
                 
-                m_nesFont->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
+                if (f.m_selected)
+                {
+                    m_fontGrobold48->setColor(0.0, 1.0, 1.0, 1.0);
+                }
+                else
+                {
+                    m_fontGrobold48->setColor(1.0, 1.0, 0.5, 1.0);
+                }
+                
+                m_fontGrobold48->drawString( f.m_pos.x - 8, f.m_pos.y-8, buff );
             }
 
         }
-        m_nesFont->renderAll();
-        m_nesFont->clear();
+        m_fontGrobold12->renderAll();
+        m_fontGrobold12->clear();
 
+        m_fontGrobold20->renderAll();
+        m_fontGrobold20->clear();
+
+        m_fontGrobold48->renderAll();
+        m_fontGrobold48->clear();
+
+        
         // Draw sprites
         m_sbBubbles->renderAll();
         
@@ -1097,7 +1223,7 @@ void EvoWordGame::updateCreatureFrags()
 {
     // just update the positions of the creature's DNA
     // target fragments (letters)
-    const float letterSize = 30;
+    const float letterSize = 50;
     float wordStartX = 400 - (m_creatureFrags.size() * (letterSize/2) );
     for (int i=0; i < m_creatureFrags.size(); i++)
     {
@@ -1236,8 +1362,8 @@ void EvoWordGame::drawSavedCreatures()
         }
         sprintf( slotbuf, "[%d]", index );
         float xpos =  (int)((slotWidth/2) + (i*slotWidth));
-        m_nesFont->drawStringCentered( xpos, 580.0, slotbuf );    
-        m_nesFont->drawStringCentered( xpos, 480.0, cname.c_str() );    
+        m_fontGrobold20->drawStringCentered( xpos, 580.0, slotbuf );    
+        m_fontGrobold12->drawStringCentered( xpos, 480.0, cname.c_str() );    
         
         // Align the thumbnail for this creature
         if (i < m_savedCreatures.size() )

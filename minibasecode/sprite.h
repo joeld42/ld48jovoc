@@ -26,6 +26,7 @@ class SpriteBuff : public QuadBuff<SpriteVert>
 {
 public:
 	SpriteBuff( GLuint texId );
+	SpriteBuff( GLuint texId, size_t initialSize );
 	
 	Sprite *makeSprite( float s0=0.0, float t0=0.0,
 					    float s1=1.0, float t1=1.0 );
@@ -39,6 +40,7 @@ public:
 //private:
 	GLuint m_texId;
 	std::list<Sprite*> m_sprites;
+    
 };
 
 class Sprite

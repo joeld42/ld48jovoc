@@ -10,6 +10,7 @@
 #define ld48jovoc_fragment_h
 
 #include <prmath/prmath.hpp>
+#include <sprite.h>
 
 // A "fragment" is a letter, it represents a fragment of the creature's DNA
 
@@ -26,12 +27,17 @@ public:
     vec2f m_pos;
     char m_letter;
     
+    // Highlight for replacing
+    bool m_selected;
+    
     // Bubbling up behavior
     float m_bubbleBaseX; // unwiggled x (target x for word fragments)
     float m_bubbleVel; // how fast it rises
     float m_bubbleTval; // for the wiggle
     float m_wiggleAmount; // How much wiggle
     float m_tScale; // How fast wiggle
+    
+    Sprite *m_bubbleSprite;
     
     
 };

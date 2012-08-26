@@ -99,11 +99,18 @@ protected:
     void saveCurrentPalette();
     void loadPalettes();
     
+    void replaceLetter( bool preview );
+    
 private:
     // The font
     PNGImage m_fontImg;
     Font *m_nesFont;  
-        
+
+    PNGImage m_fontImgGrobold;
+    Font *m_fontGrobold12;  
+    Font *m_fontGrobold20;  
+    Font *m_fontGrobold48;  
+    
     // The creature
     QuadBuff<DrawVert> *m_cube;
     GLint m_basicShader;
@@ -118,6 +125,10 @@ private:
     SpriteBuff *m_sbBubbles;
     Sprite *m_testBubble;
 
+    // cursor
+    bool m_cursorOn;
+    float m_cursorX;
+    
 //    SpriteBuff *m_sbThumb;
 //    Sprite *m_testThumb;
     
@@ -201,6 +212,11 @@ private:
 // This is the NES font I used for LD20, within the rules to reuse this
 // if necessary but should probably replace it ASAP 
 Font *makeFont_nesfont_8( GLuint fontTex );
+
+// The game font
+Font *makeFont_grobold_12( GLuint hFontTex );
+Font *makeFont_grobold_20( GLuint hFontTex );
+Font *makeFont_grobold_48( GLuint hFontTex );
 
 
 #endif

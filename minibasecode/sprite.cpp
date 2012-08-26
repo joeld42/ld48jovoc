@@ -20,6 +20,13 @@ SpriteBuff::SpriteBuff( GLuint texId ) :
 {
 }
 
+SpriteBuff::SpriteBuff( GLuint texId, size_t initialSize ) :
+        QuadBuff<SpriteVert>( initialSize, false, GL_DYNAMIC_DRAW ),
+        m_texId( texId )
+{
+    
+}
+
 Sprite *SpriteBuff::makeSprite( float s0, float t0,
 							    float s1, float t1 )
 {
