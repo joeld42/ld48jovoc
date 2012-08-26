@@ -72,6 +72,8 @@ public:
     
     bool isWord( const std::string &word );
     
+    HistoryNode *historyNodeForCurrentCritter( HistoryNode *parent );
+    
 protected:
     void _draw3d();
     void _draw2d();
@@ -91,6 +93,8 @@ protected:
 
     void drawCreatureEyes();
     void drawCreatureEyelids();
+    
+    void drawSavedCreatures();
     
     void saveCurrentPalette();
     void loadPalettes();
@@ -113,6 +117,13 @@ private:
     // UI sprites
     SpriteBuff *m_sbBubbles;
     Sprite *m_testBubble;
+
+//    SpriteBuff *m_sbThumb;
+//    Sprite *m_testThumb;
+    
+    // render thumbnails
+    SpriteBuff *renderThumbnail();
+    GLuint m_vboThumbnail; // vbo for thumbnails
     
     // camera stuff
     matrix4x4f m_proj;

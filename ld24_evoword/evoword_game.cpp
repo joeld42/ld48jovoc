@@ -13,6 +13,7 @@
 #include <useful.h>
 #include <shader.h>
 #include <load_obj.h>
+#include <GLee.h>
 
 // offsetof() gives a warning about non-POD types with xcode, so use these old
 // school macros. This is OK because while VertType is non-POD, it doesn't have
@@ -21,8 +22,10 @@
 #define offset_s(t,f)    offset_d((t*)1000, f)
 
 #define NUM_FLOATIES (30)
-
 #define NUM_SLOTS (6)
+
+#define THUMBNAIL_SIZE (64)
+//#define THUMBNAIL_SIZE (512)
 
 #include "evoword_game.h"
 
@@ -87,6 +90,10 @@ void EvoWordGame::init()
     m_testBubble->sy = 64.0;    
     m_testBubble->update();
     
+    m_vboThumbnail = 0;
+    
+//    m_sbThumb = NULL;
+//    m_testThumb = NULL;
     
     // Load font
     m_fontImg = LoadImagePNG( gameDataFile("", "nesfont.png" ).c_str() );
@@ -251,10 +258,24 @@ void EvoWordGame::redraw()
 {
     glClearColor( 78.0/255.0, 114.0/255.0, 136.0/255.0, 1.0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    // TEST thumbnail
+//    if ( (!m_sbThumb) && (m_gamestate == GameState_GAME))
+//    {
+//        m_sbThumb = renderThumbnail();
+//        m_testThumb = m_sbThumb->makeSprite( 0.0, 1.0, 1.0, 0.0 ); // flip st Y
+//        
+//        m_testThumb->x = 200.0;
+//        m_testThumb->y = 300.0;    
+//        
+//        m_testThumb->sx = THUMBNAIL_SIZE * 4;
+//        m_testThumb->sy = THUMBNAIL_SIZE * 4;    
+//        m_testThumb->update();
+//
+//    }
     
     // 3d stuff    
     glhPerspectivef2( m_proj, 40.0, 800.0/600.0, 0.1, 1000.0 );
-
     
     matrix4x4f xlate, rot, rot2;    
     xlate.Translate( 0.0, -0.3, -m_cameraDist );
@@ -263,18 +284,19 @@ void EvoWordGame::redraw()
     m_modelview = (rot*rot2) * xlate;
     
     m_modelviewProj = m_modelview * m_proj;
-
+    CHECKGL( "before draw3d" );
+    
     // Draw 3D scene
     _draw3d();
+    CHECKGL( "after draw3d" );
     
-    // set up 2D draw 
-    glDisable( GL_VERTEX_ARRAY );
-    
-    glDisableClientState( GL_VERTEX_ARRAY );
+    // set up 2D draw     
+    glDisableClientState( GL_VERTEX_ARRAY );    
     glDisableClientState( GL_COLOR_ARRAY );
+    CHECKGL( "disable client state" );
     
-    glEnable( GL_TEXTURE );
     glEnable( GL_TEXTURE_2D );
+    CHECKGL( "enable texture" );
     
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -505,10 +527,9 @@ void EvoWordGame::_draw3d()
     // don't draw the scene if not playing
     if (m_gamestate!=GameState_GAME) return;
     
-    glEnable( GL_TEXTURE );
     glEnable( GL_TEXTURE_2D );
-
     glEnable( GL_DEPTH_TEST );
+    CHECKGL( "draw3d: gltexture" );
     
     // Set up basic shader
     glUseProgram( m_basicShader );    
@@ -579,6 +600,8 @@ void EvoWordGame::_draw2d()
     }
     else if (m_gamestate==GameState_REVIEW)
     {
+        CHECKGL( "review draw start" );
+        
         // Game over.. show their awesome word tree
         char buff[256];
         sprintf( buff, "You earned %zu points!", m_score );
@@ -606,19 +629,27 @@ void EvoWordGame::_draw2d()
             printf("TreeWidth is %f\n", m_treeWidth );
         }
         
+        CHECKGL( "before tree" );
         currY = 500;
         m_nesFont->setColor(0.0, 1.0, 1.0, 1.0);
         glDisable( GL_TEXTURE_2D );
+        CHECKGL( "disable texture" );
+        
         glLineWidth( 4.0 );
         glBegin( GL_LINES );
         glColor3f( 1.0, 1.0, 1.0 );
         m_historyRoot->drawSubtree( m_nesFont, vec2f( 400, currY), currY );
-        glEnd();
+        glEnd();        
         glEnable( GL_TEXTURE_2D );
+        CHECKGL( "tree done" );
+        
+        // draw thumbnails
+        m_historyRoot->drawThumbnails();
         
         // Draw all text
         m_nesFont->renderAll();
         m_nesFont->clear();
+        CHECKGL( "after text" );
 
     }
     else if (m_gamestate==GameState_GAME)
@@ -645,7 +676,7 @@ void EvoWordGame::_draw2d()
             // stable score
             m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);                        
         }
-        m_nesFont->drawString( 650, 580, buff );    
+        m_nesFont->drawString( 650, 50, buff );    
         
 //        sprintf( buff, "%f", m_currLook );
 //        m_nesFont->drawString( 600, 550, buff );    
@@ -653,6 +684,7 @@ void EvoWordGame::_draw2d()
         // draw saved creatures
         m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);                        
         int currY = 580;
+#if 0
         int index = 1;
 //        for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
         for (int i=0; i < NUM_SLOTS; i++)
@@ -664,10 +696,12 @@ void EvoWordGame::_draw2d()
                 cname = m_savedCreatures[i].m_word;
             }
             sprintf( slotbuf, "%d. %s", index, cname.c_str() );
-            m_nesFont->drawString( 20, currY, slotbuf );        
+            m_nesFont->drawStringCentered( 20, currY, slotbuf );        
             currY -= 30;
             index += 1;
         }
+#endif
+        drawSavedCreatures();
         
         
         if (m_currWord.empty())
@@ -682,7 +716,7 @@ void EvoWordGame::_draw2d()
         {
             
             // draw creature
-            m_creature.draw( m_nesFont);
+//            m_creature.draw( m_nesFont);
             
             
             // draw "fragments"
@@ -719,6 +753,21 @@ void EvoWordGame::_draw2d()
 
         // Draw sprites
         m_sbBubbles->renderAll();
+        
+//        if (m_sbThumb)
+//        {
+//            m_sbThumb->renderAll();
+//        }
+        
+        // Draw history sprites
+        for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
+        {
+            SpriteBuff *sb = (*wi).m_historyNode->m_sbThumbnail;
+            if (sb)
+            { 
+                (*wi).m_historyNode->m_sbThumbnail->renderAll();
+            }
+        }
     }
 }
 
@@ -824,12 +873,129 @@ void EvoWordGame::_drawMesh( QuadBuff<DrawVert> *mesh )
     glDrawArrays(GL_TRIANGLES, 0, mesh->size() );
 }
 
+
+HistoryNode *EvoWordGame::historyNodeForCurrentCritter( HistoryNode *parent )
+{
+    HistoryNode *hist = new HistoryNode( parent );
+    hist->m_word = m_currWord;
+    
+    // make a thumbnail
+    hist->m_sbThumbnail = renderThumbnail();
+    hist->m_thumbnail = hist->m_sbThumbnail->makeSprite( 0.0, 1.0, 1.0, 0.0 ); // flip st Y
+    
+    hist->m_thumbnail->x = 500.0;
+    hist->m_thumbnail->y = 500.0;    
+    
+    hist->m_thumbnail->sx = THUMBNAIL_SIZE;
+    hist->m_thumbnail->sy = THUMBNAIL_SIZE;    
+    hist->m_thumbnail->update();
+
+     
+    return hist;
+}
+
+SpriteBuff *EvoWordGame::renderThumbnail()
+{
+    CHECKGL( "renderThumbnail" );
+    printf( "======= renderThumbnail ========\n" );
+    
+    // Set up VBO if not set up
+    if (!m_vboThumbnail)        
+    {
+        glGenFramebuffersEXT( 1, &m_vboThumbnail );
+        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, m_vboThumbnail );
+        printf( "m_vboThumbnail is %d\n", m_vboThumbnail );	
+        
+        // Attach a depth buffer
+        GLuint depthbuffer; 
+        glGenRenderbuffersEXT(1, &depthbuffer); 
+        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthbuffer);
+        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, THUMBNAIL_SIZE, THUMBNAIL_SIZE);
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthbuffer);
+    }
+    else
+    {
+        // Already created, just bind it
+        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, m_vboThumbnail );
+    }
+    
+    
+    // Create a texture for the thumbnail
+    GLuint texIdFbo;
+    unsigned char *data = (unsigned char *)malloc( THUMBNAIL_SIZE*THUMBNAIL_SIZE*4 );
+
+//	glGenTexturesEXT( 1, &texIdFbo );	
+    glGenTextures(1, &texIdFbo);
+	glBindTexture( GL_TEXTURE_2D, texIdFbo );
+    
+    printf("genTexture and bound %d\n", texIdFbo );
+    
+	// Set the texture's stretching properties
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    
+	glTexImage2D( GL_TEXTURE_2D, 0, 4, 
+                 THUMBNAIL_SIZE, THUMBNAIL_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+    
+    CHECKGL( "before attach" );
+    
+    // attach a texture
+	glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+                              GL_TEXTURE_2D, texIdFbo, 0 );
+    
+	checkFBO( );
+	CHECKGL( "attach fbo to texture" );
+    printf("Attach fbo to texture %d\n", texIdFbo );
+
+    glViewport( 0, 0, THUMBNAIL_SIZE, THUMBNAIL_SIZE );
+    glClearColor( 0.0, 0.0, 0.0 , 0.0 );
+//    glClearColor( 0.0, 0.0, 0.0 , 1.0 );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    
+    // Draw scene
+    glhPerspectivef2( m_proj, 40.0, 1.0, 0.1, 1000.0 );
+    
+    matrix4x4f xlate, rot, rot2;    
+    xlate.Translate( 0.0, -0.3, -3.5 );
+    
+    rot.RotateY( randNormal( 0.0, 10.0) * (M_PI/180.0));
+    rot2.RotateX( 10.0 * (M_PI/180.0));
+    m_modelview = (rot*rot2) * xlate;
+    
+    m_modelviewProj = m_modelview * m_proj;
+    
+    // Draw 3D scene
+    _draw3d();
+
+    // Detach framebuffer from texture
+    printf("Detach texture.." );
+    glFramebufferTexture2DEXT( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+                              GL_TEXTURE_2D, 0, 0 );
+    
+
+    
+    // restore the main buffer
+    glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+    
+    glhPerspectivef2( m_proj, 40.0, 800.0/600.0, 0.1, 1000.0 );
+    glViewport( 0, 0, 800, 600 );
+    
+    SpriteBuff *sbuff = new SpriteBuff( texIdFbo );
+    
+    printf("RenderThumbnail done...\n" );
+    
+    return sbuff;
+}
+
 #pragma mark - Game Stuff
 
 void EvoWordGame::startGame()
 {
     srand48( SDL_GetTicks() );
     
+    m_gamestate = GameState_GAME;
+
     // Pick a new startword
     int startWordNdx = (int)randUniform(1, m_startWords);
     printf("startWordNdx %d\n", startWordNdx );
@@ -847,7 +1013,7 @@ void EvoWordGame::startGame()
             }
         }
     }
-    printf("CurrWord is %s", m_currWord.c_str() );
+//    printf("CurrWord is %s\n", m_currWord.c_str() );
         
     initCreatureFragments();
     
@@ -858,8 +1024,7 @@ void EvoWordGame::startGame()
         m_historyRoot = NULL;
         m_historyCurr = NULL;
     }
-    m_historyRoot = new HistoryNode( NULL );
-    m_historyRoot->m_word = m_currWord;
+    m_historyRoot = historyNodeForCurrentCritter( NULL );
     m_historyCurr = m_historyRoot;
     m_needsLayout = true;
     
@@ -869,7 +1034,6 @@ void EvoWordGame::startGame()
     // Start playing
     m_startWord = m_currWord;
     m_checkWordTimeleft = -1.0;
-    m_gamestate = GameState_GAME;
     
     // Score
     m_usedWords.clear();
@@ -951,14 +1115,13 @@ void EvoWordGame::checkWord()
         m_currWord = testWord;
         m_creature.evolveCreature( m_currWord, m_creaturePalettes );
 
-        printf("BaseScore %d, finalScore %d", wordScore, wordScore*wordScore );
+        printf("BaseScore %d, finalScore %d\n", wordScore, wordScore*wordScore );
         
         // Final score is base score squared
         wordScore = wordScore*wordScore;
         
         // Add it to the history tree
-        HistoryNode *hist = new HistoryNode( m_historyCurr );
-        hist->m_word = m_currWord;
+        HistoryNode *hist = historyNodeForCurrentCritter( m_historyCurr );
         m_historyCurr = hist;
         
         // Remember it was used
@@ -1006,6 +1169,41 @@ void EvoWordGame::saveCreature( bool pickNow )
         // Yep, go to review state
         m_gamestate = GameState_REVIEW;
     }
+}
+
+void EvoWordGame::drawSavedCreatures()
+{
+    const float slotWidth = 133;
+    int index = 1;
+    for (int i=0; i < NUM_SLOTS; i++)
+    {
+        char slotbuf[100];
+        std::string cname;
+        if (i < m_savedCreatures.size() )
+        {
+            cname = m_savedCreatures[i].m_word;
+        }
+        sprintf( slotbuf, "[%d]", index );
+        float xpos =  (int)((slotWidth/2) + (i*slotWidth));
+        m_nesFont->drawStringCentered( xpos, 580.0, slotbuf );    
+        m_nesFont->drawStringCentered( xpos, 480.0, cname.c_str() );    
+        
+        // Align the thumbnail for this creature
+        if (i < m_savedCreatures.size() )
+        {
+            Sprite *thumbSprite = m_savedCreatures[i].m_historyNode->m_thumbnail;
+            if (thumbSprite)
+            {
+                thumbSprite->x = xpos;
+                thumbSprite->y = 530;
+                 
+                thumbSprite->update();
+            }
+        }
+        
+        index += 1;
+    }
+
 }
 
 // draws a tree of saved creatures
@@ -1097,6 +1295,9 @@ void EvoWordGame::loadWordList( const char *wordlist )
 
 bool EvoWordGame::isWord( const std::string &word )
 {
+//    return true;
+    
+    
     WordList::iterator wi = m_wordList.find( word );
     return (wi != m_wordList.end());
 }

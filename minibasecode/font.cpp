@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include "useful.h"
 #include "font.h"
 
 
@@ -181,6 +182,8 @@ void Font::_drawGlyph( const Glyph &g, int x, int y )
 // Draw all the sprites in this buff
 void Font::renderAll()
 {
+    CHECKGL( "font::renderAll enter" );
+    
 	glBindTexture( GL_TEXTURE_2D, m_texId );
 	
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo() );
@@ -203,6 +206,8 @@ void Font::renderAll()
     
     // Unbind any buffer
     glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    
+    CHECKGL( "font::renderAll leave" );
 }
 
 

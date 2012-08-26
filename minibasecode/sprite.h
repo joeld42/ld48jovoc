@@ -36,7 +36,7 @@ public:
 	// Draw all the sprites in this buff
 	void renderAll();
 		
-private:
+//private:
 	GLuint m_texId;
 	std::list<Sprite*> m_sprites;
 };

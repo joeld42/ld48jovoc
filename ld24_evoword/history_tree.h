@@ -13,7 +13,8 @@
 #include <string>
 #include <vector>
 
-#include "font.h"
+#include <sprite.h>
+#include <font.h>
 
 struct HistoryNode
 {
@@ -23,6 +24,7 @@ struct HistoryNode
     
     float layoutSubtree();
     void drawSubtree( Font *font, vec2f pos, float yval );
+    void HistoryNode::drawThumbnails();
     
     std::string m_word;
     vec2f m_pos;
@@ -30,6 +32,10 @@ struct HistoryNode
     
     HistoryNode *m_parent;
     std::vector<HistoryNode*> m_childs;
+    
+    // Thumbnail
+    SpriteBuff *m_sbThumbnail;
+    Sprite *m_thumbnail;
 };
 
 

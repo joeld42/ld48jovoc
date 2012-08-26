@@ -2,6 +2,8 @@
 #include <math.h>
 #include <prmath/prmath.hpp>
 #include <useful.h>
+#include <GLee.h>
+#include <GL/glu.h>
 
 float randUniform()
 {
@@ -100,5 +102,54 @@ float sgn( float n )
 {
     return (n<0)?-1.0:1.0;
 }
+
+
+// ===========================================================================
+// Error Checkings
+int checkForGLErrors( const char *s, const char * file, int line )
+{
+    int errors = 0 ;
+    int counter = 0 ;
+    
+    while ( counter < 1000 )
+    {
+        GLenum x = glGetError() ;
+        
+        if ( x == GL_NO_ERROR )
+            return errors ;
+        
+        printf( "%s:%d [%s] OpenGL error: %s [%08x]\n",  file, line, s ? s : "", gluErrorString ( x ), x ) ;
+        errors++ ;
+        counter++ ;
+    }
+	return 0;
+}
+
+void checkFBO()
+{
+	GLenum status = glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
+	if (status != GL_FRAMEBUFFER_COMPLETE_EXT )
+	{
+		const char *errStr;
+		switch (status)
+		{
+            case GL_FRAMEBUFFER_UNDEFINED: errStr = "GL_FRAMEBUFFER_UNDEFINED"; break;
+            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: errStr = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"; break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: errStr = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"; break;
+            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: errStr = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"; break;
+            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: errStr = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"; break;
+            case GL_FRAMEBUFFER_UNSUPPORTED: errStr = "GL_FRAMEBUFFER_UNSUPPORTED"; break;
+            case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: errStr = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"; break;		
+            default: errStr = "UNKNOWN_ERROR"; break;
+		}
+		printf( "Bad framebuffer status: [0x%08X] %s\n", status, errStr );
+	}
+	else
+	{
+		printf( "glCheckFramebufferStatus good: GL_FRAMEBUFFER_COMPLETE\n" );
+	}
+}
+
+
 
 

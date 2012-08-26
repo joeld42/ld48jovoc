@@ -6,11 +6,12 @@
 //  Copyright (c) 2012 Joel Davis. All rights reserved.
 //
 #include <prmath/prmath.hpp>
+#include <useful.h>
 
 #include "history_tree.h"
 
 #define NODE_WIDTH  (150)
-#define NODE_HEIGHT (40)
+#define NODE_HEIGHT (85)
 
 HistoryNode::HistoryNode( HistoryNode *parent )
 {
@@ -20,6 +21,9 @@ HistoryNode::HistoryNode( HistoryNode *parent )
     {
         parent->m_childs.push_back(this);
     }
+    
+    m_sbThumbnail = NULL;
+    m_thumbnail = NULL;
 }
 
 HistoryNode::~HistoryNode()
@@ -72,18 +76,40 @@ void HistoryNode::drawSubtree( Font *font, vec2f pos, float yval )
 {
     // draw current node
     vec2f nodePos = vec2f( pos.x + (m_pos.x * NODE_WIDTH), yval );
-    
-    font->drawStringCentered( nodePos.x, yval, m_word.c_str() );
+        
+    // thumbnail
+    if (m_thumbnail)
+    {
+        m_thumbnail->x = nodePos.x;
+        m_thumbnail->y = nodePos.y;
+        m_thumbnail->update();
+        font->drawStringCentered( nodePos.x, yval-32, m_word.c_str() );
+    }
+    else
+    {    
+        font->drawStringCentered( nodePos.x, yval, m_word.c_str() );
+    }
     
     for (int i=0; i < m_childs.size(); i++) {
                 
         vec2f childPos = vec2f( nodePos.x + (m_childs[i]->m_pos.x * NODE_WIDTH), yval - NODE_HEIGHT );
         
         glVertex2f( nodePos.x, nodePos.y );
-        glVertex2f( childPos.x, childPos.y );
+        glVertex2f( childPos.x, childPos.y );            
         
         m_childs[i]->drawSubtree( font, nodePos, yval - NODE_HEIGHT );
     }
+}
+
+void HistoryNode::drawThumbnails()
+{
+    if (m_sbThumbnail)
+    {
+        m_sbThumbnail->renderAll();
+    }
     
-    
+    for (int i=0; i < m_childs.size(); i++) 
+    {
+        m_childs[i]->drawThumbnails();
+    }
 }

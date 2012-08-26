@@ -31,6 +31,15 @@ float randNormal( float mean, float stddev );
 float sgn( float n );
 
 // ==============================
+//  GL error checking
+// ==============================
+
+int checkForGLErrors( const char *s, const char * file, int line );
+void checkFBO();
+
+#define CHECKGL( msg ) checkForGLErrors( msg, __FILE__, __LINE__ );
+
+// ==============================
 //  GL camera math
 // ==============================
 
@@ -40,6 +49,8 @@ void glhFrustumf2(matrix4x4f &matrix,
 
 void glhPerspectivef2(matrix4x4f &matrix, float fovyInDegrees, float aspectRatio,
                       float znear, float zfar);
+
+
 
 #endif
 
