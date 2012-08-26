@@ -49,7 +49,8 @@ void Creature::draw( Font *font )
 //    font->drawString( 200, baseY-150, (std::string("Tail   : ")+tailNames[m_tailNum]).c_str() );
 }
 
-void Creature::evolveCreature( std::string genomeWord )
+
+void Creature::evolveCreature( std::string genomeWord, const std::vector<Pally> &creaturePalettes )
 {
     // tmp -- need to smoothly morph into next stage of evolution
     reset();
@@ -57,7 +58,17 @@ void Creature::evolveCreature( std::string genomeWord )
     m_word = genomeWord;
     
     // First character defines the color scheme
-    m_colorScheme.generate( genomeWord[0] - 'A' );
+    int paletteKey = genomeWord[0] - 'A';
+
+    if (paletteKey < creaturePalettes.size())
+    {
+        m_colorScheme = creaturePalettes[paletteKey];
+    }
+    else
+    {
+        printf(">>>> WARNING:: no palette for letter '%c'\n", genomeWord[0] );
+        m_colorScheme.generate( paletteKey );
+    }
     
     // Length of word defines the body type
     m_bodySculptNum = (genomeWord.size() - 3);

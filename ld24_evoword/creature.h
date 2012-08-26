@@ -10,6 +10,7 @@
 #define ld48jovoc_creature_h
 
 #include <string>
+#include <vector>
 #include <pally.h>
 
 #define NUM_EYES (5)
@@ -47,7 +48,7 @@ public:
     
     void draw( Font *font );
     void reset();
-    void evolveCreature( std::string genomeWord );
+    void evolveCreature( std::string genomeWord, const std::vector<Pally> &creaturePalettes );
     
     // genetic manipulations
     void shiftColor( float degrees );

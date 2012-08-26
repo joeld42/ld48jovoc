@@ -68,6 +68,9 @@ void EvoWordGame::init()
     // Load dictionary
     loadWordList(gameDataFile("", "2of12inf.txt" ).c_str() );
     
+    // Load color schemes
+    loadPalettes();
+    
     // Load texture
     m_simpleTex = LoadImagePNG( gameDataFile("", "critter_map.png" ).c_str() );
     m_eyeballTex = LoadImagePNG( gameDataFile( "", "eyeball.png" ).c_str() );
@@ -442,6 +445,11 @@ void EvoWordGame::keypress( SDLKey &key )
             case 'r':
                 m_gamestate = GameState_REVIEW;
                 m_needsLayout = true;
+                break;
+                
+            // DBG: save color palete
+            case 'p':
+                saveCurrentPalette();
                 break;
 
             case SDLK_RETURN:
@@ -875,7 +883,7 @@ void EvoWordGame::initCreatureFragments()
     
     updateCreatureFrags();
     
-    m_creature.evolveCreature( m_currWord );
+    m_creature.evolveCreature( m_currWord, m_creaturePalettes );
 
 }
 
@@ -928,7 +936,7 @@ void EvoWordGame::checkWord()
         // Yay, it's a real word
         printf("GOOD WORD!\n" );
         m_currWord = testWord;
-        m_creature.evolveCreature( m_currWord );
+        m_creature.evolveCreature( m_currWord, m_creaturePalettes );
 
         printf("BaseScore %d, finalScore %d", wordScore, wordScore*wordScore );
         
@@ -994,14 +1002,42 @@ void EvoWordGame::drawTree()
 
 void EvoWordGame::saveCurrentPalette()
 {
-    FILE *fp = fopen( gameDataFile("", "palettes.txt" ).c_str(), "a"  );
+    std::string filename = gameDataFile("", "palettes.txt" );
+    FILE *fp = fopen( filename.c_str(), "a"  );
     
-//    fprintf( fp, "%f %f %f %f %f %f 
+    Pally &pal = m_creature.m_colorScheme;
+    fprintf( fp, "%f %f %f\n", pal.m_colorSky.r, pal.m_colorSky.g, pal.m_colorSky.b );
+    fprintf( fp, "%f %f %f\n", pal.m_colorOrganic1.r, pal.m_colorOrganic1.g, pal.m_colorOrganic1.b );
+    fprintf( fp, "%f %f %f\n", pal.m_colorOrganic2.r, pal.m_colorOrganic2.g, pal.m_colorOrganic2.b );
+    fprintf( fp, "%f %f %f\n", pal.m_colorMineral1.r, pal.m_colorMineral1.g, pal.m_colorMineral1.b );
+    fprintf( fp, "%f %f %f\n", pal.m_colorMineral2.r, pal.m_colorMineral2.g, pal.m_colorMineral2.b );
+    fprintf( fp, "%f %f %f\n\n", pal.m_colorAccent.r, pal.m_colorAccent.g, pal.m_colorAccent.b );
+
+    fclose( fp );
+    printf("Saved palette '%s'...\n", filename.c_str() );
 }
 
 void EvoWordGame::loadPalettes()
 {
-    
+    std::string filename = gameDataFile("", "palettes.txt" );
+
+    Pally pal;
+    FILE *fp = fopen( filename.c_str(), "r"  );
+    while (!feof(fp))
+    {
+        fscanf( fp, "%f %f %f\n", &pal.m_colorSky.r, &pal.m_colorSky.g, &pal.m_colorSky.b );
+        fscanf( fp, "%f %f %f\n", &pal.m_colorOrganic1.r, &pal.m_colorOrganic1.g, &pal.m_colorOrganic1.b );
+        fscanf( fp, "%f %f %f\n", &pal.m_colorOrganic2.r, &pal.m_colorOrganic2.g, &pal.m_colorOrganic2.b );
+        fscanf( fp, "%f %f %f\n", &pal.m_colorMineral1.r, &pal.m_colorMineral1.g, &pal.m_colorMineral1.b );
+        fscanf( fp, "%f %f %f\n", &pal.m_colorMineral2.r, &pal.m_colorMineral2.g, &pal.m_colorMineral2.b );
+        fscanf( fp, "%f %f %f\n\n", &pal.m_colorAccent.r, &pal.m_colorAccent.g, &pal.m_colorAccent.b );                   
+        
+        // this might read an extra palette but who cares since it's
+        // past the end of the alphabet
+        m_creaturePalettes.push_back( pal );
+    }
+    fclose(fp);
+    printf( "Loaded %d palettes...\n", m_creaturePalettes.size() );
 }
 
 
