@@ -16,6 +16,9 @@
 #include <sprite.h>
 #include <font.h>
 
+#define NODE_WIDTH  (150)
+#define NODE_HEIGHT (85)
+
 struct HistoryNode
 {
     HistoryNode( HistoryNode *parent );
@@ -24,7 +27,8 @@ struct HistoryNode
     
     float layoutSubtree();
     void drawSubtree( Font *font, vec2f pos, float yval );
-    void HistoryNode::drawThumbnails();
+    void drawThumbnails();
+    int maxDepth();
     
     std::string m_word;
     vec2f m_pos;

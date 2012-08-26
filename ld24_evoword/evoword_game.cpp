@@ -246,6 +246,27 @@ void EvoWordGame::updateSim( float dtFixed )
         m_cameraDist = targCameraDist;   
     }
     
+    // Update scroll
+    const float scrollSpeed = 300.0;
+    if (m_buttons & BTN_UP)
+    {
+        m_scrollPos -= scrollSpeed * dtFixed;
+        if (m_scrollPos < 0.0) m_scrollPos = 0.0;
+    }
+
+    if (m_buttons & BTN_DOWN)
+    {
+        float oldScrollPos = m_scrollPos;
+        
+        m_scrollPos += scrollSpeed * dtFixed;
+        
+        if (m_scrollPos > (m_scrollLimit-500)) 
+        {
+            m_scrollPos = oldScrollPos;
+        }
+    }
+    
+
     
 }
 
@@ -441,7 +462,7 @@ void EvoWordGame::mouseButton( SDL_MouseButtonEvent &btnEvent )
 // For "continuous" button events
 void EvoWordGame::updateButtons( unsigned int btnMask )
 {
-    
+    m_buttons = btnMask;
 }
 
 void EvoWordGame::keypress( SDLKey &key )
@@ -477,6 +498,7 @@ void EvoWordGame::keypress( SDLKey &key )
             // DBG: Toggle review tree
             case 'r':
                 m_gamestate = GameState_REVIEW;
+                m_scrollLimit = m_historyRoot->maxDepth() * NODE_HEIGHT;
                 m_needsLayout = true;
                 break;
                 
@@ -630,7 +652,7 @@ void EvoWordGame::_draw2d()
         }
         
         CHECKGL( "before tree" );
-        currY = 500;
+        currY = 500 + m_scrollPos;
         m_nesFont->setColor(0.0, 1.0, 1.0, 1.0);
         glDisable( GL_TEXTURE_2D );
         CHECKGL( "disable texture" );
@@ -645,6 +667,10 @@ void EvoWordGame::_draw2d()
         
         // draw thumbnails
         m_historyRoot->drawThumbnails();
+
+        // DBG scroll
+        sprintf( buff, "%3.2f (%3.2f)", m_scrollPos, m_scrollLimit );
+        m_nesFont->drawString( 500, 550, buff );    
         
         // Draw all text
         m_nesFont->renderAll();
@@ -678,8 +704,6 @@ void EvoWordGame::_draw2d()
         }
         m_nesFont->drawString( 650, 50, buff );    
         
-//        sprintf( buff, "%f", m_currLook );
-//        m_nesFont->drawString( 600, 550, buff );    
         
         // draw saved creatures
         m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);                        
@@ -1168,6 +1192,9 @@ void EvoWordGame::saveCreature( bool pickNow )
     {
         // Yep, go to review state
         m_gamestate = GameState_REVIEW;
+        
+        m_scrollPos = 0.0;
+        m_scrollLimit = m_historyRoot->maxDepth() * NODE_HEIGHT;
     }
 }
 
@@ -1295,7 +1322,7 @@ void EvoWordGame::loadWordList( const char *wordlist )
 
 bool EvoWordGame::isWord( const std::string &word )
 {
-//    return true;
+    return true;
     
     
     WordList::iterator wi = m_wordList.find( word );

@@ -10,8 +10,6 @@
 
 #include "history_tree.h"
 
-#define NODE_WIDTH  (150)
-#define NODE_HEIGHT (85)
 
 HistoryNode::HistoryNode( HistoryNode *parent )
 {
@@ -113,3 +111,18 @@ void HistoryNode::drawThumbnails()
         m_childs[i]->drawThumbnails();
     }
 }
+
+int HistoryNode::maxDepth()
+{
+    int maxChildDepth = 0;
+    for (int i=0; i < m_childs.size(); i++) 
+    {
+        int childDepth = m_childs[i]->maxDepth();
+        if (childDepth > maxChildDepth) maxChildDepth = childDepth;
+    }
+    
+    return maxChildDepth + 1;
+}
+
+
+

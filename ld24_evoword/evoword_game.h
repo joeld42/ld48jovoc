@@ -180,6 +180,11 @@ private:
     float m_currLook;
     float m_lookTimeout;
     
+    // Scroll pos for review mode
+    float m_scrollPos;
+    float m_scrollLimit;
+    unsigned int m_buttons;
+    
     // Shader params
     GLint m_uModelViewProj;
     GLint m_uColorBase;
