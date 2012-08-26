@@ -91,6 +91,9 @@ protected:
     void drawCreatureEyes();
     void drawCreatureEyelids();
     
+    void saveCurrentPalette();
+    void loadPalettes();
+    
 private:
     // The font
     PNGImage m_fontImg;
@@ -101,6 +104,10 @@ private:
     GLint m_basicShader;
     PNGImage m_simpleTex;
     PNGImage m_eyeballTex;
+    GLint m_decalShader;
+
+    QuadBuff<DrawVert> *m_mouthDecal;
+    std::vector<PNGImage> m_mouths;
     
     // camera stuff
     matrix4x4f m_proj;
@@ -133,6 +140,10 @@ private:
     std::vector<std::string> m_usedWords;
 
     std::vector<Creature> m_savedCreatures;
+    
+    // creature palettes
+    std::vector<Pally> m_creaturePalettes;
+    
 
     HistoryNode *m_historyRoot;
     HistoryNode *m_historyCurr;
@@ -143,12 +154,24 @@ private:
     std::string m_currWord;
     Creature m_creature;
     
+    float m_blinkTimeout;
+    float m_blink;
+    
+    float m_cameraDist;
+    
+    // look angle
+    float m_targLook;
+    float m_currLook;
+    float m_lookTimeout;
+    
     // Shader params
     GLint m_uModelViewProj;
     GLint m_uColorBase;
     GLint m_uColorAlt;
     GLint m_uColorAccent;
     GLint m_uLightPos0;
+    
+    GLint m_decal_uModelViewProj;
     
     int m_gamestate;
 };

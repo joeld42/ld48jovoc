@@ -90,8 +90,9 @@ void main()
     
     // DBG
 //    gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ); 
-    dif0  = (colorBase * falseColor.r ) + 
-                       (colorAlt  * falseColor.g );
+    dif0  = (colorBase   * falseColor.r ) + 
+            (colorAlt    * falseColor.g ) +
+            (colorAccent * falseColor.b );
 
     gl_FragColor.rgb = (diffuseColor.rgb * dif0);
     
@@ -99,3 +100,38 @@ void main()
     
 //    gl_FragColor = dbgColor;
 }
+
+-- Decal.Vertex ------------------------------------------
+
+// uniform params
+uniform mat4 matrixPMV;
+
+// per-vertex data
+attribute vec4 position;
+attribute vec4 color;
+attribute vec4 texcoord;
+attribute vec3 normal;
+
+// outputs to fragment shader
+varying vec2 st;
+
+void main()
+{
+	st = texcoord.st;
+	
+	vec4 posw = vec4( position.x, position.y, position.z, 1.0 );
+	gl_Position = matrixPMV * posw;
+}
+
+
+-- Decal.Fragment ------------------------------------------
+
+varying vec2 st;
+
+uniform sampler2D sampler_dif0;
+
+void main()
+{
+	gl_FragColor = texture2D( sampler_dif0, st );
+}
+

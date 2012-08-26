@@ -72,6 +72,8 @@ void EvoWordGame::init()
     m_simpleTex = LoadImagePNG( gameDataFile("", "critter_map.png" ).c_str() );
     m_eyeballTex = LoadImagePNG( gameDataFile( "", "eyeball.png" ).c_str() );
     
+    m_mouths.push_back( LoadImagePNG( gameDataFile("", "mouth1.png" ).c_str() ));
+    
     // Load font
     m_fontImg = LoadImagePNG( gameDataFile("", "nesfont.png" ).c_str() );
     m_nesFont = makeFont_nesfont_8( m_fontImg.textureId );    
@@ -81,6 +83,8 @@ void EvoWordGame::init()
 
     m_eyelid = load_obj( gameDataFile("", "eyelid.obj" ).c_str()  );
     m_eyeball = load_obj( gameDataFile("", "eyeball.obj" ).c_str()  );
+
+    m_mouthDecal = load_obj( gameDataFile("", "mouthcard.obj" ).c_str()  );
     
 //    setColorConstant( m_cube, vec4f( 1.0, 1.0, 1.0 ) );
     
@@ -94,6 +98,9 @@ void EvoWordGame::init()
 
     m_uLightPos0 = glGetUniformLocation( m_basicShader, "lightPos0" );
     
+    m_decalShader = loadShader( "evoword.Decal" );
+    m_decal_uModelViewProj = glGetUniformLocation( m_decalShader, "matrixPMV");
+
     m_rotate = 0.0;
     
     glEnable( GL_DEPTH_TEST );
@@ -102,6 +109,13 @@ void EvoWordGame::init()
     m_floatyPicked = NULL;
     m_historyRoot = NULL;
     m_historyCurr = NULL;
+ 
+    m_blinkTimeout = 0.0;
+    m_blink = 0.0;
+    
+    m_lookTimeout = 0.0;
+    m_currLook = 0.0;
+    m_targLook = 0.0;
 }
 
 void EvoWordGame::updateSim( float dtFixed )
@@ -167,6 +181,51 @@ void EvoWordGame::updateSim( float dtFixed )
     {
         m_displayedScore--;
     }
+    
+    // Blink update
+    m_blinkTimeout -= dtFixed;
+    if (m_blinkTimeout < 0.0)
+    {
+        m_blinkTimeout = 1.0 + randNormal( 3.0, 1.0 );
+        
+        m_blink = 2.0;
+    }
+
+    
+    if (m_blink > 0.0)
+    {
+        m_blink -= (dtFixed * 15.0); // blink rate
+        if (m_blink < 0.0) m_blink = 0.0;
+    }
+    
+    // Look update
+    m_lookTimeout -= dtFixed;
+    if (m_lookTimeout < 0.0)
+    {
+        m_lookTimeout = 1.0 + randNormal( 2.0, 1.0 );
+        m_targLook = randNormal( 0.0, 30.0 );
+    }
+    
+    if (fabs(m_currLook-m_targLook) > 2.0 )
+    {
+        m_currLook += sgn(m_targLook - m_currLook) * (dtFixed * 100.0); // eye rate
+    }
+    
+    // different camera dist to give the impression
+    // that the creature is growing
+    float targCameraDist = 15.0 - m_currWord.size();
+    if (targCameraDist < 3.0) targCameraDist = 3.0;
+
+    if (fabs(m_cameraDist-targCameraDist) > 0.5 )
+    {
+        m_cameraDist += sgn(targCameraDist - m_cameraDist) * (dtFixed * 20.0); // zoom rate
+    }
+    else
+    {
+        m_cameraDist = targCameraDist;   
+    }
+    
+    
 }
 
 void EvoWordGame::updateFree( float dtRaw )
@@ -182,10 +241,12 @@ void EvoWordGame::redraw()
     // 3d stuff    
     glhPerspectivef2( m_proj, 40.0, 800.0/600.0, 0.1, 1000.0 );
 
-    matrix4x4f xlate, rot;
-    xlate.Translate( 0.0, -0.3, -5.0 );
+    
+    matrix4x4f xlate, rot, rot2;    
+    xlate.Translate( 0.0, -0.3, -m_cameraDist );
     rot.RotateY( m_rotate );
-    m_modelview = rot * xlate;
+    rot2.RotateX( 10.0 * (M_PI/180.0));
+    m_modelview = (rot*rot2) * xlate;
     
     m_modelviewProj = m_modelview * m_proj;
 
@@ -247,7 +308,7 @@ void EvoWordGame::mouseButton( SDL_MouseButtonEvent &btnEvent )
                 printf("ydist %f\n", fabs(m_floatyPicked->m_pos.y - 100) );
             
             const float letterDist = 10.0;
-            const float checkTime = 2.0;
+            const float checkTime = 0.3;
             
             if ((m_checkWordTimeleft<=0.0) && (m_floatyPicked) && (fabs(m_floatyPicked->m_pos.y - 100) < 10))
             {
@@ -445,6 +506,11 @@ void EvoWordGame::_draw3d()
                 m_creature.m_colorScheme.m_colorMineral1.y,
                 m_creature.m_colorScheme.m_colorMineral1.z );
 
+    glUniform3f( m_uColorAccent, 
+                m_creature.m_colorScheme.m_colorAccent.x,
+                m_creature.m_colorScheme.m_colorAccent.y,
+                m_creature.m_colorScheme.m_colorAccent.z );
+
     
     glActiveTexture(GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, m_simpleTex.textureId );
@@ -454,6 +520,11 @@ void EvoWordGame::_draw3d()
     
     vec3f lightPos( 1.0, 1.0, 1.0);
     lightPos.Normalize();
+    
+    matrix4x4f lightRot;
+    lightRot.RotateY( -m_rotate );
+    lightPos = lightPos * lightRot;
+    
     glUniform3f( m_uLightPos0, lightPos.x, lightPos.y, lightPos.z );
     
     // Draw something    
@@ -461,7 +532,15 @@ void EvoWordGame::_draw3d()
     
     // Draw eyeballs
     drawCreatureEyelids();
+    
+    glUseProgram( m_decalShader );
     drawCreatureEyes();
+    
+    // draw mouth
+    glUniformMatrix4fv( m_decal_uModelViewProj, 1, 0, (GLfloat*)(&m_modelviewProj)  );
+    
+    glBindTexture( GL_TEXTURE_2D, m_mouths[0].textureId );
+    _drawMesh( m_mouthDecal );
 }
 
 // Draw 2D stuff    
@@ -548,7 +627,10 @@ void EvoWordGame::_draw2d()
             m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);                        
         }
         m_nesFont->drawString( 650, 580, buff );    
-
+        
+        sprintf( buff, "%f", m_currLook );
+        m_nesFont->drawString( 600, 550, buff );    
+        
         // draw saved creatures
         m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);                        
         int currY = 580;
@@ -621,6 +703,22 @@ void EvoWordGame::_draw2d()
 
 void EvoWordGame::drawCreatureEyelids()
 {
+    // blink
+    float blink = 0.0;
+    if (m_blink > 0.0)
+    {
+        if (m_blink > 1.0)
+        {
+            blink = 1.0 - (m_blink - 1.0);
+        }
+        else 
+        {
+            blink = m_blink;
+        }
+        blink *= 45.0;
+    }
+
+    
     // draw eyelids with the current creature shader
     matrix4x4f xlate, rot, scl, localmv;
     scl.Scale(0.2, 0.2, 0.2 );
@@ -628,7 +726,7 @@ void EvoWordGame::drawCreatureEyelids()
     {
         xlate.Translate( 0.45 * (i==0?-1:1), 0.78, 0.55 );
         
-        rot.RotateX( -45.0 * (M_PI/180.0) );
+        rot.RotateX( -(45.0 - blink) * (M_PI/180.0) );
     //    rot.RotateX( m_rotate );
         localmv = (scl * rot * xlate) * m_modelview;
         
@@ -637,8 +735,10 @@ void EvoWordGame::drawCreatureEyelids()
         
         glUniformMatrix4fv( m_uModelViewProj, 1, 0, (GLfloat*)(&mvp)  );        
         _drawMesh( m_eyelid );
-
-        rot.RotateX( -135.0 * (M_PI/180.0) );
+        
+        // bottom eyelid
+        xlate.Translate( 0.45 * (i==0?-1:1), 0.77, 0.55 );
+        rot.RotateX( -(135.0 + blink) * (M_PI/180.0) );
         localmv = (scl * rot * xlate) * m_modelview;
         mvp = localmv * m_proj;
         
@@ -650,24 +750,26 @@ void EvoWordGame::drawCreatureEyelids()
 
 void EvoWordGame::drawCreatureEyes()
 {
-    // Turn off shader for eyes
+    // TODO: Turn off shader for eyes
     
     glBindTexture( GL_TEXTURE_2D, m_eyeballTex.textureId );
     
-    matrix4x4f xlate, rot, scl, localmv;
+    matrix4x4f xlate, rot, rot2, scl, localmv;
     scl.Scale(0.2, 0.2, 0.2 );
     for (int i=0; i < 2; i++)
     {
         xlate.Translate( 0.45 * (i==0?-1:1), 0.78, 0.55 );
+
+        rot2.RotateY( m_currLook * (M_PI/180.0) );
         
         rot.RotateX( 90.0 * (M_PI/180.0) );
         //    rot.RotateX( m_rotate );
-        localmv = (scl * rot * xlate) * m_modelview;
+        localmv = (scl * rot * rot2 * xlate) * m_modelview;
         
         matrix4x4f mvp;
         mvp = localmv * m_proj;
         
-        glUniformMatrix4fv( m_uModelViewProj, 1, 0, (GLfloat*)(&mvp)  );        
+        glUniformMatrix4fv( m_decal_uModelViewProj, 1, 0, (GLfloat*)(&mvp)  );        
         _drawMesh( m_eyeball );
     }
     
@@ -754,6 +856,8 @@ void EvoWordGame::startGame()
     
     m_score = 0;
     m_displayedScore = 0;
+    
+    m_cameraDist = 30.0;
 }
 
 void EvoWordGame::initCreatureFragments()
@@ -775,7 +879,7 @@ void EvoWordGame::initCreatureFragments()
 
 }
 
-void EvoWordGame::updateCreatureFrags( )
+void EvoWordGame::updateCreatureFrags()
 {
     // just update the positions of the creature's DNA
     // target fragments (letters)
@@ -887,6 +991,19 @@ void EvoWordGame::saveCreature( bool pickNow )
 void EvoWordGame::drawTree()
 {
 }
+
+void EvoWordGame::saveCurrentPalette()
+{
+    FILE *fp = fopen( gameDataFile("", "palettes.txt" ).c_str(), "a"  );
+    
+//    fprintf( fp, "%f %f %f %f %f %f 
+}
+
+void EvoWordGame::loadPalettes()
+{
+    
+}
+
 
 #pragma mark - Word Stuff
 

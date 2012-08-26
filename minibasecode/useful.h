@@ -26,6 +26,11 @@ float randNormal();
 float randNormal( float mean, float stddev );
 
 // ==============================
+//  general mathy stuff
+// ==============================
+float sgn( float n );
+
+// ==============================
 //  GL camera math
 // ==============================
 

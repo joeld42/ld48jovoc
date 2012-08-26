@@ -96,4 +96,9 @@ void glhPerspectivef2(matrix4x4f &matrix, float fovyInDegrees, float aspectRatio
     glhFrustumf2(matrix, -xmax, xmax, -ymax, ymax, znear, zfar);
 }
 
+float sgn( float n )
+{
+    return (n<0)?-1.0:1.0;
+}
+
 
