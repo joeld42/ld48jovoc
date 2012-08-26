@@ -234,16 +234,20 @@ void EvoWordGame::updateSim( float dtFixed )
     
     // different camera dist to give the impression
     // that the creature is growing
-    float targCameraDist = 15.0 - m_currWord.size();
-    if (targCameraDist < 3.0) targCameraDist = 3.0;
+    int wordSize = m_currWord.size();
+    if (wordSize != 0)
+    {
+        float targCameraDist = 15.0 - wordSize * 1.5;
+        if (targCameraDist < 3.0) targCameraDist = 3.0;
 
-    if (fabs(m_cameraDist-targCameraDist) > 0.5 )
-    {
-        m_cameraDist += sgn(targCameraDist - m_cameraDist) * (dtFixed * 20.0); // zoom rate
-    }
-    else
-    {
-        m_cameraDist = targCameraDist;   
+        if (fabs(m_cameraDist-targCameraDist) > 0.5 )
+        {
+            m_cameraDist += sgn(targCameraDist - m_cameraDist) * (dtFixed * 20.0); // zoom rate
+        }
+        else
+        {
+            m_cameraDist = targCameraDist;   
+        }
     }
     
     // Update scroll
@@ -616,7 +620,7 @@ void EvoWordGame::_draw2d()
     if (m_gamestate==GameState_MENU)
     {
         m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
-        m_nesFont->drawStringCentered( 400, 580, "Press Start" );    
+        m_nesFont->drawStringCentered( 400, 300, "Press SPACE to start" );    
         m_nesFont->renderAll();
         m_nesFont->clear();
     }
