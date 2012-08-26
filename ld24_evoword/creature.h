@@ -18,11 +18,16 @@
 #define NUM_TAIL (4)
 
 class Font;
+struct HistoryNode;
 
 class Creature
 {
 public:
     Creature();
+    
+    // bookkeeping data
+    std::string m_word;
+    HistoryNode *m_historyNode;
     
     void draw( Font *font );
     void reset();

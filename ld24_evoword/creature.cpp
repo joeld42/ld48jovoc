@@ -14,6 +14,7 @@
 Creature::Creature()
 {
     reset();
+    m_historyNode = NULL;
 }
 
 void Creature::reset()
@@ -49,6 +50,8 @@ void Creature::evolveCreature( std::string genomeWord )
 {
     // tmp -- need to smoothly morph into next stage of evolution
     reset();
+    
+    m_word = genomeWord;
     
     for (int i=0; i < genomeWord.size(); i++)
     {

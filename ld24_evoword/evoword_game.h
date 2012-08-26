@@ -25,6 +25,7 @@
 // Game
 #include "creature.h"
 #include "fragment.h"
+#include "history_tree.h"
 
 // Gamestate
 enum
@@ -46,7 +47,6 @@ enum
 	BTN_A = ( 1 << 4 ),
 	BTN_B = ( 1 << 5 ),
 };
-
 
 class EvoWordGame
 {
@@ -86,6 +86,8 @@ protected:
     
     void initCreatureFragments();
     
+    void drawTree();
+    
 private:
     // The font
     PNGImage m_fontImg;
@@ -122,8 +124,13 @@ private:
     size_t m_displayedScore;
     std::vector<std::string> m_usedWords;
 
-    std::vector<std::string> m_savedCreatures;
+    std::vector<Creature> m_savedCreatures;
 
+    HistoryNode *m_historyRoot;
+    HistoryNode *m_historyCurr;
+    float m_treeWidth;
+    bool m_needsLayout;
+    
     std::string m_startWord;
     std::string m_currWord;
     Creature m_creature;

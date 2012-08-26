@@ -21,6 +21,8 @@
 
 #define NUM_FLOATIES (30)
 
+#define NUM_SLOTS (6)
+
 #include "evoword_game.h"
 
 // award points 
@@ -83,6 +85,8 @@ void EvoWordGame::init()
     
     m_gamestate = GameState_MENU;
     m_floatyPicked = NULL;
+    m_historyRoot = NULL;
+    m_historyCurr = NULL;
 }
 
 void EvoWordGame::updateSim( float dtFixed )
@@ -338,6 +342,12 @@ void EvoWordGame::keypress( SDLKey &key )
             case ' ':
                 startGame();
                 break;
+                
+            // DBG: Toggle review tree
+            case 'r':
+                m_gamestate = GameState_GAME;
+                break;
+
 
             default:
                 break;
@@ -350,6 +360,12 @@ void EvoWordGame::keypress( SDLKey &key )
         {
             case ' ':
                 m_gamestate = GameState_MENU;
+                break;
+            
+            // DBG: Toggle review tree
+            case 'r':
+                m_gamestate = GameState_REVIEW;
+                m_needsLayout = true;
                 break;
 
             case SDLK_RETURN:
@@ -369,7 +385,12 @@ void EvoWordGame::keypress( SDLKey &key )
                     int ndx = key - '1';
                     if (m_savedCreatures.size() > ndx)
                     {
-                        m_currWord = m_savedCreatures[ndx];
+                        m_creature = m_savedCreatures[ndx];
+                        m_currWord = m_creature.m_word;
+                        
+                        // restore history from creature
+                        m_historyCurr = m_creature.m_historyNode;
+                        
                         initCreatureFragments();
                     }
                     break;
@@ -387,11 +408,13 @@ void EvoWordGame::keypress( SDLKey &key )
 void EvoWordGame::_draw3d()
 {    
     // don't draw the scene if not playing
-    if (m_gamestate==GameState_MENU) return;
+    if (m_gamestate!=GameState_GAME) return;
     
     glEnable( GL_TEXTURE );
     glEnable( GL_TEXTURE_2D );
 
+    glEnable( GL_DEPTH_TEST );
+    
     // Set up basic shader
     glUseProgram( m_basicShader );    
     GLint mvp = glGetUniformLocation( m_basicShader, "matrixPMV");
@@ -413,6 +436,8 @@ void EvoWordGame::_draw2d()
     // disable shaders (TODO: make a text shader so this ports to ES2 easier)
     glUseProgram(0);
     
+    glDisable( GL_DEPTH_TEST );
+    
     if (m_gamestate==GameState_MENU)
     {
         m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
@@ -424,19 +449,42 @@ void EvoWordGame::_draw2d()
     {
         // Game over.. show their awesome word tree
         char buff[256];
-        sprintf( buff, "Great Job! You earned %zu points!", m_score );
+        sprintf( buff, "You earned %zu points!", m_score );
         m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
         m_nesFont->drawStringCentered( 400, 560, buff );    
 
-        // draw jarred creatures
+        // draw saved creatures
         m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);                        
-        int currY = 500;
+        int currY = 580;
+        int index = 1;
         for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
         {
-            m_nesFont->drawStringCentered( 400, currY, (*wi).c_str() );        
+            char slotbuf[100];
+            sprintf( slotbuf, "%d. %s", index, (*wi).m_word.c_str() );
+            m_nesFont->drawString( 20, currY, slotbuf );        
             currY -= 30;
+            index += 1;
         }
-
+        
+        // draw the history tree
+        if (m_needsLayout)
+        {
+            m_needsLayout = false;
+            m_treeWidth = m_historyRoot->layoutSubtree();
+            printf("TreeWidth is %f\n", m_treeWidth );
+        }
+        
+        currY = 500;
+        m_nesFont->setColor(0.0, 1.0, 1.0, 1.0);
+        glDisable( GL_TEXTURE_2D );
+        glLineWidth( 4.0 );
+        glBegin( GL_LINES );
+        glColor3f( 1.0, 1.0, 1.0 );
+        m_historyRoot->drawSubtree( m_nesFont, vec2f( 400, currY), currY );
+        glEnd();
+        glEnable( GL_TEXTURE_2D );
+        
+        // Draw all text
         m_nesFont->renderAll();
         m_nesFont->clear();
 
@@ -471,10 +519,16 @@ void EvoWordGame::_draw2d()
         m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);                        
         int currY = 580;
         int index = 1;
-        for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
+//        for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
+        for (int i=0; i < NUM_SLOTS; i++)
         {
             char slotbuf[100];
-            sprintf( slotbuf, "%d. %s", index, (*wi).c_str() );
+            std::string cname;
+            if (i < m_savedCreatures.size() )
+            {
+                cname = m_savedCreatures[i].m_word;
+            }
+            sprintf( slotbuf, "%d. %s", index, cname.c_str() );
             m_nesFont->drawString( 20, currY, slotbuf );        
             currY -= 30;
             index += 1;
@@ -585,6 +639,19 @@ void EvoWordGame::startGame()
         
     initCreatureFragments();
     
+    // Reset history
+    if (m_historyRoot)
+    {
+        delete m_historyRoot;
+        m_historyRoot = NULL;
+        m_historyCurr = NULL;
+    }
+    m_historyRoot = new HistoryNode( NULL );
+    m_historyRoot->m_word = m_currWord;
+    m_historyCurr = m_historyRoot;
+    m_needsLayout = true;
+    
+    m_savedCreatures.clear();
     saveCreature( false );
     
     // Start playing
@@ -675,6 +742,11 @@ void EvoWordGame::checkWord()
         // Final score is base score squared
         wordScore = wordScore*wordScore;
         
+        // Add it to the history tree
+        HistoryNode *hist = new HistoryNode( m_historyCurr );
+        hist->m_word = m_currWord;
+        m_historyCurr = hist;
+        
         // Remember it was used
         m_usedWords.push_back( m_currWord );
         
@@ -700,8 +772,13 @@ void EvoWordGame::checkWord()
 
 void EvoWordGame::saveCreature( bool pickNow )
 {
-    // TODO: also save creature
-    m_savedCreatures.push_back( m_currWord );
+    
+    // Mark current history
+    m_creature.m_historyNode = m_historyCurr;
+    
+    // save creature
+    m_creature.m_word = m_currWord;
+    m_savedCreatures.push_back( m_creature );    
     
     if (pickNow)
     {
@@ -710,11 +787,16 @@ void EvoWordGame::saveCreature( bool pickNow )
     }
     
     // Are all the jars full???
-    if (m_savedCreatures.size() == 5)
+    if (m_savedCreatures.size() == 6)
     {
         // Yep, go to review state
         m_gamestate = GameState_REVIEW;
     }
+}
+
+// draws a tree of saved creatures
+void EvoWordGame::drawTree()
+{
 }
 
 #pragma mark - Word Stuff
