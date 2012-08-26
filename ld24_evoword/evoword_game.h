@@ -21,6 +21,7 @@
 #include <font.h>
 #include <png_loader.h>
 #include <shapes.h>
+#include <sprite.h>
 
 // Game
 #include "creature.h"
@@ -99,7 +100,7 @@ private:
     PNGImage m_fontImg;
     Font *m_nesFont;  
         
-    // A shape to draw
+    // The creature
     QuadBuff<DrawVert> *m_cube;
     GLint m_basicShader;
     PNGImage m_simpleTex;
@@ -108,6 +109,10 @@ private:
 
     QuadBuff<DrawVert> *m_mouthDecal;
     std::vector<PNGImage> m_mouths;
+    
+    // UI sprites
+    SpriteBuff *m_sbBubbles;
+    Sprite *m_testBubble;
     
     // camera stuff
     matrix4x4f m_proj;

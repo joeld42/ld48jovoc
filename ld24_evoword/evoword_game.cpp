@@ -77,6 +77,17 @@ void EvoWordGame::init()
     
     m_mouths.push_back( LoadImagePNG( gameDataFile("", "mouth1.png" ).c_str() ));
     
+    PNGImage bubbleImage = LoadImagePNG( gameDataFile( "", "bubble.png" ).c_str() );
+    m_sbBubbles = new SpriteBuff(bubbleImage.textureId);
+    m_testBubble = m_sbBubbles->makeSprite();
+    m_testBubble->x = 100.0;
+    m_testBubble->y = 100.0;    
+
+    m_testBubble->sx = 64.0;
+    m_testBubble->sy = 64.0;    
+    m_testBubble->update();
+    
+    
     // Load font
     m_fontImg = LoadImagePNG( gameDataFile("", "nesfont.png" ).c_str() );
     m_nesFont = makeFont_nesfont_8( m_fontImg.textureId );    
@@ -636,8 +647,8 @@ void EvoWordGame::_draw2d()
         }
         m_nesFont->drawString( 650, 580, buff );    
         
-        sprintf( buff, "%f", m_currLook );
-        m_nesFont->drawString( 600, 550, buff );    
+//        sprintf( buff, "%f", m_currLook );
+//        m_nesFont->drawString( 600, 550, buff );    
         
         // draw saved creatures
         m_nesFont->setColor(1.0, 1.0, 0.0, 1.0);                        
@@ -706,6 +717,8 @@ void EvoWordGame::_draw2d()
         m_nesFont->renderAll();
         m_nesFont->clear();
 
+        // Draw sprites
+        m_sbBubbles->renderAll();
     }
 }
 
