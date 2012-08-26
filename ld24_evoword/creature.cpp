@@ -25,6 +25,8 @@ void Creature::reset()
     m_tailNum = 0;
     m_bodySculptNum = 0;
     m_size = 1.0;
+    
+    m_thumb = NULL;
 }
 
 void Creature::draw( Font *font )

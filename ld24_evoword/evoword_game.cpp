@@ -786,10 +786,11 @@ void EvoWordGame::_draw2d()
         // Draw history sprites
         for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
         {
-            SpriteBuff *sb = (*wi).m_historyNode->m_sbThumbnail;
+            
+            SpriteBuff *sb = (*wi).m_thumb->m_sbThumbnail;
             if (sb)
             { 
-                (*wi).m_historyNode->m_sbThumbnail->renderAll();
+                sb->renderAll();
             }
         }
     }
@@ -908,7 +909,7 @@ HistoryNode *EvoWordGame::historyNodeForCurrentCritter( HistoryNode *parent )
     hist->m_thumbnail = hist->m_sbThumbnail->makeSprite( 0.0, 1.0, 1.0, 0.0 ); // flip st Y
     
     hist->m_thumbnail->x = 500.0;
-    hist->m_thumbnail->y = 500.0;    
+    hist->m_thumbnail->y = 1000.0;    // offscreen
     
     hist->m_thumbnail->sx = THUMBNAIL_SIZE;
     hist->m_thumbnail->sy = THUMBNAIL_SIZE;    
@@ -1177,6 +1178,25 @@ void EvoWordGame::saveCreature( bool pickNow )
     // Mark current history
     m_creature.m_historyNode = m_historyCurr;
     
+    // Copy thumbnail
+    if (m_historyCurr->m_sbThumbnail)
+    {        
+        // HACK use a history node as a thumbnail holder
+        HistoryNode *thumb = new HistoryNode(NULL);
+        thumb->m_sbThumbnail = new SpriteBuff( m_historyCurr->m_sbThumbnail->m_texId );
+        
+        thumb->m_thumbnail = thumb->m_sbThumbnail->makeSprite( 0.0, 1.0, 1.0, 0.0 ); // flip st Y
+
+        thumb->m_thumbnail->x = 500.0;
+        thumb->m_thumbnail->y = 1000.0;    
+
+        thumb->m_thumbnail->sx = THUMBNAIL_SIZE;
+        thumb->m_thumbnail->sy = THUMBNAIL_SIZE;    
+        thumb->m_thumbnail->update(); 
+        
+        m_creature.m_thumb = thumb;
+    }
+    
     // save creature
     m_creature.m_word = m_currWord;
     m_savedCreatures.push_back( m_creature );    
@@ -1194,7 +1214,7 @@ void EvoWordGame::saveCreature( bool pickNow )
         m_gamestate = GameState_REVIEW;
         
         m_scrollPos = 0.0;
-        m_scrollLimit = m_historyRoot->maxDepth() * NODE_HEIGHT;
+        m_scrollLimit = m_historyRoot->maxDepth() * NODE_HEIGHT;        
     }
 }
 
@@ -1218,7 +1238,7 @@ void EvoWordGame::drawSavedCreatures()
         // Align the thumbnail for this creature
         if (i < m_savedCreatures.size() )
         {
-            Sprite *thumbSprite = m_savedCreatures[i].m_historyNode->m_thumbnail;
+            Sprite *thumbSprite = m_savedCreatures[i].m_thumb->m_thumbnail;
             if (thumbSprite)
             {
                 thumbSprite->x = xpos;

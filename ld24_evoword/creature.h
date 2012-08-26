@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <pally.h>
+#include <sprite.h>
 
 #define NUM_EYES (5)
 #define NUM_LEGS (4)
@@ -45,6 +46,9 @@ public:
     // bookkeeping data
     std::string m_word;
     HistoryNode *m_historyNode;
+
+    // HACK: just use another history node as a holder for thumbnails
+    HistoryNode *m_thumb;
     
     void draw( Font *font );
     void reset();
