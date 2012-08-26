@@ -33,7 +33,8 @@ varying vec2 st;
 void main()
 {
 	vec3 N = normal;
-	vec3 N2 = normalMatrix * normal;
+    vec3 N2 = normal;
+//	vec3 N2 = normalMatrix * normal;
 	
 	vec3 L0 = lightPos0;
 		
@@ -41,7 +42,7 @@ void main()
 	vec3 E = vec3( 0, 0, -1 );
 	//vec3 H = normalize( L0 + E );
 	
-	float df0 = max( 0.0, dot(N, L0 ));
+	float df0 = max( 0.0, dot(N, L0 )) + 0.5;
 	
 	// fresnel fake backlight
 	float sf = max( 0.0, dot(E, N2 ));
@@ -56,8 +57,10 @@ void main()
     
     // Ignore light color for now
     diffuseColor.rgb = color.rgb * df0;
-	
-	specColor.rgb = vec3(sf);
+
+    diffuseColor.rgb = vec3( df0, df0, df0);
+    
+	specColor.rgb = vec3(sf * 0.2);
 }
 
 
@@ -77,7 +80,8 @@ uniform sampler2D sampler_dif0;
 void main()
 {
 	vec4 falseColor = texture2D( sampler_dif0, st );
-        
+    vec3 dif0;
+    
 //	gl_FragColor.rgb = (diffuseColor * dif0.rgb )+specColor;
 //	gl_FragColor.a = dif0.a;
     	
@@ -86,8 +90,10 @@ void main()
     
     // DBG
 //    gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ); 
-    gl_FragColor.rgb = (colorBase * falseColor.r ) + 
+    dif0  = (colorBase * falseColor.r ) + 
                        (colorAlt  * falseColor.g );
+
+    gl_FragColor.rgb = (diffuseColor.rgb * dif0);
     
     gl_FragColor.a = 1.0;
     

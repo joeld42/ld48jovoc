@@ -87,8 +87,9 @@ protected:
     void initCreatureFragments();
     
     void drawTree();
-    
+
     void drawCreatureEyes();
+    void drawCreatureEyelids();
     
 private:
     // The font
@@ -99,6 +100,7 @@ private:
     QuadBuff<DrawVert> *m_cube;
     GLint m_basicShader;
     PNGImage m_simpleTex;
+    PNGImage m_eyeballTex;
     
     // camera stuff
     matrix4x4f m_proj;
@@ -142,9 +144,11 @@ private:
     Creature m_creature;
     
     // Shader params
+    GLint m_uModelViewProj;
     GLint m_uColorBase;
     GLint m_uColorAlt;
     GLint m_uColorAccent;
+    GLint m_uLightPos0;
     
     int m_gamestate;
 };

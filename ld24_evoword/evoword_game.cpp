@@ -70,22 +70,29 @@ void EvoWordGame::init()
     
     // Load texture
     m_simpleTex = LoadImagePNG( gameDataFile("", "critter_map.png" ).c_str() );
-
+    m_eyeballTex = LoadImagePNG( gameDataFile( "", "eyeball.png" ).c_str() );
+    
     // Load font
     m_fontImg = LoadImagePNG( gameDataFile("", "nesfont.png" ).c_str() );
     m_nesFont = makeFont_nesfont_8( m_fontImg.textureId );    
     
 //    m_cube = make_cube();
     m_cube = load_obj( gameDataFile("", "urchin.obj" ).c_str()  );
+
+    m_eyelid = load_obj( gameDataFile("", "eyelid.obj" ).c_str()  );
+    m_eyeball = load_obj( gameDataFile("", "eyeball.obj" ).c_str()  );
     
 //    setColorConstant( m_cube, vec4f( 1.0, 1.0, 1.0 ) );
     
     m_basicShader = loadShader( "evoword.Plastic" );
     
+    m_uModelViewProj = glGetUniformLocation( m_basicShader, "matrixPMV");
+    
     m_uColorBase = glGetUniformLocation( m_basicShader, "colorBase" );
     m_uColorAlt = glGetUniformLocation( m_basicShader, "colorAlt" ) ;
     m_uColorAccent = glGetUniformLocation( m_basicShader, "colorAccent" ) ;
 
+    m_uLightPos0 = glGetUniformLocation( m_basicShader, "lightPos0" );
     
     m_rotate = 0.0;
     
@@ -425,8 +432,8 @@ void EvoWordGame::_draw3d()
     
     // Set up basic shader
     glUseProgram( m_basicShader );    
-    GLint mvp = glGetUniformLocation( m_basicShader, "matrixPMV");
-    glUniformMatrix4fv( mvp, 1, 0, (GLfloat*)(&m_modelviewProj)  );
+
+    glUniformMatrix4fv( m_uModelViewProj, 1, 0, (GLfloat*)(&m_modelviewProj)  );
     
     glUniform3f( m_uColorBase, 
                 m_creature.m_colorScheme.m_colorOrganic1.x,
@@ -445,8 +452,16 @@ void EvoWordGame::_draw3d()
     GLint paramTex = glGetUniformLocation( m_basicShader, "sampler_dif0" );
     glUniform1i( paramTex, 0 );        
     
-    // Draw something
+    vec3f lightPos( 1.0, 1.0, 1.0);
+    lightPos.Normalize();
+    glUniform3f( m_uLightPos0, lightPos.x, lightPos.y, lightPos.z );
+    
+    // Draw something    
     _drawMesh( m_cube );
+    
+    // Draw eyeballs
+    drawCreatureEyelids();
+    drawCreatureEyes();
 }
 
 // Draw 2D stuff    
@@ -604,11 +619,60 @@ void EvoWordGame::_draw2d()
     }
 }
 
+void EvoWordGame::drawCreatureEyelids()
+{
+    // draw eyelids with the current creature shader
+    matrix4x4f xlate, rot, scl, localmv;
+    scl.Scale(0.2, 0.2, 0.2 );
+    for (int i=0; i < 2; i++)
+    {
+        xlate.Translate( 0.45 * (i==0?-1:1), 0.78, 0.55 );
+        
+        rot.RotateX( -45.0 * (M_PI/180.0) );
+    //    rot.RotateX( m_rotate );
+        localmv = (scl * rot * xlate) * m_modelview;
+        
+        matrix4x4f mvp;
+        mvp = localmv * m_proj;    
+        
+        glUniformMatrix4fv( m_uModelViewProj, 1, 0, (GLfloat*)(&mvp)  );        
+        _drawMesh( m_eyelid );
+
+        rot.RotateX( -135.0 * (M_PI/180.0) );
+        localmv = (scl * rot * xlate) * m_modelview;
+        mvp = localmv * m_proj;
+        
+        glUniformMatrix4fv( m_uModelViewProj, 1, 0, (GLfloat*)(&mvp)  );        
+        _drawMesh( m_eyelid );
+    }
+
+}
+
 void EvoWordGame::drawCreatureEyes()
 {
-    // TODO: get from creature
+    // Turn off shader for eyes
+    
+    glBindTexture( GL_TEXTURE_2D, m_eyeballTex.textureId );
+    
+    matrix4x4f xlate, rot, scl, localmv;
+    scl.Scale(0.2, 0.2, 0.2 );
+    for (int i=0; i < 2; i++)
+    {
+        xlate.Translate( 0.45 * (i==0?-1:1), 0.78, 0.55 );
+        
+        rot.RotateX( 90.0 * (M_PI/180.0) );
+        //    rot.RotateX( m_rotate );
+        localmv = (scl * rot * xlate) * m_modelview;
+        
+        matrix4x4f mvp;
+        mvp = localmv * m_proj;
+        
+        glUniformMatrix4fv( m_uModelViewProj, 1, 0, (GLfloat*)(&mvp)  );        
+        _drawMesh( m_eyeball );
+    }
     
 }
+
 
 void EvoWordGame::_drawMesh( QuadBuff<DrawVert> *mesh )
 {
