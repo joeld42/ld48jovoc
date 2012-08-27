@@ -5,6 +5,13 @@ SET ( evoword_SRCS
       evoword_game.cpp
       evoword_game.h
       evoword_main.cpp
+      grobold.cpp
+      creature.h
+      creature.cpp
+      fragment.h
+      fragment.cpp
+      history_tree.h
+      history_tree.cpp
 )
 SOURCE_GROUP( src FILES ${evoword_SRCS} )
 
@@ -15,6 +22,18 @@ SET ( gamedata_FILES
     gamedata/nesfont.png
     gamedata/simpletex.png
     gamedata/evoword.glsl
+    gamedata/background.png
+    gamedata/grobold.png
+    gamedata/palettes.txt
+    gamedata/mouth1.png
+    gamedata/mouthcard.obj
+    gamedata/mouthparts.png
+    gamedata/eyeball.obj
+    gamedata/eyeball.png
+    gamedata/eyelid.obj
+    gamedata/critter_map.png
+    gamedata/urchin.obj
+    gamedata/2of12inf.txt
 )
 SOURCE_GROUP( gamedata FILES ${gamedata_FILES} )
 

@@ -126,8 +126,8 @@ void SpriteBuff::removeAll()
 #pragma mark Sprite
 Sprite::Sprite( SpriteBuff *owner, SpriteVert *vertData ) :
 	m_myBuff( owner ),
-	m_vertData( vertData ),
 	x(0.0f), y(0.0f),
+	m_vertData( vertData ),
 	angle( 0.0f ), 
 	sx( 1.0 ), sy(1.0)
 {
@@ -135,6 +135,7 @@ Sprite::Sprite( SpriteBuff *owner, SpriteVert *vertData ) :
 
 Sprite::~Sprite()
 {
+    
 	m_myBuff->removeSprite( this );
 }	
 

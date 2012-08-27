@@ -189,13 +189,13 @@ void EvoWordGame::updateSim( float dtFixed )
         Fragment &f = (*fi);
         
         // make sure it has a sprite
-//        if (!f.m_bubbleSprite)
-//        {
-//            f.m_bubbleSprite = m_sbBubbles->makeSprite( 0.0, 1.0, 1.0, 0.0 );            
-//            f.m_bubbleSprite->sx = randUniform( 32.0, 64.0 );
-//            f.m_bubbleSprite->sy =  f.m_bubbleSprite->sx;
-//            f.m_bubbleSprite->update();
-//        }
+        if (!f.m_bubbleSprite)
+        {
+            f.m_bubbleSprite = m_sbBubbles->makeSprite( 0.0, 1.0, 1.0, 0.0 );            
+            f.m_bubbleSprite->sx = randUniform( 32.0, 64.0 );
+            f.m_bubbleSprite->sy =  f.m_bubbleSprite->sx;
+            f.m_bubbleSprite->update();
+        }
         
         // DON'T update floatyPicked
         if (&f == m_floatyPicked) continue;
@@ -211,10 +211,10 @@ void EvoWordGame::updateSim( float dtFixed )
             f.initBubble();
         }                
         
-//        // Update bubble sprite
-//        f.m_bubbleSprite->x = f.m_pos.x;
-//        f.m_bubbleSprite->y = f.m_pos.y;   
-//        f.m_bubbleSprite->update();
+        // Update bubble sprite
+        f.m_bubbleSprite->x = f.m_pos.x;
+        f.m_bubbleSprite->y = f.m_pos.y;   
+        f.m_bubbleSprite->update();
     }
     
     // Update all bubble sprites
@@ -419,9 +419,9 @@ void EvoWordGame::mouseMotion( float x, float y )
         m_floatyPicked->m_pos = vec2f(x, 600-y);
         m_floatyPicked->m_bubbleBaseX = x;
         
-//        m_floatyPicked->m_bubbleSprite->x = m_floatyPicked->m_pos.x;
-//        m_floatyPicked->m_bubbleSprite->y = m_floatyPicked->m_pos.y;
-//        m_floatyPicked->m_bubbleSprite->update();
+        m_floatyPicked->m_bubbleSprite->x = m_floatyPicked->m_pos.x;
+        m_floatyPicked->m_bubbleSprite->y = m_floatyPicked->m_pos.y;
+        m_floatyPicked->m_bubbleSprite->update();
         
         replaceLetter( true );
     }

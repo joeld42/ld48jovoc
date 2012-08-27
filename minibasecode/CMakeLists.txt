@@ -10,11 +10,18 @@ SET ( minibasecode_SRCS
 	useful.h
 	font.h
 	font.cpp
+	load_obj.h
+	load_obj.cpp
+	pally.h
+	pally.cpp
 	quadbuff.h
 	shapes.h
 	shapes.cpp
 	shader.h
 	shader.cpp
+	sprite.h
+	sprite.cpp
+
 )
 
 include_directories( 
