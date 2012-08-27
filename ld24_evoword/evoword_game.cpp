@@ -27,6 +27,8 @@
 #define THUMBNAIL_SIZE (64)
 //#define THUMBNAIL_SIZE (512)
 
+#define USER_MESSAGE_TIME (3.0)
+
 #include "evoword_game.h"
 
 // award points 
@@ -161,6 +163,8 @@ void EvoWordGame::init()
     m_lookTimeout = 0.0;
     m_currLook = 0.0;
     m_targLook = 0.0;
+    
+    m_userMessageTimeout = 0.0;
 }
 
 void EvoWordGame::updateSim( float dtFixed )
@@ -315,7 +319,11 @@ void EvoWordGame::updateSim( float dtFixed )
         }
     }
     
-
+    // Update user message
+    if (m_userMessageTimeout > 0.0)
+    {
+        m_userMessageTimeout -= dtFixed;
+    }
     
 }
 
@@ -842,7 +850,12 @@ void EvoWordGame::_draw2d()
             m_fontGrobold20->setColor(1.0, 1.0, 1.0, 1.0);                        
         }
         m_fontGrobold20->drawString( 650, 50, buff );    
-        
+
+        // draw user message
+        if (m_userMessageTimeout > 0.0)
+        {
+            m_fontGrobold20->drawStringCentered( 400, 200, m_userMessage.c_str() );    
+        }
         
         // draw saved creatures
         m_fontGrobold20->setColor(1.0, 1.0, 0.0, 1.0);                        
@@ -1321,6 +1334,11 @@ void EvoWordGame::checkWord()
         HistoryNode *hist = historyNodeForCurrentCritter( m_historyCurr );
         m_historyCurr = hist;
         
+        m_userMessageTimeout = USER_MESSAGE_TIME;
+        char buff[256];
+        sprintf( buff, "%d Points!", wordScore );
+        m_userMessage = buff;
+        
         // Remember it was used
         m_usedWords.push_back( m_currWord );
         
@@ -1332,6 +1350,16 @@ void EvoWordGame::checkWord()
         // Not a real word
         printf("NOT A VALID WORD! Lose %d points\n", wordScore );
         m_creatureFrags = m_oldCreatureFrags;
+        
+        m_userMessageTimeout = USER_MESSAGE_TIME;
+        if (alreadyUsed)
+        {
+            m_userMessage = "Already used word!";
+        }
+        else
+        {
+            m_userMessage = "Not a word!";
+        }
         
         // Lose points!
         if (m_score > wordScore)
@@ -1514,7 +1542,7 @@ void EvoWordGame::loadWordList( const char *wordlist )
 
 bool EvoWordGame::isWord( const std::string &word )
 {
-    return true;
+    //return true;
     
     
     WordList::iterator wi = m_wordList.find( word );

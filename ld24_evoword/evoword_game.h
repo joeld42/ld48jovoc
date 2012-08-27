@@ -190,6 +190,9 @@ private:
     float m_blinkTimeout;
     float m_blink;
     
+    float m_userMessageTimeout;
+    std::string m_userMessage;
+    
     float m_cameraDist;
     
     // look angle
