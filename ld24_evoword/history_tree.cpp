@@ -74,7 +74,9 @@ void HistoryNode::drawSubtree( Font *font, vec2f pos, float yval )
 {
     // draw current node
     vec2f nodePos = vec2f( pos.x + (m_pos.x * NODE_WIDTH), yval );
-        
+	printf("drawSubtree: %s (%f %f)\n", 
+		m_word.c_str(), nodePos.x, nodePos.y  );
+
     // thumbnail
     if (m_thumbnail)
     {

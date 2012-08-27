@@ -96,7 +96,7 @@ void EvoWordGame::init()
     // Background
     m_imgBackground = LoadImagePNG( gameDataFile( "", "background.png" ).c_str() );
     m_sbBackground = new SpriteBuff( m_imgBackground.textureId );
-    m_background = m_sbBackground->makeSprite( 0.0, 1.0, 1.0, 0.0 );
+    m_background = m_sbBackground->makeSprite( 0.0, 1.0, 1.0, 0.0 );	 
     m_background->x = 512.0;
     m_background->y = 600-512;    
 
@@ -104,10 +104,11 @@ void EvoWordGame::init()
     m_background->sy = 1024.0;    
     m_background->update();
 
-
-    
+   
     m_vboThumbnail = 0;
     m_cursorOn = false;
+
+	m_scrollPos = 0.0;
     
 //    m_sbThumb = NULL;
 //    m_testThumb = NULL;
@@ -380,9 +381,7 @@ void EvoWordGame::redraw()
     
     // Draw 3D scene
     _draw3d();
-    CHECKGL( "after draw3d" );
-    
-	return; // DBG
+    CHECKGL( "after draw3d" );    
 
     // set up 2D draw     
     glDisableClientState( GL_VERTEX_ARRAY );    
@@ -641,7 +640,7 @@ void EvoWordGame::keypress( SDLKey &key )
                 {
                     // restore a saved creature
                     int ndx = key - '1';
-                    if (m_savedCreatures.size() > ndx)
+                    if ((m_savedCreatures.size() > ndx) && (m_currWord.empty()) )
                     {
                         m_creature = m_savedCreatures[ndx];
                         m_currWord = m_creature.m_word;
@@ -710,7 +709,7 @@ void EvoWordGame::_draw3d()
     
     // Draw something    
     _drawMesh( m_cube );
-    
+
     // Draw eyeballs
     drawCreatureEyelids();
     
@@ -725,6 +724,7 @@ void EvoWordGame::_draw3d()
     
     glBindTexture( GL_TEXTURE_2D, m_mouths[0].textureId );
     _drawMesh( m_mouthDecal );
+
 }
 
 void EvoWordGame::_drawBackground()
@@ -769,7 +769,7 @@ void EvoWordGame::_draw2d()
         
         // Game over.. show their awesome word tree
         char buff[256];
-        sprintf( buff, "You earned %zu points!", m_score );
+        sprintf( buff, "You earned %d points!", m_score );
         m_fontGrobold20->setColor(1.0, 1.0, 1.0, 1.0);
         m_fontGrobold20->drawStringCentered( 400, 560, buff );    
 
@@ -839,7 +839,7 @@ void EvoWordGame::_draw2d()
         
         // Draw score
         char buff[100];
-        sprintf( buff, "S: %zu", m_displayedScore );
+        sprintf( buff, "S: %d", m_displayedScore );
         if (m_displayedScore > m_score)
         {
             // Losing points, bad
@@ -1089,6 +1089,13 @@ void EvoWordGame::_drawMesh( QuadBuff<DrawVert> *mesh )
 
     // Draw it!
     glDrawArrays(GL_TRIANGLES, 0, mesh->size() );
+
+	glDisableVertexAttribArray( DrawVertAttrib_TEXCOORD );
+	glDisableVertexAttribArray( DrawVertAttrib_POSITION );
+	glDisableVertexAttribArray( DrawVertAttrib_NORMAL );
+	glDisableVertexAttribArray( DrawVertAttrib_COLOR );
+
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
 
@@ -1117,7 +1124,7 @@ HistoryNode *EvoWordGame::historyNodeForCurrentCritter( HistoryNode *parent )
 
 SpriteBuff *EvoWordGame::renderThumbnail()
 {
-	return NULL;
+	//return NULL;
 
     CHECKGL( "renderThumbnail" );
     printf( "======= renderThumbnail ========\n" );
@@ -1562,9 +1569,8 @@ void EvoWordGame::loadWordList( const char *wordlist )
 
 bool EvoWordGame::isWord( const std::string &word )
 {
-    //return true;
-    
-    
+//    return true;
+
     WordList::iterator wi = m_wordList.find( word );
     return (wi != m_wordList.end());
 }
