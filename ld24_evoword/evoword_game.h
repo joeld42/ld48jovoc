@@ -77,6 +77,7 @@ public:
 protected:
     void _draw3d();
     void _draw2d();
+    void _drawBackground();
 
     // Helper to draw a DrawVert based mesh
     void _drawMesh( QuadBuff<DrawVert> *mesh );    
@@ -110,6 +111,11 @@ private:
     Font *m_fontGrobold12;  
     Font *m_fontGrobold20;  
     Font *m_fontGrobold48;  
+
+    // background
+    PNGImage m_imgBackground;
+    SpriteBuff *m_sbBackground;
+    Sprite *m_background;
     
     // The creature
     QuadBuff<DrawVert> *m_cube;

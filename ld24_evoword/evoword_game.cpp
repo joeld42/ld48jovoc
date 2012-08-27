@@ -91,6 +91,19 @@ void EvoWordGame::init()
 //    m_testBubble->sy = 64.0;    
 //    m_testBubble->update();
     
+    // Background
+    m_imgBackground = LoadImagePNG( gameDataFile( "", "background.png" ).c_str() );
+    m_sbBackground = new SpriteBuff( m_imgBackground.textureId );
+    m_background = m_sbBackground->makeSprite( 0.0, 1.0, 1.0, 0.0 );
+    m_background->x = 512.0;
+    m_background->y = 600-512;    
+
+    m_background->sx = 1024.0;
+    m_background->sy = 1024.0;    
+    m_background->update();
+
+
+    
     m_vboThumbnail = 0;
     m_cursorOn = false;
     
@@ -313,8 +326,22 @@ void EvoWordGame::updateFree( float dtRaw )
 
 void EvoWordGame::redraw()
 {
-    glClearColor( 78.0/255.0, 114.0/255.0, 136.0/255.0, 1.0 );
+    glClearColor( 11.0/255.0, 57.0/255.0, 7.0/255.0, 1.0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    
+    glDisable( GL_BLEND );
+    
+    // background
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    
+    glOrtho( 0, 800, 0, 600, -1, 1 );
+    
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+    
+    _drawBackground();
+
 
     // TEST thumbnail
 //    if ( (!m_sbThumb) && (m_gamestate == GameState_GAME))
@@ -681,8 +708,23 @@ void EvoWordGame::_draw3d()
     // draw mouth
     glUniformMatrix4fv( m_decal_uModelViewProj, 1, 0, (GLfloat*)(&m_modelviewProj)  );
     
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    
     glBindTexture( GL_TEXTURE_2D, m_mouths[0].textureId );
     _drawMesh( m_mouthDecal );
+}
+
+void EvoWordGame::_drawBackground()
+{
+    glUseProgram(0);
+    glColor3f( 1.0, 1.0, 1.0 );    
+    glDisable( GL_DEPTH_TEST );
+
+    if (m_gamestate==GameState_GAME)
+    {
+        m_sbBackground->renderAll();
+    }
 }
 
 // Draw 2D stuff    
