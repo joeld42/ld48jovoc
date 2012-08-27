@@ -37,7 +37,7 @@ public:
     float m_wiggleAmount; // How much wiggle
     float m_tScale; // How fast wiggle
     
-    Sprite *m_bubbleSprite;
+//    Sprite *m_bubbleSprite;
     
     
 };
