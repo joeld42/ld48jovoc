@@ -189,13 +189,14 @@ void EvoWordGame::updateSim( float dtFixed )
         Fragment &f = (*fi);
         
         // make sure it has a sprite
-        if (!f.m_bubbleSprite)
+        /*
+		if (!f.m_bubbleSprite)
         {
             f.m_bubbleSprite = m_sbBubbles->makeSprite( 0.0, 1.0, 1.0, 0.0 );            
             f.m_bubbleSprite->sx = randUniform( 32.0, 64.0 );
             f.m_bubbleSprite->sy =  f.m_bubbleSprite->sx;
             f.m_bubbleSprite->update();
-        }
+        }*/
         
         // DON'T update floatyPicked
         if (&f == m_floatyPicked) continue;
@@ -212,9 +213,9 @@ void EvoWordGame::updateSim( float dtFixed )
         }                
         
         // Update bubble sprite
-        f.m_bubbleSprite->x = f.m_pos.x;
-        f.m_bubbleSprite->y = f.m_pos.y;   
-        f.m_bubbleSprite->update();
+//        f.m_bubbleSprite->x = f.m_pos.x;
+//        f.m_bubbleSprite->y = f.m_pos.y;   
+//        f.m_bubbleSprite->update();
     }
     
     // Update all bubble sprites
@@ -225,7 +226,7 @@ void EvoWordGame::updateSim( float dtFixed )
 //    }
     
     // Move genome fragments
-    for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
+	for (std::vector<Fragment>::iterator fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
     {
         float dx = fi->m_bubbleBaseX - fi->m_pos.x;
         fi->m_pos.x += (dx * dtFixed);
@@ -350,7 +351,6 @@ void EvoWordGame::redraw()
     
     _drawBackground();
 
-
     // TEST thumbnail
 //    if ( (!m_sbThumb) && (m_gamestate == GameState_GAME))
 //    {
@@ -382,6 +382,8 @@ void EvoWordGame::redraw()
     _draw3d();
     CHECKGL( "after draw3d" );
     
+	return; // DBG
+
     // set up 2D draw     
     glDisableClientState( GL_VERTEX_ARRAY );    
     glDisableClientState( GL_COLOR_ARRAY );
@@ -419,9 +421,11 @@ void EvoWordGame::mouseMotion( float x, float y )
         m_floatyPicked->m_pos = vec2f(x, 600-y);
         m_floatyPicked->m_bubbleBaseX = x;
         
+		/*
         m_floatyPicked->m_bubbleSprite->x = m_floatyPicked->m_pos.x;
         m_floatyPicked->m_bubbleSprite->y = m_floatyPicked->m_pos.y;
         m_floatyPicked->m_bubbleSprite->update();
+		*/
         
         replaceLetter( true );
     }
@@ -452,7 +456,7 @@ void EvoWordGame::mouseButton( SDL_MouseButtonEvent &btnEvent )
             
             Fragment *closestF = NULL;
             float bestDist = 0.0;
-            for (auto fi = m_floatyFrags.begin(); fi != m_floatyFrags.end(); ++fi )
+            for (std::vector<Fragment>::iterator fi = m_floatyFrags.begin(); fi != m_floatyFrags.end(); ++fi )
             {
                 float d = prmath::Length( (fi->m_pos - mousePos) );
 //                printf("Letter %c dist %f\n", fi->m_letter, d );
@@ -484,7 +488,7 @@ void EvoWordGame::replaceLetter( bool preview )
     m_cursorOn = false;
     
     // clear selected flags
-    for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
+    for (std::vector<Fragment>::iterator fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
     {
         fi->m_selected = false;
     }
@@ -494,10 +498,10 @@ void EvoWordGame::replaceLetter( bool preview )
         printf("Checking frags: xpos %f\n", m_floatyPicked->m_pos.x );
         
         bool changedWord = false;
-        for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
+        for (std::vector<Fragment>::iterator fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
         {
             // insert between this letter and the next?
-            auto fiNext = fi+1;
+            std::vector<Fragment>::iterator fiNext = fi+1;
             if (fiNext != m_creatureFrags.end())
             {
                 float insX = (fi->m_pos.x + fiNext->m_pos.x) / 2.0;
@@ -729,6 +733,8 @@ void EvoWordGame::_drawBackground()
     glColor3f( 1.0, 1.0, 1.0 );    
     glDisable( GL_DEPTH_TEST );
 
+	glEnable( GL_TEXTURE_2D );
+
     if (m_gamestate==GameState_GAME)
     {
         m_sbBackground->renderAll();
@@ -774,7 +780,7 @@ void EvoWordGame::_draw2d()
         m_fontGrobold12->setColor(1.0, 1.0, 0.0, 1.0);                        
         int currY = 580;
         int index = 1;
-        for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
+		for (std::vector<Creature>::iterator wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
         {
             char slotbuf[100];
             sprintf( slotbuf, "%d. %s", index, (*wi).m_word.c_str() );
@@ -864,7 +870,7 @@ void EvoWordGame::_draw2d()
         int currY = 580;
 #if 0
         int index = 1;
-//        for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
+//        for (std::vector<Creature>::iterator wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
         for (int i=0; i < NUM_SLOTS; i++)
         {
             char slotbuf[100];
@@ -927,7 +933,7 @@ void EvoWordGame::_draw2d()
             
             // draw current word genome
             m_fontGrobold48->setColor(1.0, 1.0, 0.5, 1.0);
-            for ( auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi )
+            for ( std::vector<Fragment>::iterator fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi )
             {
                 Fragment &f = (*fi);
                 
@@ -969,14 +975,16 @@ void EvoWordGame::_draw2d()
 //        }
         
         // Draw history sprites
-        for (auto wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
+        for (std::vector<Creature>::iterator wi = m_savedCreatures.begin(); wi != m_savedCreatures.end(); ++wi)
         {
-            
-            SpriteBuff *sb = (*wi).m_thumb->m_sbThumbnail;
-            if (sb)
-            { 
-                sb->renderAll();
-            }
+            if((*wi).m_thumb)
+			{
+				SpriteBuff *sb = (*wi).m_thumb->m_sbThumbnail;
+				if (sb)
+				{ 
+					sb->renderAll();
+				}
+			}
         }
     }
 }
@@ -1091,14 +1099,17 @@ HistoryNode *EvoWordGame::historyNodeForCurrentCritter( HistoryNode *parent )
     
     // make a thumbnail
     hist->m_sbThumbnail = renderThumbnail();
-    hist->m_thumbnail = hist->m_sbThumbnail->makeSprite( 0.0, 1.0, 1.0, 0.0 ); // flip st Y
+	if (hist->m_sbThumbnail)
+	{
+		hist->m_thumbnail = hist->m_sbThumbnail->makeSprite( 0.0, 1.0, 1.0, 0.0 ); // flip st Y	
     
-    hist->m_thumbnail->x = 500.0;
-    hist->m_thumbnail->y = 1000.0;    // offscreen
+		hist->m_thumbnail->x = 500.0;
+		hist->m_thumbnail->y = 1000.0;    // offscreen
     
-    hist->m_thumbnail->sx = THUMBNAIL_SIZE;
-    hist->m_thumbnail->sy = THUMBNAIL_SIZE;    
-    hist->m_thumbnail->update();
+		hist->m_thumbnail->sx = THUMBNAIL_SIZE;
+		hist->m_thumbnail->sy = THUMBNAIL_SIZE;    
+		hist->m_thumbnail->update();
+	}
 
      
     return hist;
@@ -1106,6 +1117,8 @@ HistoryNode *EvoWordGame::historyNodeForCurrentCritter( HistoryNode *parent )
 
 SpriteBuff *EvoWordGame::renderThumbnail()
 {
+	return NULL;
+
     CHECKGL( "renderThumbnail" );
     printf( "======= renderThumbnail ========\n" );
     
@@ -1202,8 +1215,12 @@ SpriteBuff *EvoWordGame::renderThumbnail()
 
 void EvoWordGame::startGame()
 {
-    srand48( SDL_GetTicks() );
-    
+#ifndef WIN32 
+	srand48( SDL_GetTicks() );
+#else
+	srand( time(0) );
+#endif
+
     m_gamestate = GameState_GAME;
 
     // Pick a new startword
@@ -1260,7 +1277,7 @@ void EvoWordGame::initCreatureFragments()
     // Make word fragments
     m_creatureFrags.clear();
     m_creatureFrags.push_back( Fragment( '$', vec2f( 400.0, 100 ) ) ); // extra frags to make word boundries easier
-    for (auto ch = m_currWord.begin(); ch != m_currWord.end(); ++ch)
+	for (std::string::iterator ch = m_currWord.begin(); ch != m_currWord.end(); ++ch)
     {
         Fragment f( (*ch), vec2f( 400.0, 100 ) );
         
@@ -1290,7 +1307,7 @@ void EvoWordGame::checkWord()
 {
     // Build a candidate word from the creature fragments
     std::string testWord;
-    for (auto fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)    
+	for (std::vector<Fragment>::iterator fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)    
      {
          if (fi->m_letter != '$')
          {
@@ -1302,13 +1319,13 @@ void EvoWordGame::checkWord()
 
     // base score = sum of letter tiles
     int wordScore = 0;
-    for (auto ch=m_currWord.begin(); ch != m_currWord.end(); ++ch)
+	for (std::string::iterator ch=m_currWord.begin(); ch != m_currWord.end(); ++ch)
     {
         wordScore += g_letterPoints[ (*ch) - 'A' ];
     }
 
     bool alreadyUsed = false;
-    for (auto wi = m_usedWords.begin(); wi != m_usedWords.end(); ++wi)
+    for (std::vector<std::string>::iterator wi = m_usedWords.begin(); wi != m_usedWords.end(); ++wi)
     {
         if ((*wi)==testWord)
         {
@@ -1438,14 +1455,17 @@ void EvoWordGame::drawSavedCreatures()
         // Align the thumbnail for this creature
         if (i < m_savedCreatures.size() )
         {
-            Sprite *thumbSprite = m_savedCreatures[i].m_thumb->m_thumbnail;
-            if (thumbSprite)
-            {
-                thumbSprite->x = xpos;
-                thumbSprite->y = 530;
+			if (m_savedCreatures[i].m_thumb)
+			{
+				Sprite *thumbSprite = m_savedCreatures[i].m_thumb->m_thumbnail;
+				if (thumbSprite)
+				{
+					thumbSprite->x = xpos;
+					thumbSprite->y = 530;
                  
-                thumbSprite->update();
-            }
+					thumbSprite->update();
+				}
+			}
         }
         
         index += 1;

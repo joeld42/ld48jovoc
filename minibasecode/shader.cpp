@@ -6,16 +6,18 @@
 //  Copyright (c) 2012 Joel Davis. All rights reserved.
 //
 #include <stdio.h>
+#ifndef WIN32
 #include <stdint.h>
+#endif
 
 #include <GLee.h>
 #include <glsw.h>
 #include <shader.h>
 #include <shapes.h> // for DrawVert
 
-int32_t _compileShader( const char *shaderText, uint32_t shaderType );
-void _printShaderLog( int32_t program );
-void _link( int32_t program );
+GLuint _compileShader( const char *shaderText, GLuint shaderType );
+void _printShaderLog( GLint program );
+void _link( GLuint program );
 
 GLint loadShader( const char *shaderKey )
 {
@@ -86,8 +88,8 @@ GLint loadShader( const char *shaderKey )
     return program;    
 }
 
-int32_t _compileShader( const char *shaderText, 
-                       uint32_t shaderType )
+GLuint _compileShader( const char *shaderText, 
+                       GLuint shaderType )
 {
     GLint status;    
     GLuint shader;
@@ -123,7 +125,7 @@ int32_t _compileShader( const char *shaderText,
     return shader;    
 }
 
-void _printShaderLog( int32_t program )
+void _printShaderLog( GLuint program )
 {
 	GLint logLength;
     glGetProgramiv( program, GL_INFO_LOG_LENGTH, &logLength );
@@ -137,7 +139,7 @@ void _printShaderLog( int32_t program )
 	
 }
 
-void _link( int32_t program )
+void _link( GLuint program )
 {
     GLint status;
     

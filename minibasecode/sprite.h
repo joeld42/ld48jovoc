@@ -9,7 +9,7 @@
  *
  */
 #include <list>
-
+#include "useful.h"
 #include "quadbuff.h"
 
 #define SPRITE_D2R (M_PI/180.0f)

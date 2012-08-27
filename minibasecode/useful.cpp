@@ -7,7 +7,11 @@
 
 float randUniform()
 {
+#ifndef WIN32
     return drand48();
+#else
+	return ((float)rand() / (float)RAND_MAX);
+#endif
 }
 
 float randUniform( float minVal, float maxVal )

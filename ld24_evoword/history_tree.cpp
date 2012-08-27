@@ -27,7 +27,7 @@ HistoryNode::HistoryNode( HistoryNode *parent )
 HistoryNode::~HistoryNode()
 {
     // delete all child nodes
-    for (auto ci = m_childs.begin(); ci != m_childs.end(); ++ci)
+	for (std::vector<HistoryNode*>::iterator ci = m_childs.begin(); ci != m_childs.end(); ++ci)
     {
         delete (*ci);
     }
@@ -44,7 +44,7 @@ float HistoryNode::layoutSubtree()
     m_pos = vec2f( 0.0, 0.0 );
     
     printf( "%s has %lu childs.\n", m_word.c_str(), m_childs.size() );
-    for (auto ci = m_childs.begin(); ci != m_childs.end(); ++ci)
+	for (std::vector<HistoryNode*>::iterator ci = m_childs.begin(); ci != m_childs.end(); ++ci)
     {
         // layout each child subtree
         float subTreeWidth = (*ci)->layoutSubtree();

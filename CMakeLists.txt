@@ -146,17 +146,17 @@ endif (SDL_FOUND AND OPENGL_FOUND)
 # ld21: Escape
 #  Dependancies: SDL/OpenGL
 # ==================================================
-if (SDL_FOUND AND OPENGL_FOUND)
-  ADD_SUBDIRECTORY( ld21_escape )
-endif (SDL_FOUND AND OPENGL_FOUND)
+#if (SDL_FOUND AND OPENGL_FOUND)
+#  ADD_SUBDIRECTORY( ld21_escape )
+#endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================
 # ld23: tinyworld
 #  Dependancies: SDL/OpenGL
 # ==================================================
-if (SDL_FOUND AND OPENGL_FOUND)
-  ADD_SUBDIRECTORY( ld23_tinyworld )
-endif (SDL_FOUND AND OPENGL_FOUND)
+#if (SDL_FOUND AND OPENGL_FOUND)
+#  ADD_SUBDIRECTORY( ld23_tinyworld )
+#endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================
 # ldXX: template

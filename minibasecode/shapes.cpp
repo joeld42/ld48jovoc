@@ -8,6 +8,7 @@
 
 #include <quadbuff.h>
 #include <shapes.h>
+#include <useful.h>
 
 #define NUM_CUBE_VERTS (36)
 static float _cubeVertData[NUM_CUBE_VERTS * 6] = 

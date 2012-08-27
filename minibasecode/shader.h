@@ -10,7 +10,10 @@
 #define ld48jovoc_shader_h
 
 #include "GLee.h"
+
+#ifndef WIN32
 #include <stdint.h>
+#endif
 
 #define SHADER_FAIL (0)
 

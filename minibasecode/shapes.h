@@ -12,6 +12,10 @@
 #include <prmath/prmath.hpp>
 #include <quadbuff.h>
 
+#ifdef WIN32
+typedef unsigned char uint8_t;
+#endif
+
 // -------------------------------
 // Common per-vertex attributes
 struct DrawVert
