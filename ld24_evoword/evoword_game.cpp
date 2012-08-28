@@ -33,7 +33,7 @@
 
 // award points 
 // scoring is like "BuyWord" game
-const int g_letterPoints[] = { 
+int g_letterPoints[] = { 
     1, // A
     3, // B
     2, // C
@@ -198,7 +198,9 @@ void EvoWordGame::updateSim( float dtFixed )
         {
             f.m_bubbleSprite = m_sbBubbles->makeSprite( 0.0, 1.0, 1.0, 0.0 );            
             f.m_bubbleSprite->sx = randUniform( 32.0, 64.0 );
-            f.m_bubbleSprite->sy =  f.m_bubbleSprite->sx;
+            f.m_bubbleSprite->sy =  f.m_bubbleSprite->sx;            
+            
+            f.updateSpritePips();        
             f.m_bubbleSprite->update();
         }
         
@@ -214,6 +216,7 @@ void EvoWordGame::updateSim( float dtFixed )
         if (f.m_pos.y > 620)
         {
             f.initBubble();
+            f.updateSpritePips();
         }                
         
         // Update bubble sprite

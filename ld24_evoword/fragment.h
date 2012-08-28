@@ -23,6 +23,8 @@ public:
     // Init as a bubble, resets letter
     void initBubble();
     
+    void updateSpritePips();
+    
 //protected:
     vec2f m_pos;
     char m_letter;

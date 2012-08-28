@@ -9,6 +9,8 @@
 #include <useful.h>
 #include <fragment.h>
 
+extern int g_letterPoints[];
+
 Fragment::Fragment() :
     m_selected( false ),
     m_bubbleSprite( NULL )
@@ -43,4 +45,18 @@ void Fragment::initBubble()
     m_wiggleAmount = randUniform( 3.0, 30.0 );
     m_bubbleBaseX = m_pos.x;  
     m_tScale = randNormal( 5.0, 2.0 );    
+}
+
+void Fragment::updateSpritePips()
+{
+    int points = g_letterPoints[m_letter-'A'];
+
+    if (m_bubbleSprite)
+    {
+        float s, t;
+        s = (points & 1)?0.0:0.5;
+        t = (points > 2)?0.0:0.5;
+        m_bubbleSprite->setTexCoords(s,t+0.5,s+0.5,t);
+    }
+
 }
