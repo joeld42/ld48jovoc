@@ -46,7 +46,7 @@ public:
 class Sprite
 {
 public:
-	Sprite( SpriteBuff *owner, SpriteVert *vertData );
+	Sprite( SpriteBuff *owner, size_t vertIndex );
 	~Sprite();
 	
 	// Center position, rotation, size
@@ -70,8 +70,8 @@ public:
 	// Buffer owning all sprites that share this texture
 	SpriteBuff *m_myBuff;
 	
-	// Pointer into Spritebuff
-	SpriteVert *m_vertData;
+	// Index into Spritebuff
+    size_t m_vertIndex;
 };
 
 #endif

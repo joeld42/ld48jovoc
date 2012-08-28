@@ -30,10 +30,9 @@ SpriteBuff::SpriteBuff( GLuint texId, size_t initialSize ) :
 Sprite *SpriteBuff::makeSprite( float s0, float t0,
 							    float s1, float t1 )
 {
-	SpriteVert *newVert;
-	newVert = this->addQuad();
+    size_t spriteIndex = this->addQuad2();
 	
-	Sprite *sprite = new Sprite( this, newVert );
+	Sprite *sprite = new Sprite( this, spriteIndex );
 	sprite->setTexCoords( s0, t0, s1, t1 );
 
 	// Call update to initialize the pos data
@@ -73,7 +72,7 @@ void SpriteBuff::renderAll()
 
 void SpriteBuff::removeSprite( Sprite *spr )
 {
-	printf("removeSprite, sprites Size is %d\n", m_sprites.size() );
+//	printf("removeSprite, sprites Size is %d\n", m_sprites.size() );
 	
 	// Swap out the vert data with the last sprite in our list
 	
@@ -84,15 +83,16 @@ void SpriteBuff::removeSprite( Sprite *spr )
 	for (std::list<Sprite*>::iterator spi = m_sprites.begin();
 		 spi != m_sprites.end(); spi++)
 	{
-		if ((*spi)->m_vertData > lastSprite->m_vertData)
+		if ((*spi)->m_vertIndex > lastSprite->m_vertIndex )
 		{
 			lastSprite = (*spi);
 		}
 	}
 	
 	// relocate the last sprite to take this one's place
-	memcpy( spr->m_vertData, lastSprite->m_vertData, sizeof(SpriteVert)*6 ); 
-	lastSprite->m_vertData = spr->m_vertData;
+	memcpy( vertAtIndex( spr->m_vertIndex ), 
+           vertAtIndex( lastSprite->m_vertIndex ), sizeof(SpriteVert)*6 ); 
+	lastSprite->m_vertIndex = spr->m_vertIndex;
 	
 	// Remove the sprite
 	m_sprites.remove( spr );
@@ -124,18 +124,17 @@ void SpriteBuff::removeAll()
 
 // ========================================================
 #pragma mark Sprite
-Sprite::Sprite( SpriteBuff *owner, SpriteVert *vertData ) :
-	m_myBuff( owner ),
+Sprite::Sprite( SpriteBuff *owner, size_t vertIndex ) :
 	x(0.0f), y(0.0f),
-	m_vertData( vertData ),
 	angle( 0.0f ), 
-	sx( 1.0 ), sy(1.0)
+	sx( 1.0 ), sy(1.0),
+    m_myBuff( owner ),
+    m_vertIndex( vertIndex )
 {
 }
 
 Sprite::~Sprite()
 {
-    
 	m_myBuff->removeSprite( this );
 }	
 
@@ -143,26 +142,30 @@ Sprite::~Sprite()
 void Sprite::setTexCoords( float s0, float t0,
 						  float s1, float t1 )
 {
+    SpriteVert *vertData = m_myBuff->vertAtIndex( m_vertIndex );
+    
 	// Upper tri
-	m_vertData[0].st[0]  =  s0; m_vertData[0].st[1]  =  t1;
-	m_vertData[1].st[0]  =  s1; m_vertData[1].st[1]  =  t0;
-	m_vertData[2].st[0]  =  s0; m_vertData[2].st[1]  =  t0;
+	vertData[0].st[0]  =  s0; vertData[0].st[1]  =  t1;
+	vertData[1].st[0]  =  s1; vertData[1].st[1]  =  t0;
+	vertData[2].st[0]  =  s0; vertData[2].st[1]  =  t0;
 	
 	// Lower Tri
-	m_vertData[3].st[0]  =  s0; m_vertData[3].st[1]  =  t1;
-	m_vertData[4].st[0]  =  s1; m_vertData[4].st[1]  =  t0;
-	m_vertData[5].st[0]  =  s1; m_vertData[5].st[1]  =  t1;
+	vertData[3].st[0]  =  s0; vertData[3].st[1]  =  t1;
+	vertData[4].st[0]  =  s1; vertData[4].st[1]  =  t0;
+	vertData[5].st[0]  =  s1; vertData[5].st[1]  =  t1;
 	
 }
 
 
 void Sprite::flipHoriz()
 {
-	m_vertData[0].st[0] = m_vertData[5].st[0];
-	m_vertData[4].st[0] = m_vertData[2].st[0];
+    SpriteVert *vertData = m_myBuff->vertAtIndex( m_vertIndex );
+    
+	vertData[0].st[0] = vertData[5].st[0];
+	vertData[4].st[0] = vertData[2].st[0];
 	
-	std::swap( m_vertData[2].st[0], m_vertData[1].st[0] );
-	std::swap( m_vertData[3].st[0], m_vertData[5].st[0] );
+	std::swap( vertData[2].st[0], vertData[1].st[0] );
+	std::swap( vertData[3].st[0], vertData[5].st[0] );
 	
 }
 
@@ -173,25 +176,27 @@ void Sprite::update()
 	float sx2 = sx * 0.5f;
 	float sy2 = sy * 0.5f;
 	
+    SpriteVert *vertData = m_myBuff->vertAtIndex( m_vertIndex );
+    
 	// Upper Tri
-	m_vertData[0].pos[0] = x + ((-sx2)*ca - (-sy2)*sa);
-	m_vertData[0].pos[1] = y + ((-sy2)*ca + (-sx2)*sa);
+	vertData[0].pos[0] = x + ((-sx2)*ca - (-sy2)*sa);
+	vertData[0].pos[1] = y + ((-sy2)*ca + (-sx2)*sa);
 
-	m_vertData[1].pos[0] = x + (( sx2)*ca - ( sy2)*sa);
-	m_vertData[1].pos[1] = y + (( sy2)*ca + ( sx2)*sa);
+	vertData[1].pos[0] = x + (( sx2)*ca - ( sy2)*sa);
+	vertData[1].pos[1] = y + (( sy2)*ca + ( sx2)*sa);
 	
-	m_vertData[2].pos[0] = x + ((-sx2)*ca - ( sy2)*sa);
-	m_vertData[2].pos[1] = y + (( sy2)*ca + (-sx2)*sa);
+	vertData[2].pos[0] = x + ((-sx2)*ca - ( sy2)*sa);
+	vertData[2].pos[1] = y + (( sy2)*ca + (-sx2)*sa);
 
 	// Lower Tri
-	m_vertData[3].pos[0] = x + ((-sx2)*ca - (-sy2)*sa);
-	m_vertData[3].pos[1] = y + ((-sy2)*ca + (-sx2)*sa);
+	vertData[3].pos[0] = x + ((-sx2)*ca - (-sy2)*sa);
+	vertData[3].pos[1] = y + ((-sy2)*ca + (-sx2)*sa);
 	
-	m_vertData[4].pos[0] = x + (( sx2)*ca - ( sy2)*sa);
-	m_vertData[4].pos[1] = y + (( sy2)*ca + ( sx2)*sa);
+	vertData[4].pos[0] = x + (( sx2)*ca - ( sy2)*sa);
+	vertData[4].pos[1] = y + (( sy2)*ca + ( sx2)*sa);
 	
-	m_vertData[5].pos[0] = x + (( sx2)*ca - (-sy2)*sa);
-	m_vertData[5].pos[1] = y + ((-sy2)*ca + ( sx2)*sa);
+	vertData[5].pos[0] = x + (( sx2)*ca - (-sy2)*sa);
+	vertData[5].pos[1] = y + ((-sy2)*ca + ( sx2)*sa);
 }
 
 // Tests if a point hits us

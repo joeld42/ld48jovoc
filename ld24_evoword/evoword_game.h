@@ -183,6 +183,8 @@ private:
     float m_treeWidth;
     bool m_needsLayout;
     
+    bool m_showBubbles;
+    
     std::string m_startWord;
     std::string m_currWord;
     Creature m_creature;

@@ -47,13 +47,26 @@ public:
     //   quad[0].p = VEC3( 0.0, 0.0, 0.0 );
     //   note returns 6 verts..
     //  etc...
-    // NOTE: I think this old code is buggy if you try to add quads after drawing 
+
+    // NOTE: You can use the returned vertex pointer to initialize
+    // the newe data but don't keep it around. If you want to access
+    // the data later use addQuad2 and vertAtIndex. The data may move
+    // around but the index will stay the same
     VertexT *addQuad();    
     VertexT *addTris( size_t numTris );
     VertexT *addVerts( size_t numVerts );
     
+    // Use these if you want to access the data later. TODO come up with
+    // a better name for these.
+    size_t addQuad2();    
+    size_t addTris2( size_t numTris );
+    size_t addVerts2( size_t numVerts );
+    
     // returns the raw buffer
     VertexT *data();
+
+    // returns the vert at a given index
+    VertexT *vertAtIndex( size_t index );
 
     // size of the buffer
     size_t size();    
@@ -65,7 +78,9 @@ public:
     // Gets a VBO for this data. Note that you can't 
     // grow the buffer any more after you call this.
     GLuint vbo();
-	
+
+    bool m_verbose;
+    
 protected:
 	// For subclasses to call after the data has changed
 	void updateBuffer();
@@ -73,6 +88,7 @@ protected:
 //private:
     VertexT *m_bufferData;
     bool m_growable;
+    
 	GLuint m_usage;
 
     size_t m_buffSize; // number of verts in use
@@ -97,7 +113,8 @@ QuadBuff<VertexT>::QuadBuff( size_t initial_size, bool grow, GLuint usage ) :
                  m_buffCapacity( 0 ),
                  m_vboInitted( false ),
 				 m_vboSize( 0 ),
-                 m_vbo( 0 )
+                 m_vbo( 0 ),
+                 m_verbose( false )
 {
 	// initialize if requested
 	if (initial_size)
@@ -142,21 +159,38 @@ void QuadBuff<VertexT>::clear()
 template <typename VertexT>
 VertexT *QuadBuff<VertexT>::addQuad()
 {
-    return addVerts( 6 );
+    return vertAtIndex( addVerts2( 6 ) );
+}
+
+
+template <typename VertexT>
+size_t QuadBuff<VertexT>::addQuad2()
+{
+    return addVerts2( 6 );
+}
+
+template <typename VertexT>
+size_t QuadBuff<VertexT>::addTris2( size_t numTris )
+{
+    return addVerts2( numTris * 3 );
 }
 
 template <typename VertexT>
 VertexT *QuadBuff<VertexT>::addTris( size_t numTris )
 {
-    return addVerts( numTris * 3 );
+    return vertAtIndex( addVerts2( numTris*3 ) );
 }
 
 template <typename VertexT>
 VertexT *QuadBuff<VertexT>::addVerts( size_t numVerts )
+{
+    return vertAtIndex( addVerts2( numVerts) );
+}
+
+template <typename VertexT>
+size_t QuadBuff<VertexT>::addVerts2( size_t numVerts )
 
 {
-    VertexT *newQuad;
-    
 	// Do we need to make more space for this quad??
 	// NOTE: potentially confusing: size/capacity is in # of verts,
 	// not num quads
@@ -198,10 +232,16 @@ VertexT *QuadBuff<VertexT>::addVerts( size_t numVerts )
 	}
 
 	// Ok, now we know there's space for the new quad
-	newQuad = &m_bufferData[m_buffSize];
+	size_t newQuadIndex = m_buffSize;
 	m_buffSize += numVerts;
 
-	return newQuad;
+	return newQuadIndex;
+}
+
+template<typename VertexT>
+VertexT *QuadBuff<VertexT>::vertAtIndex( size_t index )
+{
+    return &m_bufferData[index];
 }
 
 template <typename VertexT>

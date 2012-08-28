@@ -9,7 +9,9 @@
 #include <useful.h>
 #include <fragment.h>
 
-Fragment::Fragment()
+Fragment::Fragment() :
+    m_selected( false ),
+    m_bubbleSprite( NULL )
 {
     initBubble();
 }
@@ -17,9 +19,8 @@ Fragment::Fragment()
 Fragment::Fragment( char letter, vec2f pos ) :
     m_pos( pos),
     m_letter(letter),
-    m_selected(false)
-	//, 
-    //m_bubbleSprite( NULL )
+    m_selected(false), 
+    m_bubbleSprite( NULL )
 {
 }
 

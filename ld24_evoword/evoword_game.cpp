@@ -85,6 +85,8 @@ void EvoWordGame::init()
     PNGImage bubbleImage = LoadImagePNG( gameDataFile( "", "bubble.png" ).c_str() );
     m_sbBubbles = new SpriteBuff(bubbleImage.textureId, 3000 );
         
+    m_sbBubbles->m_verbose = true;
+    
 //    m_testBubble = m_sbBubbles->makeSprite();
 //    m_testBubble->x = 100.0;
 //    m_testBubble->y = 100.0;    
@@ -166,6 +168,8 @@ void EvoWordGame::init()
     m_targLook = 0.0;
     
     m_userMessageTimeout = 0.0;
+    
+    m_showBubbles = false;
 }
 
 void EvoWordGame::updateSim( float dtFixed )
@@ -190,14 +194,13 @@ void EvoWordGame::updateSim( float dtFixed )
         Fragment &f = (*fi);
         
         // make sure it has a sprite
-        /*
 		if (!f.m_bubbleSprite)
         {
             f.m_bubbleSprite = m_sbBubbles->makeSprite( 0.0, 1.0, 1.0, 0.0 );            
             f.m_bubbleSprite->sx = randUniform( 32.0, 64.0 );
             f.m_bubbleSprite->sy =  f.m_bubbleSprite->sx;
             f.m_bubbleSprite->update();
-        }*/
+        }
         
         // DON'T update floatyPicked
         if (&f == m_floatyPicked) continue;
@@ -214,17 +217,17 @@ void EvoWordGame::updateSim( float dtFixed )
         }                
         
         // Update bubble sprite
-//        f.m_bubbleSprite->x = f.m_pos.x;
-//        f.m_bubbleSprite->y = f.m_pos.y;   
-//        f.m_bubbleSprite->update();
+        f.m_bubbleSprite->x = f.m_pos.x;
+        f.m_bubbleSprite->y = f.m_pos.y;   
+        f.m_bubbleSprite->update();
     }
     
     // Update all bubble sprites
-//    for (std::vector<Fragment>::iterator fi = m_floatyFrags.begin();
-//         fi != m_floatyFrags.end(); ++fi )
-//    {
-//        if (fi->m_bubbleSprite) fi->m_bubbleSprite->update();
-//    }
+    for (std::vector<Fragment>::iterator fi = m_floatyFrags.begin();
+         fi != m_floatyFrags.end(); ++fi )
+    {
+        if (fi->m_bubbleSprite) fi->m_bubbleSprite->update();
+    }
     
     // Move genome fragments
 	for (std::vector<Fragment>::iterator fi = m_creatureFrags.begin(); fi != m_creatureFrags.end(); ++fi)
@@ -420,11 +423,9 @@ void EvoWordGame::mouseMotion( float x, float y )
         m_floatyPicked->m_pos = vec2f(x, 600-y);
         m_floatyPicked->m_bubbleBaseX = x;
         
-		/*
         m_floatyPicked->m_bubbleSprite->x = m_floatyPicked->m_pos.x;
         m_floatyPicked->m_bubbleSprite->y = m_floatyPicked->m_pos.y;
         m_floatyPicked->m_bubbleSprite->update();
-		*/
         
         replaceLetter( true );
     }
@@ -595,10 +596,8 @@ void EvoWordGame::keypress( SDLKey &key )
             // DBG: Toggle review tree
             case 'r':
                 if (m_savedCreatures.size() < NUM_SLOTS)
-                    m_gamestate = GameState_GAME;
-                
+                    m_gamestate = GameState_GAME;                
                 break;
-
 
             default:
                 break;
@@ -619,6 +618,12 @@ void EvoWordGame::keypress( SDLKey &key )
                 m_scrollLimit = m_historyRoot->maxDepth() * NODE_HEIGHT;
                 m_needsLayout = true;
                 break;
+            
+            // DBG: turn on/off bubbles
+            case 'b':
+                m_showBubbles = !m_showBubbles;
+                break;
+
                 
             // DBG: save color palete
 //            case 'p':
@@ -967,7 +972,10 @@ void EvoWordGame::_draw2d()
 
         
         // Draw sprites
-        m_sbBubbles->renderAll();
+        if (m_showBubbles)
+        {
+            m_sbBubbles->renderAll();
+        }
         
 //        if (m_sbThumb)
 //        {
