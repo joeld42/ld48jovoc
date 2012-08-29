@@ -24,6 +24,27 @@
 // 30 ticks per sim frame
 #define STEPTIME (33)
 
+enum
+{
+    EventCode_GAMELOOP
+};
+
+Uint32 GameLoopTimer(Uint32 interval, void* param)
+{
+    // Create a user event to call the game loop.
+    SDL_Event event;
+    
+    event.type = SDL_USEREVENT;
+    event.user.code = EventCode_GAMELOOP;
+    event.user.data1 = 0;
+    event.user.data2 = 0;
+    
+    SDL_PushEvent(&event);
+    
+    return interval;
+}
+
+
 int main( int argc, char *argv[] )
 {
     printf("Game Data Dir: %s\n", getResourceDir().c_str() );
@@ -33,7 +54,7 @@ int main( int argc, char *argv[] )
     glswSetPath( getResourceDir().c_str(), ".glsl" );
     
 	// Initialize SDL
-	if (SDL_Init( SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO ) < 0 ) 
+	if (SDL_Init( SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO | SDL_INIT_TIMER ) < 0 ) 
 	{
 		printf("Unable to init SDL: %s\n", SDL_GetError() );
 		exit(1);
@@ -69,93 +90,103 @@ int main( int argc, char *argv[] )
     // FIXME: screen size
     glViewport( 0, 0, 800, 600 );    
     
+    // start timer
+    SDL_TimerID timer;
+    timer = SDL_AddTimer(33, GameLoopTimer, NULL );
+    
 	//=====[ Main loop ]======
 	bool done = false;
 	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;
-	while(!done)
+    SDL_Event event;
+	while ((!done) && (SDL_WaitEvent( &event ) ) )
 	{
-		SDL_Event event;
         
-		while (SDL_PollEvent( &event ) ) 
-		{
-			switch (event.type )
-			{
-				case SDL_KEYDOWN:
-					switch( event.key.keysym.sym ) 
-                {						
-                    case SDLK_ESCAPE:
-                        done = true;
-                        break;
-                        
-                    default:
-                        game->keypress( event.key.keysym.sym );
-                        break;
-                }
+        bool gameLoop = false;
+        
+        switch (event.type )
+        {
+            case SDL_KEYDOWN:
+                switch( event.key.keysym.sym ) 
+            {						
+                case SDLK_ESCAPE:
+                    done = true;
                     break;
-                    
-				case SDL_MOUSEMOTION:	
-//                    game->mouseMotion( event.motion.xrel, event.motion.yrel ); 
-                    game->mouseMotion( event.motion.x, event.motion.y ); 
-					break;
-                    
-				case SDL_MOUSEBUTTONDOWN:					
-					game->mouseButton( event.button );
-					break;
-                    
-				case SDL_MOUSEBUTTONUP:					
-					game->mouseButton( event.button );
-					break;				
-                    
-				case SDL_QUIT:
-					done = true;
-					break;
                     
                 default:
+                    game->keypress( event.key.keysym.sym );
                     break;
-			}
-		}
-        
-        // Do continuous keys
-		Uint8 *keyState = SDL_GetKeyState( NULL );
-        
-		// convert to btn mask
-		Uint32 btnMask = 0;
-		btnMask |= (keyState[SDLK_LEFT]||keyState[SDLK_a])?BTN_LEFT:0;
-		btnMask |= (keyState[SDLK_RIGHT]||keyState[SDLK_d])?BTN_RIGHT:0;
-        
-		btnMask |= (keyState[SDLK_UP]||keyState[SDLK_w])?BTN_UP:0;
-		btnMask |= (keyState[SDLK_DOWN]||keyState[SDLK_s])?BTN_DOWN:0;
-        
-		btnMask |= (keyState[SDLK_z]||keyState[SDLK_COMMA])?BTN_A:0;
-		btnMask |= (keyState[SDLK_x]||keyState[SDLK_PERIOD])?BTN_B:0;
-        
-		game->updateButtons( btnMask );
-		
-		
-		// Timing
-		ticks_elapsed = SDL_GetTicks() - ticks;
-		ticks += ticks_elapsed;
-        
-		// fixed sim update
-		sim_ticks += ticks_elapsed;
-		while (sim_ticks > STEPTIME) 
-		{
-			sim_ticks -= STEPTIME;						
+            }
+                break;
+                
+            case SDL_MOUSEMOTION:	
+    //                    game->mouseMotion( event.motion.xrel, event.motion.yrel ); 
+                game->mouseMotion( event.motion.x, event.motion.y ); 
+                break;
+                
+            case SDL_MOUSEBUTTONDOWN:					
+                game->mouseButton( event.button );
+                break;
+                
+            case SDL_MOUSEBUTTONUP:					
+                game->mouseButton( event.button );
+                break;				
+                
+            case SDL_QUIT:
+                done = true;
+                break;
             
-			//printf("update sim_ticks %d ticks_elapsed %d\n", sim_ticks, ticks_elapsed );
-			game->updateSim( (float)STEPTIME / 1000.0f );			
-		}	
-        
-		// redraw as fast as possible		
-		float dtRaw = (float)(ticks_elapsed) / 1000.0f;
-        
-		game->updateFree( dtRaw ); 
-        game->redraw();   
+            case SDL_USEREVENT:
+                gameLoop = true;
+                break;
+                
+            default:
+                break;
+        }
 
-		SDL_GL_SwapBuffers();
-        
-		// Call this once a frame if using tweakables
-        //ReloadChangedTweakableValues();        
+        if (gameLoop)
+        {
+            // Do continuous keys
+            Uint8 *keyState = SDL_GetKeyState( NULL );
+            
+            // convert to btn mask
+            Uint32 btnMask = 0;
+            btnMask |= (keyState[SDLK_LEFT]||keyState[SDLK_a])?BTN_LEFT:0;
+            btnMask |= (keyState[SDLK_RIGHT]||keyState[SDLK_d])?BTN_RIGHT:0;
+            
+            btnMask |= (keyState[SDLK_UP]||keyState[SDLK_w])?BTN_UP:0;
+            btnMask |= (keyState[SDLK_DOWN]||keyState[SDLK_s])?BTN_DOWN:0;
+            
+            btnMask |= (keyState[SDLK_z]||keyState[SDLK_COMMA])?BTN_A:0;
+            btnMask |= (keyState[SDLK_x]||keyState[SDLK_PERIOD])?BTN_B:0;
+            
+            game->updateButtons( btnMask );
+            
+            
+            // Timing
+            ticks_elapsed = SDL_GetTicks() - ticks;
+            ticks += ticks_elapsed;
+            
+            // fixed sim update
+            sim_ticks += ticks_elapsed;
+            while (sim_ticks > STEPTIME) 
+            {
+                sim_ticks -= STEPTIME;						
+                
+                //printf("update sim_ticks %d ticks_elapsed %d\n", sim_ticks, ticks_elapsed );
+                game->updateSim( (float)STEPTIME / 1000.0f );			
+            }	
+            
+            // redraw as fast as possible		
+            float dtRaw = (float)(ticks_elapsed) / 1000.0f;
+            
+            game->updateFree( dtRaw ); 
+            game->redraw();   
+
+            SDL_GL_SwapBuffers();
+            
+            // Call this once a frame if using tweakables
+            //ReloadChangedTweakableValues();  
+        }
 	}
     
     // Shut down game
