@@ -22,19 +22,23 @@ class LairGame {
       context.drawImage(backgroundImg, 0, minimap.yval, 640, 400, 0, 0, 640, 400 );
       
       // draw the map tiles
-      context.fillStyle = "rgba(128, 0, 0, 0.1)";
-      for (int j=0; j < 10; j++) {
-        for (int i=0; i < 40; i++) {
-          if (worldMap[mapIndex(i,j)].terrainType==TERRAIN_LAVA)
-          {
-            context.rect((i*16)+1, (j*16)+1, 15, 15);
-            context.fill();
+      if ((worldMap!=null) && (worldMap.length>0))
+      {
+          context.fillStyle = "rgba(128, 0, 0, 0.1)";
+          for (int j=0; j < 125; j++) {
+            for (int i=0; i < 40; i++) {
+              if (worldMap[mapIndex(i,j)].terrainType==TERRAIN_LAVA)
+              {
+                context.rect((i*16)+1, (j*16)+1, 15, 15);
+                context.fill();
+              }
+                        
+            }
           }
-                    
-        }
       }
         
   }
+   
   
   void showFps(num fps) {
     if (fpsAverage == null) {
@@ -98,12 +102,39 @@ void startGame()
       print('Loaded ${mapAttrImg.src}');
       c.complete(mapAttrImg.src);
       
-      var rand = new Random();
+      // Get the image data from the attrs image
+      CanvasElement attrCanv = new CanvasElement(width:40, height:125);      
+      CanvasRenderingContext2D context = attrCanv.context2d;
+      
+      context.drawImage( mapAttrImg, 0, 0, 40, 125, 0, 0, 40, 125 );
+      
+      ImageData imgData= context.getImageData( 0, 0, 40, 125 );
+      print('attr image data ${imgData.width}, ${imgData.height}');
+      
+      //var rand = new Random();
       worldMap = new List<MapTile>( 40*125 );
       for (int y=0; y < 125; y++) {      
         for (int x=0; x < 40; x++) {        
           var tile = new MapTile();
-          tile.terrainType = rand.nextInt(6);
+          
+          int ndx = ((y*40)+x)*4;
+          int r = imgData.data[ndx+0];
+          int g = imgData.data[ndx+1];
+          int b = imgData.data[ndx+2];
+          
+         if ((r==0)&&(g==255)&&(b==255)) {
+            // background/sky
+           tile.terrainType = TERRAIN_SKY;           
+         } else if ((r==255)&&(g==0)&&(b==0)) {
+            tile.terrainType = TERRAIN_LAVA;
+         } else if ((r==0)&&(g==255)&&(b==0)) {
+            tile.terrainType = TERRAIN_SOLID;
+         } else {
+           //print ('${r}, ${g}, ${b}');
+           
+           tile.terrainType = TERRAIN_DIRT;
+         }
+        //  tile.terrainType = rand.nextInt(6);
 //          tile.terrainType = TERRAIN_LAVA;
           
           worldMap[ mapIndex( x, y) ] = tile;
