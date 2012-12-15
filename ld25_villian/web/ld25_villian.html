@@ -8,12 +8,18 @@
   </head>
   <body>
     <h1>Ld25_villian</h1>
+      <p id="fps_counter"> </p>
     
-    <p>Hello world from Dart!</p>
-    
-    <div id="container">
-      <p id="text"></p>
+    <div id="minimap">
+      <div id="minimap-frame"></div>
+<!--      <img id="minimap-bg" src="gamedata/minimap.png"> -->
     </div>
+    
+    <div>
+      <canvas id="gamemap" width="640" height="400"></canvas>
+    </div>
+
+
 
     <script type="application/dart" src="ld25_villian.dart"></script>
     <script src="https://dart.googlecode.com/svn/branches/bleeding_edge/dart/client/dart.js"></script>

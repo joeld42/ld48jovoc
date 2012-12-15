@@ -12,12 +12,32 @@ p {
   color: #333;
 }
 
-#container {
-  width: 100%;
+#minimap {
+  display:inline;
+  float:left;
+  margin: 5px 5px;
+  border: 1px solid blue;
+  width: 128px;
+  height: 400px;
+  background-image: url('gamedata/minimap.png');
+  }
+ 
+ #minimap-frame 
+ {
+    position: absolute;
+    width:126px;
+    height:80px;
+    border: 2px solid red;  
+ }
+   
+#gamemap {
+  width: 640;
   height: 400px;
   position: relative;
   border: 1px solid #ccc;
   background-color: #fff;
+   display:inline;
+   margin: 5px 5px;
 }
 
 #text {

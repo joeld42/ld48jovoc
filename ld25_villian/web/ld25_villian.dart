@@ -1,9 +1,16 @@
 import 'dart:html';
 
+part 'lair_game.dart';
+part 'minimap.dart';
+
 void main() {
-  query("#text")
-    ..text = "Click me!"
-    ..on.click.add(reverseText);
+//  query("#text")
+//    ..text = "Click me!"
+//    ..on.click.add(reverseText);
+
+  var game = new LairGame();
+  game.startGame();
+
 }
 
 void reverseText(Event event) {
