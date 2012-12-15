@@ -1,6 +1,23 @@
 
 part of ld25_villian;
 
+class Point {
+  num x, y;
+
+  Point(this.x, this.y);
+}
+
+num clamp( num orig, num low, num high) {
+  if (orig < low) {
+    return low;
+  } else if (orig > high) {
+    return high;
+  } else {
+    return orig;
+  }
+  
+}
+
 class LairGame {
   
   // FPS Counter
@@ -13,24 +30,60 @@ class LairGame {
   
   List<MapTile> worldMap;
   
+  // Mouse pos
+  Point mousePos;
+  Point mousePosWorld; // mouse pos in world coords (matches bgimage)
+  Point mousePosMap; // mouse pos in map tile index
+  
   void drawFrame()
   {
       CanvasRenderingContext2D context = gameMapCanvas.context2d;
-      context.globalAlpha = 1.0;
       
+      //context.clearRect( 0, 0, 640, 400 );
+      
+//      context.fillStyle = "#f0f";
+//      context.rect(0,0,640,400);
+//      context.fillRect();
+//      
       // Draw the background
       context.drawImage(backgroundImg, 0, minimap.yval, 640, 400, 0, 0, 640, 400 );
       
+      // draw map cursor
+      //context.fillStyle = "rgba(255, 255, 0, 0.5)";
+      context.fillStyle = "#fff";
+      context.fillRect((mousePosMap.x*16)+1, 
+                       ((mousePosMap.y*16)-minimap.yval)+1, 15, 15);
+      
       // draw the map tiles
+      int lastTerrainType = -1;
       if ((worldMap!=null) && (worldMap.length>0))
       {
-          context.fillStyle = "rgba(128, 0, 0, 0.1)";
           for (int j=0; j < 125; j++) {
+            
+            num screenYpos = (j*16) - minimap.yval;
+            if ( (screenYpos < -15) ||
+                 (screenYpos > 400) ) {
+              continue;
+            }
+            
             for (int i=0; i < 40; i++) {
-              if (worldMap[mapIndex(i,j)].terrainType==TERRAIN_LAVA)
+              
+              int terr = worldMap[mapIndex(i,j)].terrainType;
+              if (terr!=lastTerrainType)
               {
-                context.rect((i*16)+1, (j*16)+1, 15, 15);
-                context.fill();
+                if (terr==TERRAIN_DIRT) {
+                  context.fillStyle = "rgba(128, 80, 0, 0.5)";
+                } else if (terr==TERRAIN_LAVA) {
+                  context.fillStyle = "rgba(255, 0, 0, 0.5)";  
+                } else if (terr==TERRAIN_SOLID) {
+                  context.fillStyle = "rgba(255, 0, 255, 0.5)";  
+                }
+                lastTerrainType = terr;
+              }
+              
+              if (terr!=TERRAIN_SKY)
+              {
+                context.fillRect((i*16)+1, screenYpos+1, 15, 15);
               }
                         
             }
@@ -71,7 +124,35 @@ void startGame()
     
     // Make minimap
     minimap = new MiniMap();
-
+    
+    mousePos = new Point(0,0);
+    mousePosWorld = new Point(0,0);
+    mousePosMap = new Point(0,0);
+    
+    // update mouse pos
+    gameMapCanvas.on.mouseMove.add( (MouseEvent ev) {
+      
+      ev.preventDefault();
+      
+      num clickYpos = ev.clientY - gameMapCanvas.offsetTop;
+      num clickXpos = ev.clientX - gameMapCanvas.offsetLeft;
+      
+      mousePos.x = clickXpos; 
+      mousePos.y = clickYpos;
+      
+      mousePosWorld.x = mousePos.x;
+      mousePosWorld.y = mousePos.y + minimap.yval;
+      
+      mousePosMap.x = (mousePosWorld.x / 16).floor();
+      mousePosMap.y = (mousePosWorld.y / 16).floor();
+      
+      mousePosMap.x = clamp( mousePosMap.x, 0, 40 );
+      mousePosMap.y = clamp( mousePosMap.y, 0, 125 );
+        
+      //print("yval ${minimap.yval} mousePosWorld ${mousePosWorld.x} ${mousePosWorld.y} Map ${mousePosMap.x}, ${mousePosMap.y}");
+      
+    } );
+    
     // Load map
     buildMap();
     
@@ -148,6 +229,10 @@ void startGame()
     
    int mapIndex( int x, int y ) {
      return (y*40)+x;
+   }
+   
+   Point screenToMap( int x, int y) {
+      return new Point( x/16, (y+yval)/16 );
    }
   
 }

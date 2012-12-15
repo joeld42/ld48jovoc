@@ -59,8 +59,9 @@ class MiniMap {
     
     frameElem.style.top = "${frameYpos}px";
     yval = (clickYpos-40) * 5;
-    if (yval > 1800) {
-      yval = 1800;
+    
+    if (yval > 1600) {
+      yval = 1600;
     }
     
     if (yval < 0) {
