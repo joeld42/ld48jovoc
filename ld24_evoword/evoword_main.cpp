@@ -92,7 +92,7 @@ int main( int argc, char *argv[] )
     
     // start timer
     SDL_TimerID timer;
-    timer = SDL_AddTimer(33, GameLoopTimer, NULL );
+    timer = SDL_AddTimer(50, GameLoopTimer, NULL );
     
 	//=====[ Main loop ]======
 	bool done = false;
