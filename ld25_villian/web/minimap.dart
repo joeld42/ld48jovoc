@@ -18,9 +18,9 @@ class MiniMap {
     minimapElem.on.mouseMove.add( handleDrag );
     minimapElem.on.mouseUp.add( endDrag );
     
-    frameElem.on.mouseDown.add( (MouseEvent me) { ev.preventDefault(); } );
-    frameElem.on.mouseMove.add( (MouseEvent me) { ev.preventDefault(); } );
-    frameElem.on.mouseUp.add( (MouseEvent me) { ev.preventDefault(); } );
+    frameElem.on.mouseDown.add( (MouseEvent ev) { ev.preventDefault(); } );
+    frameElem.on.mouseMove.add( (MouseEvent ev) { ev.preventDefault(); } );
+    frameElem.on.mouseUp.add( (MouseEvent ev) { ev.preventDefault(); } );
     
     dragging = false;
   }
