@@ -1,9 +1,11 @@
 
 part of ld25_villian;
 
+// global RNG
+Random rand;
+
 class Point {
   num x, y;
-
   Point(this.x, this.y);
 }
 
@@ -14,8 +16,11 @@ num clamp( num orig, num low, num high) {
     return high;
   } else {
     return orig;
-  }
-  
+  } 
+}
+
+int mapIndex( int x, int y ) {
+  return (y*40)+x;
 }
 
 class LairGame {
@@ -30,10 +35,16 @@ class LairGame {
   
   List<MapTile> worldMap;
   
+  num nextAgentSpawn;
+  
   // Mouse pos
   Point mousePos;
   Point mousePosWorld; // mouse pos in world coords (matches bgimage)
   Point mousePosMap; // mouse pos in map tile index
+  
+  List<Room> rooms;
+  List<Agent> agents;
+  
   
   void drawFrame()
   {
@@ -89,7 +100,16 @@ class LairGame {
             }
           }
       }
-        
+      
+      // Draw the rooms
+      for (Room room in rooms) {
+          room.draw( context, minimap.yval );
+      }
+      
+      // Draw agents
+      for (Agent agent in agents) {
+        agent.draw( context, minimap.yval );
+      }
   }
    
   
@@ -102,15 +122,40 @@ class LairGame {
   
     query("#fps_counter").text = "${fpsAverage.round().toInt()} fps";
   }
+  
+  void update( num dt)
+  {
+      // Spawn new agent?
+      if (agents.length < 30)
+      {
+          nextAgentSpawn -= dt;
+          if (nextAgentSpawn < 0.0)
+          {
+              print( "spawn agent...");
+              nextAgentSpawn = 2 + (rand.nextDouble() * 3.0);
+              
+              var agent = new Agent( rand.nextDouble()*600, 20.0 );
+              agents.add( agent );
+          }
+      }
+      
+      // Update all agents
+      for (Agent agent in agents) {
+        agent.update(dt, worldMap );
+      }
+  }
 
   void gameloop(num _) {
     num time = new Date.now().millisecondsSinceEpoch;
-  
     if (renderTime != null) {
-      showFps((1000 / (time - renderTime)).round());
+      num dt = time - renderTime;      
+      showFps((1000 / dt).round());
+      
+      update(dt/1000.0);
     }  
+    
     renderTime = time;
-  
+      
     drawFrame();
     
     window.requestAnimationFrame(gameloop);
@@ -153,8 +198,22 @@ void startGame()
       
     } );
     
+    // init random 
+    rand = new Random();
+    
+    // Init agents
+    nextAgentSpawn = 0.0;
+    agents = new List<Agent>();
+    
     // Load map
     buildMap();
+    
+    // load rooms
+    rooms = new List<Room>();
+    var room = new Room( 3, 2, "gamedata/tinylair.png");
+    room.x = 10;
+    room.y = 10;
+    rooms.add( room );
     
     // Load resources
     backgroundImg = new ImageElement();
@@ -227,9 +286,6 @@ void startGame()
     
    }
     
-   int mapIndex( int x, int y ) {
-     return (y*40)+x;
-   }
    
    Point screenToMap( int x, int y) {
       return new Point( x/16, (y+yval)/16 );

@@ -12,15 +12,40 @@ p {
   color: #333;
 }
 
+#footer {
+	border: 1px solid #000;
+}
+
+#toolbar {
+	border: 1px solid #000;
+}
+
+#alerts {
+	width=100%;
+	height=100%;
+	border: 1px solid #333;
+	overflow: scroll;
+	width: 100%;
+	height: 400px;
+}
+
+.alertpanel p {
+	border-bottom: 3px groove #efefd1;
+	padding-bottom: 4px;
+	padding-left: 0;
+	padding-top: 4px;
+}
+
 #minimap {
   display:inline;
   float:left;
-  margin: 5px 5px;
+
   border: 1px solid blue;
   width: 128px;
   height: 400px;
   background-image: url('gamedata/minimap.png');
-  }
+  margin-left: 18px;
+}
  
  #minimap-frame 
  {
@@ -37,7 +62,17 @@ p {
   border: 1px solid #ccc;
   background-color: #fff;
    display:inline;
-   margin: 5px 5px;
+   margin-left: 15px;
+}
+
+.button {
+	width: 57px;
+	height: 57px;
+	display: inline-block;
+	border: 1px solid;
+	margin: 3px;
+	text-align: center;
+	vertical-align: middle;
 }
 
 #text {
