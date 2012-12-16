@@ -5,23 +5,41 @@ class Agent {
   num x;
   num y;
   
+  int mapx;
+  int mapy;
+  
   num walkDir;
-  bool dead;
+  num fighting; // timer
+  var doneFight; // callback
+  
+  Element thumb;
+  
+  String name;
+  int hp;
   
   Agent( ImageElement this.frames, num this.x, num this.y ) {
     walkDir = 1.0;
     if (rand.nextDouble() < 0.5) {
       walkDir = -1.0;
     }
-    dead = false;
+    fighting = 0.0;
   }
   
   void update(num dt, List<MapTile> map) {
     
     // find what tile we're standing on
-    int mapx = (x/16).floor().toInt();
-    int mapy = ((y+1)/16).floor().toInt();
-    
+    mapx = (x/16).floor().toInt();
+    mapy = ((y+1)/16).floor().toInt();
+  
+    // are we fighting?
+    if (fighting > 0.0) {
+      fighting -= dt;
+      if (fighting < 0.0) {
+        doneFight();
+      }
+      return;
+    }
+      
     MapTile tile = map[mapIndex(mapx, mapy)];
     if (tile.terrainType == TERRAIN_DIRT)
     {
@@ -49,8 +67,21 @@ class Agent {
   }
   
   void draw(CanvasRenderingContext2D context, num yval) {
-    //context.fillStyle = "#00f";
-    //context.fillRect( x - 6,(y-15)-yval,12,15 );
-    context.drawImage( frames, 0, 0, 16, 16, x-8, (y-15)-yval, 16, 16);
+    num jitterx=0.0, jittery=0.0;
+    
+    if (fighting > 0.0)
+    {
+      context.fillStyle = "#f00";
+      context.fillRect( x - 6,(y-15)-yval,12,15 );
+      
+      jitterx = ((rand.nextDouble() * 2.0) - 1.0) * 5.0;
+      jittery = ((rand.nextDouble() * 2.0) - 1.0) * 5.0;
+    } 
+     
+    context.drawImage( frames, 0, 0, 16, 16, (x-8)+jitterx, ((y-15)-yval)+jittery, 16, 16);
+    
+    context.fillStyle = "#fff";
+    context.fillText( "${name} (${hp})", x-15, (y-15)-yval );
+    
   }
 }

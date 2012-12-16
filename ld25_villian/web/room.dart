@@ -7,6 +7,8 @@ class Room {
   int x;
   int y;
   ImageElement roomImg;
+  String roomName;
+  int hp;
   bool ready;
   
   Room( int w, int h, String imgName )
@@ -14,7 +16,8 @@ class Room {
       this.w = w;
       this.h = h;
       this.ready = false;
-      
+      this.roomName = "Room Name";
+      hp = 10;
       x=0;
       y=0;
       
@@ -36,6 +39,13 @@ class Room {
 //      context.drawImage(backgroundImg, 0, minimap.yval, 640, 400, 0, 0, 640, 400 );
       context.drawImage( roomImg, 0,0, w*16, h*16, x*16, y*16-yval, w*16, h*16 ); 
     }
+    
+    context.fillStyle="#fff";
+    context.fillText( roomName, x*16 + 4, (y*16-yval) + 24 );
+
+    context.fillStyle="#000";
+    context.fillText( hp.toString(), x*16+2, (y*16-yval) + 12 );
+
   }
   
   

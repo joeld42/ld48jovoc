@@ -65,9 +65,9 @@ class LairGame {
       
       // draw map cursor
       //context.fillStyle = "rgba(255, 255, 0, 0.5)";
-      context.fillStyle = "#fff";
-      context.fillRect((mousePosMap.x*16)+1, 
-                       ((mousePosMap.y*16)-minimap.yval)+1, 15, 15);
+//      context.fillStyle = "#fff";
+//      context.fillRect((mousePosMap.x*16)+1, 
+//                       ((mousePosMap.y*16)-minimap.yval)+1, 15, 15);
       
       // draw the map tiles
       /*
@@ -130,11 +130,26 @@ class LairGame {
   }
   
   void spawnAgent() {
-    print( "spawn agent...");
-    nextAgentSpawn = 2 + (rand.nextDouble() * 3.0);
+    print( "spawn agent..."); 
+    var agent = new Agent( agentImg, 350, 20.0 );
     
-    var agent = new Agent( agentImg, rand.nextDouble()*600, 20.0 );
+    // TMP
+    agent.name = "Agent Foo";
+    agent.hp = 1+rand.nextInt(15);
+    if (agent.hp > 10) {
+      agent.hp = 10;
+    }
+    
+    // Reveal his HP
+    Element agentbar = query("#toolbar");
+    var agentThumb = agentbar.children.last; 
+    agentThumb.text = "${agent.hp}"; 
+    
+    agent.thumb = agentThumb;
+    
+    // add the agent
     agents.add( agent );      
+    
   }
   
   void update( num dt)
@@ -145,8 +160,75 @@ class LairGame {
       {
         for (Agent agent in agents) {
           agent.update(dt/numSteps, worldMap );
+          
+          // Is this agent in a room?
+          for (Room r in rooms)
+          {
+            if ( (r.hp > 0) && (agent.fighting <= 0.0) && 
+                 (agent.mapx >= r.x) && (agent.mapx < r.x + r.w) &&
+                 (agent.mapy >= r.y) && (agent.mapy < r.y + r.h) ) {
+              agent.fighting = 1.0; // 1 sec.
+              agent.doneFight = () {
+                  num roomhp = r.hp;
+                  
+                  r.hp -= agent.hp;
+                  agent.hp -= roomhp;
+                  
+                  if (r.hp < 0) {
+                    r.hp = 0;
+                  }
+                  
+                  
+                  // Is this the last room?
+                  if (r==rooms.last) {
+                      print("It's the last room...");
+                      
+                      if (agent.hp>0) {
+                        print("Agent still alive after last room! lose");
+                        loseGame( "Shucks! ${agent.name} defeated you and brought down your lair.");
+                      } else {
+                        winGame( "Yeah! You taunted ${agent.name} with your sinister plan before getting rid of him.");
+                      }
+                  }
+                  else if (agent.hp <=0) {
+                    print("agent is dead");
+                    
+                    num ndx = agents.indexOf( agent );
+                    agents.removeAt( ndx );
+                    
+                    Element agentbar = query("#toolbar");
+                    if (agentbar.children.length==1) {
+                         print("That was the last agent..");                   
+                        loseGame( "Oh no! You killed all the agents before you could reveal your evil plan!");
+                    } else {
+                      agentbar.children.removeLast();
+                    }
+                  }
+              };
+            }
+          }
+          
         }
       }
+  }
+  
+  void winGame( String message ) {
+    endGame( "You Win!!", message );
+  }
+  
+  void loseGame( String message ) {
+    endGame( "You Lose!", message );
+  }
+  
+  void endGame( String title, String message ) {
+    var overlay = query("#overlay");
+    overlay.hidden = false;
+    
+    var titleElem = query("#ov_title");
+    titleElem.text = title;
+    
+    var messageElem = query("#ov_message");
+    messageElem.text = message;    
   }
 
   void gameloop(num _) {
@@ -229,11 +311,26 @@ void startGame()
       
        // Hook up buttons
       query("#btn_expand").on.click.add((_){
-        print("TODO: Expand base...");
+        print("Expand base...");
+        if (rooms.length < roomLocs.length) {
+          
+          var room = new Room( 4, 3, "gamedata/room4x3.png");
+          rooms.add( room );    
+          layoutRooms();
+          
+          // expanding base trigger a new agent
+          spawnAgent();
+        }
+
       });
    
       query("#btn_go").on.click.add((_){
+        // spawn a new agent without expanding base
          spawnAgent();
+      });
+     
+      query("#btnplay").on.click.add((_){
+        resetGame();
       });
         
         // Start the game loop
@@ -313,7 +410,7 @@ Future preloadImg( ImageElement img ) {
       }
     
       // load rooms
-      resetRooms();
+      resetGame();
       
       print("Map set up.");
       
@@ -321,13 +418,46 @@ Future preloadImg( ImageElement img ) {
     
    }
   
-  void resetRooms()
+  void resetGame()
   {
+    // reset overlay
+    var overlay = query("#overlay");
+    overlay.hidden = true;
+    
+   
+    
+    // reset the rooms
     rooms = new List<Room>();
-    var room = new Room( 3, 2, "gamedata/tinylair.png");
-    room.x = roomLocs[0].x.toInt();
-    room.y = roomLocs[0].y.toInt();
+    var room = new Room( 3, 2, "gamedata/room3x2.png");
     rooms.add( room );    
+    layoutRooms();
+    
+    // Build the agents
+    int numAgents = rand.nextInt(3) + 2;
+    
+    Element agentbar = query("#toolbar");
+    agentbar.children.clear();
+    
+    for (int i=0; i < numAgents; i++) {
+      var item = new DivElement();
+      item.text = '(?)';
+      item.classes.add( 'button' );
+      
+      agentbar.children.add( item );
+    }
+    
+  }
+  
+  void layoutRooms()
+  {
+    
+    for (int i=0; i<rooms.length; i++) {
+      int locNdx = rooms.length - i;
+      
+      Room r = rooms[i];
+      r.x = roomLocs[locNdx].x - (r.w/2).round().toInt();
+      r.y = roomLocs[locNdx].y - (r.h-1);
+    }
   }
     
    

@@ -52,7 +52,7 @@ class MiniMap {
     if (frameYpos > 320) {
       frameYpos = 320;
     }
-    print("frameYpos is ${frameYpos}");
+    //print("frameYpos is ${frameYpos}");
     
     frameYpos += minimapElem.offsetTop;
     
