@@ -1,13 +1,14 @@
 part of ld25_villian;
 
 class Agent {
+  ImageElement frames;
   num x;
   num y;
   
   num walkDir;
   bool dead;
   
-  Agent( num this.x, num this.y ) {
+  Agent( ImageElement this.frames, num this.x, num this.y ) {
     walkDir = 1.0;
     if (rand.nextDouble() < 0.5) {
       walkDir = -1.0;
@@ -48,7 +49,8 @@ class Agent {
   }
   
   void draw(CanvasRenderingContext2D context, num yval) {
-    context.fillStyle = "#00f";
-    context.fillRect( x - 6,(y-15)-yval,12,15 );
+    //context.fillStyle = "#00f";
+    //context.fillRect( x - 6,(y-15)-yval,12,15 );
+    context.drawImage( frames, 0, 0, 16, 16, x-8, (y-15)-yval, 16, 16);
   }
 }

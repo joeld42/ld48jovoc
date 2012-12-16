@@ -31,10 +31,10 @@ class LairGame {
   
   CanvasElement gameMapCanvas;
   ImageElement backgroundImg;
+  ImageElement agentImg;
   MiniMap minimap;
   
-  List<MapTile> worldMap;
-  
+  List<MapTile> worldMap; 
   num nextAgentSpawn;
   
   // Mouse pos
@@ -45,6 +45,7 @@ class LairGame {
   List<Room> rooms;
   List<Agent> agents;
   
+  List <Future> _preloads;
   
   void drawFrame()
   {
@@ -134,7 +135,7 @@ class LairGame {
               print( "spawn agent...");
               nextAgentSpawn = 2 + (rand.nextDouble() * 3.0);
               
-              var agent = new Agent( rand.nextDouble()*600, 20.0 );
+              var agent = new Agent( agentImg, rand.nextDouble()*600, 20.0 );
               agents.add( agent );
           }
       }
@@ -216,19 +217,36 @@ void startGame()
     rooms.add( room );
     
     // Load resources
-    backgroundImg = new ImageElement();
-    backgroundImg.src = "gamedata/volcano_bg.jpg";
-    Completer c = new Completer();
-    backgroundImg.on.load.add((_) {
+    _preloads = new List<Future>();
+    
+    backgroundImg = new ImageElement( src:"gamedata/volcano_bg.jpg" );
+    preloadImg( backgroundImg );
+    
+    agentImg = new ImageElement( src:"gamedata/agent.png" );
+    preloadImg( agentImg );       
+    
+    // Wait for all resources
+    Futures.wait(_preloads).then((List values) {
+      print ("all imgs loaded...");
       
-            
-      print('Loaded ${backgroundImg.src}');
-      c.complete(backgroundImg.src);
-      
-      // Start the game loop
-      window.requestAnimationFrame(gameloop);
+        // Start the game loop
+        window.requestAnimationFrame(gameloop);      
     });
+    
  }
+
+Future preloadImg( ImageElement img ) {
+  Completer c = new Completer();
+  Future fut = c.future;
+  img.on.load.add((_) {                 
+    print('Loaded ${img.src}');
+    c.complete(img.src);
+  });  
+  
+  _preloads.add(fut);
+  
+  return fut;
+}
 
  // ===========================================
  // Map stuff
