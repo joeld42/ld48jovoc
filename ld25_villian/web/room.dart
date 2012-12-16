@@ -10,6 +10,7 @@ class Room {
   String roomName;
   int hp;
   bool ready;
+  bool isLair;
   
   Room( int w, int h, String imgName )
   {
@@ -17,9 +18,11 @@ class Room {
       this.h = h;
       this.ready = false;
       this.roomName = "Room Name";
-      hp = 10;
+      hp = rand.nextInt(15);
+      if (hp > 10) hp = 10;
       x=0;
       y=0;
+      isLair = false;
       
       roomImg = new ImageElement();
       roomImg.src = imgName;

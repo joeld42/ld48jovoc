@@ -13,11 +13,10 @@ p {
 }
 
 #footer {
-	border: 1px solid #000;
 }
 
 #toolbar {
-	border: 1px solid #000;
+/*	border: 1px solid #000;*/
 }
 
 #alerts {
@@ -137,6 +136,9 @@ p {
 	line-height: 30px;
 }
 
+.greyed {
+	background-color: #909090;
+}
 
 #text {
   font-size: 24pt;

@@ -4,6 +4,28 @@ part of ld25_villian;
 // global RNG
 Random rand;
 
+var roomNames = [ "Tickle Room",
+                  "Unregulated Machine Shop",
+                  "Petting Zoo",
+                  "Discount Sushi Buffet",
+                  "Der Toestubbah",
+                  "Lava Sauna",
+                  "Shark Pool",
+                  "Crotch Laser",
+                  "Mongo's Arena",
+                  "Alligator Pit",
+                  "Laser Disco",
+                  "Electric Feel",
+                  "Rocket Launch Area",
+                  "Spikey Room"
+                  ];
+
+var agentNames = [ "Agent 007", "Agent Sandbag", "Agent Fred",
+                   "Dronebot", "Lt. Hockensocks", "Mister X",
+                   "Agent Chip", "Legolas", "Agent Stuffy",
+                   "Mayor McCheese", "Dr. Pepperspray", 
+                   "0xDEADBEEF", "Nascar Charlie", "Agent Foo" ];
+
 class Point {
   num x, y;
   Point(this.x, this.y);
@@ -133,8 +155,8 @@ class LairGame {
     print( "spawn agent..."); 
     var agent = new Agent( agentImg, 350, 20.0 );
     
-    // TMP
-    agent.name = "Agent Foo";
+    
+    agent.name = agentNames[ rand.nextInt(agentNames.length)];
     agent.hp = 1+rand.nextInt(15);
     if (agent.hp > 10) {
       agent.hp = 10;
@@ -166,7 +188,7 @@ class LairGame {
           {
             if ( (r.hp > 0) && (agent.fighting <= 0.0) && 
                  (agent.mapx >= r.x) && (agent.mapx < r.x + r.w) &&
-                 (agent.mapy >= r.y) && (agent.mapy < r.y + r.h) ) {
+                 (agent.mapy-1 >= r.y) && (agent.mapy-1 < r.y + r.h) ) {
               agent.fighting = 1.0; // 1 sec.
               agent.doneFight = () {
                   num roomhp = r.hp;
@@ -174,13 +196,19 @@ class LairGame {
                   r.hp -= agent.hp;
                   agent.hp -= roomhp;
                   
+                  if (agent.hp < 0) {
+                    agent.hp = 0;
+                  }
+                  
                   if (r.hp < 0) {
                     r.hp = 0;
                   }
                   
+                  // update thumbnail
+                  agent.thumb.text = "${agent.hp}";
                   
                   // Is this the last room?
-                  if (r==rooms.last) {
+                  if (r.isLair) {
                       print("It's the last room...");
                       
                       if (agent.hp>0) {
@@ -192,6 +220,8 @@ class LairGame {
                   }
                   else if (agent.hp <=0) {
                     print("agent is dead");
+                    
+                    showActionButtons( true );
                     
                     num ndx = agents.indexOf( agent );
                     agents.removeAt( ndx );
@@ -224,11 +254,16 @@ class LairGame {
     var overlay = query("#overlay");
     overlay.hidden = false;
     
+    showActionButtons( false );
+    
     var titleElem = query("#ov_title");
     titleElem.text = title;
     
     var messageElem = query("#ov_message");
-    messageElem.text = message;    
+    messageElem.text = message;
+    
+    // make sure there's no pesky agents running around
+    agents.clear();
   }
 
   void gameloop(num _) {
@@ -311,22 +346,31 @@ void startGame()
       
        // Hook up buttons
       query("#btn_expand").on.click.add((_){
+        
+        if (agents.length>0) {
+          return;
+        }
+        
         print("Expand base...");
-        if (rooms.length < roomLocs.length) {
-          
-          var room = new Room( 4, 3, "gamedata/room4x3.png");
-          rooms.add( room );    
-          layoutRooms();
-          
+        if (expandBase()) {          
           // expanding base trigger a new agent
-          spawnAgent();
+          spawnAgent();          
+          showActionButtons( false );
         }
 
       });
    
       query("#btn_go").on.click.add((_){
+        
+        if (agents.length>0) {
+          return;
+        }
+
+        
         // spawn a new agent without expanding base
          spawnAgent();
+         
+         showActionButtons( false );
       });
      
       query("#btnplay").on.click.add((_){
@@ -355,7 +399,26 @@ Future preloadImg( ImageElement img ) {
  // ===========================================
  // Map stuff
  // ===========================================
-  void buildMap()
+bool expandBase()
+{
+  print("Expand base...");
+  if (rooms.length < roomLocs.length) {
+    
+    var room = new Room( 4, 3, "gamedata/room4x3.png");
+    
+    room.roomName = roomNames[ rand.nextInt( roomNames.length )];
+    
+    rooms.add( room );    
+    layoutRooms();
+    
+    return true;
+  } else {
+    return false;
+  }
+}
+
+
+void buildMap()
   {
     var mapAttrImg = new ImageElement();
     mapAttrImg.src = "gamedata/map_attrs.png";
@@ -424,16 +487,23 @@ Future preloadImg( ImageElement img ) {
     var overlay = query("#overlay");
     overlay.hidden = true;
     
-   
-    
+   // reset agents
+    agents.clear();
+        
     // reset the rooms
     rooms = new List<Room>();
     var room = new Room( 3, 2, "gamedata/room3x2.png");
-    rooms.add( room );    
-    layoutRooms();
+    room.roomName = "Lair";
+    room.isLair = true;
+    rooms.add( room );
+    
+    // add a starting room
+    expandBase();
+    
+    showActionButtons( true );
     
     // Build the agents
-    int numAgents = rand.nextInt(3) + 2;
+    int numAgents = rand.nextInt(3) + 3;
     
     Element agentbar = query("#toolbar");
     agentbar.children.clear();
@@ -460,6 +530,20 @@ Future preloadImg( ImageElement img ) {
     }
   }
     
+  void showActionButtons( bool doShow )
+  {
+    print("show action buttons ${doShow}");
+    
+    if (!doShow) {
+      query("#btn_go").classes.add('greyed');
+      query("#btn_expand").classes.add('greyed');      
+    } else {
+      query("#btn_go").classes.remove('greyed');      
+      query("#btn_expand").classes.remove('greyed');      
+    }
+    
+
+  }
    
    Point screenToMap( int x, int y) {
       return new Point( x/16, (y+yval)/16 );
