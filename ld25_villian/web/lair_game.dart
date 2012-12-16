@@ -170,7 +170,9 @@ class LairGame {
     agent.thumb = agentThumb;
     
     // add the agent
-    agents.add( agent );      
+    agents.add( agent );     
+    
+    addAlert( '${agent.name} (+${agent.hp}) has entered our airspace!');
     
   }
   
@@ -200,8 +202,10 @@ class LairGame {
                     agent.hp = 0;
                   }
                   
-                  if (r.hp < 0) {
+                  if (r.hp <= 0) {
                     r.hp = 0;
+                    
+                    addAlert( "The ${r.roomName} has been deactivated." );
                   }
                   
                   // update thumbnail
@@ -214,12 +218,15 @@ class LairGame {
                       if (agent.hp>0) {
                         print("Agent still alive after last room! lose");
                         loseGame( "Shucks! ${agent.name} defeated you and brought down your lair.");
+                        addAlert( "${agent.name} has defeated you!");
                       } else {
                         winGame( "Yeah! You taunted ${agent.name} with your sinister plan before getting rid of him.");
+                        addAlert( "Before you die a horrible death, ${agent.name}, let me tell you about my plan to...");
                       }
                   }
                   else if (agent.hp <=0) {
                     print("agent is dead");
+                    addAlert( "The ${r.roomName} has dealt with ${agent.name}!");
                     
                     showActionButtons( true );
                     
@@ -471,6 +478,12 @@ void buildMap()
           worldMap[ mapIndex( x, y) ] = tile;
         }        
       }
+      
+      print("${roomLocs.length} roomLocs");
+      for (int i=0; i < roomLocs.length; i++) {
+        var loc = roomLocs[i];
+        print("loc ${loc.x} ${loc.y}");
+      }
     
       // load rooms
       resetGame();
@@ -489,6 +502,10 @@ void buildMap()
     
    // reset agents
     agents.clear();
+    
+    // reset alerts
+    resetAlerts();
+    addAlert("Welcome to Evil Lair created by Joel Davis for LudumDare 25.");
         
     // reset the rooms
     rooms = new List<Room>();
@@ -522,11 +539,15 @@ void buildMap()
   {
     
     for (int i=0; i<rooms.length; i++) {
-      int locNdx = rooms.length - i;
+      int locNdx = (rooms.length-1) - i;
       
       Room r = rooms[i];
       r.x = roomLocs[locNdx].x - (r.w/2).round().toInt();
       r.y = roomLocs[locNdx].y - (r.h-1);
+      
+//      r.x = roomLocs[locNdx].x;
+//      r.y = roomLocs[locNdx].y;
+      
     }
   }
     
@@ -543,6 +564,23 @@ void buildMap()
     }
     
 
+  }
+  
+  void addAlert( String message ) {
+    var alerts = query("#alerts");
+    
+    var item = new ParagraphElement();
+    item.text = message;
+//    item.classes.add( 'button' );
+    
+    alerts.children.add( item );
+    alerts.scrollTop = alerts.scrollHeight;
+  }
+  
+  void resetAlerts()
+  {
+    var alerts = query("#alerts");
+    alerts.children.clear();
   }
    
    Point screenToMap( int x, int y) {
