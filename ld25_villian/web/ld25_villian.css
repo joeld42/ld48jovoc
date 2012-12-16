@@ -56,13 +56,13 @@ p {
  }
    
 #gamemap {
-  width: 640;
+  width: 630px;
   height: 400px;
   position: relative;
   border: 1px solid #ccc;
   background-color: #fff;
    display:inline;
-   margin-left: 15px;
+/*   margin-left: 15px;*/
 }
 
 .button {
@@ -73,7 +73,22 @@ p {
 	margin: 3px;
 	text-align: center;
 	vertical-align: middle;
+	font: 30px/50px "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
 }
+
+.bigbutton {
+	width: 120px;
+	height: 57px;
+	display: inline-block;
+	border: 1px solid;
+	margin: 3px;
+	text-align: center;
+	vertical-align: middle;
+	background-color: green;
+	color: #f9f9a9;
+	line-height: 30px;
+}
+
 
 #text {
   font-size: 24pt;

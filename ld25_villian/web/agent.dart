@@ -26,7 +26,7 @@ class Agent {
     if (tile.terrainType == TERRAIN_DIRT)
     {
       num oldX = x;
-      x = x + walkDir;
+      x = x + (walkDir*100*dt);
       
 //      print("walking x is ${x} walkdir ${walkDir}");
       
@@ -43,7 +43,7 @@ class Agent {
     } else if (tile.terrainType==TERRAIN_SKY)
     {
       // falling
-      y += 60.0*dt;
+      y += 200.0*dt;
     }
     
   }

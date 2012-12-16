@@ -32,9 +32,12 @@ class LairGame {
   CanvasElement gameMapCanvas;
   ImageElement backgroundImg;
   ImageElement agentImg;
+  ImageElement conduitImg;
+  
   MiniMap minimap;
   
-  List<MapTile> worldMap; 
+  List<MapTile> worldMap;
+  List<Point> roomLocs;
   num nextAgentSpawn;
   
   // Mouse pos
@@ -58,7 +61,7 @@ class LairGame {
 //      context.fillRect();
 //      
       // Draw the background
-      context.drawImage(backgroundImg, 0, minimap.yval, 640, 400, 0, 0, 640, 400 );
+      context.drawImage(backgroundImg, 0, minimap.yval, 630, 400, 0, 0, 630, 400 );
       
       // draw map cursor
       //context.fillStyle = "rgba(255, 255, 0, 0.5)";
@@ -67,6 +70,7 @@ class LairGame {
                        ((mousePosMap.y*16)-minimap.yval)+1, 15, 15);
       
       // draw the map tiles
+      /*
       int lastTerrainType = -1;
       if ((worldMap!=null) && (worldMap.length>0))
       {
@@ -101,6 +105,7 @@ class LairGame {
             }
           }
       }
+   */
       
       // Draw the rooms
       for (Room room in rooms) {
@@ -124,25 +129,23 @@ class LairGame {
     query("#fps_counter").text = "${fpsAverage.round().toInt()} fps";
   }
   
+  void spawnAgent() {
+    print( "spawn agent...");
+    nextAgentSpawn = 2 + (rand.nextDouble() * 3.0);
+    
+    var agent = new Agent( agentImg, rand.nextDouble()*600, 20.0 );
+    agents.add( agent );      
+  }
+  
   void update( num dt)
-  {
-      // Spawn new agent?
-      if (agents.length < 30)
-      {
-          nextAgentSpawn -= dt;
-          if (nextAgentSpawn < 0.0)
-          {
-              print( "spawn agent...");
-              nextAgentSpawn = 2 + (rand.nextDouble() * 3.0);
-              
-              var agent = new Agent( agentImg, rand.nextDouble()*600, 20.0 );
-              agents.add( agent );
-          }
-      }
-      
+  {      
       // Update all agents
-      for (Agent agent in agents) {
-        agent.update(dt, worldMap );
+      final int numSteps = 5;
+      for (int i=0; i < numSteps; i++)
+      {
+        for (Agent agent in agents) {
+          agent.update(dt/numSteps, worldMap );
+        }
       }
   }
 
@@ -203,19 +206,11 @@ void startGame()
     rand = new Random();
     
     // Init agents
-    nextAgentSpawn = 0.0;
-    agents = new List<Agent>();
+     agents = new List<Agent>();
     
     // Load map
     buildMap();
-    
-    // load rooms
-    rooms = new List<Room>();
-    var room = new Room( 3, 2, "gamedata/tinylair.png");
-    room.x = 10;
-    room.y = 10;
-    rooms.add( room );
-    
+      
     // Load resources
     _preloads = new List<Future>();
     
@@ -225,10 +220,22 @@ void startGame()
     agentImg = new ImageElement( src:"gamedata/agent.png" );
     preloadImg( agentImg );       
     
+    conduitImg = new ImageElement( src:"gamedata/conduit.png");
+    preloadImg( conduitImg );
+    
     // Wait for all resources
     Futures.wait(_preloads).then((List values) {
       print ("all imgs loaded...");
       
+       // Hook up buttons
+      query("#btn_expand").on.click.add((_){
+        print("TODO: Expand base...");
+      });
+   
+      query("#btn_go").on.click.add((_){
+         spawnAgent();
+      });
+        
         // Start the game loop
         window.requestAnimationFrame(gameloop);      
     });
@@ -269,6 +276,8 @@ Future preloadImg( ImageElement img ) {
       ImageData imgData= context.getImageData( 0, 0, 40, 125 );
       print('attr image data ${imgData.width}, ${imgData.height}');
       
+      roomLocs = new List<Point>();
+      
       //var rand = new Random();
       worldMap = new List<MapTile>( 40*125 );
       for (int y=0; y < 125; y++) {      
@@ -282,7 +291,11 @@ Future preloadImg( ImageElement img ) {
           
          if ((r==0)&&(g==255)&&(b==255)) {
             // background/sky
-           tile.terrainType = TERRAIN_SKY;           
+           tile.terrainType = TERRAIN_SKY;
+         } else if ((r==0)&&(g==0)&&(b==255)) {
+           // special, also add to the list of room locs
+           tile.terrainType = TERRAIN_SKY;
+           roomLocs.add( new Point( x, y) );
          } else if ((r==255)&&(g==0)&&(b==0)) {
             tile.terrainType = TERRAIN_LAVA;
          } else if ((r==0)&&(g==255)&&(b==0)) {
@@ -298,11 +311,24 @@ Future preloadImg( ImageElement img ) {
           worldMap[ mapIndex( x, y) ] = tile;
         }        
       }
+    
+      // load rooms
+      resetRooms();
+      
       print("Map set up.");
       
       }); // onLoad
     
    }
+  
+  void resetRooms()
+  {
+    rooms = new List<Room>();
+    var room = new Room( 3, 2, "gamedata/tinylair.png");
+    room.x = roomLocs[0].x.toInt();
+    room.y = roomLocs[0].y.toInt();
+    rooms.add( room );    
+  }
     
    
    Point screenToMap( int x, int y) {
