@@ -574,8 +574,8 @@ void buildMap()
     var room = new Room( 3, 2, "gamedata/room3x2.png");
     room.roomName = "Lair";
     
-    // lair rooms have 3-9 hp
-    room.hp = rand.nextInt(6) + 3;
+    // lair rooms have 3-7 hp
+    room.hp = rand.nextInt(5) + 3;
     
     room.isLair = true;
     rooms.add( room );

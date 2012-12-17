@@ -1578,7 +1578,7 @@ $$.JSString = {"":"Object;",
 $$.Point = {"":"Object;x=,y="
 };
 
-$$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,agentImg,conduitImg,minimap?,worldMap=,roomLocs=,nextAgentSpawn,mousePos?,mousePosWorld?,mousePosMap?,rooms,agents?,pot=,cash=,_preloads",
+$$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,agentImg,conduitImg,minimap?,worldMap=,roomLocs=,nextAgentSpawn,mousePos?,mousePosWorld?,mousePosMap?,rooms,agents?,pot,cash,_preloads",
  drawFrame$0: function() {
   var context, t1;
   context = this.gameMapCanvas.get$context2d();
@@ -1635,6 +1635,24 @@ $$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,age
       }
     }
 },
+ raiseBet$0: function() {
+  var t1 = this.agents;
+  if ($.gtB($.getInterceptor$JSStringJSArray(t1).get$length(t1), 0))
+    return;
+  if ($.geB(this.pot, 50)) {
+    $.window().alert$1("Max bet is 50M");
+    return;
+  }
+  if ($.geB(this.cash, 5)) {
+    this.cash = $.sub(this.cash, 5);
+    this.pot = $.add(this.pot, 10);
+  }
+  t1 = "POT:" + $.S(this.pot) + "M";
+  $.query("#pot").set$text(t1);
+  t1 = "CASH:" + $.S(this.cash) + "M";
+  $.query("#cash").set$text(t1);
+  $.print("raiseBet, you have " + $.S(this.cash) + ", pot is now " + $.S(this.pot));
+},
  winGame$1: function(message) {
   var t1;
   this.endGame$2("You Win!!", message);
@@ -1647,12 +1665,12 @@ $$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,age
 },
  loseGame$1: function(message) {
   var t1;
-  this.endGame$2("You Lose!", message);
   this.pot = 0;
   t1 = "POT:" + $.S(this.pot) + "M";
   $.query("#pot").set$text(t1);
   t1 = "CASH:" + $.S(this.cash) + "M";
   $.query("#cash").set$text(t1);
+  this.endGame$2("You Lose!", $.eqB(this.cash, 0) ? message + " And now you're BROKE!" : message);
 },
  endGame$2: function(title, message) {
   var t1;
@@ -1767,19 +1785,16 @@ $$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,age
   mapAttrImg.set$src("gamedata/map_attrs.png");
   c = $.Completer_Completer();
   t1 = mapAttrImg.get$on().get$load();
-  $.getInterceptor$JSArray(t1).add$1(t1, new $.LairGame_buildMap_anon(this, c, mapAttrImg));
+  $.getInterceptor$JSArray(t1).add$1(t1, new $.LairGame_buildMap_anon(c, mapAttrImg, this));
 },
  resetGame$0: function() {
   var t1, room, numAgents, agentbar, t2, i, item;
   $.query("#overlay").set$hidden(true);
-  if ($.gtB(this.cash, 5)) {
-    this.cash = $.sub(this.cash, 5);
-    this.pot = $.add(this.pot, 10);
+  if ($.eqB(this.cash, 0)) {
+    this.pot = 0;
+    this.cash = 25;
   }
-  t1 = "POT:" + $.S(this.pot) + "M";
-  $.query("#pot").set$text(t1);
-  t1 = "CASH:" + $.S(this.cash) + "M";
-  $.query("#cash").set$text(t1);
+  this.raiseBet$0();
   t1 = this.agents;
   $.getInterceptor$JSArray(t1).clear$0(t1);
   t1 = $.query("#alerts").get$children();
@@ -1788,7 +1803,7 @@ $$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,age
   this.rooms = $.List_List(null);
   room = $.Room$(3, 2, "gamedata/room3x2.png");
   room.roomName = "Lair";
-  room.hp = $.add($.rand.nextInt$1(3), 3);
+  room.hp = $.add($.rand.nextInt$1(5), 3);
   room.isLair = true;
   t1 = this.rooms;
   $.getInterceptor$JSArray(t1).add$1(t1, room);
@@ -1844,9 +1859,12 @@ $$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,age
     $.getInterceptor$JSArray(t1).add$1(t1, "greyed");
     t1 = $.query("#btn_expand").get$classes();
     $.getInterceptor$JSArray(t1).add$1(t1, "greyed");
+    t1 = $.query("#btn_raise").get$classes();
+    $.getInterceptor$JSArray(t1).add$1(t1, "greyed");
   } else {
     $.query("#btn_go").get$classes().remove$1("greyed");
     $.query("#btn_expand").get$classes().remove$1("greyed");
+    $.query("#btn_raise").get$classes().remove$1("greyed");
   }
 },
  addAlert$1: function(message) {
@@ -2484,13 +2502,13 @@ $$.Agent = {"":"Object;frames,x=,y=,mapx?,mapy?,walkDir,fighting=,doneFight!,thu
       return this.draw$2$bailout0(6, context, yval, jitterx, t6);
     jittery = (t6 * 2 - 1) * 5;
   } else {
-    jitterx = 0;
     jittery = 0;
+    jitterx = 0;
   }
   t1 = this.frames;
   t2 = this.x;
   if (typeof t2 !== 'number')
-    return this.draw$2$bailout0(7, context, yval, t1, t2, jitterx, jittery);
+    return this.draw$2$bailout0(7, context, yval, t1, t2, jittery, jitterx);
   t4 = t2 - 8 + jitterx;
   t5 = this.y;
   if (typeof t5 !== 'number')
@@ -2541,8 +2559,8 @@ $$.Agent = {"":"Object;frames,x=,y=,mapx?,mapy?,walkDir,fighting=,doneFight!,thu
       context = env0;
       break;
     case 7:
-      jittery = env5;
-      jitterx = env4;
+      jitterx = env5;
+      jittery = env4;
       t2 = env3;
       t1 = env2;
       yval = env1;
@@ -2600,8 +2618,8 @@ $$.Agent = {"":"Object;frames,x=,y=,mapx?,mapy?,walkDir,fighting=,doneFight!,thu
             jittery = $.mul($.sub($.mul(t6, 2), 1), 5);
         }
       else {
-        jitterx = 0;
         jittery = 0;
+        jitterx = 0;
       }
       t1 = this.frames;
       t2 = this.x;
@@ -3394,16 +3412,7 @@ $$.LairGame_startGame_anon0 = {"":"Closure;this_1",
 
 $$.LairGame_startGame__anon = {"":"Closure;this_2",
  call$1: function(_) {
-  var t1, t2;
-  t1 = this.this_2;
-  if ($.gtB(t1.get$cash(), 5)) {
-    t1.set$cash($.sub(t1.get$cash(), 5));
-    t1.set$pot($.add(t1.get$pot(), 10));
-  }
-  t2 = "POT:" + $.S(t1.get$pot()) + "M";
-  $.query("#pot").set$text(t2);
-  t2 = "CASH:" + $.S(t1.get$cash()) + "M";
-  $.query("#cash").set$text(t2);
+  this.this_2.raiseBet$0();
 }
 };
 
@@ -3692,18 +3701,18 @@ $$.LairGame_preloadImg_anon = {"":"Closure;c_1,img_0",
 }
 };
 
-$$.LairGame_buildMap_anon = {"":"Closure;this_2,c_1,mapAttrImg_0",
+$$.LairGame_buildMap_anon = {"":"Closure;c_2,mapAttrImg_1,this_0",
  call$1: function(_) {
   var t1, context, imgData, t2, y, x, tile, t3, ndx, r, g, b, t4, i, loc;
-  t1 = this.mapAttrImg_0;
+  t1 = this.mapAttrImg_1;
   $.print("Loaded " + $.S(t1.get$src()));
-  this.c_1.complete$1(t1.get$src());
+  this.c_2.complete$1(t1.get$src());
   context = $.CanvasElement_CanvasElement(125, 40).get$context2d();
   context.drawImage$9(t1, 0, 0, 40, 125, 0, 0, 40, 125);
   imgData = context.getImageData$4(0, 0, 40, 125);
   $.print("attr image data " + $.S(imgData.get$width()) + ", " + $.S(imgData.get$height()));
   t1 = $.List_List(null);
-  t2 = this.this_2;
+  t2 = this.this_0;
   t2.set$roomLocs(t1);
   t2.set$worldMap($.List_List(5000));
   for (y = 0; y < 125; ++y)
@@ -4831,12 +4840,12 @@ $.DocumentEvents$ = function(_ptr) {
   return new $.DocumentEvents(_ptr);
 };
 
-$._KeyValuePair$ = function(key, value) {
-  return new $._KeyValuePair(key, value);
-};
-
 $.Set_Set = function() {
   return $._HashSetImpl$();
+};
+
+$._KeyValuePair$ = function(key, value) {
+  return new $._KeyValuePair(key, value);
 };
 
 $.DoubleLinkedQueueEntry$ = function(e) {
@@ -6445,6 +6454,9 @@ $.$defineNativeClass('DOMWindow', {"":"name?,navigator?",
 },
  $dom_addEventListener$3: function(type, listener, useCapture) {
   return this.addEventListener(type,$.convertDartClosureToJS(listener, 1),useCapture);
+},
+ alert$1: function(message) {
+  return this.alert(message);
 },
  $dom_removeEventListener$3: function(type, listener, useCapture) {
   return this.removeEventListener(type,$.convertDartClosureToJS(listener, 1),useCapture);
