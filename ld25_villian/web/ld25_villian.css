@@ -18,6 +18,11 @@ p {
 }
 
 #footer {
+  background-color: rgba(0, 0, 0, 0.41);
+  color: #6aa;
+  border-radius: 5px;
+  padding: 3px 5px 3px 12px;
+  margin: 10px 5px;
 }
 
 

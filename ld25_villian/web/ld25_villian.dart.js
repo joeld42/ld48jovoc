@@ -1759,6 +1759,7 @@ $$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,age
   this.rooms = $.List_List(null);
   room = $.Room$(3, 2, "gamedata/room3x2.png");
   room.roomName = "Lair";
+  room.hp = $.add($.rand.nextInt$1(3), 3);
   room.isLair = true;
   t1 = this.rooms;
   $.getInterceptor$JSArray(t1).add$1(t1, room);
@@ -2145,7 +2146,7 @@ $$.Room = {"":"Object;w?,h?,x=,y=,roomImg,roomName?,hp=,ready!,isLair?",
   this.h = h;
   this.ready = false;
   this.roomName = "Room Name";
-  this.hp = $.rand.nextInt$1(15);
+  this.hp = $.add($.rand.nextInt$1(15), 1);
   if ($.gtB(this.hp, 10))
     this.hp = 10;
   this.x = 0;

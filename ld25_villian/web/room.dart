@@ -18,7 +18,7 @@ class Room {
       this.h = h;
       this.ready = false;
       this.roomName = "Room Name";
-      hp = rand.nextInt(15);
+      hp = rand.nextInt(15)+1;
       if (hp > 10) hp = 10;
       x=0;
       y=0;
