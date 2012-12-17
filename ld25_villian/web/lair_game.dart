@@ -70,6 +70,10 @@ class LairGame {
   List<Room> rooms;
   List<Agent> agents;
   
+  // Betting!
+  int pot;
+  int cash;
+  
   List <Future> _preloads;
   
   void drawFrame()
@@ -249,11 +253,54 @@ class LairGame {
       }
   }
   
+  void raiseBet() {
+
+    // in play, can't raise
+    if (agents.length > 0) {
+      return;
+    }
+    
+    if (pot >= 50) {
+      window.alert( "Max bet is 50M");
+      return;
+    }
+    
+    if (cash >= 5) {
+      cash -= 5;
+      pot += 10;
+    }
+
+    
+    updateCash();
+    
+    print("raiseBet, you have ${cash}, pot is now ${pot}");
+  }
+  
+  void updateCash() {
+    query("#pot").text = "POT:${pot}M";
+    query("#cash").text = "CASH:${cash}M";
+  }
+  
   void winGame( String message ) {
     endGame( "You Win!!", message );
+    
+    // win the money
+    cash += pot;
+    pot = 0;
+    updateCash();
   }
   
   void loseGame( String message ) {
+    
+    // lose the money
+    pot = 0;
+    updateCash();
+    
+    // if player is out of money, further humiliate them
+    if (cash==0) {
+      message = "${message} And now you're BROKE!";
+    }
+    
     endGame( "You Lose!", message );
   }
   
@@ -301,6 +348,10 @@ void startGame()
     mousePos = new Point(0,0);
     mousePosWorld = new Point(0,0);
     mousePosMap = new Point(0,0);
+    
+    // init cash
+    pot = 0;
+    cash = 25;
     
     // update mouse pos
     gameMapCanvas.on.mouseMove.add( (MouseEvent ev) {
@@ -352,6 +403,10 @@ void startGame()
       print ("all imgs loaded...");
       
        // Hook up buttons
+      query("#btn_raise").on.click.add((_){
+          raiseBet();
+      });
+      
       query("#btn_expand").on.click.add((_){
         
         if (agents.length>0) {
@@ -500,6 +555,13 @@ void buildMap()
     var overlay = query("#overlay");
     overlay.hidden = true;
     
+    // Ante, and reset cash if they're totally broke
+    if (cash==0) {
+      pot = 0;
+      cash = 25;
+    }
+    raiseBet();
+    
    // reset agents
     agents.clear();
     
@@ -512,8 +574,8 @@ void buildMap()
     var room = new Room( 3, 2, "gamedata/room3x2.png");
     room.roomName = "Lair";
     
-    // lair rooms have 3-6 hp
-    room.hp = rand.nextInt(3) + 3;
+    // lair rooms have 3-9 hp
+    room.hp = rand.nextInt(6) + 3;
     
     room.isLair = true;
     rooms.add( room );
@@ -561,10 +623,12 @@ void buildMap()
     
     if (!doShow) {
       query("#btn_go").classes.add('greyed');
-      query("#btn_expand").classes.add('greyed');      
+      query("#btn_expand").classes.add('greyed');
+      query("#btn_raise").classes.add('greyed');
     } else {
       query("#btn_go").classes.remove('greyed');      
-      query("#btn_expand").classes.remove('greyed');      
+      query("#btn_expand").classes.remove('greyed');
+      query("#btn_raise").classes.remove('greyed');
     }
     
 

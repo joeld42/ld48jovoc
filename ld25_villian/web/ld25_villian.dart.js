@@ -537,14 +537,14 @@ $$._CompleterImpl = {"":"Object;_futureImpl",
 
 $$._HashMapImpl = {"":"Object;_keys?,_values,_loadLimit,_numberOfEntries,_numberOfDeleted",
  _probeForAdding$1: function(key) {
-  var t1, hash, insertionIndex, numberOfProbes, existingKey, numberOfProbes0;
+  var t1, hash, numberOfProbes, insertionIndex, existingKey, numberOfProbes0;
   if (key == null)
     throw $.$$throw($.ArgumentError$(null));
   t1 = $.getInterceptor(key).get$hashCode(key);
   if (t1 !== (t1 | 0))
     return this._probeForAdding$1$bailout(1, key, t1);
   hash = (t1 & this._keys.length - 1) >>> 0;
-  for (insertionIndex = -1, numberOfProbes = 1; true; numberOfProbes = numberOfProbes0) {
+  for (numberOfProbes = 1, insertionIndex = -1; true; numberOfProbes = numberOfProbes0) {
     t1 = this._keys;
     if (hash < 0 || hash >= t1.length)
       throw $.ioore(hash);
@@ -584,10 +584,10 @@ $$._HashMapImpl = {"":"Object;_keys?,_values,_loadLimit,_numberOfEntries,_number
     case 1:
       state0 = 0;
       hash = $.and(t1, this._keys.length - 1);
-      insertionIndex = -1;
       numberOfProbes = 1;
+      insertionIndex = -1;
     case 2:
-      var t1, key, hash, insertionIndex, numberOfProbes, existingKey, numberOfProbes0;
+      var t1, key, hash, numberOfProbes, insertionIndex, existingKey, numberOfProbes0;
       L0:
         while (true)
           switch (state0) {
@@ -1578,7 +1578,7 @@ $$.JSString = {"":"Object;",
 $$.Point = {"":"Object;x=,y="
 };
 
-$$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,agentImg,conduitImg,minimap?,worldMap=,roomLocs=,nextAgentSpawn,mousePos?,mousePosWorld?,mousePosMap?,rooms,agents?,_preloads",
+$$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,agentImg,conduitImg,minimap?,worldMap=,roomLocs=,nextAgentSpawn,mousePos?,mousePosWorld?,mousePosMap?,rooms,agents?,pot=,cash=,_preloads",
  drawFrame$0: function() {
   var context, t1;
   context = this.gameMapCanvas.get$context2d();
@@ -1630,10 +1630,29 @@ $$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,age
         t5 = t4.next$0();
         if ($.gtB(t5.get$hp(), 0) && $.leB(t3.get$fighting(), 0) && $.geB(t3.get$mapx(), t5.get$x()) && $.ltB(t3.get$mapx(), $.add(t5.get$x(), t5.get$w())) && $.geB($.sub(t3.get$mapy(), 1), t5.get$y()) && $.ltB($.sub(t3.get$mapy(), 1), $.add(t5.get$y(), t5.get$h()))) {
           t3.set$fighting(1);
-          t3.set$doneFight(new $.LairGame_update_anon(this, t5, t3));
+          t3.set$doneFight(new $.LairGame_update_anon(t5, t3, this));
         }
       }
     }
+},
+ winGame$1: function(message) {
+  var t1;
+  this.endGame$2("You Win!!", message);
+  this.cash = $.add(this.cash, this.pot);
+  this.pot = 0;
+  t1 = "POT:" + $.S(this.pot) + "M";
+  $.query("#pot").set$text(t1);
+  t1 = "CASH:" + $.S(this.cash) + "M";
+  $.query("#cash").set$text(t1);
+},
+ loseGame$1: function(message) {
+  var t1;
+  this.endGame$2("You Lose!", message);
+  this.pot = 0;
+  t1 = "POT:" + $.S(this.pot) + "M";
+  $.query("#pot").set$text(t1);
+  t1 = "CASH:" + $.S(this.cash) + "M";
+  $.query("#cash").set$text(t1);
 },
  endGame$2: function(title, message) {
   var t1;
@@ -1697,6 +1716,8 @@ $$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,age
   this.mousePos = $.Point$(0, 0);
   this.mousePosWorld = $.Point$(0, 0);
   this.mousePosMap = $.Point$(0, 0);
+  this.pot = 0;
+  this.cash = 25;
   var t1 = this.gameMapCanvas.get$on().get$mouseMove();
   $.getInterceptor$JSArray(t1).add$1(t1, new $.LairGame_startGame_anon(this));
   $.rand = $.Random_Random(null);
@@ -1716,7 +1737,7 @@ $$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,age
   c = $.Completer_Completer();
   fut = c.get$future();
   t1 = img.get$on().get$load();
-  $.getInterceptor$JSArray(t1).add$1(t1, new $.LairGame_preloadImg_anon(img, c));
+  $.getInterceptor$JSArray(t1).add$1(t1, new $.LairGame_preloadImg_anon(c, img));
   t1 = this._preloads;
   $.getInterceptor$JSArray(t1).add$1(t1, fut);
   return fut;
@@ -1746,11 +1767,19 @@ $$.LairGame = {"":"Object;renderTime,fpsAverage,gameMapCanvas?,backgroundImg,age
   mapAttrImg.set$src("gamedata/map_attrs.png");
   c = $.Completer_Completer();
   t1 = mapAttrImg.get$on().get$load();
-  $.getInterceptor$JSArray(t1).add$1(t1, new $.LairGame_buildMap_anon(c, mapAttrImg, this));
+  $.getInterceptor$JSArray(t1).add$1(t1, new $.LairGame_buildMap_anon(this, c, mapAttrImg));
 },
  resetGame$0: function() {
   var t1, room, numAgents, agentbar, t2, i, item;
   $.query("#overlay").set$hidden(true);
+  if ($.gtB(this.cash, 5)) {
+    this.cash = $.sub(this.cash, 5);
+    this.pot = $.add(this.pot, 10);
+  }
+  t1 = "POT:" + $.S(this.pot) + "M";
+  $.query("#pot").set$text(t1);
+  t1 = "CASH:" + $.S(this.cash) + "M";
+  $.query("#cash").set$text(t1);
   t1 = this.agents;
   $.getInterceptor$JSArray(t1).clear$0(t1);
   t1 = $.query("#alerts").get$children();
@@ -3349,14 +3378,16 @@ $$.LairGame_startGame_anon0 = {"":"Closure;this_1",
  call$1: function(values) {
   var t1, t2, t3;
   $.print("all imgs loaded...");
-  t1 = $.query("#btn_expand").get$on().get$click();
+  t1 = $.query("#btn_raise").get$on().get$click();
   t2 = $.getInterceptor$JSArray(t1);
   t3 = this.this_1;
   t2.add$1(t1, new $.LairGame_startGame__anon(t3));
-  t1 = $.query("#btn_go").get$on().get$click();
+  t1 = $.query("#btn_expand").get$on().get$click();
   $.getInterceptor$JSArray(t1).add$1(t1, new $.LairGame_startGame__anon0(t3));
-  t1 = $.query("#btnplay").get$on().get$click();
+  t1 = $.query("#btn_go").get$on().get$click();
   $.getInterceptor$JSArray(t1).add$1(t1, new $.LairGame_startGame__anon1(t3));
+  t1 = $.query("#btnplay").get$on().get$click();
+  $.getInterceptor$JSArray(t1).add$1(t1, new $.LairGame_startGame__anon2(t3));
   $.window().requestAnimationFrame$1(t3.get$gameloop());
 }
 };
@@ -3365,6 +3396,21 @@ $$.LairGame_startGame__anon = {"":"Closure;this_2",
  call$1: function(_) {
   var t1, t2;
   t1 = this.this_2;
+  if ($.gtB(t1.get$cash(), 5)) {
+    t1.set$cash($.sub(t1.get$cash(), 5));
+    t1.set$pot($.add(t1.get$pot(), 10));
+  }
+  t2 = "POT:" + $.S(t1.get$pot()) + "M";
+  $.query("#pot").set$text(t2);
+  t2 = "CASH:" + $.S(t1.get$cash()) + "M";
+  $.query("#cash").set$text(t2);
+}
+};
+
+$$.LairGame_startGame__anon0 = {"":"Closure;this_3",
+ call$1: function(_) {
+  var t1, t2;
+  t1 = this.this_3;
   t2 = t1.get$agents();
   if ($.gtB($.getInterceptor$JSStringJSArray(t2).get$length(t2), 0))
     return;
@@ -3376,10 +3422,10 @@ $$.LairGame_startGame__anon = {"":"Closure;this_2",
 }
 };
 
-$$.LairGame_startGame__anon0 = {"":"Closure;this_3",
+$$.LairGame_startGame__anon1 = {"":"Closure;this_4",
  call$1: function(_) {
   var t1, t2;
-  t1 = this.this_3;
+  t1 = this.this_4;
   t2 = t1.get$agents();
   if ($.gtB($.getInterceptor$JSStringJSArray(t2).get$length(t2), 0))
     return;
@@ -3388,13 +3434,13 @@ $$.LairGame_startGame__anon0 = {"":"Closure;this_3",
 }
 };
 
-$$.LairGame_startGame__anon1 = {"":"Closure;this_4",
+$$.LairGame_startGame__anon2 = {"":"Closure;this_5",
  call$1: function(_) {
-  this.this_4.resetGame$0();
+  this.this_5.resetGame$0();
 }
 };
 
-$$.Futures_wait_anon = {"":"Closure;values_5,box_0,pos_4,result_3,completer_2",
+$$.Futures_wait_anon = {"":"Closure;values_5,pos_4,result_3,completer_2,box_0",
  call$1: function(value) {
   var t1, t2, remaining;
   t1 = this.values_5;
@@ -3415,17 +3461,17 @@ $$.Futures_wait_anon0 = {"":"Closure;future_8,result_7,completer_6",
 }
 };
 
-$$.Maps__emitMap_anon = {"":"Closure;result_3,box_0,visiting_2",
+$$.Maps__emitMap_anon = {"":"Closure;box_0,visiting_3,result_2",
  call$2: function(k, v) {
   var t1, t2;
   t1 = this.box_0;
   if (t1.first_1 !== true) {
-    t2 = this.result_3;
+    t2 = this.result_2;
     $.getInterceptor$JSArray(t2).add$1(t2, ", ");
   }
   t1.first_1 = false;
-  t1 = this.result_3;
-  t2 = this.visiting_2;
+  t1 = this.result_2;
+  t2 = this.visiting_3;
   $.Collections__emitObject(k, t1, t2);
   $.getInterceptor$JSArray(t1).add$1(t1, ": ");
   $.Collections__emitObject(v, t1, t2);
@@ -3532,37 +3578,37 @@ $$._DateImpl_toString_twoDigits = {"":"Closure;",
 }
 };
 
-$$.LairGame_update_anon = {"":"Closure;this_2,r_1,agent_0",
+$$.LairGame_update_anon = {"":"Closure;r_2,agent_1,this_0",
  call$0: function() {
   var t1, roomhp, t2, t3, t4, ndx, agentbar;
-  t1 = this.r_1;
+  t1 = this.r_2;
   roomhp = t1.get$hp();
-  t2 = this.agent_0;
+  t2 = this.agent_1;
   t1.set$hp($.sub(roomhp, t2.get$hp()));
   t2.set$hp($.sub(t2.get$hp(), roomhp));
   if ($.ltB(t2.get$hp(), 0))
     t2.set$hp(0);
   if ($.leB(t1.get$hp(), 0)) {
     t1.set$hp(0);
-    this.this_2.addAlert$1("The " + $.S(t1.get$roomName()) + " has been deactivated.");
+    this.this_0.addAlert$1("The " + $.S(t1.get$roomName()) + " has been deactivated.");
   }
   t3 = $.S(t2.get$hp());
   t2.get$thumb().set$text(t3);
   if (t1.get$isLair() === true) {
     $.print("It's the last room...");
     t1 = $.gtB(t2.get$hp(), 0);
-    t3 = this.this_2;
+    t3 = this.this_0;
     if (t1) {
       $.print("Agent still alive after last room! lose");
-      t3.endGame$2("You Lose!", "Shucks! " + $.S(t2.get$name()) + " defeated you and brought down your lair.");
+      t3.loseGame$1("Shucks! " + $.S(t2.get$name()) + " defeated you and brought down your lair.");
       t3.addAlert$1($.S(t2.get$name()) + " has defeated you!");
     } else {
-      t3.endGame$2("You Win!!", "Yeah! You taunted " + $.S(t2.get$name()) + " with your sinister plan before getting rid of him.");
+      t3.winGame$1("Yeah! You taunted " + $.S(t2.get$name()) + " with your sinister plan before getting rid of him.");
       t3.addAlert$1("Before you die a horrible death, " + $.S(t2.get$name()) + ", let me tell you about my plan to...");
     }
   } else if ($.leB(t2.get$hp(), 0)) {
     $.print("agent is dead");
-    t3 = this.this_2;
+    t3 = this.this_0;
     t3.addAlert$1("The " + $.S(t1.get$roomName()) + " has dealt with " + $.S(t2.get$name()) + "!");
     t3.showActionButtons$1(true);
     t4 = t3.get$agents();
@@ -3573,7 +3619,7 @@ $$.LairGame_update_anon = {"":"Closure;this_2,r_1,agent_0",
     t1 = agentbar.get$children();
     if ($.eqB($.getInterceptor$JSStringJSArray(t1).get$length(t1), 1)) {
       $.print("That was the last agent..");
-      t3.endGame$2("You Lose!", "Oh no! You killed all the agents before you could reveal your evil plan!");
+      t3.loseGame$1("Oh no! You killed all the agents before you could reveal your evil plan!");
     } else {
       t1 = agentbar.get$children();
       $.getInterceptor$JSArray(t1).removeLast$0(t1);
@@ -3638,26 +3684,26 @@ $$.FilteredElementList_removeRange_anon = {"":"Closure;",
 }
 };
 
-$$.LairGame_preloadImg_anon = {"":"Closure;img_1,c_0",
+$$.LairGame_preloadImg_anon = {"":"Closure;c_1,img_0",
  call$1: function(_) {
-  var t1 = this.img_1;
+  var t1 = this.img_0;
   $.print("Loaded " + $.S(t1.get$src()));
-  this.c_0.complete$1(t1.get$src());
+  this.c_1.complete$1(t1.get$src());
 }
 };
 
-$$.LairGame_buildMap_anon = {"":"Closure;c_2,mapAttrImg_1,this_0",
+$$.LairGame_buildMap_anon = {"":"Closure;this_2,c_1,mapAttrImg_0",
  call$1: function(_) {
   var t1, context, imgData, t2, y, x, tile, t3, ndx, r, g, b, t4, i, loc;
-  t1 = this.mapAttrImg_1;
+  t1 = this.mapAttrImg_0;
   $.print("Loaded " + $.S(t1.get$src()));
-  this.c_2.complete$1(t1.get$src());
+  this.c_1.complete$1(t1.get$src());
   context = $.CanvasElement_CanvasElement(125, 40).get$context2d();
   context.drawImage$9(t1, 0, 0, 40, 125, 0, 0, 40, 125);
   imgData = context.getImageData$4(0, 0, 40, 125);
   $.print("attr image data " + $.S(imgData.get$width()) + ", " + $.S(imgData.get$height()));
   t1 = $.List_List(null);
-  t2 = this.this_0;
+  t2 = this.this_2;
   t2.set$roomLocs(t1);
   t2.set$worldMap($.List_List(5000));
   for (y = 0; y < 125; ++y)
@@ -3693,10 +3739,10 @@ $$.LairGame_buildMap_anon = {"":"Closure;c_2,mapAttrImg_1,this_0",
 }
 };
 
-$$.convertNativeToDart_AcceptStructuredClone_findSlot = {"":"Closure;values_1,copies_0",
+$$.convertNativeToDart_AcceptStructuredClone_findSlot = {"":"Closure;copies_1,values_0",
  call$1: function(value) {
   var t1, t3, length$, i, t2;
-  t1 = this.values_1;
+  t1 = this.values_0;
   if (typeof t1 !== 'string' && (typeof t1 !== 'object' || t1 === null || t1.constructor !== Array && !t1.is$JavaScriptIndexingBehavior()))
     return this.call$1$bailout0(1, value, t1);
   t3 = $.getInterceptor$JSStringJSArray(t1);
@@ -3707,7 +3753,7 @@ $$.convertNativeToDart_AcceptStructuredClone_findSlot = {"":"Closure;values_1,co
       return i;
   }
   t3.add$1(t1, value);
-  t1 = this.copies_0;
+  t1 = this.copies_1;
   $.getInterceptor$JSArray(t1).add$1(t1, null);
   return length$;
 },
@@ -3725,7 +3771,7 @@ $$.convertNativeToDart_AcceptStructuredClone_findSlot = {"":"Closure;values_1,co
   }
   switch (state0) {
     case 0:
-      t1 = this.values_1;
+      t1 = this.values_0;
     case 1:
       state0 = 0;
       length$ = $.getInterceptor$JSStringJSArray(t1).get$length(t1);
@@ -3738,7 +3784,7 @@ $$.convertNativeToDart_AcceptStructuredClone_findSlot = {"":"Closure;values_1,co
           return i;
       }
       $.getInterceptor$JSArray(t1).add$1(t1, value);
-      t1 = this.copies_0;
+      t1 = this.copies_1;
       $.getInterceptor$JSArray(t1).add$1(t1, null);
       return length$;
   }
@@ -3922,12 +3968,16 @@ $.gt = function(a, b) {
   return typeof a === 'number' && typeof b === 'number' ? a > b : $.gt$slow(a, b);
 };
 
-$.ge = function(a, b) {
-  return typeof a === 'number' && typeof b === 'number' ? a >= b : $.ge$slow(a, b);
+$.div = function(a, b) {
+  return typeof a === 'number' && typeof b === 'number' ? a / b : $.div$slow(a, b);
 };
 
 $.lt = function(a, b) {
   return typeof a === 'number' && typeof b === 'number' ? a < b : $.lt$slow(a, b);
+};
+
+$.le = function(a, b) {
+  return typeof a === 'number' && typeof b === 'number' ? a <= b : $.le$slow(a, b);
 };
 
 $.gtB = function(a, b) {
@@ -4005,6 +4055,10 @@ $.sub$slow = function(a, b) {
   return a.operator$sub$1(b);
 };
 
+$.ge = function(a, b) {
+  return typeof a === 'number' && typeof b === 'number' ? a >= b : $.ge$slow(a, b);
+};
+
 $.tdiv = function(a, b) {
   if ($.checkNumbers(a, b))
     return $.CTC2.truncate$0(a / b);
@@ -4057,18 +4111,10 @@ $.le$slow = function(a, b) {
   return a.operator$le$1(b);
 };
 
-$.div = function(a, b) {
-  return typeof a === 'number' && typeof b === 'number' ? a / b : $.div$slow(a, b);
-};
-
 $.and = function(a, b) {
   if ($.checkNumbers(a, b))
     return (a & b) >>> 0;
   return a.operator$and$1(b);
-};
-
-$.le = function(a, b) {
-  return typeof a === 'number' && typeof b === 'number' ? a <= b : $.le$slow(a, b);
 };
 
 $.index$slow = function(a, index) {
@@ -4250,13 +4296,9 @@ $.Maps__emitMap = function(m, result, visiting) {
   t3 = $.getInterceptor$JSArray(result);
   t3.add$1(result, "{");
   t1.first_1 = true;
-  $.getInterceptor$JSArray(m).forEach$1(m, new $.Maps__emitMap_anon(result, t1, visiting));
+  $.getInterceptor$JSArray(m).forEach$1(m, new $.Maps__emitMap_anon(t1, visiting, result));
   t3.add$1(result, "}");
   t2.removeLast$0(visiting);
-};
-
-$.LairGame$ = function() {
-  return new $.LairGame(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 };
 
 $.throwCyclicInit = function(staticName) {
@@ -4342,14 +4384,22 @@ $.constructorNameFallback = function(object) {
   return string.substring(8, string.length - 1);
 };
 
-$.FormatException$ = function(message) {
-  return new $.FormatException(message);
-};
-
-$.MiniMap$ = function() {
-  var t1 = new $.MiniMap(null, null, null, null);
-  t1.MiniMap$0();
-  return t1;
+$.getFunctionForTypeNameOf = function() {
+  if (!(typeof(navigator) === "object"))
+    return $.typeNameInChrome;
+  var userAgent = navigator.userAgent;
+  if (userAgent.indexOf("Chrome") !== -1 || userAgent.indexOf("DumpRenderTree") !== -1)
+    return $.typeNameInChrome;
+  else if (userAgent.indexOf("Firefox") !== -1)
+    return $.typeNameInFirefox;
+  else if (userAgent.indexOf("MSIE") !== -1)
+    return $.typeNameInIE;
+  else if (userAgent.indexOf("Opera") !== -1)
+    return $.typeNameInOpera;
+  else if (userAgent.indexOf("AppleWebKit") !== -1)
+    return $.typeNameInSafari;
+  else
+    return $.constructorNameFallback;
 };
 
 $.typeNameInChrome = function(obj) {
@@ -4377,6 +4427,22 @@ $.typeNameInChrome = function(obj) {
   return name$;
 };
 
+$.getTypeNameOf = function(obj) {
+  if ($._getTypeNameOf == null)
+    $._getTypeNameOf = $.getFunctionForTypeNameOf();
+  return $._getTypeNameOf.call$1(obj);
+};
+
+$.MiniMap$ = function() {
+  var t1 = new $.MiniMap(null, null, null, null);
+  t1.MiniMap$0();
+  return t1;
+};
+
+$.FormatException$ = function(message) {
+  return new $.FormatException(message);
+};
+
 $.MapTile$ = function() {
   return new $.MapTile(null);
 };
@@ -4385,20 +4451,22 @@ $.hashCodeForNativeObject = function(object) {
   return $.Primitives_objectHashCode(object);
 };
 
+$.defineProperty = function(obj, property, value) {
+  Object.defineProperty(obj, property,
+      {value: value, enumerable: false, writable: true, configurable: true});
+};
+
+$.LairGame$ = function() {
+  return new $.LairGame(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+};
+
 $.Point$ = function(x, y) {
   return new $.Point(x, y);
 };
 
-$.getTypeNameOf = function(obj) {
-  if ($._getTypeNameOf == null)
-    $._getTypeNameOf = $.getFunctionForTypeNameOf();
-  return $._getTypeNameOf.call$1(obj);
-};
-
-$._DateImpl$fromMillisecondsSinceEpoch = function(millisecondsSinceEpoch, isUtc) {
-  var t1 = new $._DateImpl(millisecondsSinceEpoch, isUtc);
-  t1._DateImpl$fromMillisecondsSinceEpoch$2(millisecondsSinceEpoch, isUtc);
-  return t1;
+$.dynamicSetMetadata = function(inputTable) {
+  var t1 = $.buildDynamicMetadata(inputTable);
+  $._dynamicMetadata(t1);
 };
 
 $.regExpExec = function(regExp, str) {
@@ -4417,8 +4485,10 @@ $.regExpGetNative = function(regExp) {
   return r == null ? regExp._re = $.regExpMakeNative(regExp, false) : r;
 };
 
-$.toStringForNativeObject = function(obj) {
-  return "Instance of " + $.getTypeNameOf(obj);
+$._DateImpl$fromMillisecondsSinceEpoch = function(millisecondsSinceEpoch, isUtc) {
+  var t1 = new $._DateImpl(millisecondsSinceEpoch, isUtc);
+  t1._DateImpl$fromMillisecondsSinceEpoch$2(millisecondsSinceEpoch, isUtc);
+  return t1;
 };
 
 $.regExpMakeNative = function(regExp, global, exception) {
@@ -4453,28 +4523,12 @@ $.regExpMakeNative = function(regExp, global, exception) {
 
 };
 
-$.dynamicSetMetadata = function(inputTable) {
-  var t1 = $.buildDynamicMetadata(inputTable);
-  $._dynamicMetadata(t1);
+$.toStringForNativeObject = function(obj) {
+  return "Instance of " + $.getTypeNameOf(obj);
 };
 
-$.typeNameInOpera = function(obj) {
-  var name$ = $.constructorNameFallback(obj);
-  if (name$ === "Window")
-    return "DOMWindow";
-  return name$;
-};
-
-$._DateImpl$now = function() {
-  var t1 = new $._DateImpl($.Primitives_dateNow(), false);
-  t1._DateImpl$now$0();
-  return t1;
-};
-
-$.Room$ = function(w, h, imgName) {
-  var t1 = new $.Room(null, null, null, null, null, null, null, null, null);
-  t1.Room$3(w, h, imgName);
-  return t1;
+$._dynamicMetadata = function(table) {
+  $dynamicMetadata = table;
 };
 
 $.allMatchesInStringUnchecked = function(needle, haystack) {
@@ -4497,16 +4551,21 @@ $.allMatchesInStringUnchecked = function(needle, haystack) {
   return result;
 };
 
-$.stringReplaceJS = function(receiver, replacer, to) {
-  return receiver.replace(replacer, to.replace('$', '$$$$'));
+$.stringContainsUnchecked = function(receiver, other, startIndex) {
+  var substr, t1;
+  if (typeof other === 'string')
+    return !$.eqB($.CTC3.indexOf$2(receiver, other, startIndex), -1);
+  else if (typeof other === 'object' && other !== null && !!other.is$JSSyntaxRegExp)
+    return other.hasMatch$1($.CTC3.substring$1(receiver, startIndex));
+  else {
+    substr = $.CTC3.substring$1(receiver, startIndex);
+    t1 = $.getInterceptor$JSString(other).allMatches$1(other, substr);
+    return $.getInterceptor$JSArray(t1).iterator$0(t1).get$hasNext();
+  }
 };
 
-$._dynamicMetadata0 = function() {
-  if (typeof($dynamicMetadata) === "undefined") {
-    var t1 = [];
-    $._dynamicMetadata(t1);
-  }
-  return $dynamicMetadata;
+$.stringReplaceJS = function(receiver, replacer, to) {
+  return receiver.replace(replacer, to.replace('$', '$$$$'));
 };
 
 $.stringReplaceAllUnchecked = function(receiver, from, to) {
@@ -4531,81 +4590,24 @@ $.stringReplaceAllUnchecked = function(receiver, from, to) {
     return $.stringReplaceJS(receiver, $.regExpMakeNative($.JSSyntaxRegExp$(from.replace($.regExpMakeNative($.get$quoteRegExp(), true), "\\$&"), false, false), true), to);
 };
 
+$.Room$ = function(w, h, imgName) {
+  var t1 = new $.Room(null, null, null, null, null, null, null, null, null);
+  t1.Room$3(w, h, imgName);
+  return t1;
+};
+
 $.stringJoinUnchecked = function(array, separator) {
   return array.join(separator);
 };
 
-$.stringContainsUnchecked = function(receiver, other, startIndex) {
-  var substr, t1;
-  if (typeof other === 'string')
-    return !$.eqB($.CTC3.indexOf$2(receiver, other, startIndex), -1);
-  else if (typeof other === 'object' && other !== null && !!other.is$JSSyntaxRegExp)
-    return other.hasMatch$1($.CTC3.substring$1(receiver, startIndex));
-  else {
-    substr = $.CTC3.substring$1(receiver, startIndex);
-    t1 = $.getInterceptor$JSString(other).allMatches$1(other, substr);
-    return $.getInterceptor$JSArray(t1).iterator$0(t1).get$hasNext();
-  }
+$._DateImpl$now = function() {
+  var t1 = new $._DateImpl($.Primitives_dateNow(), false);
+  t1._DateImpl$now$0();
+  return t1;
 };
 
 $._TypedImageData$ = function(data, height, width) {
   return new $._TypedImageData(data, height, width);
-};
-
-$.getFunctionForTypeNameOf = function() {
-  if (!(typeof(navigator) === "object"))
-    return $.typeNameInChrome;
-  var userAgent = navigator.userAgent;
-  if (userAgent.indexOf("Chrome") !== -1 || userAgent.indexOf("DumpRenderTree") !== -1)
-    return $.typeNameInChrome;
-  else if (userAgent.indexOf("Firefox") !== -1)
-    return $.typeNameInFirefox;
-  else if (userAgent.indexOf("MSIE") !== -1)
-    return $.typeNameInIE;
-  else if (userAgent.indexOf("Opera") !== -1)
-    return $.typeNameInOpera;
-  else if (userAgent.indexOf("AppleWebKit") !== -1)
-    return $.typeNameInSafari;
-  else
-    return $.constructorNameFallback;
-};
-
-$.Agent$ = function(frames$, x, y) {
-  var t1 = new $.Agent(frames$, x, y, null, null, null, null, null, null, null, null);
-  t1.Agent$3(frames$, x, y);
-  return t1;
-};
-
-$.Future_Future$immediate = function(value) {
-  return $._FutureImpl__FutureImpl$immediate(value);
-};
-
-$.typeNameInFirefox = function(obj) {
-  var name$ = $.constructorNameFallback(obj);
-  if (name$ === "Window")
-    return "DOMWindow";
-  if (name$ === "CSS2Properties")
-    return "CSSStyleDeclaration";
-  if (name$ === "DataTransfer")
-    return "Clipboard";
-  if (name$ === "DragEvent")
-    return "MouseEvent";
-  if (name$ === "GeoGeolocation")
-    return "Geolocation";
-  if (name$ === "MouseScrollEvent")
-    return "WheelEvent";
-  if (name$ === "OfflineResourceList")
-    return "DOMApplicationCache";
-  if (name$ === "WorkerMessageEvent")
-    return "MessageEvent";
-  if (name$ === "XMLDocument")
-    return "Document";
-  return name$;
-};
-
-$.defineProperty = function(obj, property, value) {
-  Object.defineProperty(obj, property,
-      {value: value, enumerable: false, writable: true, configurable: true});
 };
 
 $.dynamicBind = function(obj, name$, methods, arguments$) {
@@ -4631,6 +4633,16 @@ $.dynamicBind = function(obj, name$, methods, arguments$) {
   return method.apply(obj, arguments$);
 };
 
+$.Agent$ = function(frames$, x, y) {
+  var t1 = new $.Agent(frames$, x, y, null, null, null, null, null, null, null, null);
+  t1.Agent$3(frames$, x, y);
+  return t1;
+};
+
+$.Future_Future$immediate = function(value) {
+  return $._FutureImpl__FutureImpl$immediate(value);
+};
+
 $.dynamicFunction = function(name$) {
   var f, methods, dartMethod, bind;
   f = Object.prototype[name$];
@@ -4646,8 +4658,12 @@ $.dynamicFunction = function(name$) {
   return methods;
 };
 
-$._dynamicMetadata = function(table) {
-  $dynamicMetadata = table;
+$._dynamicMetadata0 = function() {
+  if (typeof($dynamicMetadata) === "undefined") {
+    var t1 = [];
+    $._dynamicMetadata(t1);
+  }
+  return $dynamicMetadata;
 };
 
 $.buildDynamicMetadata = function(inputTable) {
@@ -4663,6 +4679,36 @@ $.buildDynamicMetadata = function(inputTable) {
     result.push($.MetaInfo$(tag, tags, set));
   }
   return result;
+};
+
+$.typeNameInOpera = function(obj) {
+  var name$ = $.constructorNameFallback(obj);
+  if (name$ === "Window")
+    return "DOMWindow";
+  return name$;
+};
+
+$.typeNameInFirefox = function(obj) {
+  var name$ = $.constructorNameFallback(obj);
+  if (name$ === "Window")
+    return "DOMWindow";
+  if (name$ === "CSS2Properties")
+    return "CSSStyleDeclaration";
+  if (name$ === "DataTransfer")
+    return "Clipboard";
+  if (name$ === "DragEvent")
+    return "MouseEvent";
+  if (name$ === "GeoGeolocation")
+    return "Geolocation";
+  if (name$ === "MouseScrollEvent")
+    return "WheelEvent";
+  if (name$ === "OfflineResourceList")
+    return "DOMApplicationCache";
+  if (name$ === "WorkerMessageEvent")
+    return "MessageEvent";
+  if (name$ === "XMLDocument")
+    return "Document";
+  return name$;
 };
 
 $.NoSuchMethodError$ = function(_receiver, _memberName, _arguments, _namedArguments, existingArgumentNames) {
@@ -4685,16 +4731,16 @@ $._ExceptionImplementation$ = function(message) {
   return new $._ExceptionImplementation(message);
 };
 
-$.Random_Random = function(seed) {
-  return $.CTC6;
+$.main = function() {
+  $.LairGame$().startGame$0();
 };
 
 $._ElementCssClassSet$ = function(_element) {
   return new $._ElementCssClassSet(_element);
 };
 
-$.main = function() {
-  $.LairGame$().startGame$0();
+$.Random_Random = function(seed) {
+  return $.CTC6;
 };
 
 $.clamp = function(orig, low, high) {
@@ -4785,22 +4831,22 @@ $.DocumentEvents$ = function(_ptr) {
   return new $.DocumentEvents(_ptr);
 };
 
-$.Set_Set = function() {
-  return $._HashSetImpl$();
-};
-
 $._KeyValuePair$ = function(key, value) {
   return new $._KeyValuePair(key, value);
 };
 
-$.Queue_Queue = function() {
-  return $.DoubleLinkedQueue$();
+$.Set_Set = function() {
+  return $._HashSetImpl$();
 };
 
 $.DoubleLinkedQueueEntry$ = function(e) {
   var t1 = new $.DoubleLinkedQueueEntry(null, null, null);
   t1.DoubleLinkedQueueEntry$1(e);
   return t1;
+};
+
+$.Queue_Queue = function() {
+  return $.DoubleLinkedQueue$();
 };
 
 $.ElementEvents$ = function(_ptr) {
@@ -4849,7 +4895,7 @@ $.Futures_wait = function(futures) {
   values = $.List_List(futures.length);
   for (i = 0; i < futures.length; ++i) {
     future = futures[i];
-    future.then$1(new $.Futures_wait_anon(values, t1, i, result, completer));
+    future.then$1(new $.Futures_wait_anon(values, i, result, completer, t1));
     future.handleException$1(new $.Futures_wait_anon0(future, result, completer));
   }
   return result;
@@ -4897,6 +4943,10 @@ $.Lists_indexOf = function(a, element, startIndex, endIndex) {
   return -1;
 };
 
+$.convertNativeToDart_SerializedScriptValue = function(object) {
+  return $.convertNativeToDart_AcceptStructuredClone(object, true);
+};
+
 $.Lists_getRange = function(a, start, length$, accumulator) {
   var end, i;
   if (typeof a !== 'string' && (typeof a !== 'object' || a === null || a.constructor !== Array && !a.is$JavaScriptIndexingBehavior()))
@@ -4926,17 +4976,20 @@ $.convertNativeToDart_AcceptStructuredClone = function(object, mustCopy) {
   var values, copies, t1, t2;
   values = [];
   copies = [];
-  t1 = new $.convertNativeToDart_AcceptStructuredClone_findSlot(values, copies);
+  t1 = new $.convertNativeToDart_AcceptStructuredClone_findSlot(copies, values);
   t2 = new $.convertNativeToDart_AcceptStructuredClone_readSlot(copies);
   return new $.convertNativeToDart_AcceptStructuredClone_walk(mustCopy, new $.convertNativeToDart_AcceptStructuredClone_writeSlot(copies), t2, t1).call$1(object);
 };
 
-$.convertNativeToDart_SerializedScriptValue = function(object) {
-  return $.convertNativeToDart_AcceptStructuredClone(object, true);
-};
-
-$.LocalWindowEvents$ = function(_ptr) {
-  return new $.LocalWindowEvents(_ptr);
+$.ImageElement_ImageElement = function(height, src, width) {
+  var e = $.document().$dom_createElement$1("img");
+  if (!(src == null))
+    e.set$src(src);
+  if (!(width == null))
+    e.set$width(width);
+  if (!(height == null))
+    e.set$height(height);
+  return e;
 };
 
 $.Primitives_objectHashCode = function(object) {
@@ -4966,6 +5019,10 @@ $.Primitives_printString = function(string) {
     return;
   }
   throw 'Unable to print message: ' + String(string);
+};
+
+$.LocalWindowEvents$ = function(_ptr) {
+  return new $.LocalWindowEvents(_ptr);
 };
 
 $.Primitives_objectTypeName = function(object) {
@@ -4999,15 +5056,8 @@ $._CompleterImpl$ = function() {
   return new $._CompleterImpl($._FutureImpl$());
 };
 
-$.ImageElement_ImageElement = function(height, src, width) {
-  var e = $.document().$dom_createElement$1("img");
-  if (!(src == null))
-    e.set$src(src);
-  if (!(width == null))
-    e.set$width(width);
-  if (!(height == null))
-    e.set$height(height);
-  return e;
+$.Primitives_dateNow = function() {
+  return Date.now();
 };
 
 $.Primitives_lazyAsJsDate = function(receiver) {
@@ -5042,10 +5092,6 @@ $.Primitives_getSeconds = function(receiver) {
 
 $.Primitives_getMilliseconds = function(receiver) {
   return receiver.isUtc === true ? ($.Primitives_lazyAsJsDate(receiver).getUTCMilliseconds() + 0) : ($.Primitives_lazyAsJsDate(receiver).getMilliseconds() + 0);
-};
-
-$.Primitives_dateNow = function() {
-  return Date.now();
 };
 
 $._FutureImpl$ = function() {
@@ -5172,10 +5218,6 @@ $.Date_Date$fromMillisecondsSinceEpoch = function(millisecondsSinceEpoch, isUtc)
   return $._DateImpl$fromMillisecondsSinceEpoch(millisecondsSinceEpoch, isUtc);
 };
 
-$._Device_userAgent = function() {
-  return $.window().get$navigator().get$userAgent();
-};
-
 $._Device_isIE = function() {
   var t1, t2;
   if ($._Device_isOpera() !== true) {
@@ -5192,6 +5234,15 @@ $._Device_isOpera = function() {
   return $.getInterceptor$JSString(t1).contains$2(t1, "Opera", 0);
 };
 
+$._Device_userAgent = function() {
+  return $.window().get$navigator().get$userAgent();
+};
+
+$._Device_isFirefox = function() {
+  var t1 = $._Device_userAgent();
+  return $.getInterceptor$JSString(t1).contains$2(t1, "Firefox", 0);
+};
+
 $.JSSyntaxRegExp$ = function(pattern, ignoreCase, multiLine) {
   return new $.JSSyntaxRegExp(pattern, multiLine, ignoreCase);
 };
@@ -5205,11 +5256,6 @@ $.JSSyntaxRegExp__globalVersionOf = function(other) {
   return re;
 };
 
-$._Device_isFirefox = function() {
-  var t1 = $._Device_userAgent();
-  return $.getInterceptor$JSString(t1).contains$2(t1, "Firefox", 0);
-};
-
 $.RegExp_RegExp = function(pattern, ignoreCase, multiLine) {
   return $.JSSyntaxRegExp$(pattern, ignoreCase, multiLine);
 };
@@ -5218,12 +5264,12 @@ $.StringMatch$ = function(start, str, pattern) {
   return new $.StringMatch(start, str, pattern);
 };
 
-$._FrozenElementList$_wrap = function(_nodeList) {
-  return new $._FrozenElementList(_nodeList);
-};
-
 $.MediaElementEvents$ = function(_ptr) {
   return new $.MediaElementEvents(_ptr);
+};
+
+$._FrozenElementList$_wrap = function(_nodeList) {
+  return new $._FrozenElementList(_nodeList);
 };
 
 $.List_List = function(length$) {
@@ -5367,12 +5413,12 @@ $.DivElement_DivElement = function() {
   return $.document().$dom_createElement$1("div");
 };
 
-$.UnimplementedError$ = function(message) {
-  return new $.UnimplementedError(message);
-};
-
 $.Element_Element$tag = function(tag) {
   return document.createElement(tag);
+};
+
+$.UnimplementedError$ = function(message) {
+  return new $.UnimplementedError(message);
 };
 
 $.Strings__toJsStringArray$bailout = function(state0, env0, env1, env2) {
@@ -5461,7 +5507,7 @@ $.Futures_wait$bailout = function(state0, futures, t1) {
   values = $.List_List(t2.get$length(futures));
   for (i = 0; $.ltB(i, t2.get$length(futures)); ++i) {
     future = $.index(futures, i);
-    future.then$1(new $.Futures_wait_anon(values, t1, i, result, completer));
+    future.then$1(new $.Futures_wait_anon(values, i, result, completer, t1));
     future.handleException$1(new $.Futures_wait_anon0(future, result, completer));
   }
   return result;
@@ -5502,16 +5548,16 @@ $.CTC5 = new Isolate.$isolateProperties._DeletedKeySentinel();
 $.CTC6 = new Isolate.$isolateProperties._Random();
 $.CTC1 = new Isolate.$isolateProperties.JSArray();
 $.CTC2 = new Isolate.$isolateProperties.JSNumber();
+$.Primitives_hashCodeSeed = 0;
 $.Primitives_mirrorsEnabled = false;
-$.Primitives_DOLLAR_CHAR_VALUE = 36;
 $._cachedBrowserPrefix = null;
+$.Primitives_DOLLAR_CHAR_VALUE = 36;
 $._getTypeNameOf = null;
 $._DateImpl__MAX_MILLISECONDS_SINCE_EPOCH = 8640000000000000;
 $.rand = null;
 $.MIRROR_OPT_IN_MESSAGE = "\nThis program is using an experimental feature called \"mirrors\".  As\ncurrently implemented, mirrors do not work with minification, and will\ncause spurious errors depending on how code was optimized.\n\nThe authors of this program are aware of these problems and have\ndecided the thrill of using an experimental feature is outweighing the\nrisks.  Furthermore, the authors of this program understand that\nlong-term, to fix the problems mentioned above, mirrors may have\nnegative impact on size and performance of Dart programs compiled to\nJavaScript.\n";
 $._HashMapImpl__DELETED_KEY = Isolate.$isolateProperties.CTC5;
 $._HashMapImpl__INITIAL_CAPACITY = 8;
-$.Primitives_hashCodeSeed = 0;
 $.getInterceptor$JSStringJSArray = function(receiver) {
   if (typeof receiver == 'string') return $.JSString.prototype;
   if (receiver != null && receiver.constructor == Array) return $.JSArray.prototype;
