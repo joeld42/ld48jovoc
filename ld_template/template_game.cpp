@@ -75,15 +75,10 @@ void TemplateGame::redraw()
     // Draw 3D scene
     _draw3d();
     
-    // set up 2D draw 
-    glDisable( GL_VERTEX_ARRAY );
-    
+    // set up 2D draw     
     glDisableClientState( GL_VERTEX_ARRAY );
     glDisableClientState( GL_COLOR_ARRAY );
-    
-    glEnable( GL_TEXTURE );
-    glEnable( GL_TEXTURE_2D );
-    
+        
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
@@ -140,8 +135,7 @@ void TemplateGame::keypress( SDLKey &key )
 
     // Draw 3d stuff
 void TemplateGame::_draw3d()
-{    
-    glEnable( GL_TEXTURE );
+{
     glEnable( GL_TEXTURE_2D );
 
     // Set up basic shader
