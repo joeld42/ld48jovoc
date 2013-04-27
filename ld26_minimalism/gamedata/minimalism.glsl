@@ -45,7 +45,7 @@ void main()
 	
 	// fresnel fake backlight
 	float sf = max( 0.0, dot(E, N2 ));
-	sf = (1.0 - pow( sf, 0.01 )) * 20.0;	
+	sf = (1.0 - pow( sf, 0.01 )) * 20.0;
 		
 	st = texcoord.st;
 	
@@ -55,7 +55,8 @@ void main()
 //    diffuseColor.rgb = (lightColor0 * df0) + (lightColor1 * df1);
     
     // Ignore light color for now
-    diffuseColor.rgb = color.rgb * df0;
+//    diffuseColor.rgb = color.rgb * df0;
+    diffuseColor = abs( normal );
 	
 	specColor.rgb = vec3(sf);
 }
@@ -78,12 +79,12 @@ void main()
 	gl_FragColor.a = dif0.a;
     	
 //    gl_FragColor = texture2D( sampler_dif0, st );
-//    gl_FragColor = colorVarying;
+    gl_FragColor.rgb = diffuseColor;
     
     // DBG
 //    gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ); 
-    gl_FragColor = dif0;
-    gl_FragColor.a = 1.0;
+//    gl_FragColor = dif0;
+//    gl_FragColor.a = 1.0;
     
 //    gl_FragColor = dbgColor;
 }

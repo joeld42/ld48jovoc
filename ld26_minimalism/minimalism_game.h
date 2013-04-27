@@ -57,9 +57,13 @@ protected:
     void _draw3d();
     void _draw2d();
 
+    void _drawGroundTile( int x, int y);
+
     // Helper to draw a DrawVert based mesh
     void _drawMesh( QuadBuff<DrawVert> *mesh );
-    
+
+    void _prepViewMat();
+
 private:
     // The font
     PNGImage m_fontImg;
@@ -70,12 +74,19 @@ private:
     GLint m_basicShader;
     PNGImage m_simpleTex;
     
+    QuadBuff<DrawVert> *m_groundTile;
+    
     // camera stuff
-    matrix4x4f m_proj;
-    matrix4x4f m_modelview;    
-    matrix4x4f m_modelviewProj;
+    matrix4x4f m_proj;   // projection matrix
+    matrix4x4f m_model;  // transform for the current object world->obj
+    matrix4x4f m_view;   // camera placement transform
+    matrix4x4f m_view2;
+    bool m_useLookat;
+
+    matrix4x4f m_modelViewProj;
 
     float m_rotate;
+    float m_testval;
     
 };
 
