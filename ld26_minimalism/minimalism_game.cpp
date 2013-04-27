@@ -72,6 +72,7 @@ void BlocksGame::init()
     m_groundTile = load_obj( gameDataFile("", "ground_tile.obj").c_str() );
 //    m_groundTile = load_obj( gameDataFile("", "letter_f.obj").c_str() );
     m_testPost = load_obj( gameDataFile("", "test_post.obj").c_str() );
+    m_person = load_obj( gameDataFile("", "person.obj").c_str() );
 
     
     m_basicShader = loadShader( "minimalism.Plastic" );
@@ -79,6 +80,9 @@ void BlocksGame::init()
     m_rotate = 0.0;
     m_testval = 0.0;
     m_useLookat = true;
+    m_paused = false;
+
+    m_playerPos = vec3f( 10.0, 0.0, 10.0 );
 
     m_camPos = vec3f( 0, 10, 20 );
 
@@ -88,17 +92,20 @@ void BlocksGame::init()
 
 void BlocksGame::updateSim( float dtFixed )
 {
-    // Update stuff with a fixed timestep
-    m_rotate += (M_PI/180.0) * (30.0) * dtFixed;
+    if (!m_paused)
+    {
+        // Update stuff with a fixed timestep
+        m_rotate += (M_PI/180.0) * (30.0) * dtFixed;
 
-    m_testval = sin( m_rotate * (M_PI/180.0) * 50.0 );
+        m_testval = sin( m_rotate * (M_PI/180.0) * 50.0 );
 
-    // rotate camera around scene
-    matrix4x4f matRotCam;
-    matRotCam.RotateY( (M_PI/180.0) * (30.0) * dtFixed );
+        // rotate camera around scene
+        matrix4x4f matRotCam;
+        matRotCam.RotateY( (M_PI/180.0) * (30.0) * dtFixed );
 
-    m_camPos = m_camPos * matRotCam;
-    m_camPos.y = m_testval * 10.0;
+        m_camPos = m_camPos * matRotCam;
+        m_camPos.y = m_testval * 10.0;
+    }
 }
 
 void BlocksGame::updateFree( float dtRaw )
@@ -227,6 +234,27 @@ void BlocksGame::keypress( SDLKey &key )
             m_useLookat = !m_useLookat;
             break;
 
+        case 'p':
+            m_paused = !m_paused;
+            break;
+
+        case SDLK_UP:
+            m_playerPos.z -= 1.0;
+            break;
+
+        case SDLK_DOWN:
+            m_playerPos.z += 1.0;
+            break;
+
+        case SDLK_LEFT:
+            m_playerPos.x -= 1.0;
+            break;
+
+        case SDLK_RIGHT:
+            m_playerPos.x += 1.0;
+            break;
+
+            
         default:
             break;
     }
@@ -240,8 +268,6 @@ void BlocksGame::_draw3d()
     // Set up basic shader
     glUseProgram( m_basicShader );
 
-    _prepViewMat();
-
     glActiveTexture(GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, m_simpleTex.textureId );
     
@@ -249,16 +275,19 @@ void BlocksGame::_draw3d()
     glUniform1i( paramTex, 0 );        
     
     // Draw something
-    _drawMesh( m_testPost );
+//    _drawMesh( m_testPost );
 
-    for (int hite = -3; hite < 4; hite++)
+    // draw player
+    m_model.Translate( m_playerPos.x - 9.5, m_playerPos.y, m_playerPos.z - 9.5 );
+    _prepViewMat();
+    _drawMesh( m_person );
+
+
+    for (int i=0; i < 20; i++)
     {
-        for (int i=0; i < 20; i++)
+        for (int j=0; j < 20; j++)
         {
-            for (int j=0; j < 20; j++)
-            {
-                _drawGroundTile(i,j, hite);
-            }
+            _drawGroundTile(i,j,0);
         }
     }
 }

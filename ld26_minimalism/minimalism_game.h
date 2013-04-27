@@ -76,6 +76,7 @@ private:
     
     QuadBuff<DrawVert> *m_groundTile;
     QuadBuff<DrawVert> *m_testPost;
+    QuadBuff<DrawVert> *m_person;
 
     
     // camera stuff
@@ -85,7 +86,9 @@ private:
 
     vec3f m_camPos;
     bool m_useLookat;
+    bool m_paused;
 
+    vec3f m_playerPos;
     matrix4x4f m_modelViewProj;
 
     float m_rotate;
