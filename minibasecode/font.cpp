@@ -41,12 +41,16 @@ void Font::addGlyph( char ch,
 	g.w = w; g.h = h;
 	
     // hack : work around a bug in gfxpack
-//    const float FUDGE = 106.0/128.0;
-        const float FUDGE = 1.0;    
+    const float FUDGE = 106.0/128.0;
+//        const float FUDGE = 1.0;
     
 	// Placement in texture space
-	g.s0 = s0 * FUDGE; g.t0 = 1.0-(t0*FUDGE);
-	g.s1 = s1 * FUDGE; g.t1 = 1.0-(t1*FUDGE);    
+//	g.s0 = s0 * FUDGE; g.t0 = (t0*FUDGE);
+//	g.s1 = s1 * FUDGE; g.t1 = (t1*FUDGE);
+
+    // FLIP Y
+    g.s0 = s0 * FUDGE; g.t0 = 1.0-(t0*FUDGE);
+    g.s1 = s1 * FUDGE; g.t1 = 1.0-(t1*FUDGE);
 }
 
 void Font::setColor( float r, float g, float b, float a )

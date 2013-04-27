@@ -175,6 +175,15 @@ if (SDL_FOUND AND OPENGL_FOUND)
 endif (SDL_FOUND AND OPENGL_FOUND)
 
 # ==================================================
+# test
+#  Dependancies: SDL/OpenGL
+# ==================================================
+if (SDL_FOUND AND OPENGL_FOUND)
+  ADD_SUBDIRECTORY( ld26_minimalism )
+endif (SDL_FOUND AND OPENGL_FOUND)
+
+
+# ==================================================
 # luddite (toolkit/basecode)
 #  Dependancies: SDL (example only)/OpenGL
 # ==================================================
