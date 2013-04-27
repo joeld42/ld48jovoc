@@ -24,6 +24,8 @@
 // 30 ticks per sim frame
 #define STEPTIME (33)
 
+Uint32 g_fps;
+
 int main( int argc, char *argv[] )
 {
     printf("Game Data Dir: %s\n", getResourceDir().c_str() );
@@ -72,6 +74,7 @@ int main( int argc, char *argv[] )
 	//=====[ Main loop ]======
 	bool done = false;
 	Uint32 ticks = SDL_GetTicks(), ticks_elapsed, sim_ticks = 0;
+    Uint32 frameCount = 0, frameTicks=ticks;
 	while(!done)
 	{
 		SDL_Event event;
@@ -132,9 +135,10 @@ int main( int argc, char *argv[] )
 		
 		
 		// Timing
-		ticks_elapsed = SDL_GetTicks() - ticks;
+        Uint32 ticksNow = SDL_GetTicks();
+		ticks_elapsed = ticksNow - ticks;
 		ticks += ticks_elapsed;
-        
+
 		// fixed sim update
 		sim_ticks += ticks_elapsed;
 		while (sim_ticks > STEPTIME) 
@@ -149,7 +153,16 @@ int main( int argc, char *argv[] )
 		float dtRaw = (float)(ticks_elapsed) / 1000.0f;
         
 		game->updateFree( dtRaw ); 
-        game->redraw();   
+        game->redraw();
+
+        // update fps
+        frameCount++;
+        if ( frameTicks < ticksNow - 1000)
+        {
+            g_fps = frameCount;
+            frameTicks = ticksNow;
+            frameCount = 0;
+        }
 
 		SDL_GL_SwapBuffers();
         

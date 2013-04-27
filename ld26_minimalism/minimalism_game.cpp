@@ -22,6 +22,8 @@
 
 #include "minimalism_game.h"
 
+extern Uint32 g_fps;
+
 matrix4x4f LookAt2(const vec3f& target, const vec3f& view, const vec3f& up)
 {
     matrix4x4f m44;
@@ -67,14 +69,18 @@ void BlocksGame::init()
     m_cube = make_cube();
 //    setColorConstant( m_cube, vec4f( 1.0, 1.0, 1.0 ) );
     
-//    m_groundTile = load_obj( gameDataFile("", "ground_tile.obj").c_str() );
-    m_groundTile = load_obj( gameDataFile("", "letter_f.obj").c_str() );
+    m_groundTile = load_obj( gameDataFile("", "ground_tile.obj").c_str() );
+//    m_groundTile = load_obj( gameDataFile("", "letter_f.obj").c_str() );
+    m_testPost = load_obj( gameDataFile("", "test_post.obj").c_str() );
 
+    
     m_basicShader = loadShader( "minimalism.Plastic" );
     
     m_rotate = 0.0;
     m_testval = 0.0;
     m_useLookat = true;
+
+    m_camPos = vec3f( 0, 10, 20 );
 
     glEnable( GL_DEPTH_TEST );
     
@@ -86,6 +92,13 @@ void BlocksGame::updateSim( float dtFixed )
     m_rotate += (M_PI/180.0) * (30.0) * dtFixed;
 
     m_testval = sin( m_rotate * (M_PI/180.0) * 50.0 );
+
+    // rotate camera around scene
+    matrix4x4f matRotCam;
+    matRotCam.RotateY( (M_PI/180.0) * (30.0) * dtFixed );
+
+    m_camPos = m_camPos * matRotCam;
+    m_camPos.y = m_testval * 10.0;
 }
 
 void BlocksGame::updateFree( float dtRaw )
@@ -101,17 +114,13 @@ void BlocksGame::redraw()
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
     // 3d stuff    
-    glhPerspectivef2( m_proj, 90.0, 800.0/600.0, 0.001, 1000.0 );
+    glhPerspectivef2( m_proj, 45.0, 800.0/600.0, 0.1, 100.0 );
 
 //    printf( "testval is %f\n", m_testval);
 //    m_view.LookAt(vec3f(0.0, 0.0, 0.0), vec3f(0.0, 0.1, m_testval), vec3f( 0.0, 1.0, 0.0));
 //    m_view.Inverse(true); // doing something weird here so i have to invert the lookat??
-    m_view = LookAt2(vec3f(0.0, 0.0, 0.0), vec3f(m_testval*0.5, 0.1, m_testval), vec3f( 0.0, 1.0, 0.0));
+    m_view = LookAt2(vec3f(0.0, 0.0, 0.0), m_camPos, vec3f( 0.0, 1.0, 0.0));
 
-    matrix4x4f xlate, rot;
-    xlate.Translate( 0.0, 0.0, -m_testval );
-    rot.RotateY( m_rotate );
-    rot.Identity();
 
 #if 0
     printf(" Lookat %3.2f %3.2f %3.2f %3.2f\n"
@@ -125,7 +134,6 @@ void BlocksGame::redraw()
 #endif
 
 
-    m_view2 = xlate * rot;
 
 #if 0
     printf(" view2 %3.2f %3.2f %3.2f %3.2f\n"
@@ -141,8 +149,8 @@ void BlocksGame::redraw()
 #endif
 
 
-    //m_model.Identity();
-    m_model.RotateY( m_rotate );
+    m_model.Identity();
+    //m_model.RotateY( m_rotate );
 
     // Draw 3D scene
     _draw3d();
@@ -171,9 +179,7 @@ void BlocksGame::redraw()
 void BlocksGame::_prepViewMat()
 {
     // combine model, view and proj
-    matrix4x4f view = m_useLookat?m_view:m_view2;
-    //m_modelViewProj = m_proj * view;
-    m_modelViewProj = m_model * view * m_proj;
+    m_modelViewProj = m_model * m_view * m_proj;
 
     // prep for lighting
     // todo
@@ -243,27 +249,26 @@ void BlocksGame::_draw3d()
     glUniform1i( paramTex, 0 );        
     
     // Draw something
-    _drawMesh( m_groundTile );
-//    for (int i=0; i < 5; i++)
-//    {
-//        for (int j=0; j < 5; j++)
-//        {
-//            _drawGroundTile(i,j);
-//        }
-//    }
+    _drawMesh( m_testPost );
+
+    for (int hite = -3; hite < 4; hite++)
+    {
+        for (int i=0; i < 20; i++)
+        {
+            for (int j=0; j < 20; j++)
+            {
+                _drawGroundTile(i,j, hite);
+            }
+        }
+    }
 }
 
-void BlocksGame::_drawGroundTile( int x, int y)
+void BlocksGame::_drawGroundTile( int x, int y, int hite)
 {
-    vec3f tileLoc( x - 4.0, 0.0, y - 4.5 );
+    vec3f tileLoc( x - 10.0, hite, y - 10.0 );
 
-    matrix4x4f matXlate;
-    matXlate.Translate(tileLoc);
-
-    matrix4x4f matTile = m_proj * (m_model * m_view * matXlate);
-
-    GLint mvp = glGetUniformLocation( m_basicShader, "matrixPMV");
-    glUniformMatrix4fv( mvp, 1, 0, (GLfloat*)(&matTile)  );
+    m_model.Translate(tileLoc);
+    _prepViewMat();
 
     _drawMesh(m_groundTile);
 
@@ -278,11 +283,12 @@ void BlocksGame::_draw2d()
     m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
     m_nesFont->drawStringCentered( 400, 580, m_useLookat?"Lookat":"View2" );
 
+    // Draw fps
     char buff[50];
-    sprintf( buff, "%f", m_testval);
+    sprintf( buff, "fps: %d", g_fps);
     m_nesFont->drawString( 50, 580, buff );
 
-    matrix4x4f m = m_useLookat?m_view:m_view2;
+    matrix4x4f m = m_view;
     sprintf( buff, "%5.2f %5.2f %5.2f %5.2f", m.m16[0], m.m16[1], m.m16[2], m.m16[3] );
     m_nesFont->drawString( 50, 500, buff );
     sprintf( buff, "%5.2f %5.2f %5.2f %5.2f", m.m16[4], m.m16[5], m.m16[6], m.m16[7] );

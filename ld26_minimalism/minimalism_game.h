@@ -57,7 +57,7 @@ protected:
     void _draw3d();
     void _draw2d();
 
-    void _drawGroundTile( int x, int y);
+    void _drawGroundTile( int x, int y, int hite);
 
     // Helper to draw a DrawVert based mesh
     void _drawMesh( QuadBuff<DrawVert> *mesh );
@@ -75,12 +75,15 @@ private:
     PNGImage m_simpleTex;
     
     QuadBuff<DrawVert> *m_groundTile;
+    QuadBuff<DrawVert> *m_testPost;
+
     
     // camera stuff
     matrix4x4f m_proj;   // projection matrix
     matrix4x4f m_model;  // transform for the current object world->obj
     matrix4x4f m_view;   // camera placement transform
-    matrix4x4f m_view2;
+
+    vec3f m_camPos;
     bool m_useLookat;
 
     matrix4x4f m_modelViewProj;
