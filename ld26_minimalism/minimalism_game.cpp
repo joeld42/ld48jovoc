@@ -75,6 +75,7 @@ void BlocksGame::init()
     
     QuadBuff<DrawVert> *person = load_obj( gameDataFile("", "person.obj").c_str() );
     SceneObj *playerObj = new SceneObj( person );
+    playerObj->m_tintColor = vec3f( 1.0, 1.0, 0.0 );
 
     m_scene.push_back( playerObj );
     
@@ -137,7 +138,7 @@ void BlocksGame::redraw()
 //    printf( "testval is %f\n", m_testval);
 //    m_view.LookAt(vec3f(0.0, 0.0, 0.0), vec3f(0.0, 0.1, m_testval), vec3f( 0.0, 1.0, 0.0));
 //    m_view.Inverse(true); // doing something weird here so i have to invert the lookat??
-    m_view = LookAt2(vec3f(0.0, 0.0, 0.0), m_camPos, vec3f( 0.0, 1.0, 0.0));
+    m_view = LookAt2(vec3f(m_player->m_mapX-9.5, -1.0, -(m_player->m_mapY - 9.5)), m_camPos, vec3f( 0.0, 1.0, 0.0));
 
 
 #if 0
@@ -198,13 +199,28 @@ void BlocksGame::_prepViewMat()
 {
     // combine model, view and proj
     m_modelViewProj = m_model * m_view * m_proj;
+    m_modelView = m_model * m_proj;
 
     // prep for lighting
-    // todo
+    m_normalMatrix = m_modelView;
+//    m_normalMatrix.Inverse( true);
+//    m_normalMatrix.Transpose();
+
+    GLfloat mnrm[9];
+    mnrm[0] = m_normalMatrix.m16[0]; mnrm[1] = m_normalMatrix.m16[1]; mnrm[2] = m_normalMatrix.m16[2];
+    mnrm[3] = m_normalMatrix.m16[4]; mnrm[4] = m_normalMatrix.m16[5]; mnrm[5] = m_normalMatrix.m16[6];
+    mnrm[6] = m_normalMatrix.m16[8]; mnrm[7] = m_normalMatrix.m16[9]; mnrm[8] = m_normalMatrix.m16[10];
+
 
     // set this to the shader
     GLint mvp = glGetUniformLocation( m_basicShader, "matrixPMV");
     glUniformMatrix4fv( mvp, 1, 0, (GLfloat*)(&m_modelViewProj)  );
+
+    GLint mv = glGetUniformLocation( m_basicShader, "matrixModelview");
+    glUniformMatrix4fv( mv, 1, 0, (GLfloat*)(&m_modelView)  );
+
+    GLint nrmMat = glGetUniformLocation( m_basicShader, "normalMatrix");
+    glUniformMatrix3fv( nrmMat, 1, 0, mnrm  );
 
 }
 
@@ -312,6 +328,11 @@ void BlocksGame::_draw3d()
         SceneObj *obj = *si;
         m_model = obj->m_xform;
         _prepViewMat();
+
+        // Set tint color
+        GLint tint = glGetUniformLocation( m_basicShader, "Kd");
+        glUniform3f( tint, obj->m_tintColor.x, obj->m_tintColor.y, obj->m_tintColor.z );
+
         _drawMesh( obj->m_mesh );
     }
 

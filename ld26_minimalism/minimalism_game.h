@@ -105,6 +105,8 @@ private:
 
     vec3f m_playerPos;
     matrix4x4f m_modelViewProj;
+    matrix4x4f m_modelView;
+    matrix4x4f m_normalMatrix;
 
     float m_rotate;
     float m_testval;

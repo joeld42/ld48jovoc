@@ -10,6 +10,7 @@
 
 // uniform params
 uniform mat4 matrixPMV;
+uniform mat4 matrixModelview;
 uniform mat3 normalMatrix;
 
 uniform vec3 lightPos0;
@@ -24,41 +25,36 @@ attribute vec4 color;
 attribute vec4 texcoord;
 attribute vec3 normal;
 
-
 // outputs to fragment shader
 varying vec3 diffuseColor;
-varying vec3 specColor;
+varying vec3 P;
+varying vec3 N;
 varying vec2 st;
 
 void main()
 {
-	vec3 N = normal;
-	vec3 N2 = normalMatrix * normal;
-	
+    // world space normal
+	N = normalMatrix * normal;
+
 	vec3 L0 = lightPos0;
 		
     // Eye vector
 	vec3 E = vec3( 0, 0, -1 );
-	//vec3 H = normalize( L0 + E );
-	
-	float df0 = max( 0.0, dot(N, L0 ));
-	
+	vec3 H = normalize( L0 + E );
+
+	// fixme: directional light
+	float df0 = max( 0.3, dot(N, vec3( 0.0, 1.0, 0.0)));
+
 	// fresnel fake backlight
-	float sf = max( 0.0, dot(E, N2 ));
-	sf = (1.0 - pow( sf, 0.01 )) * 20.0;
+	//float sf = max( 0.0, dot(E, N2 ));
+	//sf = (1.0 - pow( sf, 0.01 )) * 20.0;
 		
 	st = texcoord.st;
 	
 	vec4 posw = vec4( position.x, position.y, position.z, 1.0 );
+	P = (matrixModelview * posw).xyz;
 	gl_Position = matrixPMV * posw;
-
-//    diffuseColor.rgb = (lightColor0 * df0) + (lightColor1 * df1);
-    
-    // Ignore light color for now
-//    diffuseColor.rgb = color.rgb * df0;
-    diffuseColor = abs( normal );
-	
-	specColor.rgb = vec3(sf);
+    diffuseColor = Kd * df0;
 }
 
 
@@ -67,7 +63,9 @@ void main()
 uniform vec4 dbgColor;
 
 varying vec3 diffuseColor;
-varying vec3 specColor;
+varying vec3 N;
+
+varying vec3 P;
 varying vec2 st;
 
 uniform sampler2D sampler_dif0;
@@ -75,11 +73,24 @@ uniform sampler2D sampler_dif0;
 void main()
 {
 	vec4 dif0 = texture2D( sampler_dif0, st );
-	gl_FragColor.rgb = (diffuseColor * dif0.rgb )+specColor;
+	//gl_FragColor.rgb = (diffuseColor * dif0.rgb )+specColor;
 	gl_FragColor.a = dif0.a;
-    	
+
+    vec3 lightPos0 = vec3( 0.0, 10.0, 0.0 );
+    vec3 NN = normalize( N );
+    vec3 L = normalize( lightPos0 - P);
+    vec3 E = vec3( 0, 0, 1);
+    vec3 H = normalize( L + E);
+
+    float sf = max( 0.0, dot(N,H) );
+    sf = pow( sf, 10.0 );
+
+    gl_FragColor.rgb = diffuseColor + vec3(1.0,1.0,1.0)*sf;
+
+    //gl_FragColor.rgb = NN;
+
 //    gl_FragColor = texture2D( sampler_dif0, st );
-    gl_FragColor.rgb = diffuseColor;
+    //gl_FragColor.rgb = diffuseColor;
     
     // DBG
 //    gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ); 

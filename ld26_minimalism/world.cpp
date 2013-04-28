@@ -39,7 +39,8 @@ void World::createMap( std::vector<SceneObj*> &scene )
             vec3f tileLoc( i-10.0, -0.5, j-9.0 );
             SceneObj *tile = new SceneObj( m_groundTile );
             tile->m_xform.Translate(tileLoc);
-            
+            tile->m_tintColor = vec3f( 0.3, 0.8, 0.4 );
+
             scene.push_back( tile );
         }
     }
@@ -134,7 +135,12 @@ void World::_loadSceneFile( const std::string &filename, std::vector<SceneObj*> 
             printf("Create object %s\n", objName.c_str() );
             SceneObj *obj = new SceneObj( objName + ".obj" );
             scene.push_back( obj );
-            
+
+            // get color
+            obj->m_tintColor = vec3f( 0.2, 0.6, 1.0 );
+
+
+            // get transform
             vec3f pos = _parseVec( xObject->Attribute("pos" ) );
             
             matrix4x4f xlate, xlateInv;
