@@ -1,0 +1,19 @@
+<story title="The Test Level">
+
+	<intro fg="ffffff" bg="E08E79">
+		This is the preface to the test level. This level was merely a
+		proto-thing, without the realness of an actual level but yet it
+		called out, even in this incomplete state, to exist.
+	</intro>
+
+	<outro fg="774F38" bg="F1D4AF">
+		Existing only briefly, the test level flickers and fades
+		from our memory. Was it only a footnote to a fully developed
+		game? Or does some part of the test level live on in the subliminal
+		fabric of the game itself. Who can say? 
+	</outro>
+
+	<group name='testLevel' tint1="ECE5CE" tint2="C5E0DC" />
+	<group name='emptyGroup' tint1="ECE5CE" tint2="C5E0DC" />
+
+</story>

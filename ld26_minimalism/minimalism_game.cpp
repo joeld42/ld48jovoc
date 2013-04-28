@@ -69,11 +69,22 @@ void BlocksGame::init()
     m_cube = make_cube();
 //    setColorConstant( m_cube, vec4f( 1.0, 1.0, 1.0 ) );
     
-    m_groundTile = load_obj( gameDataFile("", "ground_tile.obj").c_str() );
 //    m_groundTile = load_obj( gameDataFile("", "letter_f.obj").c_str() );
     m_testPost = load_obj( gameDataFile("", "test_post.obj").c_str() );
-    m_person = load_obj( gameDataFile("", "person.obj").c_str() );
+    
+    
+    QuadBuff<DrawVert> *person = load_obj( gameDataFile("", "person.obj").c_str() );
+    SceneObj *playerObj = new SceneObj( person );
 
+    m_scene.push_back( playerObj );
+    
+    m_player = new Actor( playerObj);
+    m_player->setPos( 1, 1 );
+    
+    m_world = new World();
+    m_world->init();
+    //m_world->createMap( m_scene );
+    m_world->load( "testlevel", m_scene );
     
     m_basicShader = loadShader( "minimalism.Plastic" );
     
@@ -104,7 +115,7 @@ void BlocksGame::updateSim( float dtFixed )
         matRotCam.RotateY( (M_PI/180.0) * (30.0) * dtFixed );
 
         m_camPos = m_camPos * matRotCam;
-        m_camPos.y = m_testval * 10.0;
+        m_camPos.y = fabs(m_testval) * 10.0;
     }
 }
 
@@ -220,6 +231,17 @@ void BlocksGame::updateButtons( unsigned int btnMask )
     
 }
 
+// moves player to new tile, only if it is valid
+void BlocksGame::movePlayer( int xx, int yy )
+{
+    printf("Moveplayer %d %d, walkable %s\n", xx, yy, m_world->m_map[xx][yy].isWalkable()?"YES":"NO" );           
+
+    if (m_world->m_map[xx][yy].isWalkable())
+    {
+        m_player->setPos(xx, yy);
+    }
+}
+
 void BlocksGame::keypress( SDLKey &key )
 {
     switch(key)
@@ -239,25 +261,27 @@ void BlocksGame::keypress( SDLKey &key )
             break;
 
         case SDLK_UP:
-            m_playerPos.z -= 1.0;
+            movePlayer(m_player->m_mapX, m_player->m_mapY-1);
             break;
 
         case SDLK_DOWN:
-            m_playerPos.z += 1.0;
+            movePlayer(m_player->m_mapX, m_player->m_mapY+1);
             break;
 
         case SDLK_LEFT:
-            m_playerPos.x -= 1.0;
+            movePlayer(m_player->m_mapX-1, m_player->m_mapY);
             break;
 
         case SDLK_RIGHT:
-            m_playerPos.x += 1.0;
+            movePlayer(m_player->m_mapX+1, m_player->m_mapY);
             break;
 
             
         default:
             break;
     }
+    
+    
 }
 
     // Draw 3d stuff
@@ -278,28 +302,37 @@ void BlocksGame::_draw3d()
 //    _drawMesh( m_testPost );
 
     // draw player
-    m_model.Translate( m_playerPos.x - 9.5, m_playerPos.y, m_playerPos.z - 9.5 );
-    _prepViewMat();
-    _drawMesh( m_person );
-
-
-    for (int i=0; i < 20; i++)
+//    m_model.Translate( m_playerPos.x - 9.5, m_playerPos.y, m_playerPos.z - 9.5 );
+//    _prepViewMat();
+//    _drawMesh( m_person );
+    
+    // draw scene
+    for (auto si = m_scene.begin(); si != m_scene.end(); ++si)
     {
-        for (int j=0; j < 20; j++)
-        {
-            _drawGroundTile(i,j,0);
-        }
+        SceneObj *obj = *si;
+        m_model = obj->m_xform;
+        _prepViewMat();
+        _drawMesh( obj->m_mesh );
     }
+
+
+//    for (int i=0; i < 20; i++)
+//    {
+//        for (int j=0; j < 20; j++)
+//        {
+//            _drawGroundTile(i,j,0);
+//        }
+//    }
 }
 
 void BlocksGame::_drawGroundTile( int x, int y, int hite)
 {
-    vec3f tileLoc( x - 10.0, hite, y - 10.0 );
+    vec3f tileLoc( x - 10.0, hite-0.5, y - 10.0 );
 
     m_model.Translate(tileLoc);
     _prepViewMat();
 
-    _drawMesh(m_groundTile);
+//    _drawMesh(m_groundTile);
 
 }
 
@@ -314,7 +347,7 @@ void BlocksGame::_draw2d()
 
     // Draw fps
     char buff[50];
-    sprintf( buff, "fps: %d", g_fps);
+    sprintf( buff, "fps: %d objs: %d", g_fps, m_scene.size() );
     m_nesFont->drawString( 50, 580, buff );
 
     matrix4x4f m = m_view;

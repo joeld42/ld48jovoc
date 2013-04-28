@@ -1,10 +1,16 @@
 include_directories( . )
 
 SET ( minimalism_SRCS
-      nesfont.cpp
-      minimalism_game.cpp
-      minimalism_game.h
-      minimalism_main.cpp
+    actor.cpp
+    actor.h
+    minimalism_game.cpp
+    minimalism_game.h
+    minimalism_main.cpp
+    nesfont.cpp
+    scene_obj.cpp
+    scene_obj.h
+    world.cpp
+    world.h
 )
 SOURCE_GROUP( src FILES ${minimalism_SRCS} )
 
@@ -12,9 +18,20 @@ SOURCE_GROUP( src FILES ${minimalism_SRCS} )
 # Note you still need to manually add the "Copy Resources to Bundle"
 # and add them there.
 SET ( gamedata_FILES
-    gamedata/nesfont.png
-    gamedata/simpletex.png
+    gamedata/block_1x1.obj
+    gamedata/block_sm_tri.obj
+    gamedata/block_tall.obj
+    gamedata/block_tall_tri.obj
+    gamedata/ground_tile.obj
+    gamedata/letter_f.obj
     gamedata/minimalism.glsl
+    gamedata/nesfont.png
+    gamedata/person.obj
+    gamedata/person_test.png
+    gamedata/simpletex.png
+    gamedata/test_post.obj
+    gamedata/testlevel.scene.xml
+    gamedata/testlevel.story.xml
 )
 SOURCE_GROUP( gamedata FILES ${gamedata_FILES} )
 
@@ -33,6 +50,7 @@ set ( LIBS ${LIBS}
       ${SDL_LIBRARY}
       ${PNG_LIBRARY}
       minibasecode
+      tinyxml
       glsw
       )
 

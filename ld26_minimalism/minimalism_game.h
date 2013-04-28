@@ -9,6 +9,7 @@
 #ifndef ld48jovoc_minimalism_game_h
 #define ld48jovoc_minimalism_game_h
 
+#include <vector>
 
 #include <SDL.h>
 #include <SDL_endian.h>
@@ -17,6 +18,11 @@
 #include <font.h>
 #include <png_loader.h>
 #include <shapes.h>
+
+// game include
+#include "scene_obj.h"
+#include "world.h"
+#include "actor.h"
 
 // Simple 'controller'-like presses (multiple can be pressed)
 // for movement
@@ -63,6 +69,9 @@ protected:
     void _drawMesh( QuadBuff<DrawVert> *mesh );
 
     void _prepViewMat();
+    
+    void movePlayer( int xx, int yy );
+
 
 private:
     // The font
@@ -74,10 +83,16 @@ private:
     GLint m_basicShader;
     PNGImage m_simpleTex;
     
-    QuadBuff<DrawVert> *m_groundTile;
     QuadBuff<DrawVert> *m_testPost;
-    QuadBuff<DrawVert> *m_person;
 
+    // The objects in the scene
+    std::vector<SceneObj*> m_scene;
+
+    // The game world
+    World *m_world;
+    
+    // The player's actor
+    Actor *m_player;
     
     // camera stuff
     matrix4x4f m_proj;   // projection matrix
