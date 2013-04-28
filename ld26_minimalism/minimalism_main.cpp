@@ -32,9 +32,13 @@ int main( int argc, char *argv[] )
     
     // Initialize GLSW
     glswInit();
-    glswSetPath( getResourceDir().c_str(), ".glsl" );
-    
-	// Initialize SDL
+    //glswSetPath( getResourceDir().c_str(), ".glsl" );
+
+    // use direct path (not bundle dir) when reloading shaders..
+    glswSetPath("/Users/joeld/Projects/ld48jovoc/ld26_minimalism/gamedata/", ".glsl" );
+
+
+    // Initialize SDL
 	if (SDL_Init( SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO ) < 0 ) 
 	{
 		printf("Unable to init SDL: %s\n", SDL_GetError() );

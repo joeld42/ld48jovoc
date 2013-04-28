@@ -72,6 +72,7 @@ protected:
     
     void movePlayer( int xx, int yy );
 
+    void reloadShader();
 
 private:
     // The font

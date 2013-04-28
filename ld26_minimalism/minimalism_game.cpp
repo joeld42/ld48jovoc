@@ -138,7 +138,7 @@ void BlocksGame::redraw()
 //    printf( "testval is %f\n", m_testval);
 //    m_view.LookAt(vec3f(0.0, 0.0, 0.0), vec3f(0.0, 0.1, m_testval), vec3f( 0.0, 1.0, 0.0));
 //    m_view.Inverse(true); // doing something weird here so i have to invert the lookat??
-    m_view = LookAt2(vec3f(m_player->m_mapX-9.5, -1.0, -(m_player->m_mapY - 9.5)), m_camPos, vec3f( 0.0, 1.0, 0.0));
+    m_view = LookAt2(vec3f(0.0,0.0,0.0), m_camPos, vec3f( 0.0, 1.0, 0.0));
 
 
 #if 0
@@ -199,7 +199,7 @@ void BlocksGame::_prepViewMat()
 {
     // combine model, view and proj
     m_modelViewProj = m_model * m_view * m_proj;
-    m_modelView = m_model * m_proj;
+    m_modelView = m_model * m_view;
 
     // prep for lighting
     m_normalMatrix = m_modelView;
@@ -276,6 +276,10 @@ void BlocksGame::keypress( SDLKey &key )
             m_paused = !m_paused;
             break;
 
+        case 'r':
+            reloadShader();
+            break;
+
         case SDLK_UP:
             movePlayer(m_player->m_mapX, m_player->m_mapY-1);
             break;
@@ -298,6 +302,13 @@ void BlocksGame::keypress( SDLKey &key )
     }
     
     
+}
+
+void BlocksGame::reloadShader()
+{
+    printf("reload shader...\n");
+    glDeleteProgram( m_basicShader );
+    m_basicShader = loadShader( "minimalism.Plastic" );
 }
 
     // Draw 3d stuff

@@ -37,10 +37,6 @@ void main()
 	N = normalMatrix * normal;
 
 	vec3 L0 = lightPos0;
-		
-    // Eye vector
-	vec3 E = vec3( 0, 0, -1 );
-	vec3 H = normalize( L0 + E );
 
 	// fixme: directional light
 	float df0 = max( 0.3, dot(N, vec3( 0.0, 1.0, 0.0)));
@@ -73,7 +69,6 @@ uniform sampler2D sampler_dif0;
 void main()
 {
 	vec4 dif0 = texture2D( sampler_dif0, st );
-	//gl_FragColor.rgb = (diffuseColor * dif0.rgb )+specColor;
 	gl_FragColor.a = dif0.a;
 
     vec3 lightPos0 = vec3( 0.0, 10.0, 0.0 );
@@ -82,20 +77,14 @@ void main()
     vec3 E = vec3( 0, 0, 1);
     vec3 H = normalize( L + E);
 
-    float sf = max( 0.0, dot(N,H) );
-    sf = pow( sf, 10.0 );
+    float sf = max( 0.0, dot(NN,H) );
+    sf = pow( sf, 30.0 );
 
     gl_FragColor.rgb = diffuseColor + vec3(1.0,1.0,1.0)*sf;
 
-    //gl_FragColor.rgb = NN;
+//    gl_FragColor.rgb = NN;
 
 //    gl_FragColor = texture2D( sampler_dif0, st );
     //gl_FragColor.rgb = diffuseColor;
-    
-    // DBG
-//    gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ); 
-//    gl_FragColor = dif0;
-//    gl_FragColor.a = 1.0;
-    
-//    gl_FragColor = dbgColor;
+
 }
