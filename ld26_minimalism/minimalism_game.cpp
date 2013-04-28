@@ -60,10 +60,10 @@ BlocksGame::BlocksGame()
 void BlocksGame::init()
 {
     // Load texture
-    m_simpleTex = LoadImagePNG( gameDataFile("", "simpletex.png" ).c_str() );
+    m_simpleTex = LoadImagePNG( gameDataFile("", "simpletex.png" ).c_str(), true, false );
 
     // Load font
-    m_fontImg = LoadImagePNG( gameDataFile("", "nesfont.png" ).c_str() );
+    m_fontImg = LoadImagePNG( gameDataFile("", "nesfont.png" ).c_str(), true, false );
     m_nesFont = makeFont_nesfont_8( m_fontImg.textureId );    
     
     m_cube = make_cube();
@@ -85,7 +85,8 @@ void BlocksGame::init()
     m_world = new World();
     m_world->init();
     //m_world->createMap( m_scene );
-    m_world->load( "testlevel", m_scene );
+    m_world->load( "ld48", m_scene );
+    movePlayer( m_world->m_startPosX, m_world->m_startPosY );
     
     m_basicShader = loadShader( "minimalism.Plastic" );
     

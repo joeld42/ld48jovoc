@@ -1,0 +1,17 @@
+<story title="Fourty-Eight Hours" startPos="5,6">
+
+	<intro fg="ffffff" bg="E08E79">
+		It was a foolish idea, impossible even. It was enough time for a character, perhaps
+		a half-baked idea. But an entire game? No. Might as well just waste the time entirely.	
+	</intro>
+
+	<outro fg="774F38" bg="F1D4AF">
+		Ok, so maybe it wasn't the best game ever made. But it was completed! 
+	</outro>
+
+	<group name='house' tint1="5b6989" tint2="8da2d4" />
+	<group name='props1' tint1="00aaaa" tint2="22eeee" />
+	<group name='roof' tint1="aa0000" tint2="aa0000" />
+
+
+</story>
