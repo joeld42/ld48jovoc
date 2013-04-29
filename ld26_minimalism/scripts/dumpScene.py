@@ -36,4 +36,4 @@ def dumpScene( groupNames ):
             
     fpOut.write("</sceneObjs>\n\n")        
 
-dumpScene( ['testLevel'] )
+dumpScene( ['town', 'townroofs', 'veggies'] )
