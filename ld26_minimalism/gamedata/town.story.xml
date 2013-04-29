@@ -1,0 +1,17 @@
+<story title="Town" startPos="10,10" bg="0FABFF">
+
+	<intro fg="ffffff" bg="E08E79">
+		Blah blah intro...
+	</intro>
+
+	<outro fg="774F38" bg="F1D4AF">
+		Blah blah blah outro...
+	</outro>
+
+	<group name='town' tint1="e6d1a4" tint2="c9b78f" />
+	<group name='townroofs' tint1="aa0000" tint2="990000" />
+	<group name='veggies' tint1="495d2f" tint2="27f436" />
+
+	<monster id="brn_rat" pos="7,17" />
+	
+</story>

@@ -299,14 +299,15 @@ void World::_updateRoutes()
         }
     }
 
-    for (int i=0; i < 22; i++)
-    {
-        for (int j=0; j < 22; j++)
-        {
-            printf(" %3d", m_map[i][j].m_playerDist );
-        }
-        printf("\n" );
-    }
+    // DBG print route map
+//    for (int i=0; i < 22; i++)
+//    {
+//        for (int j=0; j < 22; j++)
+//        {
+//            printf(" %3d", m_map[i][j].m_playerDist );
+//        }
+//        printf("\n" );
+//    }
     
 }
 

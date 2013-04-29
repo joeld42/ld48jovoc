@@ -92,7 +92,7 @@ void BlocksGame::init()
     
     m_world->m_player = m_player;
     
-    m_world->load( "ld48", m_scene );
+    m_world->load( "town", m_scene );
     movePlayer( m_world->m_startPosX, m_world->m_startPosY );
     
     m_basicShader = loadShader( "minimalism.Plastic" );
@@ -267,6 +267,25 @@ void BlocksGame::movePlayer( int xx, int yy )
     {
         m_player->setPos(xx, yy);
     }
+    
+    // HACK 
+    if ((m_player->m_mapX >= 20) && (m_world->m_title == "Town"))
+    {
+        printf("Load next map...\n");
+        
+        // BAD.. clean this up properly
+        m_scene.clear();
+        m_scene.push_back( m_player->m_mesh );
+
+        m_world = new World();
+        m_world->init();
+        
+        m_world->m_player = m_player;
+        
+        m_world->load( "ld48", m_scene );
+        movePlayer( m_world->m_startPosX, m_world->m_startPosY );
+
+    }
 }
 
 void BlocksGame::keypress( SDLKey &key )
@@ -431,7 +450,7 @@ void BlocksGame::_draw2d()
     glUseProgram(0);
     
     m_nesFont->setColor(1.0, 1.0, 1.0, 1.0);
-    m_nesFont->drawStringCentered( 400, 580, m_useLookat?"Lookat":"View2" );
+    m_nesFont->drawStringCentered( 400, 580, m_world->m_title.c_str() );
 
     // Draw fps
     char buff[50];

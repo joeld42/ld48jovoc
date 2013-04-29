@@ -1,4 +1,4 @@
-<story title="Fourty-Eight Hours" startPos="14,18" bg="0FABFF">
+<story title="Ruined Cathedral" startPos="14,18" bg="80759b">
 
 	<intro fg="ffffff" bg="E08E79">
 		Blah blah intro...
@@ -15,6 +15,6 @@
 
 	<monster id="brn_rat" pos="7,17" />
 	<monster id="brn_rat" pos="9,19" />
-	<monster id="skelly" pos="13,10" />
+	<monster id="skelly" pos="7,10" />
 	
 </story>

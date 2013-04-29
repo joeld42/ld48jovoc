@@ -14,7 +14,8 @@
 
 #define PNG_HEADER_SIZE 8
 
-PNGImage LoadImagePNG(const char *path)
+//PNGImage LoadImagePNG(const char *path)
+extern PNGImage LoadImagePNG(const char *path, bool loadGL, bool keepData )
 {
 	PNGImage loadedImage;
 	loadedImage.loadedSuccessfully = GL_FALSE;
@@ -153,31 +154,46 @@ PNGImage LoadImagePNG(const char *path)
     png_destroy_read_struct(&PNG_reader, &PNG_info, &PNG_end_info);
     fclose(PNG_file);
     
-	
-	GLuint textureID = 0;
-	glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	
-	glTexImage2D(
-				 GL_TEXTURE_2D,
-				 0,
-				 GL_RGBA,
-				 widthPow2,
-				 heightPow2,
-				 0,
-				 GL_RGBA,
-				 GL_UNSIGNED_BYTE,
-				 PNG_image_buffer);
+    // make gl texture?
+	if (loadGL)
+    {
+        GLuint textureID = 0;
+        glGenTextures(1, &textureID);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        
+        glTexImage2D(
+                     GL_TEXTURE_2D,
+                     0,
+                     GL_RGBA,
+                     widthPow2,
+                     heightPow2,
+                     0,
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE,
+                     PNG_image_buffer);
+        
+        glGenerateMipmap( GL_TEXTURE_2D );
+        
+         loadedImage.textureId = textureID;
+    }
     
-     free(PNG_image_buffer);
+    // keep data?
+    if (keepData)
+    {
+        loadedImage.pixelData = PNG_image_buffer;
+    }
+    else
+    {
+        loadedImage.pixelData = NULL;
+        free(PNG_image_buffer);
+    }
 	
 	loadedImage.width = width;
 	loadedImage.height = height;
 	loadedImage.widthPow2 = widthPow2;
 	loadedImage.heightPow2 = heightPow2;
-	loadedImage.textureId = textureID;
 	loadedImage.loadedSuccessfully = GL_TRUE;
 	
     return loadedImage;

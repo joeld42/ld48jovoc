@@ -29,9 +29,10 @@ extern "C" {
 		int heightPow2;
 		GLuint textureId;
 		GLboolean loadedSuccessfully;
+        unsigned char *pixelData;
 	} PNGImage;
 	
-extern PNGImage LoadImagePNG(const char *path);
+extern PNGImage LoadImagePNG(const char *path, bool loadGL, bool keepData );
 	
 
 

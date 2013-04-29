@@ -58,6 +58,7 @@ QuadBuff<DrawVert> *load_obj( const char *filename )
         {
             vec3f v;
             sscanf( line, "%*s %f %f %f", &(v.x), &(v.y), &(v.z) );
+            
             verts.push_back( v );
         }
         

@@ -41,7 +41,11 @@ float sgn( float n );
 int checkForGLErrors( const char *s, const char * file, int line );
 void checkFBO();
 
-#define CHECKGL( msg ) checkForGLErrors( msg, __FILE__, __LINE__ );
+#ifdef NDEBUG
+#define CHECKGL( msg )
+#else
+#define CHECKGL( msg ) cZZheckForGLErrors( msg, __FILE__, __LINE__ );
+#endif
 
 // ==============================
 //  GL camera math

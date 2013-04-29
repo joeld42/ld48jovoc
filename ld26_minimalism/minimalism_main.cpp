@@ -32,10 +32,10 @@ int main( int argc, char *argv[] )
     
     // Initialize GLSW
     glswInit();
-    //glswSetPath( getResourceDir().c_str(), ".glsl" );
+    glswSetPath( getResourceDir().c_str(), ".glsl" );
 
     // use direct path (not bundle dir) when reloading shaders..
-    glswSetPath("/Users/joeld/Projects/ld48jovoc/ld26_minimalism/gamedata/", ".glsl" );
+    //glswSetPath("/Users/joeld/Projects/ld48jovoc/ld26_minimalism/gamedata/", ".glsl" );
 
 
     // Initialize SDL
@@ -66,7 +66,7 @@ int main( int argc, char *argv[] )
 		exit(1);
 	}
     
-	SDL_WM_SetCaption( "LD26 - Block Game", NULL );
+	SDL_WM_SetCaption( "LD26 - Minimum RPG by jovoc (joeld42@gmail.com)", NULL );
 
     BlocksGame *game = new BlocksGame();
     game->init();       
