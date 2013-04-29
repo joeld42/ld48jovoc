@@ -10,6 +10,7 @@
 
 Actor::Actor( SceneObj *mesh ) : m_mesh(mesh)
 {
+    m_behavior = Behavior_STILL;
     m_mapX = 1;
     m_mapY = 1;
 }

@@ -71,8 +71,7 @@ void BlocksGame::init()
     
 //    m_groundTile = load_obj( gameDataFile("", "letter_f.obj").c_str() );
     m_testPost = load_obj( gameDataFile("", "test_post.obj").c_str() );
-    
-    
+        
     QuadBuff<DrawVert> *person = load_obj( gameDataFile("", "person.obj").c_str() );
     SceneObj *playerObj = new SceneObj( person );
     playerObj->m_tintColor = vec3f( 1.0, 1.0, 0.0 );
@@ -90,7 +89,9 @@ void BlocksGame::init()
     
     m_world = new World();
     m_world->init();
-    //m_world->createMap( m_scene );
+    
+    m_world->m_player = m_player;
+    
     m_world->load( "ld48", m_scene );
     movePlayer( m_world->m_startPosX, m_world->m_startPosY );
     
@@ -100,7 +101,6 @@ void BlocksGame::init()
     m_testval = 0.0;
     m_useLookat = true;
     m_paused = true;
-
 
     m_camPos = vec3f( 20, 20, 40 );
     
@@ -271,6 +271,8 @@ void BlocksGame::movePlayer( int xx, int yy )
 
 void BlocksGame::keypress( SDLKey &key )
 {
+    bool playerMoved = false;
+    
     switch(key)
     {
         case 'o':
@@ -312,18 +314,22 @@ void BlocksGame::keypress( SDLKey &key )
 
             
         case SDLK_UP:
+            playerMoved = true;
             movePlayer(m_player->m_mapX, m_player->m_mapY-1);
             break;
 
         case SDLK_DOWN:
+            playerMoved = true;
             movePlayer(m_player->m_mapX, m_player->m_mapY+1);
             break;
 
         case SDLK_LEFT:
+            playerMoved = true;
             movePlayer(m_player->m_mapX-1, m_player->m_mapY);
             break;
 
         case SDLK_RIGHT:
+            playerMoved = true;
             movePlayer(m_player->m_mapX+1, m_player->m_mapY);
             break;
 
@@ -332,10 +338,21 @@ void BlocksGame::keypress( SDLKey &key )
             break;
     }
     
-    printf("lightPos: %f %f %f\n",m_lightPos.x, m_lightPos.y, m_lightPos.z );
-    m_lightObj->m_xform.Translate( m_lightPos );
+//    printf("lightPos: %f %f %f\n",m_lightPos.x, m_lightPos.y, m_lightPos.z );
+//    m_lightObj->m_xform.Translate( m_lightPos );
+
+    if (playerMoved)
+    {
+        monsterTurn();
+    }
     
 }
+
+void BlocksGame::monsterTurn()
+{
+    m_world->simTurn();
+}
+
 
 void BlocksGame::reloadShader()
 {
@@ -366,16 +383,7 @@ void BlocksGame::_draw3d()
 
     GLint lightDir0 = glGetUniformLocation( m_basicShader, "lightDir0");
     glUniform3f( lightDir0, lightDir.x, lightDir.y, lightDir.z );
-
-    
-    // Draw something
-//    _drawMesh( m_testPost );
-
-    // draw player
-//    m_model.Translate( m_playerPos.x - 9.5, m_playerPos.y, m_playerPos.z - 9.5 );
-//    _prepViewMat();
-//    _drawMesh( m_person );
-    
+        
     // draw scene
     for (auto si = m_scene.begin(); si != m_scene.end(); ++si)
     {

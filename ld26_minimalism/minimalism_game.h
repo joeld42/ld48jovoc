@@ -74,6 +74,8 @@ protected:
 
     void reloadShader();
 
+    void monsterTurn();
+    
 private:
     // The font
     PNGImage m_fontImg;

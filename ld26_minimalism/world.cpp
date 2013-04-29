@@ -16,6 +16,7 @@
 
 #include "world.h"
 #include "tex_db.h"
+#include "monster_def.h"
 
 bool MapSquare::isWalkable()
 {
@@ -108,7 +109,7 @@ void World::_loadStoryFile( const std::string &filename, std::vector<SceneObj*> 
 
     m_title = xStory->Attribute( "title" );
     
-    m_bgColor = _parseColor( xStory->Attribute("bg") );
+    m_bgColor = parseColor( xStory->Attribute("bg") );
     
     const char *startPos = xStory->Attribute("startPos");
     sscanf( startPos, "%d,%d", &m_startPosX, &m_startPosY );
@@ -130,8 +131,8 @@ void World::_loadStoryFile( const std::string &filename, std::vector<SceneObj*> 
         GroupInfo ginfo;
         
         std::string groupName = xGroup->Attribute("name");
-        ginfo.m_tint1 = _parseColor(xGroup->Attribute("tint1"));
-        ginfo.m_tint2 = _parseColor(xGroup->Attribute("tint2"));
+        ginfo.m_tint1 = parseColor(xGroup->Attribute("tint1"));
+        ginfo.m_tint2 = parseColor(xGroup->Attribute("tint2"));
         
         printf(" GROUP: %s\n", groupName.c_str() );
         m_groupInfo[groupName] = ginfo;
@@ -140,26 +141,29 @@ void World::_loadStoryFile( const std::string &filename, std::vector<SceneObj*> 
     }
     
     // get actors
-    TiXmlElement *xActor = xStory->FirstChildElement( "actor");
-    while (xActor)
+    TiXmlElement *xMonster = xStory->FirstChildElement( "monster");
+    while (xMonster)
     {
-        std::string actorMesh = xActor->Attribute("mesh");
-        std::string actorSkin = xActor->Attribute("skin");
-        vec3f tintColor = _parseColor( xActor->Attribute("tint") );
+        std::string monsterId = xMonster->Attribute("id");
+        MonsterDefinition mdef = MonsterDB::sharedDB()->getMonster( monsterId );
         
-        SceneObj *actorObj = new SceneObj( actorMesh+".obj" );
-        actorObj->m_tintColor = tintColor;
-        actorObj->m_texId = texDBLookup( actorSkin + ".png" );
-        printf("Actor: %s texId %d\n", actorMesh.c_str(), actorObj->m_texId );
-        
+        SceneObj *actorObj = new SceneObj( mdef.m_meshName+".obj" );
+        actorObj->m_tintColor = mdef.m_tintColor;
+        actorObj->m_texId = texDBLookup( mdef.m_skinName + ".png" );
+                
         int x, y;
-        sscanf( xActor->Attribute("pos"), "%d,%d", &x, &y );
+        sscanf( xMonster->Attribute("pos"), "%d,%d", &x, &y );
         Actor *actor = new Actor( actorObj );
         actor->setPos(x, y );
-        
         scene.push_back( actorObj );
         
-        xActor = xActor->NextSiblingElement( "actor" );
+        actor->m_alignment = mdef.m_align;
+        actor->m_behavior = mdef.m_behavior;
+        actor->m_hp = mdef.m_baseHP;
+        
+        m_actors.push_back(actor);
+        
+        xMonster = xMonster->NextSiblingElement( "monster" );
     }
     
     // DBG
@@ -207,7 +211,7 @@ void World::_loadSceneFile( const std::string &filename, std::vector<SceneObj*> 
 
 
             // get transform
-            vec3f pos = _parseVec( xObject->Attribute("pos" ) );
+            vec3f pos = parseVec( xObject->Attribute("pos" ) );
 
             // hack adjust to line up with blender
             pos += vec3f( 1.0, -2.0, 0.0 );
@@ -216,7 +220,7 @@ void World::_loadSceneFile( const std::string &filename, std::vector<SceneObj*> 
             xlate.Translate( pos.x, pos.z, -pos.y ); // blender axes are flipped
             
             
-            vec3f euler = _parseVec( xObject->Attribute("rot" ) );
+            vec3f euler = parseVec( xObject->Attribute("rot" ) );
             euler = vec3f( euler.x, euler.z, -euler.y );
             //euler = vec3f( euler.x, 0.0, 0.0 );
 //            if (objName=="block_tall_tri")
@@ -237,11 +241,178 @@ void World::_loadSceneFile( const std::string &filename, std::vector<SceneObj*> 
 
         xGroup = xGroup->NextSiblingElement( "group" );
     }
-
-
 }
 
-vec3f World::_parseVec( const char *vecStr )
+void World::simTurn()
+{
+    printf("... actor turn (%ld actors)...\n", m_actors.size() );
+
+    // update routing to player
+    _updateRoutes();
+
+    // sim actors
+    for (auto ai = m_actors.begin(); ai != m_actors.end(); ++ai)
+    {
+        // sim this actor
+        _simActor( *ai );
+    }
+}
+
+void World::_updateRoutes()
+{
+    // reset distances
+    for (int i=0; i < 22; i++)
+    {
+        for (int j=0; j < 22; j++)
+        {
+            m_map[i][j].m_playerDist = 999;
+        }
+    }
+    
+    // iterate until no more changes
+    m_map[m_player->m_mapX][m_player->m_mapY].m_playerDist = 0;
+    bool didChange = true;
+    int c = 0;
+    while ((didChange) && (c < 500))
+    {
+        didChange = false;
+        for (int i=1; i < 22; i++)
+        {
+            for (int j=1; j < 22; j++)
+            {
+                if (!m_map[i][j].isWalkable()) continue;
+                
+                // check all four directions
+                int bestDist = m_map[i][j].m_playerDist;
+                for (int k=0; k < 4; k++)
+                {
+                    int cx=i, cy=j;
+                    _adj(k, cx, cy);
+                    if (m_map[cx][cy].m_playerDist + 1 < bestDist)
+                    {
+                        bestDist = m_map[cx][cy].m_playerDist + 1;
+                        didChange = true;
+                        m_map[i][j].m_playerDist = bestDist;
+                    }
+                }
+            }
+        }
+    }
+
+    for (int i=0; i < 22; i++)
+    {
+        for (int j=0; j < 22; j++)
+        {
+            printf(" %3d", m_map[i][j].m_playerDist );
+        }
+        printf("\n" );
+    }
+    
+}
+
+void World::_simActor( Actor *actor )
+{
+    // if they are evil, try to attack the player if nearby
+    // TODO: flee if weakened
+    if (actor->m_alignment == Alignment_EVIL)
+    {
+//        printf("Actor is EVIL\n" );
+        int cx, cy; // check xy
+        for (int i=0; i < 4; i++)
+        {
+            cx = actor->m_mapX;
+            cy = actor->m_mapY;
+            _adj(i, cx, cy);
+            
+//            printf("Checking player %d %d vs %d %d\n",
+//                   m_player->m_mapX, m_player->m_mapY,
+//                   cx, cy );
+            
+            if ((m_player->m_mapX==cx) && (m_player->m_mapY==cy))
+            {
+                // Yes! Attack!
+                printf("yes attack\n");
+                _attackPlayer( actor );
+                return;
+            }
+        }
+    }
+    
+    // not attacking, wander around
+    int walkDir = -1;
+    if (actor->m_behavior == Behavior_WANDER)
+    {
+        walkDir = rand() % 4;
+    }
+    else if (actor->m_behavior == Behavior_SEEKPLAYER)
+    {
+        int bestDist = m_map[actor->m_mapX][actor->m_mapY].m_playerDist;
+        for (int i=0; i < 4; i++)
+        {
+            int cx = actor->m_mapX;
+            int cy = actor->m_mapY;
+            
+            _adj( i, cx, cy );
+            int mapDist = m_map[cx][cy].m_playerDist;
+            printf("Dir %d dist is %d\n", i, mapDist );
+            if (mapDist< bestDist)
+            {
+                walkDir = i;
+                bestDist = mapDist;
+            }
+        }
+        printf("Seekplayer, direction is %d (currDist %d, bestDist %d)\n",
+               walkDir, m_map[actor->m_mapX][actor->m_mapY].m_playerDist, bestDist);
+    }
+    
+    if (walkDir!=-1)
+    {
+        int cx = actor->m_mapX;
+        int cy = actor->m_mapY;
+        
+        _adj( walkDir, cx, cy );
+        if (!_isOccupied(cx, cy))
+        {
+            actor->setPos( cx, cy );
+        }
+    }
+}
+
+bool World::_isOccupied( int x, int y )
+{
+    // passable?
+    if (!m_map[x][y].isWalkable()) return true;
+    
+    // player is there...
+    if ((m_player->m_mapX == x) && (m_player->m_mapY == y)) return true;
+    
+    // another actor is there...
+    for (auto ai = m_actors.begin(); ai != m_actors.end(); ++ai)
+    {
+        Actor *actor = *ai;
+        if ((actor->m_mapX == x) && (actor->m_mapY==y))
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+void World::_attackPlayer( Actor *actor )
+{
+    printf("Attack player!!\n");
+}
+
+void World::_adj( int dir, int &x, int &y )
+{
+    if (dir==0) x -= 1;
+    else if (dir==1) x+= 1;
+    else if (dir==2) y -= 1;
+    else if (dir==3) y += 1;
+}
+
+vec3f World::parseVec( const char *vecStr )
 {
     float x=0, y=0, z=0;
     sscanf( vecStr, "%f,%f,%f", &x, &y, &z);
@@ -249,7 +420,7 @@ vec3f World::_parseVec( const char *vecStr )
     return vec3f( x, y, z );
 }
 
-vec3f World::_parseColor( const char *colorStr )
+vec3f World::parseColor( const char *colorStr )
 {
     if (!colorStr)
     {

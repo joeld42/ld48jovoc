@@ -26,12 +26,6 @@
 // 20x20 with 1-wide border
 #define MAP_SIZE (22)
 
-enum {
-    Behavior_STILL,
-    Behavior_WANDER,
-    Behavior_SEEKPLAYER,
-};
-
 struct MapSquare
 {
     MapSquare() : m_empty( true ), m_passable( false )
@@ -42,6 +36,8 @@ struct MapSquare
     
     bool m_empty;
     bool m_passable;
+    
+    int m_playerDist; // routable distance to player
 };
 
 struct GroupInfo
@@ -59,6 +55,8 @@ public:
 
     void load( const std::string &basename, std::vector<SceneObj*> &scene );
 
+    void simTurn();
+    
     // lighting
     vec3f m_lightDir; // main light
     vec3f m_specPos; // spec light pos
@@ -74,17 +72,31 @@ public:
     
     // actors
     std::vector<Actor*> m_actors;
+    Actor *m_player;
+
+    static vec3f parseVec( const char *vecStr );
+    static vec3f parseColor( const char *colorStr );
+   
 
 protected:
 
+    // xy loc of adjacent square
+    void _adj( int dir, int &x, int &y );
+    
+    void _updateRoutes();
+    void _simActor( Actor *actor );
+    
+    void _attackPlayer( Actor *actor );
+    
     void _createMap( const std::string &filename, const std::string &infoname, std::vector<SceneObj*> &scene );
     void _loadStoryFile( const std::string &filename, std::vector<SceneObj*> &scene );
     void _loadSceneFile( const std::string &filename, std::vector<SceneObj*> &scene );
+    
+    bool _isOccupied( int x, int y );
 
+    
     // helpers
 //    void _parseColor
-    vec3f _parseVec( const char *vecStr );
-    vec3f _parseColor( const char *colorStr );
 
     // Resources
     QuadBuff<DrawVert> *m_groundTile;

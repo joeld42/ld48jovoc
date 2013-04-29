@@ -13,7 +13,8 @@
 	<group name='roof' tint1="aa0000" tint2="aa0000" />
 	<group name='graves' tint1="eeeeff" tint2="eeffee" />
 
-	<actor mesh='critter' skin='skn_rat' tint='e39d58' pos="8,17" name="Brown Rat" hp="6"/>
-	<actor mesh='person' skin='skn_skelly' tint='deffca' pos="13,10" name="Skelly" hp="20"/>
-
+	<monster id="brn_rat" pos="7,17" />
+	<monster id="brn_rat" pos="9,19" />
+	<monster id="skelly" pos="13,10" />
+	
 </story>
