@@ -31,6 +31,7 @@ public:
     
     vec3f m_tintColor;
     matrix4x4f m_xform;
+    GLint m_texId;
     QuadBuff<DrawVert> *m_mesh;
 };
 

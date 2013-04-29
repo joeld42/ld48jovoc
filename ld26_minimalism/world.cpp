@@ -11,9 +11,11 @@
 #include <load_obj.h>
 #include <useful.h>
 
+
 #include <tinyxml/tinyxml.h>
 
 #include "world.h"
+#include "tex_db.h"
 
 bool MapSquare::isWalkable()
 {
@@ -27,27 +29,31 @@ void World::init()
 }
 
 
-void World::_createMap( const std::string &filename, std::vector<SceneObj*> &scene )
+void World::_createMap( const std::string &filename, const std::string &infoname, std::vector<SceneObj*> &scene )
 {
 
     // Load the map data
     PNGImage worldImg = LoadImagePNG( filename.c_str(), false, true );
-    
+    PNGImage worldInfo = LoadImagePNG( infoname.c_str(), false, true );
     
     // make the map
     uint8_t *mapdata = worldImg.pixelData;
+    uint8_t *infodata = worldInfo.pixelData;
+
     for (int i=1; i < 21; i++)
     {
         for (int j=1; j < 21; j++)
         {
             int j2 = 20-(j-1);
-            uint8_t r,g,b,a;
+            uint8_t r,g,b,a, blk;
             uint32_t ndx = ((j2 * worldImg.widthPow2) + (i-1)) * 4;
-            printf("i,j %d %d ndx %d widthPow2 %d\n", i,j, ndx, worldImg.widthPow2 );
             r = mapdata[ ndx + 0 ];
             g = mapdata[ ndx + 1 ];
             b = mapdata[ ndx + 2 ];
             a = mapdata[ ndx + 3 ];
+            
+            blk = infodata[ ndx + 0];
+            
             
             if (a<128)
             {
@@ -57,7 +63,7 @@ void World::_createMap( const std::string &filename, std::vector<SceneObj*> &sce
             else
             {
                 m_map[i][j].m_empty = false;
-                m_map[i][j].m_passable = true;
+                m_map[i][j].m_passable = (blk < 128);
                 
                 vec3f tileLoc( i-10.0, -0.5, j-9.0 );
                 SceneObj *tile = new SceneObj( m_groundTile );
@@ -73,7 +79,9 @@ void World::_createMap( const std::string &filename, std::vector<SceneObj*> &sce
 void World::load( const std::string &basename, std::vector<SceneObj*> &scene )
 {
     // load/build the map
-    _createMap( gameDataFile("", basename + "_map.png"), scene );
+    _createMap( gameDataFile("", basename + "_map.png"),
+                gameDataFile("", basename + "_info.png"),
+                scene );
 
     // Load the story file
     std::string storyfile = basename + ".story.xml";
@@ -99,6 +107,8 @@ void World::_loadStoryFile( const std::string &filename, std::vector<SceneObj*> 
     assert( xStory );
 
     m_title = xStory->Attribute( "title" );
+    
+    m_bgColor = _parseColor( xStory->Attribute("bg") );
     
     const char *startPos = xStory->Attribute("startPos");
     sscanf( startPos, "%d,%d", &m_startPosX, &m_startPosY );
@@ -127,6 +137,29 @@ void World::_loadStoryFile( const std::string &filename, std::vector<SceneObj*> 
         m_groupInfo[groupName] = ginfo;
 
         xGroup = xGroup->NextSiblingElement( "group" );
+    }
+    
+    // get actors
+    TiXmlElement *xActor = xStory->FirstChildElement( "actor");
+    while (xActor)
+    {
+        std::string actorMesh = xActor->Attribute("mesh");
+        std::string actorSkin = xActor->Attribute("skin");
+        vec3f tintColor = _parseColor( xActor->Attribute("tint") );
+        
+        SceneObj *actorObj = new SceneObj( actorMesh+".obj" );
+        actorObj->m_tintColor = tintColor;
+        actorObj->m_texId = texDBLookup( actorSkin + ".png" );
+        printf("Actor: %s texId %d\n", actorMesh.c_str(), actorObj->m_texId );
+        
+        int x, y;
+        sscanf( xActor->Attribute("pos"), "%d,%d", &x, &y );
+        Actor *actor = new Actor( actorObj );
+        actor->setPos(x, y );
+        
+        scene.push_back( actorObj );
+        
+        xActor = xActor->NextSiblingElement( "actor" );
     }
     
     // DBG

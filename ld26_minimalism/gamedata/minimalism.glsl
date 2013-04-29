@@ -13,7 +13,7 @@ uniform mat4 matrixPMV;
 uniform mat4 matrixModelview;
 uniform mat3 normalMatrix;
 
-uniform vec3 lightPos0;
+uniform vec3 lightDir0;
 uniform vec3 lightColor0;
 
 uniform vec3 Kd; // Diffuse color
@@ -30,16 +30,15 @@ varying vec3 diffuseColor;
 varying vec3 P;
 varying vec3 N;
 varying vec2 st;
+varying vec3 L0;
 
 void main()
 {
     // world space normal
 	N = normalMatrix * normal;
 
-	vec3 L0 = lightPos0;
-
-	// fixme: directional light
-	float df0 = max( 0.3, dot(N, vec3( 0.0, 1.0, 0.0)));
+	// directional light
+	float df0 = max( 0.3, dot(N, lightDir0));
 
 	// fresnel fake backlight
 	//float sf = max( 0.0, dot(E, N2 ));
@@ -57,6 +56,9 @@ void main()
 -- Plastic.Fragment ------------------------------------------
 
 uniform vec4 dbgColor;
+uniform vec3 lightPos0;
+
+uniform float mixVal;
 
 varying vec3 diffuseColor;
 varying vec3 N;
@@ -80,11 +82,16 @@ void main()
     float sf = max( 0.0, dot(NN,H) );
     sf = pow( sf, 30.0 );
 
-    gl_FragColor.rgb = diffuseColor + vec3(1.0,1.0,1.0)*sf;
+    //gl_FragColor.rgb = vec3( 1,1,1 ) * dif0.a;
+    gl_FragColor.a = 1.0;
+    gl_FragColor.rgb = mix( diffuseColor, dif0.rgb, dif0.a*mixVal );
+
+//    gl_FragColor.rgb = diffuseColor + vec3(1.0,1.0,1.0)*sf;
 
 //    gl_FragColor.rgb = NN;
 
 //    gl_FragColor = texture2D( sampler_dif0, st );
+    
     //gl_FragColor.rgb = diffuseColor;
 
 }

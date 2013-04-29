@@ -1,17 +1,19 @@
-<story title="Fourty-Eight Hours" startPos="5,6">
+<story title="Fourty-Eight Hours" startPos="14,18" bg="0FABFF">
 
 	<intro fg="ffffff" bg="E08E79">
-		It was a foolish idea, impossible even. It was enough time for a character, perhaps
-		a half-baked idea. But an entire game? No. Might as well just waste the time entirely.	
+		Blah blah intro...
 	</intro>
 
 	<outro fg="774F38" bg="F1D4AF">
-		Ok, so maybe it wasn't the best game ever made. But it was completed! 
+		Blah blah blah outro...
 	</outro>
 
 	<group name='house' tint1="5b6989" tint2="8da2d4" />
 	<group name='props1' tint1="00aaaa" tint2="22eeee" />
 	<group name='roof' tint1="aa0000" tint2="aa0000" />
+	<group name='graves' tint1="eeeeff" tint2="eeffee" />
 
+	<actor mesh='critter' skin='skn_rat' tint='e39d58' pos="8,17" name="Brown Rat" hp="6"/>
+	<actor mesh='person' skin='skn_skelly' tint='deffca' pos="13,10" name="Skelly" hp="20"/>
 
 </story>

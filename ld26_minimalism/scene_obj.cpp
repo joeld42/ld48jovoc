@@ -19,12 +19,14 @@ SceneObj::SceneObj(QuadBuff<DrawVert> *mesh) : m_mesh(mesh)
 {
     m_tintColor = vec3f( 1.0, 1.0, 1.0 );
     m_xform.Identity();
+    m_texId = 0;
 }
 
 SceneObj::SceneObj( const std::string &meshName )
 {
     m_mesh = meshFactory( meshName );
     m_tintColor = vec3f( 1.0, 1.0, 1.0 );
+    m_texId = 0;
     m_xform.Identity();
 }
 

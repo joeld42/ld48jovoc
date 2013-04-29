@@ -21,9 +21,16 @@
 #include <shapes.h>
 
 #include "scene_obj.h"
+#include "actor.h"
 
 // 20x20 with 1-wide border
 #define MAP_SIZE (22)
+
+enum {
+    Behavior_STILL,
+    Behavior_WANDER,
+    Behavior_SEEKPLAYER,
+};
 
 struct MapSquare
 {
@@ -52,15 +59,25 @@ public:
 
     void load( const std::string &basename, std::vector<SceneObj*> &scene );
 
+    // lighting
+    vec3f m_lightDir; // main light
+    vec3f m_specPos; // spec light pos
+    vec3f m_fillDir0; // fill light 0
+    
+    vec3f m_bgColor;
+    
     // story info
     std::string m_title;
     std::string m_intro;
     std::string m_outro;
     int m_startPosX, m_startPosY;
+    
+    // actors
+    std::vector<Actor*> m_actors;
 
 protected:
 
-    void _createMap( const std::string &filename, std::vector<SceneObj*> &scene );
+    void _createMap( const std::string &filename, const std::string &infoname, std::vector<SceneObj*> &scene );
     void _loadStoryFile( const std::string &filename, std::vector<SceneObj*> &scene );
     void _loadSceneFile( const std::string &filename, std::vector<SceneObj*> &scene );
 

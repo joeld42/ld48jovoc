@@ -82,6 +82,12 @@ void BlocksGame::init()
     m_player = new Actor( playerObj);
     m_player->setPos( 1, 1 );
     
+    PNGImage playerTex = LoadImagePNG( gameDataFile("", "skn_hero.png" ).c_str(), true, false );
+    playerObj->m_texId = playerTex.textureId;
+    
+    m_lightObj = new SceneObj( "litebulb.obj" );
+    m_scene.push_back( m_lightObj );
+    
     m_world = new World();
     m_world->init();
     //m_world->createMap( m_scene );
@@ -93,11 +99,13 @@ void BlocksGame::init()
     m_rotate = 0.0;
     m_testval = 0.0;
     m_useLookat = true;
-    m_paused = false;
+    m_paused = true;
 
-    m_playerPos = vec3f( 10.0, 0.0, 10.0 );
 
-    m_camPos = vec3f( 0, 10, 20 );
+    m_camPos = vec3f( 20, 20, 40 );
+    
+    m_lightPos = vec3f( -1, 11, 18 );
+    m_lightObj->m_xform.Translate( m_lightPos );
 
     glEnable( GL_DEPTH_TEST );
     
@@ -130,11 +138,13 @@ void BlocksGame::redraw()
 {
 //    glDisable( GL_DEPTH_TEST );
 
-    glClearColor( 78.0/255.0, 114.0/255.0, 136.0/255.0, 1.0 );
+//    glClearColor( 78.0/255.0, 114.0/255.0, 136.0/255.0, 1.0 );
+    glClearColor( m_world->m_bgColor.x, m_world->m_bgColor.y, m_world->m_bgColor.z, 1.0 );
+            
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
     // 3d stuff    
-    glhPerspectivef2( m_proj, 45.0, 800.0/600.0, 0.1, 100.0 );
+    glhPerspectivef2( m_proj, 20.0, 800.0/600.0, 1.0, 500.0 );
 
 //    printf( "testval is %f\n", m_testval);
 //    m_view.LookAt(vec3f(0.0, 0.0, 0.0), vec3f(0.0, 0.1, m_testval), vec3f( 0.0, 1.0, 0.0));
@@ -280,7 +290,27 @@ void BlocksGame::keypress( SDLKey &key )
         case 'r':
             reloadShader();
             break;
+            
+        case SDLK_1:
+            m_lightPos.x -= 1.0;
+            break;
+        case SDLK_2:
+            m_lightPos.x += 1.0;
+            break;
+        case SDLK_3:
+            m_lightPos.y -= 1.0;
+            break;
+        case SDLK_4:
+            m_lightPos.y += 1.0;
+            break;
+        case SDLK_5:
+            m_lightPos.z -= 1.0;
+            break;
+        case SDLK_6:
+            m_lightPos.z += 1.0;
+            break;
 
+            
         case SDLK_UP:
             movePlayer(m_player->m_mapX, m_player->m_mapY-1);
             break;
@@ -302,6 +332,8 @@ void BlocksGame::keypress( SDLKey &key )
             break;
     }
     
+    printf("lightPos: %f %f %f\n",m_lightPos.x, m_lightPos.y, m_lightPos.z );
+    m_lightObj->m_xform.Translate( m_lightPos );
     
 }
 
@@ -325,6 +357,16 @@ void BlocksGame::_draw3d()
     
     GLint paramTex = glGetUniformLocation( m_basicShader, "sampler_dif0" );
     glUniform1i( paramTex, 0 );        
+
+    vec3f lightDir = m_lightPos;
+    lightDir.Normalize();
+    
+    GLint lightPos0 = glGetUniformLocation( m_basicShader, "lightPos0");
+    glUniform3f( lightPos0, m_lightPos.x, m_lightPos.y, m_lightPos.z );
+
+    GLint lightDir0 = glGetUniformLocation( m_basicShader, "lightDir0");
+    glUniform3f( lightDir0, lightDir.x, lightDir.y, lightDir.z );
+
     
     // Draw something
 //    _drawMesh( m_testPost );
@@ -344,6 +386,11 @@ void BlocksGame::_draw3d()
         // Set tint color
         GLint tint = glGetUniformLocation( m_basicShader, "Kd");
         glUniform3f( tint, obj->m_tintColor.x, obj->m_tintColor.y, obj->m_tintColor.z );
+        
+        // set texture?
+        glBindTexture( GL_TEXTURE_2D, obj->m_texId );
+        GLint mixVal = glGetUniformLocation( m_basicShader, "mixVal");
+        glUniform1f( mixVal, obj->m_texId?1.0:0.0 );
 
         _drawMesh( obj->m_mesh );
     }
@@ -383,6 +430,7 @@ void BlocksGame::_draw2d()
     sprintf( buff, "fps: %d objs: %d", g_fps, m_scene.size() );
     m_nesFont->drawString( 50, 580, buff );
 
+    /*
     matrix4x4f m = m_view;
     sprintf( buff, "%5.2f %5.2f %5.2f %5.2f", m.m16[0], m.m16[1], m.m16[2], m.m16[3] );
     m_nesFont->drawString( 50, 500, buff );
@@ -392,7 +440,7 @@ void BlocksGame::_draw2d()
     m_nesFont->drawString( 50, 480, buff );
     sprintf( buff, "%5.2f %5.2f %5.2f %5.2f", m.m16[12], m.m16[13], m.m16[14], m.m16[15] );
     m_nesFont->drawString( 50, 470, buff );
-
+*/
 
 
     m_nesFont->renderAll();

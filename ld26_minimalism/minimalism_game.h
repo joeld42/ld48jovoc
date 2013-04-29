@@ -95,6 +95,10 @@ private:
     // The player's actor
     Actor *m_player;
     
+    // Light pos (for debugging)
+    vec3f m_lightPos;
+    SceneObj *m_lightObj;
+    
     // camera stuff
     matrix4x4f m_proj;   // projection matrix
     matrix4x4f m_model;  // transform for the current object world->obj

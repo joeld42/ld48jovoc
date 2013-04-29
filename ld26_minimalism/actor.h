@@ -10,6 +10,7 @@
 #define __ld48jovoc__actor__
 
 #include "scene_obj.h"
+#include "png_loader.h"
 
 class Actor
 {
