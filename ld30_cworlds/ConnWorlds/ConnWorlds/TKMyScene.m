@@ -54,7 +54,10 @@
 - (void)goToGameScene
 {
     SKTransition *reveal = [SKTransition revealWithDirection:SKTransitionDirectionDown duration:1.0];
-    TKGameScene *gameScene = [[TKGameScene alloc] initWithSize: CGSizeMake(1024,768)];
+    TKGameScene *gameScene = [[TKGameScene alloc] initWithSize: CGSizeMake(768,1024)];
+    gameScene.scaleMode = SKSceneScaleModeAspectFit;
+    
+    [gameScene  setupWorld];
     
     //  Optionally, insert code to configure the new scene.
     [self.scene.view presentScene: gameScene transition: reveal];

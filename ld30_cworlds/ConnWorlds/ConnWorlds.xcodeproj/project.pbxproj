@@ -23,6 +23,13 @@
 		6D48F06C19A853600057A961 /* ConnWorldsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D48F06B19A853600057A961 /* ConnWorldsTests.m */; };
 		6D48F07A19A85F7B0057A961 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D48F07919A85F7B0057A961 /* button.png */; };
 		6D8B7EB619A91A96006255D8 /* TKGameScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D8B7EB519A91A96006255D8 /* TKGameScene.m */; };
+		6D8B7EB819A9285F006255D8 /* island1.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D8B7EB719A9285E006255D8 /* island1.png */; };
+		6D8B7EBA19A9315F006255D8 /* beam.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D8B7EB919A9315F006255D8 /* beam.png */; };
+		6D8B7EBD19A93895006255D8 /* TKLaserNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D8B7EBC19A93895006255D8 /* TKLaserNode.m */; };
+		6D8B7EC019A93DCC006255D8 /* testplayer_inactive.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D8B7EBE19A93DCC006255D8 /* testplayer_inactive.png */; };
+		6D8B7EC119A93DCC006255D8 /* testplayer_active.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D8B7EBF19A93DCC006255D8 /* testplayer_active.png */; };
+		6D8B7EC319A93F54006255D8 /* island1_fg.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D8B7EC219A93F54006255D8 /* island1_fg.png */; };
+		6D8B7EC519A95560006255D8 /* TKUseful.c in Sources */ = {isa = PBXBuildFile; fileRef = 6D8B7EC419A95560006255D8 /* TKUseful.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +69,15 @@
 		6D48F07919A85F7B0057A961 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = button.png; path = gamedata/button.png; sourceTree = SOURCE_ROOT; };
 		6D8B7EB419A91A96006255D8 /* TKGameScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TKGameScene.h; sourceTree = "<group>"; };
 		6D8B7EB519A91A96006255D8 /* TKGameScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TKGameScene.m; sourceTree = "<group>"; };
+		6D8B7EB719A9285E006255D8 /* island1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = island1.png; path = gamedata/island1.png; sourceTree = SOURCE_ROOT; };
+		6D8B7EB919A9315F006255D8 /* beam.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = beam.png; path = gamedata/beam.png; sourceTree = SOURCE_ROOT; };
+		6D8B7EBB19A93895006255D8 /* TKLaserNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TKLaserNode.h; sourceTree = "<group>"; };
+		6D8B7EBC19A93895006255D8 /* TKLaserNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TKLaserNode.m; sourceTree = "<group>"; };
+		6D8B7EBE19A93DCC006255D8 /* testplayer_inactive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = testplayer_inactive.png; path = gamedata/testplayer_inactive.png; sourceTree = SOURCE_ROOT; };
+		6D8B7EBF19A93DCC006255D8 /* testplayer_active.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = testplayer_active.png; path = gamedata/testplayer_active.png; sourceTree = SOURCE_ROOT; };
+		6D8B7EC219A93F54006255D8 /* island1_fg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = island1_fg.png; path = gamedata/island1_fg.png; sourceTree = SOURCE_ROOT; };
+		6D8B7EC419A95560006255D8 /* TKUseful.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = TKUseful.c; sourceTree = "<group>"; };
+		6D8B7EC619A9557F006255D8 /* TKUseful.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TKUseful.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +156,10 @@
 				6D48F05919A8535F0057A961 /* Images.xcassets */,
 				6D8B7EB419A91A96006255D8 /* TKGameScene.h */,
 				6D8B7EB519A91A96006255D8 /* TKGameScene.m */,
+				6D8B7EBB19A93895006255D8 /* TKLaserNode.h */,
+				6D8B7EBC19A93895006255D8 /* TKLaserNode.m */,
+				6D8B7EC419A95560006255D8 /* TKUseful.c */,
+				6D8B7EC619A9557F006255D8 /* TKUseful.h */,
 			);
 			path = ConnWorlds;
 			sourceTree = "<group>";
@@ -177,6 +197,11 @@
 		6D48F07819A85F6A0057A961 /* gamedata */ = {
 			isa = PBXGroup;
 			children = (
+				6D8B7EC219A93F54006255D8 /* island1_fg.png */,
+				6D8B7EBE19A93DCC006255D8 /* testplayer_inactive.png */,
+				6D8B7EBF19A93DCC006255D8 /* testplayer_active.png */,
+				6D8B7EB919A9315F006255D8 /* beam.png */,
+				6D8B7EB719A9285E006255D8 /* island1.png */,
 				6D48F07919A85F7B0057A961 /* button.png */,
 			);
 			name = gamedata;
@@ -258,10 +283,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D8B7EBA19A9315F006255D8 /* beam.png in Resources */,
 				6D48F05819A8535F0057A961 /* Spaceship.png in Resources */,
+				6D8B7EC319A93F54006255D8 /* island1_fg.png in Resources */,
+				6D8B7EC119A93DCC006255D8 /* testplayer_active.png in Resources */,
+				6D8B7EC019A93DCC006255D8 /* testplayer_inactive.png in Resources */,
 				6D48F07A19A85F7B0057A961 /* button.png in Resources */,
 				6D48F05A19A8535F0057A961 /* Images.xcassets in Resources */,
 				6D48F04819A8535F0057A961 /* InfoPlist.strings in Resources */,
+				6D8B7EB819A9285F006255D8 /* island1.png in Resources */,
 				6D48F04E19A8535F0057A961 /* Credits.rtf in Resources */,
 				6D48F05019A8535F0057A961 /* MainMenu.xib in Resources */,
 			);
@@ -282,9 +312,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D8B7EC519A95560006255D8 /* TKUseful.c in Sources */,
 				6D48F04A19A8535F0057A961 /* main.m in Sources */,
 				6D48F05519A8535F0057A961 /* TKAppDelegate.m in Sources */,
 				6D48F05219A8535F0057A961 /* TKMyScene.m in Sources */,
+				6D8B7EBD19A93895006255D8 /* TKLaserNode.m in Sources */,
 				6D8B7EB619A91A96006255D8 /* TKGameScene.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

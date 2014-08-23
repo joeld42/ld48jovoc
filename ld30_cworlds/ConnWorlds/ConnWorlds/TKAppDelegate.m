@@ -15,8 +15,12 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    /* This makes it send mouse move events */
+    _window.acceptsMouseMovedEvents = YES;
+    [_window makeFirstResponder:self.skView.scene];
+    
     /* Pick a size for the scene */
-    SKScene *scene = [TKMyScene sceneWithSize:CGSizeMake(1024, 768)];
+    SKScene *scene = [TKMyScene sceneWithSize:CGSizeMake(768, 1024)];
 
     /* Set the scale mode to scale to fit the window */
     scene.scaleMode = SKSceneScaleModeAspectFit;

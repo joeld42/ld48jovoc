@@ -11,4 +11,6 @@
 
 @interface TKGameScene : SKScene
 
+- (void) setupWorld;
+
 @end
