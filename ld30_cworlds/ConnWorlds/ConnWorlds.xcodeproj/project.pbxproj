@@ -1,0 +1,489 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6D48F03C19A8535F0057A961 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D48F03B19A8535F0057A961 /* Cocoa.framework */; };
+		6D48F03E19A8535F0057A961 /* SpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D48F03D19A8535F0057A961 /* SpriteKit.framework */; };
+		6D48F04819A8535F0057A961 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6D48F04619A8535F0057A961 /* InfoPlist.strings */; };
+		6D48F04A19A8535F0057A961 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D48F04919A8535F0057A961 /* main.m */; };
+		6D48F04E19A8535F0057A961 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 6D48F04C19A8535F0057A961 /* Credits.rtf */; };
+		6D48F05019A8535F0057A961 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6D48F04F19A8535F0057A961 /* MainMenu.xib */; };
+		6D48F05219A8535F0057A961 /* TKMyScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D48F05119A8535F0057A961 /* TKMyScene.m */; };
+		6D48F05519A8535F0057A961 /* TKAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D48F05419A8535F0057A961 /* TKAppDelegate.m */; };
+		6D48F05819A8535F0057A961 /* Spaceship.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D48F05719A8535F0057A961 /* Spaceship.png */; };
+		6D48F05A19A8535F0057A961 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D48F05919A8535F0057A961 /* Images.xcassets */; };
+		6D48F06119A853600057A961 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D48F06019A853600057A961 /* XCTest.framework */; };
+		6D48F06219A853600057A961 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D48F03B19A8535F0057A961 /* Cocoa.framework */; };
+		6D48F06A19A853600057A961 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6D48F06819A853600057A961 /* InfoPlist.strings */; };
+		6D48F06C19A853600057A961 /* ConnWorldsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D48F06B19A853600057A961 /* ConnWorldsTests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6D48F06319A853600057A961 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6D48F03019A8535F0057A961 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6D48F03719A8535F0057A961;
+			remoteInfo = ConnWorlds;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		6D48F03819A8535F0057A961 /* ConnWorlds.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ConnWorlds.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D48F03B19A8535F0057A961 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		6D48F03D19A8535F0057A961 /* SpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpriteKit.framework; path = System/Library/Frameworks/SpriteKit.framework; sourceTree = SDKROOT; };
+		6D48F04019A8535F0057A961 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		6D48F04119A8535F0057A961 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		6D48F04219A8535F0057A961 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		6D48F04519A8535F0057A961 /* ConnWorlds-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ConnWorlds-Info.plist"; sourceTree = "<group>"; };
+		6D48F04719A8535F0057A961 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		6D48F04919A8535F0057A961 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		6D48F04B19A8535F0057A961 /* ConnWorlds-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ConnWorlds-Prefix.pch"; sourceTree = "<group>"; };
+		6D48F04D19A8535F0057A961 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		6D48F04F19A8535F0057A961 /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
+		6D48F05119A8535F0057A961 /* TKMyScene.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TKMyScene.m; sourceTree = "<group>"; };
+		6D48F05319A8535F0057A961 /* TKMyScene.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TKMyScene.h; sourceTree = "<group>"; };
+		6D48F05419A8535F0057A961 /* TKAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TKAppDelegate.m; sourceTree = "<group>"; };
+		6D48F05619A8535F0057A961 /* TKAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TKAppDelegate.h; sourceTree = "<group>"; };
+		6D48F05719A8535F0057A961 /* Spaceship.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Spaceship.png; sourceTree = "<group>"; };
+		6D48F05919A8535F0057A961 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		6D48F05F19A853600057A961 /* ConnWorldsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ConnWorldsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D48F06019A853600057A961 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		6D48F06719A853600057A961 /* ConnWorldsTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ConnWorldsTests-Info.plist"; sourceTree = "<group>"; };
+		6D48F06919A853600057A961 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		6D48F06B19A853600057A961 /* ConnWorldsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConnWorldsTests.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6D48F03519A8535F0057A961 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D48F03E19A8535F0057A961 /* SpriteKit.framework in Frameworks */,
+				6D48F03C19A8535F0057A961 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D48F05C19A853600057A961 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D48F06219A853600057A961 /* Cocoa.framework in Frameworks */,
+				6D48F06119A853600057A961 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6D48F02F19A8535F0057A961 = {
+			isa = PBXGroup;
+			children = (
+				6D48F04319A8535F0057A961 /* ConnWorlds */,
+				6D48F06519A853600057A961 /* ConnWorldsTests */,
+				6D48F03A19A8535F0057A961 /* Frameworks */,
+				6D48F03919A8535F0057A961 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6D48F03919A8535F0057A961 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6D48F03819A8535F0057A961 /* ConnWorlds.app */,
+				6D48F05F19A853600057A961 /* ConnWorldsTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6D48F03A19A8535F0057A961 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6D48F03B19A8535F0057A961 /* Cocoa.framework */,
+				6D48F03D19A8535F0057A961 /* SpriteKit.framework */,
+				6D48F06019A853600057A961 /* XCTest.framework */,
+				6D48F03F19A8535F0057A961 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6D48F03F19A8535F0057A961 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6D48F04019A8535F0057A961 /* AppKit.framework */,
+				6D48F04119A8535F0057A961 /* CoreData.framework */,
+				6D48F04219A8535F0057A961 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		6D48F04319A8535F0057A961 /* ConnWorlds */ = {
+			isa = PBXGroup;
+			children = (
+				6D48F04F19A8535F0057A961 /* MainMenu.xib */,
+				6D48F05119A8535F0057A961 /* TKMyScene.m */,
+				6D48F05319A8535F0057A961 /* TKMyScene.h */,
+				6D48F05419A8535F0057A961 /* TKAppDelegate.m */,
+				6D48F05619A8535F0057A961 /* TKAppDelegate.h */,
+				6D48F05719A8535F0057A961 /* Spaceship.png */,
+				6D48F05919A8535F0057A961 /* Images.xcassets */,
+				6D48F04419A8535F0057A961 /* Supporting Files */,
+			);
+			path = ConnWorlds;
+			sourceTree = "<group>";
+		};
+		6D48F04419A8535F0057A961 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6D48F04519A8535F0057A961 /* ConnWorlds-Info.plist */,
+				6D48F04619A8535F0057A961 /* InfoPlist.strings */,
+				6D48F04919A8535F0057A961 /* main.m */,
+				6D48F04B19A8535F0057A961 /* ConnWorlds-Prefix.pch */,
+				6D48F04C19A8535F0057A961 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6D48F06519A853600057A961 /* ConnWorldsTests */ = {
+			isa = PBXGroup;
+			children = (
+				6D48F06B19A853600057A961 /* ConnWorldsTests.m */,
+				6D48F06619A853600057A961 /* Supporting Files */,
+			);
+			path = ConnWorldsTests;
+			sourceTree = "<group>";
+		};
+		6D48F06619A853600057A961 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6D48F06719A853600057A961 /* ConnWorldsTests-Info.plist */,
+				6D48F06819A853600057A961 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6D48F03719A8535F0057A961 /* ConnWorlds */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6D48F06F19A853600057A961 /* Build configuration list for PBXNativeTarget "ConnWorlds" */;
+			buildPhases = (
+				6D48F03419A8535F0057A961 /* Sources */,
+				6D48F03519A8535F0057A961 /* Frameworks */,
+				6D48F03619A8535F0057A961 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ConnWorlds;
+			productName = ConnWorlds;
+			productReference = 6D48F03819A8535F0057A961 /* ConnWorlds.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6D48F05E19A853600057A961 /* ConnWorldsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6D48F07219A853600057A961 /* Build configuration list for PBXNativeTarget "ConnWorldsTests" */;
+			buildPhases = (
+				6D48F05B19A853600057A961 /* Sources */,
+				6D48F05C19A853600057A961 /* Frameworks */,
+				6D48F05D19A853600057A961 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6D48F06419A853600057A961 /* PBXTargetDependency */,
+			);
+			name = ConnWorldsTests;
+			productName = ConnWorldsTests;
+			productReference = 6D48F05F19A853600057A961 /* ConnWorldsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6D48F03019A8535F0057A961 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = TK;
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = Tapnik;
+				TargetAttributes = {
+					6D48F05E19A853600057A961 = {
+						TestTargetID = 6D48F03719A8535F0057A961;
+					};
+				};
+			};
+			buildConfigurationList = 6D48F03319A8535F0057A961 /* Build configuration list for PBXProject "ConnWorlds" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 6D48F02F19A8535F0057A961;
+			productRefGroup = 6D48F03919A8535F0057A961 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6D48F03719A8535F0057A961 /* ConnWorlds */,
+				6D48F05E19A853600057A961 /* ConnWorldsTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6D48F03619A8535F0057A961 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D48F05819A8535F0057A961 /* Spaceship.png in Resources */,
+				6D48F05A19A8535F0057A961 /* Images.xcassets in Resources */,
+				6D48F04819A8535F0057A961 /* InfoPlist.strings in Resources */,
+				6D48F04E19A8535F0057A961 /* Credits.rtf in Resources */,
+				6D48F05019A8535F0057A961 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D48F05D19A853600057A961 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D48F06A19A853600057A961 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6D48F03419A8535F0057A961 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D48F04A19A8535F0057A961 /* main.m in Sources */,
+				6D48F05519A8535F0057A961 /* TKAppDelegate.m in Sources */,
+				6D48F05219A8535F0057A961 /* TKMyScene.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D48F05B19A853600057A961 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D48F06C19A853600057A961 /* ConnWorldsTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6D48F06419A853600057A961 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6D48F03719A8535F0057A961 /* ConnWorlds */;
+			targetProxy = 6D48F06319A853600057A961 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		6D48F04619A8535F0057A961 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6D48F04719A8535F0057A961 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		6D48F04C19A8535F0057A961 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6D48F04D19A8535F0057A961 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		6D48F06819A853600057A961 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6D48F06919A853600057A961 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		6D48F06D19A853600057A961 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		6D48F06E19A853600057A961 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		6D48F07019A853600057A961 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ConnWorlds/ConnWorlds-Prefix.pch";
+				INFOPLIST_FILE = "ConnWorlds/ConnWorlds-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SPRITEKIT_TEXTURE_ATLAS_OUTPUT = YES;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		6D48F07119A853600057A961 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ConnWorlds/ConnWorlds-Prefix.pch";
+				INFOPLIST_FILE = "ConnWorlds/ConnWorlds-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SPRITEKIT_TEXTURE_ATLAS_OUTPUT = YES;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		6D48F07319A853600057A961 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/ConnWorlds.app/Contents/MacOS/ConnWorlds";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ConnWorlds/ConnWorlds-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "ConnWorldsTests/ConnWorldsTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		6D48F07419A853600057A961 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/ConnWorlds.app/Contents/MacOS/ConnWorlds";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ConnWorlds/ConnWorlds-Prefix.pch";
+				INFOPLIST_FILE = "ConnWorldsTests/ConnWorldsTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6D48F03319A8535F0057A961 /* Build configuration list for PBXProject "ConnWorlds" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D48F06D19A853600057A961 /* Debug */,
+				6D48F06E19A853600057A961 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6D48F06F19A853600057A961 /* Build configuration list for PBXNativeTarget "ConnWorlds" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D48F07019A853600057A961 /* Debug */,
+				6D48F07119A853600057A961 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		6D48F07219A853600057A961 /* Build configuration list for PBXNativeTarget "ConnWorldsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D48F07319A853600057A961 /* Debug */,
+				6D48F07419A853600057A961 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6D48F03019A8535F0057A961 /* Project object */;
+}
