@@ -21,6 +21,8 @@
 		6D48F06219A853600057A961 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D48F03B19A8535F0057A961 /* Cocoa.framework */; };
 		6D48F06A19A853600057A961 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6D48F06819A853600057A961 /* InfoPlist.strings */; };
 		6D48F06C19A853600057A961 /* ConnWorldsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D48F06B19A853600057A961 /* ConnWorldsTests.m */; };
+		6D48F07A19A85F7B0057A961 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = 6D48F07919A85F7B0057A961 /* button.png */; };
+		6D8B7EB619A91A96006255D8 /* TKGameScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D8B7EB519A91A96006255D8 /* TKGameScene.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +59,9 @@
 		6D48F06719A853600057A961 /* ConnWorldsTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ConnWorldsTests-Info.plist"; sourceTree = "<group>"; };
 		6D48F06919A853600057A961 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6D48F06B19A853600057A961 /* ConnWorldsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConnWorldsTests.m; sourceTree = "<group>"; };
+		6D48F07919A85F7B0057A961 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = button.png; path = gamedata/button.png; sourceTree = SOURCE_ROOT; };
+		6D8B7EB419A91A96006255D8 /* TKGameScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TKGameScene.h; sourceTree = "<group>"; };
+		6D8B7EB519A91A96006255D8 /* TKGameScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TKGameScene.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +129,8 @@
 		6D48F04319A8535F0057A961 /* ConnWorlds */ = {
 			isa = PBXGroup;
 			children = (
+				6D48F04419A8535F0057A961 /* Supporting Files */,
+				6D48F07819A85F6A0057A961 /* gamedata */,
 				6D48F04F19A8535F0057A961 /* MainMenu.xib */,
 				6D48F05119A8535F0057A961 /* TKMyScene.m */,
 				6D48F05319A8535F0057A961 /* TKMyScene.h */,
@@ -131,7 +138,8 @@
 				6D48F05619A8535F0057A961 /* TKAppDelegate.h */,
 				6D48F05719A8535F0057A961 /* Spaceship.png */,
 				6D48F05919A8535F0057A961 /* Images.xcassets */,
-				6D48F04419A8535F0057A961 /* Supporting Files */,
+				6D8B7EB419A91A96006255D8 /* TKGameScene.h */,
+				6D8B7EB519A91A96006255D8 /* TKGameScene.m */,
 			);
 			path = ConnWorlds;
 			sourceTree = "<group>";
@@ -164,6 +172,14 @@
 				6D48F06819A853600057A961 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6D48F07819A85F6A0057A961 /* gamedata */ = {
+			isa = PBXGroup;
+			children = (
+				6D48F07919A85F7B0057A961 /* button.png */,
+			);
+			name = gamedata;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -243,6 +259,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6D48F05819A8535F0057A961 /* Spaceship.png in Resources */,
+				6D48F07A19A85F7B0057A961 /* button.png in Resources */,
 				6D48F05A19A8535F0057A961 /* Images.xcassets in Resources */,
 				6D48F04819A8535F0057A961 /* InfoPlist.strings in Resources */,
 				6D48F04E19A8535F0057A961 /* Credits.rtf in Resources */,
@@ -268,6 +285,7 @@
 				6D48F04A19A8535F0057A961 /* main.m in Sources */,
 				6D48F05519A8535F0057A961 /* TKAppDelegate.m in Sources */,
 				6D48F05219A8535F0057A961 /* TKMyScene.m in Sources */,
+				6D8B7EB619A91A96006255D8 /* TKGameScene.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -474,6 +492,7 @@
 				6D48F07119A853600057A961 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6D48F07219A853600057A961 /* Build configuration list for PBXNativeTarget "ConnWorldsTests" */ = {
 			isa = XCConfigurationList;
@@ -482,6 +501,7 @@
 				6D48F07419A853600057A961 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
