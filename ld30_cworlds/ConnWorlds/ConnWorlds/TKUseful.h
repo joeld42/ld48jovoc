@@ -12,6 +12,7 @@
 #include <CoreGraphics/CoreGraphics.h>
 
 CGPoint CGPointAdd(const CGPoint a, const CGPoint b);
+CGPoint CGPointSub(const CGPoint a, const CGPoint b);
 
 CGFloat CGPointDistSqr(const CGPoint a, const CGPoint b);
 

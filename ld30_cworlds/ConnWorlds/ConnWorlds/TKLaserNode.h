@@ -10,7 +10,8 @@
 
 @interface TKLaserNode : SKNode
 
-- (void) update: (CFTimeInterval) dt;
+- (void) update: (SKPhysicsWorld*)world deltaTime: (CFTimeInterval) dt;
+
 - (id) init;
 
 @property (nonatomic, assign) CGPoint innerRadius;

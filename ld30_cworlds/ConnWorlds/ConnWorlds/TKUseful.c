@@ -14,6 +14,11 @@ CGPoint CGPointAdd(const CGPoint a, const CGPoint b)
     return CGPointMake(a.x + b.x, a.y + b.y);
 }
 
+CGPoint CGPointSub(const CGPoint a, const CGPoint b)
+{
+    return CGPointMake(a.x - b.x, a.y - b.y);
+}
+
 CGFloat CGPointDistSqr(const CGPoint a, const CGPoint b)
 {
     return (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y);

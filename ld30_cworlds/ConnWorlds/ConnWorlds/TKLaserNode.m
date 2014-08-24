@@ -64,10 +64,11 @@
     return self;
 }
 
-- (void) update: (CFTimeInterval) dt
+- (void) update: (SKPhysicsWorld*)world deltaTime: (CFTimeInterval) dt
 {
     _beamNode.zRotation -= dt * (30.0 * (M_PI/180.0));
 //    self.xScale = 1.0;
+    
     
     // get the line's location for collision porpoises
     CGPoint dir = CGPointMake( cos( _beamNode.zRotation ),
@@ -76,8 +77,19 @@
     CGPoint startPosition = CGPointMake( dir.x * _innerRadius.x ,
                                         dir.y * _innerRadius.y );
     
-    CGPoint endPosition = CGPointMake( dir.x * 500, dir.y * 500 );
+    __block CGPoint endPosition = CGPointMake( dir.x * 500, dir.y * 500 );
 
+    // Check if we hit something    
+    [world enumerateBodiesAlongRayStart: self.position
+                                    end: CGPointAdd( endPosition, self.position )
+         usingBlock: ^(SKPhysicsBody *body, CGPoint point, CGVector normal, BOOL *stop) {
+             NSLog( @"hit body at %f %f", point.x, point.y );
+             endPosition = CGPointSub( point, self.position );
+             
+             *stop = YES;
+         }];
+    
+    
     _dbgSegStart.position = startPosition;
     _dbgSegEnd.position = endPosition;
     
@@ -86,7 +98,6 @@
     
     self.segmentA = CGPointAdd( startPosition, self.position );
     self.segmentB = CGPointAdd( endPosition, self.position );
-
 }
 
 @end
