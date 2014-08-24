@@ -10,7 +10,7 @@
 
 #import "TKGameScene.h"
 #import "TKLaserNode.h"
-
+#import "TKFigureNode.h"
 
 @interface TKGameScene () <SKPhysicsContactDelegate>
 {
@@ -19,10 +19,9 @@
     
     TKLaserNode *_laserBeam;
     
-    SKTexture *_playerTextureActive, *_playerTextureInactive;
-    SKSpriteNode *_player;
+    NSMutableArray *_figures; // TKFigureNode
     
-    SKSpriteNode *_grabbedPlayer;
+    TKFigureNode *_grabbedPlayer;
     
     CGVector _dragVelocity;
     
@@ -45,27 +44,25 @@
     _laserBeam = [[TKLaserNode alloc] init];
     _laserBeam.innerRadius = CGPointMake( 88, 71 );
     [self addChild: _laserBeam];
-    
-    _playerTextureActive = [SKTexture textureWithImageNamed: @"testplayer_active"];
-    _playerTextureInactive = [SKTexture textureWithImageNamed: @"testplayer_inactive"];
-    _player = [SKSpriteNode spriteNodeWithTexture: _playerTextureInactive ];
-    
-    _player.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius: 10 ];
-    _player.physicsBody.dynamic = YES;
-    _player.physicsBody.categoryBitMask = PHYSGROUP_Player;
-    _player.physicsBody.collisionBitMask = PHYSGROUP_Player | PHYSGROUP_PWall | PHYSGROUP_Wall;
-    _player.physicsBody.contactTestBitMask = PHYSGROUP_Player | PHYSGROUP_PWall | PHYSGROUP_Wall;
-    
-    _player.physicsBody.allowsRotation = NO;
-    _player.physicsBody.mass = 1000;
-    _player.physicsBody.friction = 0.51;
-    
-    _player.anchorPoint = CGPointMake( 0.5, 0.05 );
-    _player.position = CGPointMake( 130, 1024-635 );
 
+    _figures = [NSMutableArray array];
     
-    [self addChild: _player];
+    // Create a player node
+    TKFigureNode *player = [[TKFigureNode alloc] initWithType: FigureType_PLAYER ];
+    player.position = CGPointMake( 130, 1024-635 );
+    [self addChild: player];
+    [_figures addObject: player];
 
+    TKFigureNode *garg = [[TKFigureNode alloc] initWithType: FigureType_GARGOYLE ];
+    garg.position = CGPointMake( 430, 1024-607 );
+    [self addChild: garg];
+    [_figures addObject: garg];
+
+    TKFigureNode *golem = [[TKFigureNode alloc] initWithType: FigureType_GOLEM ];
+    golem.position = CGPointMake( 502, 1024-584 );
+    [self addChild: golem];
+    [_figures addObject: golem];
+    
     // Add obstacles
     NSMutableArray *blocker1 = [NSMutableArray array];
     [blocker1 addObject: [NSValue valueWithPoint: CGPointMake(607, 632)]];
@@ -85,12 +82,6 @@
 
     // Add a generic blocker object for the edge
     [self addEdgeBlocker];
-    
-//    CGPathMoveToPoint(path, NULL, 63 - offsetX, 567 - offsetY);
-//    CGPathAddLineToPoint(path, NULL, 276 - offsetX, 575 - offsetY);
-//    CGPathAddLineToPoint(path, NULL, 278 - offsetX, 544 - offsetY);
-//    CGPathAddLineToPoint(path, NULL, 65 - offsetX, 534 - offsetY);
-
     
     // use physics for collision
     self.physicsWorld.gravity = CGVectorMake(0,0);
@@ -232,10 +223,31 @@
     _lastUpdateTime = currentTime;
     
     // drag velocity?
-    _player.physicsBody.velocity = CGVectorMake( _dragVelocity.dx / dt,
-                                                 _dragVelocity.dy / dt );
+    if (_grabbedPlayer)
+    {
+        _grabbedPlayer.physicsBody.velocity = CGVectorMake( _dragVelocity.dx / dt,
+                                                           _dragVelocity.dy / dt );
+    }
     
     [self updateLaser: dt];
+    
+    // Check if any figures were hit
+    for (TKFigureNode *fig in _figures)
+    {
+        if (fig.zapped)
+        {
+            if (fig.figureType == FigureType_PLAYER)
+            {
+                // Uh oh, player was hit... game over
+                fig.position = CGPointMake( 130, 1024-635 );
+                if (_grabbedPlayer)
+                {
+                    [self dropPlayer];
+                }
+            }
+            fig.zapped = NO;
+        }
+    }
 }
 
 - (void) updateLaser: (CFTimeInterval)dt
@@ -246,9 +258,12 @@
 - (void)didSimulatePhysics
 {
 //    NSLog( @"did simulate physics...");
-    CGVector zero = CGVectorMake(0.0,0.0);
-    _player.physicsBody.velocity = zero;
-    _dragVelocity = zero;
+    if (_grabbedPlayer)
+    {
+        CGVector zero = CGVectorMake(0.0,0.0);
+        _grabbedPlayer.physicsBody.velocity = zero;
+        _dragVelocity = zero;
+    }
 }
 
 #pragma mark - Collisions
@@ -282,8 +297,11 @@
 
 - (void) dropPlayer
 {
+    
+    [_grabbedPlayer deactivate];
+    
     _grabbedPlayer = nil;
-    _player.texture = _playerTextureInactive;
+
     _dragVelocity = CGVectorMake(0.0,0.0);
 }
 
@@ -291,14 +309,21 @@
 {
     /* Called when a mouse click occurs */
     CGPoint location = [theEvent locationInNode:self];
-    CGPoint offs = CGPointMake( (location.x - _player.position.x),
-                               (location.y - _player.position.y));
-    CGFloat distSqr = offs.x*offs.x + offs.y*offs.y;
-    if ((!_grabbedPlayer) && (distSqr < 40*40))
+    
+    if (_grabbedPlayer) return;
+    
+    for (TKFigureNode *figure in _figures)
     {
-        // Grabbed player, make active
-        _grabbedPlayer = _player;
-        _player.texture = _playerTextureActive;
+    
+        CGPoint offs = CGPointMake( (location.x - figure.position.x),
+                                    (location.y - figure.position.y));
+        CGFloat distSqr = offs.x*offs.x + offs.y*offs.y;
+        if (distSqr < 40*40)
+        {
+            // Grabbed player, make active
+            _grabbedPlayer = figure;
+            [_grabbedPlayer activate];
+        }
     }
 }
 
@@ -309,9 +334,9 @@
     
     if (_grabbedPlayer)
     {
-        _playerLastPos = _player.position;
-        CGVector f = CGVectorMake( location.x - _player.position.x,
-                                  location.y - _player.position.y );
+        _playerLastPos = _grabbedPlayer.position;
+        CGVector f = CGVectorMake( location.x - _grabbedPlayer.position.x,
+                                  location.y - _grabbedPlayer.position.y );
         
         _dragVelocity = f;
         

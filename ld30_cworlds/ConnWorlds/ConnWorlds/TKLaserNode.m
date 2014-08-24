@@ -8,6 +8,7 @@
 
 #import <SpriteKit/SpriteKit.h>
 #import "TKLaserNode.h"
+#import "TKFigureNode.h"
 
 #include "TKUseful.h"
 
@@ -85,21 +86,38 @@
          usingBlock: ^(SKPhysicsBody *body, CGPoint point, CGVector normal, BOOL *stop) {
              
              // What kind of wall is it?
+             BOOL blockLaser = NO;
+             
              if (body.categoryBitMask & PHYSGROUP_Player)
              {
+                 TKFigureNode *figure = (TKFigureNode*)body.node;
+                 
                  NSLog( @"ZAPP: hit player");
-                 // TODO: take action depending on what type of player it is
+
+                 // Mark figure as zapped
+                 figure.zapped = YES;
+                 
+                 // Stop looking if this is golem
+                 if (figure.figureType==FigureType_GOLEM)
+                 {
+                     NSLog( @"is golem");
+                     blockLaser = YES;
+                 }
              }
              else if (body.categoryBitMask & PHYSGROUP_Wall)
              {
                  NSLog( @"hit body at %f %f", point.x, point.y );
-                 endPosition = CGPointSub( point, self.position );
-                 
-                 *stop = YES;
+                 blockLaser = YES;
              }
              else
              {
                  //it's a PWall, ignored by lasers
+             }
+             
+             if (blockLaser)
+             {
+                 endPosition = CGPointSub( point, self.position );
+                 *stop = YES;
              }
          }];
     
