@@ -183,7 +183,7 @@
     CGPathCloseSubpath(path);
     
     
-#if 0
+#if 1
     SKNode *blockerNode = [[SKNode alloc] init];
     blockerNode.position = centeroid;
 #else
@@ -223,7 +223,7 @@
     _lastUpdateTime = currentTime;
     
     // drag velocity?
-    if (_grabbedPlayer)
+    if ((_grabbedPlayer) && (_grabbedPlayer.activeFigure))
     {
         _grabbedPlayer.physicsBody.velocity = CGVectorMake( _dragVelocity.dx / dt,
                                                            _dragVelocity.dy / dt );
@@ -240,7 +240,8 @@
             {
                 // Uh oh, player was hit... game over
                 fig.position = CGPointMake( 130, 1024-635 );
-                if (_grabbedPlayer)
+                fig.physicsBody.velocity = CGVectorMake(0.0,0.0);
+                if (_grabbedPlayer==fig)
                 {
                     [self dropPlayer];
                 }

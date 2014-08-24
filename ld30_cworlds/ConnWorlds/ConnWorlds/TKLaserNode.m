@@ -92,21 +92,18 @@
              {
                  TKFigureNode *figure = (TKFigureNode*)body.node;
                  
-                 NSLog( @"ZAPP: hit player");
-
                  // Mark figure as zapped
                  figure.zapped = YES;
                  
                  // Stop looking if this is golem
                  if (figure.figureType==FigureType_GOLEM)
                  {
-                     NSLog( @"is golem");
                      blockLaser = YES;
                  }
              }
              else if (body.categoryBitMask & PHYSGROUP_Wall)
              {
-                 NSLog( @"hit body at %f %f", point.x, point.y );
+//                 NSLog( @"hit body at %f %f", point.x, point.y );
                  blockLaser = YES;
              }
              else

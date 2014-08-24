@@ -69,14 +69,35 @@
 
 - (void) activate
 {
-    // TODO: delay, animate
-    self.texture = _texActive;
-    _activeFigure = YES;
+    // Delay, animate
+    
+    CGFloat activationTime = 0.5; // player
+    switch (_figureType)
+    {
+        case FigureType_GARGOYLE:
+            activationTime = 0.25;
+            break;
+        case FigureType_GOLEM:
+            activationTime = 0.8;
+            break;
+    }
+    
+    SKAction *activateAction = [SKAction colorizeWithColor: [SKColor orangeColor]
+                                          colorBlendFactor: 0.6
+                                                  duration: activationTime ];
+    [self runAction: activateAction completion: ^{
+            self.colorBlendFactor = 0.0;
+            self.texture = _texActive;
+            _activeFigure = YES;
+        }];
 }
 
 - (void) deactivate
 {
+    [self removeAllActions];
+    
     self.texture = _texInactive;
+    self.colorBlendFactor = 0.0;
     _activeFigure = NO;
     
 }
