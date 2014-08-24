@@ -16,8 +16,10 @@
 @interface TKLaserNode ()
 {
     SKSpriteNode *_beamNode;
-    SKShapeNode *_dbgSegStart;
-    SKShapeNode *_dbgSegEnd;
+//    SKShapeNode *_dbgSegStart;
+//    SKShapeNode *_dbgSegEnd;
+    
+    SKEmitterNode *_particles;
 }
 
 @property (nonatomic, readwrite) CGPoint segmentA;
@@ -39,10 +41,12 @@
         _beamNode.color = [SKColor redColor];
         _beamNode.colorBlendFactor = 1.0;
         
+//        _beamNode.blendMode = SKBlendModeAdd;
+        
         [self addChild: _beamNode];
         
 //        self.xScale = 4.0;
-        
+#if 0
         _dbgSegStart = [[SKShapeNode alloc] init];
         _dbgSegEnd = [[SKShapeNode alloc] init];
         
@@ -61,6 +65,14 @@
         
         [self addChild: _dbgSegStart];
         [self addChild: _dbgSegEnd];
+#endif
+        
+        // Add our emitter
+        NSString *myParticlePath = [[NSBundle mainBundle] pathForResource:@"laser_hit" ofType:@"sks"];
+        _particles = [NSKeyedUnarchiver unarchiveObjectWithFile:myParticlePath];
+        
+        [self addChild: _particles];
+
     }
     return self;
 }
@@ -78,7 +90,8 @@
     CGPoint startPosition = CGPointMake( dir.x * _innerRadius.x ,
                                         dir.y * _innerRadius.y );
     
-    __block CGPoint endPosition = CGPointMake( dir.x * 500, dir.y * 500 );
+    // start with end position off screen
+    __block CGPoint endPosition = CGPointMake( dir.x * 1000, dir.y * 1000 );
 
     // Check if we hit something    
     [world enumerateBodiesAlongRayStart: self.position
@@ -91,14 +104,16 @@
              if (body.categoryBitMask & PHYSGROUP_Player)
              {
                  TKFigureNode *figure = (TKFigureNode*)body.node;
-                 
-                 // Mark figure as zapped
-                 figure.zapped = YES;
-                 
-                 // Stop looking if this is golem
-                 if (figure.figureType==FigureType_GOLEM)
-                 {
-                     blockLaser = YES;
+                 if (!figure.respawning)
+                 {        
+                     // Mark figure as zapped
+                     figure.zapped = YES;
+                     
+                     // Stop looking if this is golem
+                     if (figure.figureType==FigureType_GOLEM)
+                     {
+                         blockLaser = YES;
+                     }
                  }
              }
              else if (body.categoryBitMask & PHYSGROUP_Wall)
@@ -119,8 +134,10 @@
          }];
     
     
-    _dbgSegStart.position = startPosition;
-    _dbgSegEnd.position = endPosition;
+//    _dbgSegStart.position = startPosition;
+//    _dbgSegEnd.position = endPosition;
+    
+    _particles.position = endPosition;
     
     CGFloat beamScale = CGPointDist( CGPointZero, endPosition ) / 256.0;
     _beamNode.xScale = beamScale;

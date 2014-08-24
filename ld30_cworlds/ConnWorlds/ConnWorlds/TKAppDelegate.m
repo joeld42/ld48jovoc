@@ -7,7 +7,7 @@
 //
 
 #import "TKAppDelegate.h"
-#import "TKMyScene.h"
+#import "TKMapScene.h"
 
 @implementation TKAppDelegate
 
@@ -20,7 +20,7 @@
     [_window makeFirstResponder:self.skView.scene];
     
     /* Pick a size for the scene */
-    SKScene *scene = [TKMyScene sceneWithSize:CGSizeMake(768, 1024)];
+    SKScene *scene = [TKMapScene sceneWithSize:CGSizeMake(768, 1024)];
 
     /* Set the scale mode to scale to fit the window */
     scene.scaleMode = SKSceneScaleModeAspectFit;

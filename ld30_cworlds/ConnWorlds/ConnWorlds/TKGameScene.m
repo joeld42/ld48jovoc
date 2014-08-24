@@ -12,6 +12,11 @@
 #import "TKLaserNode.h"
 #import "TKFigureNode.h"
 
+@interface TKPowerPoint : NSObject
+@property (nonatomic, assign) CGPoint position;
+@property (nonatomic, strong) TKFigureNode *gargoyle;
+@end
+
 @interface TKGameScene () <SKPhysicsContactDelegate>
 {
     SKSpriteNode *_activeIsland;
@@ -34,9 +39,9 @@
 
 @implementation TKGameScene
 
-- (void) setupWorld
+- (void) setupWorld: (NSInteger)levelNum
 {
-    _activeIsland = [SKSpriteNode spriteNodeWithImageNamed:@"island1"];
+    _activeIsland = [SKSpriteNode spriteNodeWithImageNamed:[NSString stringWithFormat:@"island%ld", (long)levelNum] ];
     _activeIsland.position = CGPointMake( 768/2, 1024/2 );
     
     [self addChild: _activeIsland];
@@ -47,40 +52,10 @@
 
     _figures = [NSMutableArray array];
     
-    // Create a player node
-    TKFigureNode *player = [[TKFigureNode alloc] initWithType: FigureType_PLAYER ];
-    player.position = CGPointMake( 130, 1024-635 );
-    [self addChild: player];
-    [_figures addObject: player];
-
-    TKFigureNode *garg = [[TKFigureNode alloc] initWithType: FigureType_GARGOYLE ];
-    garg.position = CGPointMake( 430, 1024-607 );
-    [self addChild: garg];
-    [_figures addObject: garg];
-
-    TKFigureNode *golem = [[TKFigureNode alloc] initWithType: FigureType_GOLEM ];
-    golem.position = CGPointMake( 502, 1024-584 );
-    [self addChild: golem];
-    [_figures addObject: golem];
+    // Set up level specific stuff
+    [self setupWorld1];
     
-    // Add obstacles
-    NSMutableArray *blocker1 = [NSMutableArray array];
-    [blocker1 addObject: [NSValue valueWithPoint: CGPointMake(607, 632)]];
-    [blocker1 addObject: [NSValue valueWithPoint: CGPointMake(628, 625)]];
-    [blocker1 addObject: [NSValue valueWithPoint: CGPointMake(629, 610)]];
-    [blocker1 addObject: [NSValue valueWithPoint: CGPointMake(526, 469)]];
-    [blocker1 addObject: [NSValue valueWithPoint: CGPointMake(505, 475)]];
-    [blocker1 addObject: [NSValue valueWithPoint: CGPointMake(503, 493)]];
-    [self addBlocker: blocker1 category: PHYSGROUP_Wall ];
-    
-    NSMutableArray *blocker2 = [NSMutableArray array];
-    [blocker2 addObject: [NSValue valueWithPoint: CGPointMake(63, 567)]];
-    [blocker2 addObject: [NSValue valueWithPoint: CGPointMake(276, 575)]];
-    [blocker2 addObject: [NSValue valueWithPoint: CGPointMake(278, 544)]];
-    [blocker2 addObject: [NSValue valueWithPoint: CGPointMake(65, 534)]];
-    [self addBlocker: blocker2 category: PHYSGROUP_Wall ];
-
-    // Add a generic blocker object for the edge
+    // Add a generic blocker object for the world edge
     [self addEdgeBlocker];
     
     // use physics for collision
@@ -88,7 +63,7 @@
     self.physicsWorld.contactDelegate = self;
     
     // Foreground stuff masks player
-    _activeIslandFG = [SKSpriteNode spriteNodeWithImageNamed:@"island1_fg"];
+    _activeIslandFG = [SKSpriteNode spriteNodeWithImageNamed:[ NSString stringWithFormat: @"island%ld_fg", (long)levelNum] ];
     _activeIslandFG.position = CGPointMake( 768/2, 1024/2 );
     [self addChild: _activeIslandFG ];
 }
@@ -143,6 +118,59 @@
     [self addBlocker: blockerEdge category: PHYSGROUP_PWall ];
 }
 
+- (void)setupWorld1
+{
+    // Create a player node
+    TKFigureNode *player = [[TKFigureNode alloc] initWithType: FigureType_PLAYER ];
+    player.spawnPos = CGPointMake( 461, 1024-708 );
+    [self addChild: player];
+    [_figures addObject: player];
+    
+    for (int i=0; i < 4; i++)
+    {
+        TKFigureNode *garg = [[TKFigureNode alloc] initWithType: FigureType_GARGOYLE ];
+        garg.spawnPos = CGPointMake( 275 + (i*80), 1024-300 );
+        [self addChild: garg];
+        [_figures addObject: garg];
+    }
+    
+//    TKFigureNode *golem = [[TKFigureNode alloc] initWithType: FigureType_GOLEM ];
+//    golem.position = CGPointMake( 502, 1024-584 );
+//    [self addChild: golem];
+//    [_figures addObject: golem];
+    
+    // Add obstacles
+    NSMutableArray *blocker = [NSMutableArray array];
+    
+    // Shape 1
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 156, 544) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 218, 700) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 242, 694) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 244, 682) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 180, 526) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 156, 532) ]];
+    [self addBlocker: blocker category: PHYSGROUP_Wall ];
+    
+    // Shape 2 (icosothingy)
+    [blocker removeAllObjects];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 534, 638) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 574, 666) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 622, 648) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 626, 598) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 588, 568) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 538, 588) ]];
+    [self addBlocker: blocker category: PHYSGROUP_Wall ];
+    
+    // Shape 3 (bottom thinngy)
+    [blocker removeAllObjects];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 342, 422) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 554, 420) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 554, 388) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 342, 390) ]];
+    [self addBlocker: blocker category: PHYSGROUP_Wall ];
+
+}
+                       
 - (void)addBlocker: (NSArray*)points category: (uint32_t)cat
 {
     if ([points count]==0) return;
@@ -229,26 +257,32 @@
                                                            _dragVelocity.dy / dt );
     }
     
+    // Update laser beam
     [self updateLaser: dt];
     
     // Check if any figures were hit
     for (TKFigureNode *fig in _figures)
     {
-        if (fig.zapped)
+        if ((fig.zapped) && (!fig.respawning))
         {
-            if (fig.figureType == FigureType_PLAYER)
+            // Player is always vulnerable, other figures are if they are active
+            if ( (fig.figureType == FigureType_PLAYER) || (fig.activeFigure))
             {
                 // Uh oh, player was hit... game over
-                fig.position = CGPointMake( 130, 1024-635 );
-                fig.physicsBody.velocity = CGVectorMake(0.0,0.0);
                 if (_grabbedPlayer==fig)
                 {
                     [self dropPlayer];
                 }
+                
+                // Explode and respawn
+                [fig explode];
             }
             fig.zapped = NO;
         }
     }
+    
+    // Update Power points
+    // TODO;
 }
 
 - (void) updateLaser: (CFTimeInterval)dt
@@ -294,6 +328,12 @@
 }
 
 
+- (void) goBackToParentScene
+{
+    SKTransition *reveal = [SKTransition fadeWithColor: [SKColor whiteColor] duration: 2.0];
+    [self.scene.view presentScene: self.parentScene transition: reveal];
+}
+
 #pragma mark - Mouse Handling
 
 - (void) dropPlayer
@@ -310,6 +350,12 @@
 {
     /* Called when a mouse click occurs */
     CGPoint location = [theEvent locationInNode:self];
+    
+    // DBG:
+    if ((location.x < 44) && (location.y < 44))
+    {
+        [self goBackToParentScene];
+    }
     
     if (_grabbedPlayer) return;
     

@@ -11,6 +11,8 @@
 
 @interface TKGameScene : SKScene
 
-- (void) setupWorld;
+- (void) setupWorld: (NSInteger)levelNum;
+
+@property (nonatomic, strong) SKScene *parentScene;
 
 @end

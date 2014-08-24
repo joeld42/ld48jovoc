@@ -8,6 +8,6 @@
 
 #import <SpriteKit/SpriteKit.h>
 
-@interface TKMyScene : SKScene
+@interface TKMapScene : SKScene
 
 @end

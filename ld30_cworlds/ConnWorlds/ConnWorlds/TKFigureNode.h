@@ -20,8 +20,13 @@ typedef enum
 
 @property (nonatomic, assign) FigureType figureType;
 
+@property (nonatomic, assign) CGPoint spawnPos;
+
 @property (nonatomic, readonly, assign) BOOL activeFigure;
 @property (nonatomic, assign) BOOL zapped;
+@property (nonatomic, assign) BOOL respawning;
+
+- (void) explode;
 
 - (id) initWithType: (FigureType)figureType;
 
