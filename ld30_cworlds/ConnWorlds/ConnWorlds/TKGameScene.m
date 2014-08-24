@@ -11,10 +11,24 @@
 #import "TKGameScene.h"
 #import "TKLaserNode.h"
 #import "TKFigureNode.h"
+#import "TKMapScene.h"
 
 @interface TKPowerPoint : NSObject
 @property (nonatomic, assign) CGPoint position;
 @property (nonatomic, strong) TKFigureNode *gargoyle;
+- (id) initAtPos: (CGPoint)pos;
+@end
+
+@implementation TKPowerPoint
+- (id) initAtPos: (CGPoint)pos
+{
+    self = [super init];
+    if (self)
+    {
+        _position = pos;
+    }
+    return self;
+}
 @end
 
 @interface TKGameScene () <SKPhysicsContactDelegate>
@@ -32,16 +46,24 @@
     
     CGPoint _playerLastPos;
     
+    CGPoint _goalPos;
+    NSInteger _goalUnlock;
+    BOOL _goalReached;
+    
     CFTimeInterval _lastUpdateTime;
+    
+    NSMutableArray *_powerPoints;
+    
+    BOOL _portalActive;
 }
 @end
 
 
 @implementation TKGameScene
 
-- (void) setupWorld: (NSInteger)levelNum
+- (void) setupWorld:(TKWorldIcon*)icon
 {
-    _activeIsland = [SKSpriteNode spriteNodeWithImageNamed:[NSString stringWithFormat:@"island%ld", (long)levelNum] ];
+    _activeIsland = [SKSpriteNode spriteNodeWithImageNamed:[NSString stringWithFormat:@"island%ld", (long)icon.levelNum] ];
     _activeIsland.position = CGPointMake( 768/2, 1024/2 );
     
     [self addChild: _activeIsland];
@@ -51,6 +73,9 @@
     [self addChild: _laserBeam];
 
     _figures = [NSMutableArray array];
+    _powerPoints = [NSMutableArray array];
+    
+    _goalUnlock = icon.unlocksLevel;
     
     // Set up level specific stuff
     [self setupWorld1];
@@ -63,7 +88,7 @@
     self.physicsWorld.contactDelegate = self;
     
     // Foreground stuff masks player
-    _activeIslandFG = [SKSpriteNode spriteNodeWithImageNamed:[ NSString stringWithFormat: @"island%ld_fg", (long)levelNum] ];
+    _activeIslandFG = [SKSpriteNode spriteNodeWithImageNamed:[ NSString stringWithFormat: @"island%ld_fg", (long)icon.levelNum] ];
     _activeIslandFG.position = CGPointMake( 768/2, 1024/2 );
     [self addChild: _activeIslandFG ];
 }
@@ -168,7 +193,15 @@
     [blocker addObject: [NSValue valueWithPoint: CGPointMake( 554, 388) ]];
     [blocker addObject: [NSValue valueWithPoint: CGPointMake( 342, 390) ]];
     [self addBlocker: blocker category: PHYSGROUP_Wall ];
-
+    
+    // Set up power dots
+    [_powerPoints removeAllObjects];
+    [_powerPoints addObject: [[TKPowerPoint alloc] initAtPos:CGPointMake(139,1024-637)] ];
+    [_powerPoints addObject: [[TKPowerPoint alloc] initAtPos:CGPointMake(57,1024-378)] ];
+    [_powerPoints addObject: [[TKPowerPoint alloc] initAtPos:CGPointMake(622,1024-283)] ];
+    [_powerPoints addObject: [[TKPowerPoint alloc] initAtPos:CGPointMake(701,1024-528)] ];
+   
+    _goalPos = CGPointMake( 308, 1024-209);
 }
                        
 - (void)addBlocker: (NSArray*)points category: (uint32_t)cat
@@ -282,12 +315,74 @@
     }
     
     // Update Power points
-    // TODO;
+    [self updatePowerPoints];
+    
+    // Update Goals
+    [self updateGoal];
 }
 
 - (void) updateLaser: (CFTimeInterval)dt
 {
     [_laserBeam update: self.physicsWorld deltaTime: dt];
+}
+
+- (void) updatePowerPoints
+{
+    
+    // Clear all gargoyles
+    for (TKPowerPoint *pp in _powerPoints)
+    {
+        pp.gargoyle = nil;
+    }
+    
+    for (TKFigureNode *fig in _figures)
+    {
+        if ( (fig.figureType == FigureType_GARGOYLE) &&
+             (!fig.respawning) )
+        {
+            // Is this gargoyle standing on a power point?
+            for (TKPowerPoint *pp in _powerPoints)
+            {
+                if (CGPointDist( pp.position, fig.position ) < 40.0 )
+                {
+                    pp.gargoyle = fig;
+                }
+            }
+        }
+    }
+    
+    // Now check if they all found gargoyles
+    int gargCount = 0;
+    for (TKPowerPoint *pp in _powerPoints)
+    {
+        if (pp.gargoyle) gargCount++;
+    }
+    
+    _portalActive = (gargCount >= [_powerPoints count]);
+    NSLog( @"%d gargoyles, active? %@", gargCount, _portalActive?@"YES":@"NO");
+}
+
+- (void) updateGoal
+{
+    if ((_portalActive) && (!_goalReached))
+    {
+        for (TKFigureNode *fig in _figures)
+        {
+
+            if ( (fig.figureType == FigureType_PLAYER) &&
+                 (!fig.respawning))
+            {
+                // This is a non-zapped player, is it on the goal?
+                if (CGPointDist( fig.position, _goalPos) < 30)
+                {
+                    // HERE unlock
+                    _goalReached = YES;
+                    [self goBackToParentScene];
+                }
+            }
+        }
+
+    }
 }
 
 - (void)didSimulatePhysics
@@ -330,8 +425,22 @@
 
 - (void) goBackToParentScene
 {
+    NSLog( @"In goBackToParentScene!!!");
+    
+    
     SKTransition *reveal = [SKTransition fadeWithColor: [SKColor whiteColor] duration: 2.0];
     [self.scene.view presentScene: self.parentScene transition: reveal];
+}
+
+- (void) willMoveFromView: (SKView *)view
+{
+    // Done with transition, tell parent scene if we unlocked anything
+    NSLog( @"willMoveFromView...");
+    if (_goalReached)
+    {
+        NSLog( @"Asking unlock...");
+        self.parentScene.levelToUnlock = _goalUnlock;
+    }
 }
 
 #pragma mark - Mouse Handling
@@ -351,8 +460,8 @@
     /* Called when a mouse click occurs */
     CGPoint location = [theEvent locationInNode:self];
     
-    // DBG:
-    if ((location.x < 44) && (location.y < 44))
+    // Back button
+    if ((location.x < 44) && (location.y > 1024-44))
     {
         [self goBackToParentScene];
     }

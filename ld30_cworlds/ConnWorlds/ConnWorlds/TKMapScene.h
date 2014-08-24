@@ -10,4 +10,6 @@
 
 @interface TKMapScene : SKScene
 
+@property (nonatomic, assign) NSInteger levelToUnlock;
+
 @end

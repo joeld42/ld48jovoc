@@ -15,6 +15,9 @@
 
 @property (nonatomic, assign) BOOL activeWorld;
 
+@property (nonatomic, assign) NSInteger levelNum;
+@property (nonatomic, assign) NSInteger unlocksLevel;
+
 - (id) initWithImageNamed: (NSString*)imageName;
 
 @end

@@ -9,10 +9,14 @@
 
 #import <SpriteKit/SpriteKit.h>
 
+#import "TKWorldIcon.h"
+
+@class TKMapScene;
+
 @interface TKGameScene : SKScene
 
-- (void) setupWorld: (NSInteger)levelNum;
+- (void) setupWorld: (TKWorldIcon*)icon;
 
-@property (nonatomic, strong) SKScene *parentScene;
+@property (nonatomic, strong) TKMapScene *parentScene;
 
 @end

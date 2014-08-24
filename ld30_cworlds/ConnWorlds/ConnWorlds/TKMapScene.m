@@ -81,8 +81,18 @@
             
             icon.position = [self screenPosFromHexCoordX: icon.hexCoordX
                                                        Y:icon.hexCoordY];
-            
             icon.zPosition = 3-j;
+
+            // This is crap but im running out of time
+            if ((i==1)&&(j==0))
+            {
+                icon.levelNum = 1;
+                icon.unlocksLevel = 2;
+            }
+            else {
+                // TODO
+                icon.levelNum = 1;
+            }
             
             [self addChild: icon];
             
@@ -126,7 +136,7 @@
     TKGameScene *gameScene = [[TKGameScene alloc] initWithSize: CGSizeMake(768,1024)];
     gameScene.scaleMode = SKSceneScaleModeAspectFit;
     
-    [gameScene  setupWorld: 1];
+    [gameScene  setupWorld: icon ];
     
     gameScene.parentScene = self;
     
@@ -176,7 +186,19 @@
 }
 
 -(void)update:(CFTimeInterval)currentTime {
+
     /* Called before each frame is rendered */
+    // Do we have a level to unlock??
+    if (_levelToUnlock)
+    {
+        NSLog( @"Will unlock level %d", _levelToUnlock );
+        _levelToUnlock = 0;
+    }
+}
+
+- (void)didMoveToView:(SKView *)view
+{
+    NSLog( @"In SKMapScene didMoveToView.");
 }
 
 @end
