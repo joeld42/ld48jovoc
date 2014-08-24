@@ -29,5 +29,15 @@ CGFloat CGPointDist(const CGPoint a, const CGPoint b)
     return sqrt( CGPointDistSqr(a,b) );
 }
 
+CGFloat CGVectorLenSqr(const CGVector  a )
+{
+    return a.dx*a.dx + a.dy*a.dy;
+}
+
+CGFloat CGVectorLen(const CGVector a )
+{
+    return sqrt( CGVectorLenSqr(a) );
+}
+
 
 

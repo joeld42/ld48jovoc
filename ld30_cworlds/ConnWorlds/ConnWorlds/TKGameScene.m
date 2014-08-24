@@ -11,9 +11,6 @@
 #import "TKGameScene.h"
 #import "TKLaserNode.h"
 
-static const uint32_t PHYSGROUP_Player     =  0x1 << 0;
-static const uint32_t PHYSGROUP_Wall       =  0x1 << 0; // blocks player and laser
-static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, not laser
 
 @interface TKGameScene () <SKPhysicsContactDelegate>
 {
@@ -26,6 +23,10 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
     SKSpriteNode *_player;
     
     SKSpriteNode *_grabbedPlayer;
+    
+    CGVector _dragVelocity;
+    
+    CGPoint _playerLastPos;
     
     CFTimeInterval _lastUpdateTime;
 }
@@ -49,14 +50,19 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
     _playerTextureInactive = [SKTexture textureWithImageNamed: @"testplayer_inactive"];
     _player = [SKSpriteNode spriteNodeWithTexture: _playerTextureInactive ];
     
-    _player.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:25 ];
+    _player.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius: 10 ];
     _player.physicsBody.dynamic = YES;
     _player.physicsBody.categoryBitMask = PHYSGROUP_Player;
     _player.physicsBody.collisionBitMask = PHYSGROUP_Player | PHYSGROUP_PWall | PHYSGROUP_Wall;
     _player.physicsBody.contactTestBitMask = PHYSGROUP_Player | PHYSGROUP_PWall | PHYSGROUP_Wall;
     
+    _player.physicsBody.allowsRotation = NO;
+    _player.physicsBody.mass = 1000;
+    _player.physicsBody.friction = 0.51;
+    
     _player.anchorPoint = CGPointMake( 0.5, 0.05 );
     _player.position = CGPointMake( 130, 1024-635 );
+
     
     [self addChild: _player];
 
@@ -68,14 +74,18 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
     [blocker1 addObject: [NSValue valueWithPoint: CGPointMake(526, 469)]];
     [blocker1 addObject: [NSValue valueWithPoint: CGPointMake(505, 475)]];
     [blocker1 addObject: [NSValue valueWithPoint: CGPointMake(503, 493)]];
-    [self addBlocker: blocker1];
+    [self addBlocker: blocker1 category: PHYSGROUP_Wall ];
     
     NSMutableArray *blocker2 = [NSMutableArray array];
     [blocker2 addObject: [NSValue valueWithPoint: CGPointMake(63, 567)]];
     [blocker2 addObject: [NSValue valueWithPoint: CGPointMake(276, 575)]];
     [blocker2 addObject: [NSValue valueWithPoint: CGPointMake(278, 544)]];
     [blocker2 addObject: [NSValue valueWithPoint: CGPointMake(65, 534)]];
-    [self addBlocker: blocker2];
+    [self addBlocker: blocker2 category: PHYSGROUP_Wall ];
+
+    // Add a generic blocker object for the edge
+    [self addEdgeBlocker];
+    
 //    CGPathMoveToPoint(path, NULL, 63 - offsetX, 567 - offsetY);
 //    CGPathAddLineToPoint(path, NULL, 276 - offsetX, 575 - offsetY);
 //    CGPathAddLineToPoint(path, NULL, 278 - offsetX, 544 - offsetY);
@@ -92,7 +102,57 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
     [self addChild: _activeIslandFG ];
 }
 
-- (void)addBlocker: (NSArray*)points
+- (void) addEdgeBlocker
+{
+    NSMutableArray *blockerEdge = [NSMutableArray array];
+    
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 40, 657) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 74, 661) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 109, 707) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 147, 741) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 204, 774) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 271, 804) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 282, 835) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 317, 841) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 342, 822) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 385, 818) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 492, 806) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 576, 776) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 601, 761) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 637, 769) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 661, 749) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 652, 721) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 673, 693) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 703, 644) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 716, 607) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 721, 556) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 713, 521) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 740, 502) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 731, 478) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 692, 468) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 651, 407) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 589, 361) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 498, 317) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 484, 295) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 451, 287) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 426, 306) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 375, 302) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 308, 307) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 245, 323) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 186, 345) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 159, 367) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 130, 362) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 103, 380) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 114, 402) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 66, 465) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 47, 537) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 51, 610) ]];
+    [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 28, 630) ]];
+
+    [self addBlocker: blockerEdge category: PHYSGROUP_PWall ];
+}
+
+- (void)addBlocker: (NSArray*)points category: (uint32_t)cat
 {
     if ([points count]==0) return;
     
@@ -141,7 +201,7 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
     
     blockerNode.position = centeroid;
     blockerNode.path = path;
-    blockerNode.fillColor = [SKColor orangeColor];
+    blockerNode.strokeColor = cat==PHYSGROUP_Wall?[SKColor orangeColor]:[SKColor yellowColor];
     blockerNode.lineWidth = 1.0;
     blockerNode.zPosition = 2.0;
     
@@ -151,9 +211,9 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
 //    blockerNode.physicsBody = [SKPhysicsBody bodyWithPolygonFromPath:path ];
     blockerNode.physicsBody = [SKPhysicsBody bodyWithEdgeLoopFromPath:path ];
     blockerNode.physicsBody.dynamic = YES;
-    blockerNode.physicsBody.categoryBitMask = PHYSGROUP_Wall;
-    blockerNode.physicsBody.contactTestBitMask = PHYSGROUP_Wall;
-    blockerNode.physicsBody.collisionBitMask = PHYSGROUP_Wall;
+    blockerNode.physicsBody.categoryBitMask = cat;
+    blockerNode.physicsBody.contactTestBitMask = cat;
+    blockerNode.physicsBody.collisionBitMask = cat;
     
     [self addChild: blockerNode];
     
@@ -171,6 +231,10 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
     CFTimeInterval dt = currentTime - _lastUpdateTime;
     _lastUpdateTime = currentTime;
     
+    // drag velocity?
+    _player.physicsBody.velocity = CGVectorMake( _dragVelocity.dx / dt,
+                                                 _dragVelocity.dy / dt );
+    
     [self updateLaser: dt];
 }
 
@@ -179,13 +243,21 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
     [_laserBeam update: self.physicsWorld deltaTime: dt];
 }
 
+- (void)didSimulatePhysics
+{
+//    NSLog( @"did simulate physics...");
+    CGVector zero = CGVectorMake(0.0,0.0);
+    _player.physicsBody.velocity = zero;
+    _dragVelocity = zero;
+}
+
 #pragma mark - Collisions
 
 - (void)didBeginContact:(SKPhysicsContact *)contact
 {
     SKPhysicsBody *firstBody, *secondBody;
     
-    NSLog( @"didBeginContact!");
+//    NSLog( @"didBeginContact!");
     
     if (contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask)
     {
@@ -205,7 +277,15 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
 //    ...
 }
 
+
 #pragma mark - Mouse Handling
+
+- (void) dropPlayer
+{
+    _grabbedPlayer = nil;
+    _player.texture = _playerTextureInactive;
+    _dragVelocity = CGVectorMake(0.0,0.0);
+}
 
 -(void)mouseDown:(NSEvent *)theEvent
 {
@@ -229,9 +309,21 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
     
     if (_grabbedPlayer)
     {
-        _player.position = location;
+        _playerLastPos = _player.position;
+        CGVector f = CGVectorMake( location.x - _player.position.x,
+                                  location.y - _player.position.y );
+        
+        _dragVelocity = f;
+        
+        // If we're farther than this, player is probably stuck
+        // behind a wall, drop the piece
+        CGFloat len = CGVectorLen(f);
+        if (len > 60.0)
+        {
+            printf("Len is %3.2f, dropping\n", len);
+            [self dropPlayer];
+        }
     }
-    
 
 }
 
@@ -244,8 +336,7 @@ static const uint32_t PHYSGROUP_PWall      =  0x1 << 0; // only blocks player, n
 {
     if (_grabbedPlayer)
     {
-        _grabbedPlayer = nil;
-        _player.texture = _playerTextureInactive;
+        [self dropPlayer];
     }
     
 }

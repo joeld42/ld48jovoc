@@ -83,10 +83,24 @@
     [world enumerateBodiesAlongRayStart: self.position
                                     end: CGPointAdd( endPosition, self.position )
          usingBlock: ^(SKPhysicsBody *body, CGPoint point, CGVector normal, BOOL *stop) {
-             NSLog( @"hit body at %f %f", point.x, point.y );
-             endPosition = CGPointSub( point, self.position );
              
-             *stop = YES;
+             // What kind of wall is it?
+             if (body.categoryBitMask & PHYSGROUP_Player)
+             {
+                 NSLog( @"ZAPP: hit player");
+                 // TODO: take action depending on what type of player it is
+             }
+             else if (body.categoryBitMask & PHYSGROUP_Wall)
+             {
+                 NSLog( @"hit body at %f %f", point.x, point.y );
+                 endPosition = CGPointSub( point, self.position );
+                 
+                 *stop = YES;
+             }
+             else
+             {
+                 //it's a PWall, ignored by lasers
+             }
          }];
     
     
