@@ -70,9 +70,28 @@
         {
             if ((j==2) && (i!=1)) continue;
             
-            TKWorldIcon *icon = [[TKWorldIcon alloc] initWithImageNamed:@"icon_world1"];
+            int levelNum = 1;
+            int unlocksLevel = 0;
+            
+            // This is crap but im running out of time
+            if ((i==1)&&(j==0))
+            {
+                levelNum = 1;
+                unlocksLevel = 2;
+            }
+            if ((i==1)&&(j==1))
+            {
+                levelNum = 2;
+                unlocksLevel = 3;
+            }
+            
+            
+            TKWorldIcon *icon = [[TKWorldIcon alloc] initWithImageNamed:[ NSString stringWithFormat: @"icon_world%d", levelNum] ];
             icon.hexCoordX = i;
             icon.hexCoordY = j;
+            
+            icon.levelNum = levelNum;
+            icon.unlocksLevel = unlocksLevel;
             
             if ((i==1)&&(j==0))
             {
@@ -82,17 +101,6 @@
             icon.position = [self screenPosFromHexCoordX: icon.hexCoordX
                                                        Y:icon.hexCoordY];
             icon.zPosition = 3-j;
-
-            // This is crap but im running out of time
-            if ((i==1)&&(j==0))
-            {
-                icon.levelNum = 1;
-                icon.unlocksLevel = 2;
-            }
-            else {
-                // TODO
-                icon.levelNum = 1;
-            }
             
             [self addChild: icon];
             
@@ -192,6 +200,13 @@
     if (_levelToUnlock)
     {
         NSLog( @"Will unlock level %d", _levelToUnlock );
+        for (TKWorldIcon *icon in _worldIcons)
+        {
+            if (icon.levelNum == _levelToUnlock)
+            {
+                icon.activeWorld = YES;
+            }
+        }
         _levelToUnlock = 0;
     }
 }

@@ -78,7 +78,14 @@
     _goalUnlock = icon.unlocksLevel;
     
     // Set up level specific stuff
-    [self setupWorld1];
+    if (icon.levelNum==1)
+    {
+        [self setupWorld1];
+    }
+    else
+    {
+        [self setupWorld2];
+    }
     
     // Add a generic blocker object for the world edge
     [self addEdgeBlocker];
@@ -141,6 +148,105 @@
     [blockerEdge addObject: [NSValue valueWithPoint: CGPointMake( 28, 630) ]];
 
     [self addBlocker: blockerEdge category: PHYSGROUP_PWall ];
+}
+
+- (void)setupWorld2
+{
+    // Create a player node
+    TKFigureNode *player = [[TKFigureNode alloc] initWithType: FigureType_PLAYER ];
+    player.spawnPos = CGPointMake( 461, 1024-708 );
+    [self addChild: player];
+    [_figures addObject: player];
+
+    CGPoint golemPos[] = { { 513, 1024-487}, { 450, 1024-300 } };
+    for (int i=0; i < 2; i++)
+    {
+        TKFigureNode *golem  = [[TKFigureNode alloc] initWithType: FigureType_GOLEM ];
+        golem.spawnPos = golemPos[i];
+        [self addChild: golem];
+        [_figures addObject: golem];
+    }
+
+    CGPoint gargPos[] = { { 359, 1024-616 },
+                          { 280, 1024-495 },
+                          { 143, 1024-541 },
+                          { 403, 1024-218 },
+                        };
+    for (int i=0; i < 4; i++)
+    {
+        TKFigureNode *garg = [[TKFigureNode alloc] initWithType: FigureType_GARGOYLE ];
+        garg.spawnPos = gargPos[i];
+        [self addChild: garg];
+        [_figures addObject: garg];
+    }
+    
+    // Blockers
+    NSMutableArray *blocker = [NSMutableArray array];
+    
+    // Top Rock
+    [blocker removeAllObjects];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 506, 751) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 447, 779) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 443, 813) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 477, 827) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 522, 762) ]];
+    [self addBlocker: blocker category: PHYSGROUP_Wall ];
+    
+    // Rocks near player
+    [blocker removeAllObjects];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 442, 355) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 424, 363) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 410, 400) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 453, 442) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 484, 452) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 508, 439) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 524, 444) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 536, 436) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 543, 411) ]];
+    [self addBlocker: blocker category: PHYSGROUP_Wall ];
+    
+    // Main root
+    [blocker removeAllObjects];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 318, 533) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 438, 527) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 443, 447) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 395, 292) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 379, 293) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 404, 452) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 373, 496) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 321, 443) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 296, 458) ]];
+    [self addBlocker: blocker category: PHYSGROUP_PWall ];
+    
+    // Smaller root
+    [blocker removeAllObjects];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 477, 580) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 609, 637) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 557, 642) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 543, 650) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 476, 630) ]];
+    [self addBlocker: blocker category: PHYSGROUP_PWall ];
+    
+    // Little Y root
+    [blocker removeAllObjects];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 292, 616) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 246, 658) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 237, 653) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 236, 573) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 244, 560) ]];
+    [blocker addObject: [NSValue valueWithPoint: CGPointMake( 291, 582) ]];
+    [self addBlocker: blocker category: PHYSGROUP_PWall ];
+    
+    
+    
+    // Set up power dots
+    [_powerPoints removeAllObjects];
+    [_powerPoints addObject: [[TKPowerPoint alloc] initAtPos:CGPointMake(57,1024-378)] ];
+    [_powerPoints addObject: [[TKPowerPoint alloc] initAtPos:CGPointMake(308,1024-209)] ];
+    [_powerPoints addObject: [[TKPowerPoint alloc] initAtPos:CGPointMake(622,1024-283)] ];
+    [_powerPoints addObject: [[TKPowerPoint alloc] initAtPos:CGPointMake(701,1024-528)] ];
+    
+    _goalPos = CGPointMake( 139, 1024-637);
 }
 
 - (void)setupWorld1
