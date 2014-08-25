@@ -251,6 +251,9 @@
 
 - (void)setupWorld1
 {
+    
+    self.backgroundColor = [SKColor colorWithRed:0.45 green:0.85 blue:0.9 alpha:1.0];
+    
     // Create a player node
     TKFigureNode *player = [[TKFigureNode alloc] initWithType: FigureType_PLAYER ];
     player.spawnPos = CGPointMake( 461, 1024-708 );
@@ -465,7 +468,7 @@
     }
     
     _portalActive = (gargCount >= [_powerPoints count]);
-    NSLog( @"%d gargoyles, active? %@", gargCount, _portalActive?@"YES":@"NO");
+//    NSLog( @"%d gargoyles, active? %@", gargCount, _portalActive?@"YES":@"NO");
 }
 
 - (void) updateGoal
@@ -531,7 +534,7 @@
 
 - (void) goBackToParentScene
 {
-    NSLog( @"In goBackToParentScene!!!");
+//    NSLog( @"In goBackToParentScene!!!");
     
     
     SKTransition *reveal = [SKTransition fadeWithColor: [SKColor whiteColor] duration: 2.0];
@@ -541,10 +544,10 @@
 - (void) willMoveFromView: (SKView *)view
 {
     // Done with transition, tell parent scene if we unlocked anything
-    NSLog( @"willMoveFromView...");
+//    NSLog( @"willMoveFromView...");
     if (_goalReached)
     {
-        NSLog( @"Asking unlock...");
+//        NSLog( @"Asking unlock...");
         self.parentScene.levelToUnlock = _goalUnlock;
     }
 }
