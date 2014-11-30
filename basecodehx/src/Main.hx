@@ -10,6 +10,7 @@ import luxe.Rectangle;
 import luxe.Text;
 import luxe.Parcel;
 import luxe.ParcelProgress;
+import luxe.tween.Actuate;
 
 import phoenix.Batcher;
 import phoenix.Camera;
@@ -22,7 +23,7 @@ import phoenix.geometry.Vertex;
 import phoenix.geometry.TextureCoord;
 
 import PrimitiveGeom;
-import MonkeyGeom;
+//import MonkeyGeom;
 //import CubeBevelGeom;
 
 class Main extends luxe.Game {
@@ -31,10 +32,11 @@ class Main extends luxe.Game {
 	var mesh : Mesh;
 	var mesh2 : Mesh;
 	var mesh3 : Mesh;
-	var player : Mesh;
+    var mesh4 : Mesh;
 
 	var cshad : Shader;
 	var distort_shader : Shader;
+    var distAmt : Vector;
 
 	var target_texture : RenderTexture;
     var batcherScene : Batcher;
@@ -51,7 +53,8 @@ class Main extends luxe.Game {
 
 	override function config( config:luxe.AppConfig ) {
 
-        config.window.depth_bits = 24;
+        config.render.depth = true;
+        config.render.depth_bits = 24;
         return config;
     }
 
@@ -107,6 +110,24 @@ class Main extends luxe.Game {
     //    geometry.add( _v );
 
     // } //_obj_add_vert
+
+    function cloneMesh( mesh : Mesh, batcher : Batcher ) : Mesh
+    {
+        var mesh2 = new Mesh({
+            geometry : new Geometry({
+            batcher: batcher,
+            immediate : false,
+            primitive_type: PrimitiveType.triangles,
+            texture: mesh.geometry.texture
+            })
+        });
+
+        for(v in mesh.geometry.vertices) {
+            mesh2.geometry.add( v.clone() );
+        }
+
+        return mesh2;
+    }
 
     function testMakeGeo( texture:Texture, batcher:Batcher ) : Geometry
     {
@@ -172,7 +193,8 @@ class Main extends luxe.Game {
 	{
 		mouse = new Vector();
 
-		trace( "In assets_loaded...");
+        distAmt = new Vector( 0.0, 0.0 );
+
 		Luxe.renderer.clear_color = new Color().rgb( 0x333333 );
 
     	// setup the render target
@@ -199,21 +221,17 @@ class Main extends luxe.Game {
     	var tex = Luxe.loadTexture('assets/simpletex.png');    	
     	tex.clamp = repeat;    
     	tex.filter = nearest;
-    	mesh = new Mesh({ file:'assets/cube_bevel.obj', 
-    				  	texture: tex, batcher:batcherScene });
-		mesh.pos.set_xyz( 2.0, 0.5, 1.0 );
+
+		// mesh.pos.set_xyz( 2.0, -2.5, 1.0 );
 
     	// works
-		mesh2 = new Mesh({ file:'assets/cube_bevel.obj', 
-			            texture: tex, batcher:batcherScene });
+		//mesh2 = cloneMesh( mesh, batcherScene );        
 
 		// doesn't work
     	// mesh2 = new Mesh( { geometry: mesh.geometry, 
     	// 					texture : tex });
-    	mesh2.pos.set_xyz( -3.0, 0.5, -4.0 );
+    	//mesh2.pos.set_xyz( -3.0, 0.5, -4.0 );
 
-		cshad = Luxe.loadShader('assets/cust_frag.glsl');
-	    mesh.geometry.shader = cshad;
 	    
 	 //    ground = new Mesh({ file:'assets/grid10x10.obj', 
 		// 	            texture: tex, batcher:batcherScene });
@@ -225,15 +243,15 @@ class Main extends luxe.Game {
 		// var testGeo = PrimitiveGeom.makeCube( new Vector(0.0, 0.0, 0.0), 1.0,
 		// 									  tex, batcherScene );
 
-		var testGeo = MonkeyGeom.makeGeometry( tex, batcherScene );
+		//var testGeo = MonkeyGeom.makeGeometry( tex, batcherScene );
 		//var testGeo = CubeBevelGeom.makeGeometry( tex, batcherScene );
 
-		mesh3 = new Mesh({ geometry: testGeo,
-							texture: tex,
-							batcher: batcherScene
-			});
-		mesh3.pos.set_xyz( -1.0, 0.5, 0.0 );
-		mesh3.rotation.setFromEuler( new Vector( 15.0, 30.0, 0.0).radians(), XYZ );
+		// mesh3 = new Mesh({ geometry: testGeo,
+		// 					texture: tex,
+		// 					batcher: batcherScene
+		// 	});
+		// mesh3.pos.set_xyz( -1.0, 0.5, 0.0 );
+		// mesh3.rotation.setFromEuler( new Vector( 15.0, 30.0, 0.0).radians(), XYZ );
 
 
 	 //    player = new Mesh({ file:'assets/player.obj', 
@@ -249,6 +267,32 @@ class Main extends luxe.Game {
                 pos : Luxe.screen.mid,
                 depth: -10
             });
+
+            mesh = new Mesh({ file:'assets/player.obj', 
+                      texture: t, 
+                      batcher:batcherScene, 
+                      onload : function (_) {
+                            trace("Main, Mesh loaded, loading shader");
+                            cshad = Luxe.loadShader('assets/cust_frag.glsl');
+                            mesh.geometry.shader = cshad;
+
+                            loadCount += 1;
+                        }
+                      });
+
+            mesh2 = new Mesh({ file:'assets/cube_bevel.obj', 
+                      texture: t, 
+                      batcher:batcherScene, 
+                      onload : function (_) {
+                            mesh3 = cloneMesh( mesh2, batcherScene ); 
+
+                            mesh2.pos.set_xyz(-3.0, -1.0, 0.0);
+                            mesh3.pos.set_xyz( 3.0, -1.0, 0.0 );
+
+                            loadCount += 1;
+                        }
+                      });
+            
 
             loadCount += 1;
          };
@@ -269,8 +313,15 @@ class Main extends luxe.Game {
 
     	} //distort map onload
 
+        // Dynamic geom
+        var testGeo = PrimitiveGeom.makeCube( new Vector(0.0, 0.0, 0.0), 2.0,
+                                            tex, batcherScene );
 
-
+        mesh4 = new Mesh({ geometry: testGeo,
+                          texture: tex,
+                          batcher: batcherScene
+          });        
+         mesh4.pos.set_xyz(-3.0, 1.5, 0.0);
 
         // Test text objects
         score = new Text({
@@ -281,7 +332,22 @@ class Main extends luxe.Game {
             // color: red
         });
 
+        new Text({
+            no_scene : true,
+            text : "Do not tap on the glass", align : center,
+            pos : new Vector(winX/2, winY-30),
+            point_size : 18,
+            // color: red
+        });
+
 	} //ready
+
+    function bounceDistort()
+    {
+        Actuate.tween( distAmt, 0.2, { x : 1.0 } )
+            .repeat(1)
+            .reflect();
+    }
 
     override function onmousemove( e:MouseEvent ) {
         mouse.set_xy(e.x,e.y);
@@ -289,6 +355,8 @@ class Main extends luxe.Game {
 
     override function onmousedown( e:MouseEvent ) {
         mouse.set_xy(e.x,e.y);
+
+        bounceDistort();
     } //onmousedown
 
     override function onmouseup( e:MouseEvent ) {
@@ -305,11 +373,12 @@ class Main extends luxe.Game {
         // if(e.keycode == Key.w) {
         //     trace("W pressed..." );
         // }
+        bounceDistort();
     } //onkeyup
 
 	override function onprerender() 
 	{
-		if (loadCount >= 2)
+		if (loadCount >= 3)
 		{
             //Set the current rendering target
 		
@@ -347,13 +416,14 @@ class Main extends luxe.Game {
 		{
 		  	y += 10 * dt;
 	        mesh.rotation.setFromEuler(new Vector(0,y,0).radians());
+            mesh.pos.set_xyz( 0.0, -1.5, 1.0 );
 
-	        mesh3.rotation.setFromEuler(new Vector(0,-y,0).radians());
+	        // mesh3.rotation.setFromEuler(new Vector(0,-y,0).radians());
 
 	  //       var yy = y / 30.0;
 	  //       var dist : Float;
 	  //       dist  = yy - Math.floor(yy);
-			// distort_shader.set_float('distortamount', dist * 2);
+		      distort_shader.set_float('distortamount', distAmt.x );
 
 	        var yint : Int;
 	        yint = Std.int(y);
