@@ -1,0 +1,6 @@
+{
+    "textures" : [
+        { "id" : "assets/distort.png" },
+        { "id" : "assets/simpletex.png" }
+    ]
+}

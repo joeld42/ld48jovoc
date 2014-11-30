@@ -1,0 +1,25 @@
+{
+
+  project : {
+    name : 'ld48 basecode 2014',
+    version : '0.0.1',
+    author : 'jovoc',
+
+    app : {
+      name : 'ld48basecode',
+      package : 'com.tapnik.ld48'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}
