@@ -46,8 +46,8 @@ class Main extends luxe.Game {
     var winY : Float;
     var score : Text;
 
-	// var loaded : Bool = false;
-	var loadCount : Int = 0;
+	var loaded : Bool = false;
+	
 
 	var red = new Color().rgb(0xf6007b);
 
@@ -79,37 +79,7 @@ class Main extends luxe.Game {
             //camera should match the size of the texture if we want it to look right for this example
         batcherScene.view.viewport = new Rectangle(0,0,winX,winY);
 
-            //Create a sprite, but don't add it to the default batcher,
-            //add it to our custom batcher here instead.
-        // example = new Sprite({
-        //     texture : Luxe.loadTexture('assets/image.jpg'),
-        //     pos : new Vector(256,256),
-        //     size : new Vector(512,512),
-        //     batcher : batcher
-        // });
-
     }
-
-    // function _obj_add_vert( v:luxe.importers.obj.Data.Vertex, _scale:Vector ) {
-
-    //     var normal : Vector = new Vector();
-
-    //        if(v.normal != null) {
-    //             normal.set_xyz(v.normal.x, v.normal.y, v.normal.z);
-    //        }
-
-    //    var _v = new Vertex( new Vector( (v.pos.x * _scale.x) , 
-    //    				(v.pos.y * _scale.y), (v.pos.z * _scale.z) ), 
-    //    				new Color(), normal );
-
-    //             //todo;multiple uv sets
-    //        if(v.uv != null) {
-    //            _v.uv.uv0.set_uv( v.uv.u, 1.0 - v.uv.v ); // inverted from texture space
-    //        }
-
-    //    geometry.add( _v );
-
-    // } //_obj_add_vert
 
     function cloneMesh( mesh : Mesh, batcher : Batcher ) : Mesh
     {
@@ -192,10 +162,30 @@ class Main extends luxe.Game {
 	override function ready()
 	{
 		mouse = new Vector();
-
         distAmt = new Vector( 0.0, 0.0 );
 
 		Luxe.renderer.clear_color = new Color().rgb( 0x333333 );
+
+        var preload = new Parcel();
+        preload.add_texture( "assets/simpletex.png");
+        preload.add_texture( "assets/distort.png");
+        preload.add_text( "assets/cust_frag.glsl", true);
+        preload.add_text( "assets/distort.glsl", true);
+        preload.add_text( "assets/player.obj", true);
+        preload.add_text( "assets/cube_bevel.obj", true);
+
+        new ParcelProgress({
+            parcel      : preload,
+            background  : new Color(1,1,1,0.85),
+            oncomplete  : assets_loaded
+        });
+
+        preload.load();
+    }
+
+    function assets_loaded( _ )
+    {
+        trace("Assets loaded...");
 
     	// setup the render target
     	setupSceneRenderTarget();
@@ -271,30 +261,23 @@ class Main extends luxe.Game {
             mesh = new Mesh({ file:'assets/player.obj', 
                       texture: t, 
                       batcher:batcherScene, 
-                      onload : function (_) {
+                      onload : function ( m : Mesh ) {
                             trace("Main, Mesh loaded, loading shader");
                             cshad = Luxe.loadShader('assets/cust_frag.glsl');
-                            mesh.geometry.shader = cshad;
-
-                            loadCount += 1;
+                            m.geometry.shader = cshad;
                         }
                       });
 
             mesh2 = new Mesh({ file:'assets/cube_bevel.obj', 
                       texture: t, 
                       batcher:batcherScene, 
-                      onload : function (_) {
-                            mesh3 = cloneMesh( mesh2, batcherScene ); 
+                      onload : function ( m : Mesh ) {
+                            mesh3 = cloneMesh( m, batcherScene ); 
 
-                            mesh2.pos.set_xyz(-3.0, -1.0, 0.0);
+                            m.pos.set_xyz(-3.0, -1.0, 0.0);
                             mesh3.pos.set_xyz( 3.0, -1.0, 0.0 );
-
-                            loadCount += 1;
                         }
-                      });
-            
-
-            loadCount += 1;
+                      });        
          };
 
 
@@ -308,8 +291,6 @@ class Main extends luxe.Game {
 	    	distort_map.slot = 1;
 	    		//set the uniform
 	    	distort_shader.set_texture('tex1', distort_map);
-
-	    	loadCount += 1;
 
     	} //distort map onload
 
@@ -340,6 +321,7 @@ class Main extends luxe.Game {
             // color: red
         });
 
+        loaded = true;
 	} //ready
 
     function bounceDistort()
@@ -378,7 +360,7 @@ class Main extends luxe.Game {
 
 	override function onprerender() 
 	{
-		if (loadCount >= 3)
+		if (loaded)
 		{
             //Set the current rendering target
 		
@@ -412,7 +394,7 @@ class Main extends luxe.Game {
 
 	override function update(dt:Float) {
 
-		if (loadCount >= 2)
+		if (loaded)
 		{
 		  	y += 10 * dt;
 	        mesh.rotation.setFromEuler(new Vector(0,y,0).radians());
