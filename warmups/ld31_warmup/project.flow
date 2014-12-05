@@ -1,0 +1,25 @@
+{
+
+  project : {
+    name : 'l31_warmup',
+    version : '1.0.0',
+    author : 'jovoc',
+
+    app : {
+      name : 'ld31_warmup',
+      package : 'com.tapnik.ld31_warmup'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

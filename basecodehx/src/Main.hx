@@ -48,13 +48,17 @@ class Main extends luxe.Game {
 
 	var loaded : Bool = false;
 	
+    var meshes : Array<Mesh>;
 
 	var red = new Color().rgb(0xf6007b);
+
+    var viewScale : Float = 1.0;
 
 	override function config( config:luxe.AppConfig ) {
 
         config.render.depth = true;
         config.render.depth_bits = 24;
+        // config.render.antialiasing=8;
         return config;
     }
 
@@ -68,7 +72,8 @@ class Main extends luxe.Game {
     	winY = Luxe.screen.h;
 
     	//create a render target of a fixed size
-        target_texture = new RenderTexture( Luxe.resources, new Vector( winX, winY ) );
+        target_texture = new RenderTexture( Luxe.resources, 
+            new Vector( winX*viewScale, winY*viewScale ) );
         
         //create a new batcher to draw from, but don't add to the main rendering
         batcherScene = Luxe.renderer.create_batcher({
@@ -77,7 +82,8 @@ class Main extends luxe.Game {
         });
 
             //camera should match the size of the texture if we want it to look right for this example
-        batcherScene.view.viewport = new Rectangle(0,0,winX,winY);
+        // batcherScene.view.viewport = new Rectangle(0,0,winX,winY);
+        // batcherScene.view.viewport = new Rectangle(0,0,100, 100);
 
     }
 
@@ -164,6 +170,8 @@ class Main extends luxe.Game {
 		mouse = new Vector();
         distAmt = new Vector( 0.0, 0.0 );
 
+        meshes = new Array<Mesh>();
+
 		Luxe.renderer.clear_color = new Color().rgb( 0x333333 );
 
         var preload = new Parcel();
@@ -203,6 +211,7 @@ class Main extends luxe.Game {
 
   //   		//move up and back a bit
      	cameraScene.pos.set_xyz(0,0.6,10);
+        cameraScene.viewport = new Rectangle(0,0,winX*viewScale,winY*viewScale);
 
      	batcherScene.view = cameraScene;
 
@@ -210,7 +219,7 @@ class Main extends luxe.Game {
     	//create the mesh
     	var tex = Luxe.loadTexture('assets/simpletex.png');    	
     	tex.clamp = repeat;    
-    	tex.filter = nearest;
+    	// tex.filter = nearest;
 
 		// mesh.pos.set_xyz( 2.0, -2.5, 1.0 );
 
@@ -265,6 +274,8 @@ class Main extends luxe.Game {
                             trace("Main, Mesh loaded, loading shader");
                             cshad = Luxe.loadShader('assets/cust_frag.glsl');
                             m.geometry.shader = cshad;
+
+                            //testManyMeshes( m, batcherScene );
                         }
                       });
 
@@ -276,6 +287,8 @@ class Main extends luxe.Game {
 
                             m.pos.set_xyz(-3.0, -1.0, 0.0);
                             mesh3.pos.set_xyz( 3.0, -1.0, 0.0 );
+
+                            testManyMeshes( m, batcherScene );
                         }
                       });        
          };
@@ -324,6 +337,26 @@ class Main extends luxe.Game {
         loaded = true;
 	} //ready
 
+    function testManyMeshes( m : Mesh, batcher : Batcher )
+    {
+        for (i in 0...8)
+        {
+            for (j in 0...8)
+            {
+                for (k in 0...8)
+                {
+                    var m2 = cloneMesh( m, batcherScene ); 
+                    var ii : Float = i*2.5 - 9;
+                    var jj : Float = j*2.5 - 9;
+                    trace( "ijk " + i + " " + j + " " + k );
+                    m2.pos.set_xyz( ii, jj, -10 + (k*-2.5) );
+
+                    meshes.push( m2 );
+                }
+            }
+        }
+    }
+
     function bounceDistort()
     {
         Actuate.tween( distAmt, 0.2, { x : 1.0 } )
@@ -366,7 +399,7 @@ class Main extends luxe.Game {
 		
         	Luxe.renderer.target = target_texture;
         	// Luxe.renderer.camera = cameraScene;
-
+            
 			//clear the texture!
 			Luxe.renderer.clear(new Color().rgb(0x4E7288));
 
@@ -410,6 +443,11 @@ class Main extends luxe.Game {
 	        var yint : Int;
 	        yint = Std.int(y);
 	        score.text = "Score: " + yint;
+
+            for (m in meshes)
+            {
+                m.rotation.setFromEuler(new Vector(0,y,0).radians());   
+            }
 		}
     }
 
