@@ -13,7 +13,7 @@ import luxe.Text;
 import phoenix.Batcher;
 
 import Gameboard;
-
+import Card;
 
 class Main extends luxe.Game {
 
@@ -25,11 +25,12 @@ class Main extends luxe.Game {
 
 	var loadCount : Int = 0;
 
-	var testCard : Sprite;
+	var hand : Array<Card>;
 
     override function ready() {
 
     	mouse = new Vector();
+    	hand = new Array<Card>();
 
 		Luxe.renderer.clear_color = new Color().rgb( 0x1b383c );
     	var preload = new Parcel();
@@ -63,22 +64,8 @@ class Main extends luxe.Game {
     	 // create the hud
     	 create_hud();
 
-    	 // load the test sprite
-    	 var cardSz = 200.0;
-    	 var cardTex = Luxe.loadTexture( 'assets/card_test.png' );
-
-    	 for (i in 0...7)
-    	 {
-	    	 testCard = new Sprite({
-	            name: 'card',
-	            texture: cardTex,
-	            batcher : hud_batcher,
-	            pos: new Vector( 250 + i*(600/7.0), 520 - (Math.sin( (3.1415/6)*i )) * 50 ),
-	            size: new Vector( cardSz * 0.7117, cardSz ),
-	            rotation_z: -15 + ((30.0 / 7) * i),
-	            depth: -5
-			});
-    	}
+    	 // load/create the initial hand
+    	 init_cards();
 
     		//move up and back a bit
     	Luxe.camera.pos.set_xyz(0,4.2,7.35);
@@ -90,6 +77,23 @@ class Main extends luxe.Game {
     		} );
     }
 
+    function init_cards()
+    {
+    	// deal starting hand
+    	while (hand.length < 7)
+    	{
+    		deal_card( hand.length );
+    	}
+    }
+
+    function deal_card( handNdx : Int )
+    {
+    	var card = new Card( hud_batcher );
+    	card.handNdx = handNdx;
+    	card.returnToHand();
+    	hand.push( card );
+    }
+
     override function onkeyup( e:KeyEvent ) {
 
         if(e.keycode == Key.escape) {
@@ -98,9 +102,33 @@ class Main extends luxe.Game {
 
     } //onkeyup
 
+    function checkHitCard( e:MouseEvent, action: Card -> Void )
+    {
+    	// take action for first hit card
+        for (cardNdx in 0...hand.length)
+        {
+        	// right to left
+        	// var card = hand[hand.length-(cardNdx+1)];
+
+        	// left to right
+        	var card = hand[cardNdx];
+
+        	if (card.point_inside( e.pos ))
+        	{
+        		action( card );
+        		break;
+        	}
+        }
+
+    }
+
     override function onmousedown(e:MouseEvent) {
         mouse = e.pos;
         dragging = true;    
+
+        checkHitCard(e, function ( c:Card ) {
+        		c.fakemousedown( e );
+        	});
     }
 
     override function onmouseup(e:MouseEvent) {
@@ -108,11 +136,27 @@ class Main extends luxe.Game {
         mouse = e.pos;
         dragging = false;
 
+        // Fakemouseup ALL the cards
+        for (card in hand)
+        {
+        	card.fakemouseup(e);
+        }
+
     } //onmouseup
 
     override function onmousemove(e:MouseEvent) {
 
         mouse = e.pos;
+        if (dragging)
+        {
+        	for (c in hand)
+        	{
+        		if (c.lifted)
+        		{
+        			c.fakemousemove( e );
+        		}
+        	}
+        }
 
     } //onmousemove
 
