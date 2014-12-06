@@ -12,14 +12,20 @@ class Card extends Sprite
 	var handPos : Vector;
 	var handRot : Float;
 	public var lifted : Bool; // picked up but not yet placing
-	var placing : Bool;
+	public var placing : Bool;
 	var flipRot : Float;
+	public var topname : String;
+	public var flipname : String;
 
-	public function new( batcher : Batcher ) 
+	public function new( _topname : String, _flipname : String, batcher : Batcher ) 
 	{
+		// card
+		topname = _topname;
+		flipname = _flipname;
+
     	 // load the test sprite
     	 var cardSz = 200.0;
-    	 var cardTex = Luxe.loadTexture( 'assets/card_test.png' );
+    	 var cardTex = Luxe.loadTexture( 'assets/card_${_topname}.png' );
 
 		//create visual
         super( {
@@ -39,8 +45,13 @@ class Card extends Sprite
 
 		handPos = new Vector( 250 + _handNdx*(600/7.0), 520 - (Math.sin( (3.1415/6)*_handNdx )) * 50 );
 		handRot = -15 + ((30.0 / 7) * _handNdx);
+
 		flipRot = 0.0;
 		depth = -5 - handNdx;
+
+		Actuate.tween( this.pos, 0.2, { x : handPos.x, y : handPos.y  } );
+		Actuate.tween( this, 0.2, { rotation_z : handRot } );
+
 		return handNdx;
 	}
 
@@ -52,7 +63,7 @@ class Card extends Sprite
 	}
 
 	override function init() {
-        trace('\tSprite init');
+        // trace('\tSprite init');
     } //init
 
     // Hmm not sure how this works
@@ -110,7 +121,7 @@ class Card extends Sprite
     }
 
 	public function fakemouseup(e:MouseEvent) {
-    	 trace('Card mouseup handposY ${handPos.y}');
+    	 
 
     	if (e.button == MouseButton.left)
    		{
