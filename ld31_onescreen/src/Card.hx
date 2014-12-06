@@ -78,7 +78,8 @@ class Card extends Sprite
 	        Actuate.tween( pos, 0.2, { x : 500, y : 300 } );
 	        // Actuate.tween( rotation, 0.2, { z : 0 } );
 	        Actuate.tween( size, 0.4, { x : cardSz * 0.7117, y : cardSz  } );
-	        rotation_z = flipRot;
+	        // rotation_z = flipRot;
+	        Actuate.tween( this, 0.2, { rotation_z : flipRot } );
 	        depth = 0;
 	        // Actuate.tween( rotation_z, 0.2, { rotation_z : 0 } );
     	}
@@ -96,11 +97,13 @@ class Card extends Sprite
     		// TODO: tween
     		if (lifted)
     		{
-    			rotation_z = flipRot;
+    			// rotation_z = flipRot;
+    			Actuate.tween( this, 0.2, { rotation_z : flipRot } );
     		}
     		else
     		{
-    			rotation_z = handRot + flipRot;	
+    			// rotation_z = handRot + flipRot;	
+    			Actuate.tween( this, 0.2, { rotation_z : handRot + flipRot } );
     		}
 
     	}
@@ -122,7 +125,8 @@ class Card extends Sprite
 				Actuate.tween( size, 0.4, { x : cardSz * 0.7117, y : cardSz  } );
 	        	// Actuate.tween( rotation_z, 0.2, { rotation_z : handRot } );
 	        	Actuate.tween( color, 0.3, { a : 1.0 } );
-	        	rotation_z = handRot + flipRot;
+	        	//rotation_z = handRot + flipRot;
+	        	Actuate.tween( this, 0.2, { rotation_z : handRot + flipRot } );
 	        	depth = -5 - handNdx;
 	        	lifted = false;
 	    	}

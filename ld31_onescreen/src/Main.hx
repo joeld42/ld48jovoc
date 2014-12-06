@@ -23,7 +23,8 @@ class Main extends luxe.Game {
 	
 	var gameboard : Gameboard;
 
-	var loadCount : Int = 0;
+	var loadCount : Int = 0;	
+	var loaded : Bool = false;
 
 	var hand : Array<Card>;
 
@@ -37,7 +38,10 @@ class Main extends luxe.Game {
 
     	preload.add_texture( "assets/gameboard_5x5.png");
     	preload.add_texture( "assets/card_test.png");
+    	preload.add_texture( "assets/testgrid.png");
+
 		preload.add_text( "assets/gameboard_5x5.obj", true);
+		preload.add_text( "assets/cursor.obj", true );
 
 		new ParcelProgress({
             parcel      : preload,
@@ -61,18 +65,21 @@ class Main extends luxe.Game {
             // depth_test : true
     	});
 
+    	// init the camera
+    	Luxe.camera.pos.set_xyz(0,4.2,7.35);
+    	Luxe.camera.rotation.setFromEuler( new Vector( -35.0, 0, 0).radians() );
+
     	 // create the hud
     	 create_hud();
 
     	 // load/create the initial hand
     	 init_cards();
-
-    		//move up and back a bit
-    	Luxe.camera.pos.set_xyz(0,4.2,7.35);
-    	Luxe.camera.rotation.setFromEuler( new Vector( -35.0, 0, 0).radians() );
-
+    			
+		// load/create the game board
     	gameboard = new Gameboard();
     	gameboard.setup( function(_) {
+    			// note to self: this gets called once for each
+    			// thing the gameboard loads
     			loadCount++;
     		} );
     }
@@ -158,17 +165,22 @@ class Main extends luxe.Game {
         	}
         }
 
+        // tell the gameboard
+        if (gameboard != null)
+        {
+        	gameboard.fakemousemove(e);
+    	}
+
     } //onmousemove
 
     override function update(dt:Float) 
     {
-    	var v = (mouse.y / Luxe.screen.h);
-    	// var boardRot = v * -50;
-    	// trace('boardRot ${boardRot}');
-    	// Luxe.camera.rotation.setFromEuler( new Vector( -35, -5.0 + (v*10), 0).radians() );
+    	if (loadCount >= 2)
+    	{
+    		loaded = true;
+    	}
+    	//var v = (mouse.y / Luxe.screen.h);
 
-    	// Luxe.camera.pos.set_xyz( -5.0 + (v*10),Luxe.camera.pos.y, Luxe.camera.pos.z );
-    	// trace(v * 10);
     } //update
 
     function create_hud() {
