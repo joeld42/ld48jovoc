@@ -9,13 +9,18 @@ import luxe.Color;
 import luxe.Text;
 import luxe.Rectangle;
 
+import luxe.resource.Resource;
+
 import phoenix.Batcher;
+import phoenix.Shader;
 import phoenix.geometry.Geometry;
 import phoenix.geometry.Vertex;
 import phoenix.geometry.TextureCoord;
 
 import luxe.Parcel;
 import luxe.ParcelProgress;
+
+import hxsw.HXSW;
 
 import Brick;
 
@@ -43,6 +48,10 @@ class Main extends luxe.Game {
     var bricks : Array<Brick>;
     var valisSpin : Float = 0.0;
 
+    // Shader stuff
+    var worldShader : Shader;
+    var glsw : HXSW;
+
     override function config( config:luxe.AppConfig ) {
 
         config.render.depth = true;
@@ -65,7 +74,8 @@ class Main extends luxe.Game {
 		preload.add_text( "assets/brick1.obj", true);
         preload.add_text( "assets/valis.obj", true);
         preload.add_text( "assets/ball.obj", true);        
-		
+		preload.add_text( "assets/warmup.glsl", true );
+
 		new ParcelProgress({
             parcel      : preload,
             background  : new Color(1,1,1,0.85),
@@ -91,6 +101,30 @@ class Main extends luxe.Game {
     		//move up and back a bit
     	Luxe.camera.pos.set_xyz(0,0.5,20);
 
+        // Load shaders
+        glsw = new HXSW({
+            path : './assets/',
+            ext : '.glsl',
+            logging : false,
+            load_effect : load_effect
+        });
+
+        var vsid = "warmup.Vertex";
+        var vert = glsw.get( vsid );        
+        var res = new TextResource( vsid, vert, Luxe.resources );
+        Luxe.resources.cache(res);
+
+        var frag = glsw.get("warmup.Fragment");
+        res = new TextResource( "warmup.Fragment", frag, Luxe.resources );
+        Luxe.resources.cache(res);
+        trace("added shader resources");
+
+        worldShader = Luxe.loadShader( "warmup.Fragment", "warmup.Vertex" );
+
+        // trace(' VERTEX SHADER: ${vert}');
+        // trace(' FRAGMENT SHADER: ${frag}');
+
+        // Load textures and meshes
     	var tex = Luxe.loadTexture('assets/brick.png');    	
     	tex.clamp = repeat;  
     	tex.onload = function(t) 
@@ -105,7 +139,7 @@ class Main extends luxe.Game {
                             trace("in mesh onload" );
                             //trace("Main, Mesh loaded, loading shader");
                             //cshad = Luxe.loadShader('assets/cust_frag.glsl');
-                            //m.geometry.shader = cshad;
+                            //m.geometry.shader = worldShader;
 
                             //testManyMeshes( m, batcherScene );
 
@@ -126,6 +160,7 @@ class Main extends luxe.Game {
                     onload : function ( m : Mesh ) {
                         loadCount++;
                         ball = m;
+                        ball.geometry.shader = worldShader;
                    } 
                 });
 		}
@@ -139,6 +174,8 @@ class Main extends luxe.Game {
                       onload : function ( m : Mesh ) {
                             
                             valis = m;
+                            valis.geometry.shader = worldShader;
+
                             loadCount++;
 
                             valis.pos.set_xyz( 0.0, -5.0, 0.0 );
@@ -166,6 +203,7 @@ class Main extends luxe.Game {
             {
                 var b = new Brick({ name:'brick${20*row+i}'});
                 b.mesh = cloneMesh(brick);
+                b.mesh.geometry.shader = worldShader;
                 b.mesh.pos.set_xyz( -7.515 + offs + (i*1.53), 4.5 + (row * 1.1), 0.0 );
                 bricks.push(b);
             }
@@ -224,7 +262,7 @@ class Main extends luxe.Game {
     {
         // Hide the "master brick" mesh
         brick.pos.set_xyz( -100, -100, 0 );
-        valis.pos.set_xyz( 0.0, -5.0, 0.0 );
+        // valis.pos.set_xyz( 0.0, -5.0, 0.0 );
 
         didSceneInit = true;
     }
@@ -436,6 +474,12 @@ class Main extends luxe.Game {
          }
 
     } //update
+
+    // load effect for shaders
+    function load_effect( path:String ) {
+        trace( '>>> load_effect: ${path}');
+        return Luxe.loadText( path ).text;
+    }
 
     // Usefuls
     function random_1_to_1(){ return Math.random() * 2 - 1; }

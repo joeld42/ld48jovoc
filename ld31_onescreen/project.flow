@@ -1,13 +1,13 @@
 {
 
   project : {
-    name : 'l31_warmup',
+    name : 'onescreen',
     version : '1.0.0',
-    author : 'jovoc',
+    author : 'jovoc (joeld42@gmail.com)',
 
     app : {
-      name : 'ld31_warmup',
-      package : 'com.tapnik.ld31_warmup'
+      name : 'ld31_onescreen',
+      package : 'com.tapnik.ld31_onescreen'
     },
 
     build : {
