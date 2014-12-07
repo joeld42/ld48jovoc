@@ -110,6 +110,25 @@ class Gameboard
         
 	}
 
+	public function clearBoard()
+	{
+		for (c in cells)
+		{
+			if (c.tower != null)
+			{
+				c.tower.mesh.destroy();
+				c.tower.destroy();
+				c.tower = null;
+			}
+			
+			c.blocked = false;
+			c.creeptarg = false;
+			c.creeped = false;
+		}
+
+		update_paths();
+	}
+
 	public function buildTower( x : Int, y : Int, tower : Tower )
 	{
 		var c = cell( x, y );

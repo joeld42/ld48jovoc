@@ -66,6 +66,12 @@ class Creep extends Entity
 	
 	function chooseNextMove()
 	{
+		if (destroyed)
+		{
+			// might have been destroyed already 
+			return;
+		}
+
 		if (targetY < 0)
 		{
 			// Already reached home row. damage player

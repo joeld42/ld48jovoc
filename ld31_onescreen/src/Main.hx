@@ -48,6 +48,10 @@ class Main extends luxe.Game {
 	var healthText : TextGeometry;
 	var hitMask : Sprite;
 	var gameOver : Sprite;
+	var playAgain : Sprite;
+
+	// Creeps
+	var creeps : Array<Creep>;
 
     override function config( config:luxe.AppConfig ) {
 
@@ -61,6 +65,8 @@ class Main extends luxe.Game {
 
     	mouse = new Vector();
     	hand = new Array<Card>();
+    	creeps = new Array<Creep>();
+
     	cachedMeshes = new Map<String,Mesh>();
     	cardTopNames = [ "snowman", "rock"];
     	cardFlipNames = [ "critter" ];
@@ -144,6 +150,30 @@ class Main extends luxe.Game {
 
     function reset_game()
     {
+    	trace(">>> RESET GAME ");
+
+    	// clear game over button if present
+    	if (gameOver != null)
+    	{
+    		gameOver.destroy();
+    		playAgain.destroy();
+    		gameOver = null;
+    		playAgain = null;
+    	}
+
+    	// trace('hand len ${hand.length}');
+    	while (hand.length > 0)
+    	{   
+    		var c = hand.pop();    		
+    		//trace('Reset: hand len is ${hand.length} card is ${c.name}'); 		
+
+    		c.destroyAll();
+    		c.destroy();
+    	}
+
+    	// reset board
+    	gameboard.clearBoard();
+
     	// load/create the initial hand
     	init_cards();
 
@@ -166,10 +196,32 @@ class Main extends luxe.Game {
     {
     	gameOver = new Sprite({
 	            name: 'gameover',	            
-	            texture: Luxe.loadTexture('gameover.png'),
+	            texture: Luxe.loadTexture('assets/gameover.png'),
 	            batcher : hud_batcher,
-	            pos: pos: new Vector( Luxe.screen.w/2, Luxe.screen.h/2 ),
+	            pos: new Vector( Luxe.screen.w/2, Luxe.screen.h/2 ),
+	            rotation_z : -5.0
 			});
+    	Actuate.tween( gameOver, 3.0, { rotation_z : 5.0 })
+    			.reflect()
+    			.repeat()
+    			.ease(luxe.tween.easing.Cubic.easeInOut);
+
+    	playAgain = new Sprite({
+	            name: 'playagain',	            
+	            texture: Luxe.loadTexture('assets/again.png'),
+	            batcher : hud_batcher,
+	            pos: new Vector( Luxe.screen.w/2, (Luxe.screen.h/2) + 100 ),
+	            depth : 10
+			});    		
+
+    	// clear out the creeps now
+		while (creeps.length > 0)
+    	{
+    		var c = creeps.pop();
+    		c.mesh.destroy();
+    		c.destroy();    		
+    	}
+		
     }
 
     function init_cards()
@@ -267,6 +319,8 @@ class Main extends luxe.Game {
 			// start in the creep cave 
 			creepEnt.mesh.pos.set_xyz( 0.0, 0.0, -4.2 );
 			creepEnt.setGridTarg( 2, 5 );  // Move onto the open row
+
+			creeps.push( creepEnt );
 		}
 
     }
@@ -300,6 +354,7 @@ class Main extends luxe.Game {
     					// 	{ x : sx, y : sy });
     				});
 
+    	creeps.remove( creep );
     	creep.mesh.destroy();
     	creep.destroy();
     }
@@ -355,6 +410,17 @@ class Main extends luxe.Game {
     }
 
     override function onmousedown(e:MouseEvent) {
+
+    	if (gameOver != null)
+    	{
+    		if (playAgain.point_inside(e.pos))
+    		{
+    			// reset!
+    			reset_game();
+    		}
+    		return;
+    	}
+
         mouse = e.pos;
         if (e.button == MouseButton.left)
         {
@@ -367,6 +433,11 @@ class Main extends luxe.Game {
     }
 
     override function onmouseup(e:MouseEvent) {
+
+		if (gameOver != null)
+    	{
+    		return;
+    	}
 
         mouse = e.pos;
 
@@ -412,6 +483,12 @@ class Main extends luxe.Game {
     } //onmouseup
 
     override function onmousemove(e:MouseEvent) {
+
+
+    	if (gameOver != null)
+    	{
+    		return;
+    	}
 
         mouse = e.pos;
 
