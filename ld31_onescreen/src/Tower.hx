@@ -6,6 +6,7 @@ import luxe.Input;
 import luxe.Camera;
 import luxe.Entity;
 import luxe.Events;
+import luxe.Sprite;
 
 import luxe.utils.Maths;
 
@@ -16,10 +17,17 @@ class Tower extends Entity
 	public var towerName : String;
 
 	public var shootTimeout : Float;
+	public var cardSpawnTimeout : Float;
 	public var shootDamage : Float;
 	public var bulletSpeed : Float;
 	public var shootRange : Float;
+
+	public var blocking : Bool;
+
+	public var spawnCard : Sprite;
+
 	var shootTimeleft : Float;
+	var cardSpawnTimeleft :Float;
 
 	public function new( _name : String, _mesh : Mesh )
 	{
@@ -52,7 +60,28 @@ class Tower extends Entity
 			bulletSpeed = 1.0;
 		}
 
+		// is it blocking?
+		if (towerName=='sring')
+		{
+			blocking = false;
+		}
+		else
+		{
+			blocking = true;
+		}
+
+		// Does it spawn cards?
+		if ((towerName=='sring') || (towerName=='sstone'))
+		{
+			cardSpawnTimeout = 5.0;
+		}
+		else
+		{
+			cardSpawnTimeout = 0;
+		}
+
 		shootTimeleft = shootTimeout;
+		cardSpawnTimeleft = cardSpawnTimeout;
 	}
 
 	function do_shoot()
@@ -64,14 +93,32 @@ class Tower extends Entity
 		shootTimeleft = shootTimeout;
 	}
 
+	function do_spawnCard()
+	{
+		Luxe.events.fire( "tower.spawncard", this );		
+		cardSpawnTimeleft = cardSpawnTimeout;
+	}
+
 	override function update( dt : Float )
 	{
+		// Shoot timer
 		if (shootTimeout > 0.0)
 		{
 			shootTimeleft -= dt;
 			if (shootTimeleft <= 0.0)
 			{
 				do_shoot();
+			}
+		}
+
+
+		// Card spawn timer
+		if ((cardSpawnTimeout > 0.0) && (spawnCard==null))
+		{
+			cardSpawnTimeleft -= dt;
+			if (cardSpawnTimeleft <= 0.0)
+			{
+				do_spawnCard();
 			}
 		}
 	}

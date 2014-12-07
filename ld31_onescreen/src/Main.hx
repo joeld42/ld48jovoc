@@ -13,6 +13,7 @@ import luxe.utils.Maths;
 import luxe.tween.Actuate;
 
 import phoenix.Batcher;
+import phoenix.Texture;
 import phoenix.geometry.Geometry;
 import phoenix.geometry.TextGeometry;
 
@@ -40,6 +41,8 @@ class Main extends luxe.Game {
 	var hand : Array<Card>;
 
 	var cachedMeshes : Map<String,Mesh>;
+
+	var cardBackTex : Texture;
 
 	// status text
 	var statusText : TextGeometry;
@@ -70,7 +73,7 @@ class Main extends luxe.Game {
     	creeps = new Array<Creep>();
 
     	cachedMeshes = new Map<String,Mesh>();
-    	cardTopNames = [ "snowman", "rock"];
+    	cardTopNames = [ "snowman", "rock", "sring", "sstone"];
     	cardFlipNames = [ "critter" ];
 
 		Luxe.renderer.clear_color = new Color().rgb( 0x1b383c );
@@ -89,6 +92,9 @@ class Main extends luxe.Game {
     	preload.add_texture( "assets/hit_mask.png");
     	preload.add_texture( "assets/gameover.png");
     	preload.add_texture( "assets/bullet.png");
+    	preload.add_texture( "assets/sring.png");
+    	preload.add_texture( "assets/sstone.png");
+    	preload.add_texture( "assets/cardback.png");
 
 		preload.add_text( "assets/gameboard_5x5.obj", true);
 		preload.add_text( "assets/snowman.obj", true);
@@ -97,6 +103,8 @@ class Main extends luxe.Game {
 		preload.add_text( "assets/critter.obj", true );
 		preload.add_text( "assets/victory.obj", true );
 		preload.add_text( "assets/bosscreep.obj", true );
+		preload.add_text( "assets/sring.obj", true );
+		preload.add_text( "assets/sstone.obj", true );
 
 		new ParcelProgress({
             parcel      : preload,
@@ -138,6 +146,11 @@ class Main extends luxe.Game {
 			});
     	hitMask.visible = false;    		
 
+    	// Load the card back
+    	cardBackTex = Luxe.loadTexture( "assets/cardback.png");
+    	cardBackTex.generate_mipmaps();
+    	cardBackTex.filter = FilterType.mip_linear_linear;
+
     	 // set up group for batcher
     	 Luxe.renderer.batcher.add_group(1,
 
@@ -177,6 +190,8 @@ class Main extends luxe.Game {
     function connect_events()
     {
     	Luxe.events.listen('tower.shoot', onTowerShoot );
+    	Luxe.events.listen('tower.spawncard', onTowerSpawnCard );
+
     	Luxe.events.listen('creep.killed', onCreepKilled );
     }
 
@@ -306,7 +321,8 @@ class Main extends luxe.Game {
     {
     	// Load the src meshes for the tower objects
     	var srcMeshes: Array<String> = [
-    		"snowman", "rock", "critter", "bosscreep", "victory"
+    		"snowman", "rock", "critter", "bosscreep", "victory",
+    		"sring", "sstone"
     	];
 
     	for (meshName in srcMeshes)
@@ -421,7 +437,36 @@ class Main extends luxe.Game {
         return mesh2;
     }
 
-	//Luxe.events.listen('intro.darkness', ondarkness);
+	function onTowerSpawnCard( tower : Tower )
+	{
+		var cardY : Float;
+		if (tower.towerName=='sring')
+		{
+			cardY = 0.35;
+		}
+		else
+		{
+			cardY = 0.7;
+		}
+		var cardPickup = new Sprite({
+	    		name: 'cardspawn',
+	    		name_unique : true,
+	    		texture: cardBackTex,
+	    		pos: new Vector( tower.mesh.pos.x, -0.5, tower.mesh.pos.z ),
+	    		size: new Vector( 0.4, 0.4 ),
+	    		depth: 10, // high depth makes sprites draw last
+	    		rotation_z : -5.0
+	    		//group: 1
+    		});
+		Actuate.tween( cardPickup.pos, 1.5, { y : cardY } );
+		Actuate.tween( cardPickup, 1.0, { rotation_z : 5.0 })
+    			.reflect()
+    			.repeat()
+    			.ease(luxe.tween.easing.Cubic.easeInOut);
+
+    	tower.spawnCard = cardPickup;
+	}
+
 	function onTowerShoot( tower : Tower )
 	{
 		// trace('Main: got tower shoot event ${tower.name}');
@@ -465,10 +510,10 @@ class Main extends luxe.Game {
     				});
 
     	}
-    	else
-    	{
-    		trace("no enemies in range...");
-    	}
+    	// else
+    	// {
+    	// 	trace("no enemies in range...");
+    	// }
 	}
 
 	function removeCreep( creep : Creep )
@@ -539,6 +584,40 @@ class Main extends luxe.Game {
      	   dragging = true;    
     	}
 
+    	// Check to see if we hit a spawn card icon
+    	for (c in gameboard.cells)
+    	{
+    		if ((c.tower!=null) && (c.tower.spawnCard!=null))
+    		{
+    			var sc = c.tower.spawnCard;
+    			var cardPos = Luxe.camera.world_point_to_screen( sc.pos );
+    			var cardRect = new Rectangle( cardPos.x - 20, cardPos.y - 30, 40, 60 );
+    			if (cardRect.point_inside(e.pos))
+    			{
+    				if (hand.length < 7)
+    				{
+	    				// trace('Hit card...');	    				
+	    				c.tower.spawnCard = null;
+	    				deal_card( hand.length );
+
+						// size: new Vector( 0.4, 0.4 ),
+	    				Actuate.tween( sc.size, 0.5, { x : 0.8, y : 0.8 } );
+	    				Actuate.tween( sc.color, 0.6, { a : 0.0 } )
+	    						.onComplete( function() {
+	    								sc.destroy();
+	    							});
+	    				// sc.destroy();
+    				}
+    				else
+    				{
+    					setStatusText( "Hand Limit Reached.", new Color().rgb( 0xff0000) );		
+    				}
+    			}
+    			// trace('spawnCard at ${cardPos.x} ${cardPos.y}');
+
+    		}
+    	}
+
         checkHitCard(e, function ( c:Card ) {
         		c.fakemousedown( e );
         	});
@@ -573,7 +652,7 @@ class Main extends luxe.Game {
         		var cell = gameboard.cursorCell;
         		if (!cell.creeptarg)
         		{
-					if (gameboard.canBuildHere(cell.gx, cell.gy))
+					if (gameboard.canBuildHere(placingCard.topname, cell.gx, cell.gy))
 					{
 	        			build_tower( placingCard );
 	        			spawn_creep( placingCard );
@@ -634,7 +713,7 @@ class Main extends luxe.Game {
         					{
         						setStatusText( "There's something in the way...", new Color().rgb( 0xff0000) );	
         					}
-        					else if (!gameboard.canBuildHere(cell.gx, cell.gy))
+        					else if (!gameboard.canBuildHere( c.topname, cell.gx, cell.gy))
         					{
         						setStatusText( "Home row must be reachable.", new Color().rgb( 0xff0000) );	
         					}

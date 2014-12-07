@@ -40,7 +40,7 @@ class Gameboard
 	public var cursorCell : BoardCell;
 
 	var size : Int;
-	var  cells : Array<BoardCell>;
+	public var  cells : Array<BoardCell>;
 
 	public function new()
 	{
@@ -117,6 +117,10 @@ class Gameboard
 		{
 			if (c.tower != null)
 			{
+				if (c.tower.spawnCard!=null)
+				{
+					c.tower.spawnCard.destroy();
+				}
 				c.tower.mesh.destroy();
 				c.tower.destroy();
 				c.tower = null;
@@ -134,7 +138,10 @@ class Gameboard
 	{
 		var c = cell( x, y );
 		c.tower = tower;
-		c.blocked = true;
+		if (tower.blocking)
+		{
+			c.blocked = true;
+		}
 
 		// update paths
 		update_paths();
@@ -142,13 +149,21 @@ class Gameboard
 
 	// checks that the home row is still reachable if you were to build a
 	// tower here. Not a particularly cheap operation...
-	public function canBuildHere( x : Int, y : Int )
+	public function canBuildHere( tname : String, x : Int, y : Int )
 	{
 		var c = cell( x, y );
+
 		// if there's already a tower here, then no..
 		if ((c.tower != null) || (c.blocked))
 		{
 			return false;
+		}
+
+		// Is this a blocking tower??
+		if (tname=='sring')
+		{
+			// nope, go ahead and build here
+			return true;
 		}
 
 		// try marking the cell as blocked
