@@ -94,6 +94,7 @@ class Gameboard
         {
             new Mesh({ file:'assets/cursor.obj', 
                       texture: t, 
+                      group: 2,
                       onload : function ( m : Mesh ) {
                             
                             cursor = m;
@@ -120,7 +121,7 @@ class Gameboard
 				c.tower.destroy();
 				c.tower = null;
 			}
-			
+
 			c.blocked = false;
 			c.creeptarg = false;
 			c.creeped = false;

@@ -16,6 +16,8 @@ import phoenix.Batcher;
 import phoenix.geometry.Geometry;
 import phoenix.geometry.TextGeometry;
 
+import snow.render.opengl.GL;
+
 import Gameboard;
 import Card;
 import Tower;
@@ -86,6 +88,7 @@ class Main extends luxe.Game {
     	preload.add_texture( "assets/bosscreep.png");
     	preload.add_texture( "assets/hit_mask.png");
     	preload.add_texture( "assets/gameover.png");
+    	preload.add_texture( "assets/bullet.png");
 
 		preload.add_text( "assets/gameboard_5x5.obj", true);
 		preload.add_text( "assets/snowman.obj", true);
@@ -133,8 +136,27 @@ class Main extends luxe.Game {
 	            size: new Vector( Luxe.screen.w, Luxe.screen.h ),
 	            depth: 1
 			});
-    	hitMask.visible = false;
-    			
+    	hitMask.visible = false;    		
+
+    	 // set up group for batcher
+    	 Luxe.renderer.batcher.add_group(1,
+
+    		// pre-render
+            function(b:Batcher){
+                Luxe.renderer.blend_mode(BlendMode.src_alpha, BlendMode.one);
+                // Luxe.renderer.state.disable( GL.DEPTH_TEST );
+            },
+
+            // post-render
+            function(b:Batcher){
+                 Luxe.renderer.blend_mode(BlendMode.src_alpha, BlendMode.one_minus_src_alpha);
+                 // Luxe.renderer.state.enable( GL.DEPTH_TEST );
+            }
+        );
+
+    	 // connect events
+    	 connect_events();
+
     	// init tower meshes
     	init_meshes();
 
@@ -150,6 +172,12 @@ class Main extends luxe.Game {
         reset_game();
 
         // trace( 'SCREEN: ${Luxe.screen.w} ${Luxe.screen.h}');
+    }
+
+    function connect_events()
+    {
+    	Luxe.events.listen('tower.shoot', onTowerShoot );
+    	Luxe.events.listen('creep.killed', onCreepKilled );
     }
 
     function reset_game()
@@ -392,6 +420,74 @@ class Main extends luxe.Game {
 
         return mesh2;
     }
+
+	//Luxe.events.listen('intro.darkness', ondarkness);
+	function onTowerShoot( tower : Tower )
+	{
+		// trace('Main: got tower shoot event ${tower.name}');
+
+    	// find closest enemy
+    	var closestEnemy : Creep = null;
+    	var closestDist = -1.0;
+    	for (c in creeps)
+    	{
+    		var cd = Vector.Subtract( tower.mesh.pos, c.mesh.pos );
+    		var d = cd.length;
+    		if ((d < tower.shootRange) && ((closestDist < 0.0) || (d < closestDist)))
+    		{
+    			closestEnemy = c;
+    			closestDist = d;
+    		}
+    	}
+
+    	if (closestEnemy != null)
+    	{
+
+		 	// Bullet
+    		var bullet = new Sprite({
+	    		name: 'bullet',
+	    		name_unique : true,
+	    		texture: Luxe.loadTexture('assets/bullet.png'),
+	    		pos: tower.mesh.pos.clone(),
+	    		size: new Vector( 0.4, 0.4 ),
+	    		depth: 10, // high depth makes bullets draw last
+	    		group: 1
+    		});
+    		
+    		bullet.pos.y = 1.0;
+    		Actuate.tween( bullet.pos, closestDist / tower.bulletSpeed, 
+    				{ x : closestEnemy.targetPos.x, 
+    			    	y : closestEnemy.mesh.pos.y + 0.5, 
+    			    	z : closestEnemy.targetPos.z })
+    			.onComplete( function(){
+    					closestEnemy.takeDamage( tower.shootDamage );
+    					bullet.destroy();
+    				});
+
+    	}
+    	else
+    	{
+    		trace("no enemies in range...");
+    	}
+	}
+
+	function removeCreep( creep : Creep )
+	{		
+		var creepCell = gameboard.cell( creep.targetX, creep.targetY );
+		if (creepCell != null)
+		{
+			creepCell.creeptarg = false;
+		}
+    	creeps.remove( creep );
+    	creep.mesh.destroy();
+    	creep.destroy();		
+	}
+
+	function onCreepKilled( creep : Creep )
+	{
+		// TODO: some kind of feedback or explosion
+		removeCreep(creep);
+	}
 
     // ====================================================================
     // Input handling

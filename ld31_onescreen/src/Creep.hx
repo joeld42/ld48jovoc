@@ -18,10 +18,13 @@ class Creep extends Entity
 	var moveTime : Float; // how long it takes to move 1 square
 	var spinSpeed : Float;
 	var spinAmt : Float;
+	var health : Float;
+
 	public var damage : Int;
 
-	var targetX : Int;
-	var targetY : Int;
+	public var targetPos : Vector; // for dead-reckoning bullets
+	public var targetX : Int;
+	public var targetY : Int;
 
 	var isMoving : Bool = false;
 
@@ -46,6 +49,7 @@ class Creep extends Entity
 			spinAmt = 0.0;
 			moveTime = 0.2;
 			damage = 25;
+			health = 100;
 		}
 		else // "critter"
 		{
@@ -53,6 +57,26 @@ class Creep extends Entity
 			spinAmt = 0.0;
 			moveTime = 0.5;
 			damage = 5;
+			health = 3.0;
+		}
+	}
+
+	public function takeDamage( _damage : Float )
+	{
+		health -= _damage;
+		trace('creep damaged: HP ${health}');
+
+		if (health <= 0.0)
+		{			
+			Luxe.events.fire( "creep.killed", this );			
+		}
+		else
+		{
+			// just wounded, flash to indicate damage
+			// TODO: shader
+			// Actuate.tween( mesh.color, 0.2, { r : 1.0, g : 0.0, b : 0.0 })
+			// 			.reflect()
+			// 			.repeat(3);
 		}
 	}
 
@@ -70,11 +94,12 @@ class Creep extends Entity
 		}
 
 		isMoving = true;
-		var targetPos = gameboard.gridPosToWorld( targetX, targetY );
+		targetPos = gameboard.gridPosToWorld( targetX, targetY );
 		Actuate.tween( mesh.pos, moveTime, { x : targetPos.x, z : targetPos.z  } )
 					.onComplete( function(){
 							chooseNextMove();
 						});
+
 	}
 	
 	function chooseNextMove()
