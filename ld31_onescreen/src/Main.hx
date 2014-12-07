@@ -82,6 +82,8 @@ class Main extends luxe.Game {
     	preload.add_texture( "assets/snowman.png");
     	preload.add_texture( "assets/rock.png");
     	preload.add_texture( "assets/critter.png");
+    	preload.add_texture( "assets/victory.png");
+    	preload.add_texture( "assets/bosscreep.png");
     	preload.add_texture( "assets/hit_mask.png");
     	preload.add_texture( "assets/gameover.png");
 
@@ -90,6 +92,8 @@ class Main extends luxe.Game {
 		preload.add_text( "assets/rock.obj", true);
 		preload.add_text( "assets/cursor.obj", true );
 		preload.add_text( "assets/critter.obj", true );
+		preload.add_text( "assets/victory.obj", true );
+		preload.add_text( "assets/bosscreep.obj", true );
 
 		new ParcelProgress({
             parcel      : preload,
@@ -226,6 +230,9 @@ class Main extends luxe.Game {
 
     function init_cards()
     {
+    	// get one victory card
+    	deal_victory_card( 0 );
+
     	// deal starting hand
     	while (hand.length < 7)
     	{
@@ -242,6 +249,15 @@ class Main extends luxe.Game {
     	card.returnToHand();
     	hand.push( card );
     }
+
+    function deal_victory_card( handNdx : Int )
+    {
+    	var card = new Card( "victory", "bosscreep", hud_batcher );
+    	card.handNdx = handNdx;
+    	card.returnToHand();
+    	hand.push( card );
+    }
+
 
 	// just handles removing the card from the hand and stuff    
     function play_card( card : Card )
@@ -262,7 +278,7 @@ class Main extends luxe.Game {
     {
     	// Load the src meshes for the tower objects
     	var srcMeshes: Array<String> = [
-    		"snowman", "rock", "critter"
+    		"snowman", "rock", "critter", "bosscreep", "victory"
     	];
 
     	for (meshName in srcMeshes)
@@ -329,7 +345,7 @@ class Main extends luxe.Game {
     {
     	setStatusText( 'Hit by ${creep.creepName}! ',  new Color().rgb( 0xff0000) );
 
-    	health -= 5;
+    	health -= creep.damage;
     	update_health();
 
     	Luxe.camera.shake( 0.5 );

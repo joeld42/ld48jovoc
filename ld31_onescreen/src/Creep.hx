@@ -18,6 +18,7 @@ class Creep extends Entity
 	var moveTime : Float; // how long it takes to move 1 square
 	var spinSpeed : Float;
 	var spinAmt : Float;
+	public var damage : Int;
 
 	var targetX : Int;
 	var targetY : Int;
@@ -38,9 +39,21 @@ class Creep extends Entity
 		creepName = _name;
 		mesh = _mesh;
 
-		spinSpeed = 30.0;
-		spinAmt = 0.0;
-		moveTime = 0.5;
+		// Configure based on name...
+		if (_name=='bosscreep')
+		{
+			spinSpeed = 50.0;
+			spinAmt = 0.0;
+			moveTime = 0.2;
+			damage = 25;
+		}
+		else // "critter"
+		{
+			spinSpeed = 30.0;
+			spinAmt = 0.0;
+			moveTime = 0.5;
+			damage = 5;
+		}
 	}
 
 	public function setGridTarg( _targX : Int, _targY : Int )
