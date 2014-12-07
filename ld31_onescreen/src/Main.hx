@@ -70,6 +70,7 @@ class Main extends luxe.Game {
     	preload.add_texture( "assets/gameboard_5x5.png");
     	preload.add_texture( "assets/card_snowman.png");
     	preload.add_texture( "assets/card_rock.png");
+    	preload.add_texture( "assets/card_critter.png");
     	preload.add_texture( "assets/testgrid.png");
     	preload.add_texture( "assets/snowman.png");
     	preload.add_texture( "assets/rock.png");
@@ -177,7 +178,7 @@ class Main extends luxe.Game {
     function play_card( card : Card )
     {
     	hand.remove( card );
-    	card.destroy();
+    	card.destroyAll();
 
     	// re-index hand Indexes
     	var ndx : Int = 0;
@@ -282,6 +283,7 @@ class Main extends luxe.Game {
     					// 	{ x : sx, y : sy });
     				});
 
+    	creep.mesh.destroy();
     	creep.destroy();
     }
 
