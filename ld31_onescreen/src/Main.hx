@@ -18,6 +18,8 @@ import phoenix.geometry.TextGeometry;
 
 import Gameboard;
 import Card;
+import Tower;
+import Creep;
 
 class Main extends luxe.Game {
 
@@ -35,7 +37,7 @@ class Main extends luxe.Game {
 
 	var hand : Array<Card>;
 
-	var towerMeshes : Map<String,Mesh>;
+	var cachedMeshes : Map<String,Mesh>;
 
 	var statusText : TextGeometry;
 	var currentStatus : String;
@@ -52,9 +54,9 @@ class Main extends luxe.Game {
 
     	mouse = new Vector();
     	hand = new Array<Card>();
-    	towerMeshes = new Map<String,Mesh>();
+    	cachedMeshes = new Map<String,Mesh>();
     	cardTopNames = [ "snowman", "rock"];
-    	cardFlipNames = [ "heater" ];
+    	cardFlipNames = [ "critter" ];
 
 		Luxe.renderer.clear_color = new Color().rgb( 0x1b383c );
     	var preload = new Parcel();
@@ -65,11 +67,13 @@ class Main extends luxe.Game {
     	preload.add_texture( "assets/testgrid.png");
     	preload.add_texture( "assets/snowman.png");
     	preload.add_texture( "assets/rock.png");
+    	preload.add_texture( "assets/critter.png");
 
 		preload.add_text( "assets/gameboard_5x5.obj", true);
 		preload.add_text( "assets/snowman.obj", true);
 		preload.add_text( "assets/rock.obj", true);
 		preload.add_text( "assets/cursor.obj", true );
+		preload.add_text( "assets/critter.obj", true );
 
 		new ParcelProgress({
             parcel      : preload,
@@ -104,7 +108,7 @@ class Main extends luxe.Game {
     	init_cards();
     			
     	// init tower meshes
-    	init_towers();
+    	init_meshes();
 
 		// load/create the game board
     	gameboard = new Gameboard();
@@ -150,27 +154,28 @@ class Main extends luxe.Game {
 
     }
 
-    function init_towers()
+    function init_meshes()
     {
     	// Load the src meshes for the tower objects
-    	var srcTowers : Array<String> = [
-    		"snowman", "rock"
+    	var srcMeshes: Array<String> = [
+    		"snowman", "rock", "critter"
     	];
 
-    	for (towerName in srcTowers)
+    	for (meshName in srcMeshes)
     	{
     		// Load the tower resources
-			var tex = Luxe.loadTexture('assets/${towerName}.png');     
+			var tex = Luxe.loadTexture('assets/${meshName}.png');     
         	tex.clamp = repeat;  
         	tex.onload = function(t) 
         	{
-            	new Mesh({ file:'assets/${towerName}.obj', 
+            	new Mesh({ file:'assets/${meshName}.obj', 
                 	      texture: t, 
                     	  onload : function ( m : Mesh ) {                            
                             
                             m.geometry.visible = false;
-                            towerMeshes[towerName] = m;
+                            cachedMeshes[meshName] = m;
                             
+                            trace('Loaded ${meshName}');
                             loadCount++;
                         }
                       });
@@ -181,7 +186,7 @@ class Main extends luxe.Game {
     function build_tower( placingCard : Card )
     {
         var tname = placingCard.topname;
-		var towerMeshSrc = towerMeshes[ tname ];
+		var towerMeshSrc = cachedMeshes[ tname ];
 		
 		var towerEnt = new Tower( placingCard.topname, cloneMesh( towerMeshSrc ) );
 		towerEnt.mesh.pos.copy_from(gameboard.ghost.pos);
@@ -195,6 +200,22 @@ class Main extends luxe.Game {
 		play_card( placingCard );
 
 		setStatusText('Built ${tname}.');
+    }
+
+    function spawn_creep( placingCard : Card )
+    {
+        var cname = placingCard.flipname;
+		var creepMeshSrc = cachedMeshes[ cname ];
+		if (creepMeshSrc != null)
+		{			
+			var creepEnt = new Creep( placingCard.flipname, cloneMesh( creepMeshSrc ) );					
+			creepEnt.gameboard = gameboard;
+
+			// start in the creep cave 
+			creepEnt.mesh.pos.set_xyz( 0.0, 0.0, -4.2 );
+			creepEnt.setGridTarg( 2, 5 );  // Move onto the open row
+		}
+
     }
 
     function cloneMesh( mesh : Mesh ) : Mesh
@@ -281,9 +302,13 @@ class Main extends luxe.Game {
         	if ((placingCard != null) && (gameboard.cursorBoardX > -1))
         	{
         		var cell = gameboard.cursorCell;
-				if (cell.tower == null)
-				{
-        			build_tower( placingCard );
+        		if (!cell.creeptarg)
+        		{
+					if (gameboard.canBuildHere(cell.gx, cell.gy))
+					{
+	        			build_tower( placingCard );
+	        			spawn_creep( placingCard );
+	        		}
         		}
         	}
 
@@ -317,7 +342,7 @@ class Main extends luxe.Game {
         			{
         				if (gameboard.ghost == null)
         				{
-        					var ghostMeshSrc = towerMeshes[ c.topname ];
+        					var ghostMeshSrc = cachedMeshes[ c.topname ];
         					gameboard.ghost = cloneMesh( ghostMeshSrc );
         				}
 
@@ -328,7 +353,15 @@ class Main extends luxe.Game {
         					var cell = gameboard.cursorCell;
         					if (cell.tower != null)
         					{
-        						setStatusText( "Already something there...", new Color().rgb( 0xff0000) );
+        						setStatusText( 'Already a ${cell.tower.name} built there...', new Color().rgb( 0xff0000) );
+        					}
+        					else if (cell.creeptarg)
+        					{
+        						setStatusText( "There's something in the way...", new Color().rgb( 0xff0000) );	
+        					}
+        					else if (!gameboard.canBuildHere(cell.gx, cell.gy))
+        					{
+        						setStatusText( "Home row must be reachable.", new Color().rgb( 0xff0000) );	
         					}
         					else
         					{
