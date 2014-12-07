@@ -47,6 +47,7 @@ class Main extends luxe.Game {
 	var health : Int;
 	var healthText : TextGeometry;
 	var hitMask : Sprite;
+	var gameOver : Sprite;
 
     override function config( config:luxe.AppConfig ) {
 
@@ -76,6 +77,7 @@ class Main extends luxe.Game {
     	preload.add_texture( "assets/rock.png");
     	preload.add_texture( "assets/critter.png");
     	preload.add_texture( "assets/hit_mask.png");
+    	preload.add_texture( "assets/gameover.png");
 
 		preload.add_text( "assets/gameboard_5x5.obj", true);
 		preload.add_text( "assets/snowman.obj", true);
@@ -152,7 +154,22 @@ class Main extends luxe.Game {
 
     function update_health()
     {
+    	if (health <= 0)
+    	{
+    		health = 0;
+    		game_over();
+    	}
     	healthText.text = 'HP: ${health}';
+    }
+
+    function game_over()
+    {
+    	gameOver = new Sprite({
+	            name: 'gameover',	            
+	            texture: Luxe.loadTexture('gameover.png'),
+	            batcher : hud_batcher,
+	            pos: pos: new Vector( Luxe.screen.w/2, Luxe.screen.h/2 ),
+			});
     }
 
     function init_cards()
