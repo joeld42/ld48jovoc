@@ -24,6 +24,8 @@ class Creep extends Entity
 
 	var isMoving : Bool = false;
 
+	public var playerHit : Creep -> Void;
+
 	public var gameboard : Gameboard;
 
 	public function new( _name : String, _mesh : Mesh )
@@ -66,8 +68,12 @@ class Creep extends Entity
 	{
 		if (targetY < 0)
 		{
-			// Already reached home row.
-			// TODO: damage player
+			// Already reached home row. damage player
+			if (playerHit!=null)
+			{
+				playerHit( this );
+			}
+			
 			return;
 		}
 

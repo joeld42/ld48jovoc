@@ -39,8 +39,14 @@ class Main extends luxe.Game {
 
 	var cachedMeshes : Map<String,Mesh>;
 
+	// status text
 	var statusText : TextGeometry;
 	var currentStatus : String;
+
+	// Health text
+	var health : Int;
+	var healthText : TextGeometry;
+	var hitMask : Sprite;
 
     override function config( config:luxe.AppConfig ) {
 
@@ -68,6 +74,7 @@ class Main extends luxe.Game {
     	preload.add_texture( "assets/snowman.png");
     	preload.add_texture( "assets/rock.png");
     	preload.add_texture( "assets/critter.png");
+    	preload.add_texture( "assets/hit_mask.png");
 
 		preload.add_text( "assets/gameboard_5x5.obj", true);
 		preload.add_text( "assets/snowman.obj", true);
@@ -104,8 +111,16 @@ class Main extends luxe.Game {
     	// create the hud
     	create_hud();
 
-    	// load/create the initial hand
-    	init_cards();
+    	// hit mask    	
+    	hitMask = new Sprite({
+	            name: 'hitmask',	            
+	            texture: Luxe.loadTexture('assets/hit_mask.png'),
+	            batcher : hud_batcher,
+	            pos: new Vector( Luxe.screen.w/2, Luxe.screen.h/2 ),
+	            size: new Vector( Luxe.screen.w, Luxe.screen.h ),
+	            depth: 1
+			});
+    	hitMask.visible = false;
     			
     	// init tower meshes
     	init_meshes();
@@ -117,6 +132,26 @@ class Main extends luxe.Game {
     			// thing the gameboard loads
     			loadCount++;
     		} );
+
+    	// reset level
+        reset_game();
+
+        // trace( 'SCREEN: ${Luxe.screen.w} ${Luxe.screen.h}');
+    }
+
+    function reset_game()
+    {
+    	// load/create the initial hand
+    	init_cards();
+
+    	// reset health
+    	health = 20;
+    	update_health();
+    }
+
+    function update_health()
+    {
+    	healthText.text = 'HP: ${health}';
     }
 
     function init_cards()
@@ -151,7 +186,6 @@ class Main extends luxe.Game {
     		c.handNdx = ndx;
     		ndx++;
     	}
-
     }
 
     function init_meshes()
@@ -210,12 +244,45 @@ class Main extends luxe.Game {
 		{			
 			var creepEnt = new Creep( placingCard.flipname, cloneMesh( creepMeshSrc ) );					
 			creepEnt.gameboard = gameboard;
+			creepEnt.playerHit = creep_hit;
 
 			// start in the creep cave 
 			creepEnt.mesh.pos.set_xyz( 0.0, 0.0, -4.2 );
 			creepEnt.setGridTarg( 2, 5 );  // Move onto the open row
 		}
 
+    }
+
+    function creep_hit( creep : Creep )
+    {
+    	setStatusText( 'Hit by ${creep.creepName}! ',  new Color().rgb( 0xff0000) );
+
+    	health -= 5;
+    	update_health();
+
+    	Luxe.camera.shake( 0.5 );
+
+    	hitMask.visible = true;
+    	hitMask.color.a = 1.0;
+
+    	Actuate.tween( healthText.color, 0.25, { g : 1.0})
+    				.reverse()
+    				.repeat(5);
+
+    	Actuate.tween( hitMask.color, 0.3, { a : 0.0 } )
+    			.delay(0.3)
+    			.onComplete( function() {
+    					hitMask.visible = false;
+
+    					// var sx = healthText.transform.scale.x;
+    					// var sy = healthText.transform.scale.y;
+    					// healthText.transform.scale.set_xy(sx*2, sy*2);
+    					// Actuate.tween( healthText.transform.scale, 
+    					// 	0.25, 
+    					// 	{ x : sx, y : sy });
+    				});
+
+    	creep.destroy();
     }
 
     function cloneMesh( mesh : Mesh ) : Mesh
@@ -404,7 +471,7 @@ class Main extends luxe.Game {
     {
     	if (_color == null)
     	{
-    		_color = new Color().rgb(0xff4b03);
+    		_color = new Color().rgb(0x377178);
     	}
 
     	if (text != currentStatus)
@@ -439,7 +506,17 @@ class Main extends luxe.Game {
             text : "",
             point_size : small_amount * 0.55,
             bounds : new Rectangle(small_amount/2, Luxe.screen.h - small_amount, Luxe.screen.w, small_amount),
-            color : new Color().rgb(0xff4b03),
+            color : new Color().rgb(0x377178),
+            batcher : hud_batcher,
+            align_vertical : TextAlign.center
+        });
+        
+        healthText = Luxe.draw.text({
+            text : "",
+            point_size : 20,
+            bounds : new Rectangle( Luxe.screen.w - 100, Luxe.screen.h - small_amount, 
+            						100, small_amount),
+            color : new Color().rgb(0xc23c21),
             batcher : hud_batcher,
             align_vertical : TextAlign.center
         });
