@@ -80,7 +80,7 @@ class Main extends luxe.Game {
     	creeps = new Array<Creep>();
 
     	cachedMeshes = new Map<String,Mesh>();
-    	cardTopNames = [ "snowman", "rock", "sring", "sstone"];
+    	cardTopNames = [ "snowman", "rock", "sring", "sstone", "barnacle"];
     	cardFlipNames = [ "critter" ];
 
 		Luxe.renderer.clear_color = new Color().rgb( 0x1b383c );
@@ -90,8 +90,14 @@ class Main extends luxe.Game {
     	preload.add_texture( "assets/card_snowman.png");
     	preload.add_texture( "assets/card_rock.png");
     	preload.add_texture( "assets/card_critter.png");
+    	preload.add_texture( "assets/card_sstone.png");
+    	preload.add_texture( "assets/card_sring.png");
+    	preload.add_texture( "assets/card_barnacle.png");
+    	preload.add_texture( "assets/card_victory.png");
+    	preload.add_texture( "assets/card_bosscreep.png");
     	preload.add_texture( "assets/testgrid.png");
     	preload.add_texture( "assets/snowman.png");
+    	preload.add_texture( "assets/barnacle.png");
     	preload.add_texture( "assets/rock.png");
     	preload.add_texture( "assets/critter.png");
     	preload.add_texture( "assets/victory.png");
@@ -102,9 +108,11 @@ class Main extends luxe.Game {
     	preload.add_texture( "assets/sring.png");
     	preload.add_texture( "assets/sstone.png");
     	preload.add_texture( "assets/cardback.png");
+    	preload.add_texture( "assets/winner.png");
 
 		preload.add_text( "assets/gameboard_5x5.obj", true);
 		preload.add_text( "assets/snowman.obj", true);
+		preload.add_text( "assets/barnacle.obj", true);
 		preload.add_text( "assets/rock.obj", true);
 		preload.add_text( "assets/cursor.obj", true );
 		preload.add_text( "assets/critter.obj", true );
@@ -291,9 +299,20 @@ class Main extends luxe.Game {
 
     function game_over()
     {
+    	var gameoverTex : Texture;
+    	if (health <= 0)
+    	{
+    		// dead
+    		gameoverTex = Luxe.loadTexture('assets/gameover.png');
+    	}
+    	else
+    	{
+    		// health left, must have killed the bosscreep
+    		gameoverTex = Luxe.loadTexture('assets/winner.png');    		
+    	}
     	gameOver = new Sprite({
 	            name: 'gameover',	            
-	            texture: Luxe.loadTexture('assets/gameover.png'),
+	            texture: gameoverTex,
 	            batcher : hud_batcher,
 	            pos: new Vector( Luxe.screen.w/2, Luxe.screen.h/2 ),
 	            rotation_z : -5.0
@@ -371,8 +390,9 @@ class Main extends luxe.Game {
     {
     	// Load the src meshes for the tower objects
     	var srcMeshes: Array<String> = [
-    		"snowman", "rock", "critter", "bosscreep", "victory",
-    		"sring", "sstone"
+    		"snowman", "rock", "critter", 
+    		"bosscreep", "victory",
+    		"sring", "sstone", "barnacle"
     	];
 
     	for (meshName in srcMeshes)
@@ -587,6 +607,14 @@ class Main extends luxe.Game {
 	{
 		// TODO: some kind of feedback or explosion
 		removeCreep(creep);
+
+		// Is this the boss creep?
+		trace('killed creep ${creep.creepName}');
+		if (creep.creepName=='bosscreep')
+		{
+			// Yay you win
+			game_over();
+		}
 	}
 
     // ====================================================================

@@ -49,7 +49,8 @@ class Creep extends Entity
 			spinAmt = 0.0;
 			moveTime = 0.2;
 			damage = 25;
-			health = 20;
+			health = 25;
+			//health = 1;
 		}
 		else // "critter"
 		{

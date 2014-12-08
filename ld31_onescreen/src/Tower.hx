@@ -46,10 +46,17 @@ class Tower extends Entity
 	{
 		if (towerName=='snowman')
 		{
-			shootTimeout = 1.0;
-			shootDamage = 1.0;
+			shootTimeout = 2.0;
+			shootDamage = 4.0;
 			shootRange = 3.0;
 			bulletSpeed = 20.0; // in grids per second
+		}
+		if (towerName=='barnacle')
+		{
+			shootTimeout = 0.5;
+			shootDamage = 1.0;
+			shootRange = 3.0;
+			bulletSpeed = 15.0; // in grids per second
 		}
 		else // (towerName=='rock')
 		{
