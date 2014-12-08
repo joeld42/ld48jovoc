@@ -225,7 +225,7 @@ class Main extends luxe.Game {
         var prefix : String = "";
 
         // Uncomment this when targeting web
-        prefix = "precision mediump float;\n\n";
+        //prefix = "precision mediump float;\n\n";
 
         var vsid = "leviathan.base.vertex";
         var vert = glsw.get( vsid );        
