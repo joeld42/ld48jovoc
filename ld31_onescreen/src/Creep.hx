@@ -65,7 +65,7 @@ class Creep extends Entity
 	public function takeDamage( _damage : Float )
 	{
 		health -= _damage;
-		trace('creep damaged: HP ${health}');
+		// trace('creep damaged: HP ${health}');
 
 		if (health <= 0.0)
 		{			

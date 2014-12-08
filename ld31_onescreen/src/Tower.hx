@@ -51,7 +51,7 @@ class Tower extends Entity
 			shootRange = 3.0;
 			bulletSpeed = 20.0; // in grids per second
 		}
-		if (towerName=='barnacle')
+		else if (towerName=='barnacle')
 		{
 			shootTimeout = 0.5;
 			shootDamage = 1.0;

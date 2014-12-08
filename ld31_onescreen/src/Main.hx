@@ -462,7 +462,7 @@ class Main extends luxe.Game {
     function creep_hit( creep : Creep )
     {
     	setStatusText( 'Hit by ${creep.creepName}! ',  new Color().rgb( 0xff0000) );
-    	trace('Hit ${creep.creepName} HP ${creep.health}');
+    	trace('Hit ${creep.creepName} creep health ${creep.health}');
 
     	health -= creep.damage;
     	update_health();
