@@ -16,7 +16,8 @@ import phoenix.Batcher;
 import phoenix.Texture;
 import phoenix.geometry.Geometry;
 import phoenix.geometry.TextGeometry;
-
+import phoenix.Shader;
+import hxsw.HXSW;
 import snow.render.opengl.GL;
 
 import Gameboard;
@@ -37,6 +38,12 @@ class Main extends luxe.Game {
 
 	var cardTopNames : Array<String>;
 	var cardFlipNames : Array<String>;
+
+	// Shaders
+	var glsw : HXSW;
+	var baseShader : Shader;
+	var ghostShader : Shader;
+	var tval : Float = 0.0;
 
 	var hand : Array<Card>;
 
@@ -132,6 +139,15 @@ class Main extends luxe.Game {
     	Luxe.camera.pos.set_xyz(0,4.2,7.35);
     	Luxe.camera.rotation.setFromEuler( new Vector( -35.0, 0, 0).radians() );
 
+    	// load the shaders
+    	init_shaders();
+
+    	// var v = new Vector( 1.0, 0.2, 0.5);
+    	// v.normalize();
+    	// var c = new Vector(1.0, 0.5234375, 0.23046875);
+    	// c.multiplyScalar( 0.2 );
+    	// trace('v ${v.x}, ${v.y}, ${v.z}   c ${c.x}, ${c.y}, ${c.z}' );
+
     	// create the hud
     	create_hud();
 
@@ -179,12 +195,46 @@ class Main extends luxe.Game {
     			// note to self: this gets called once for each
     			// thing the gameboard loads
     			loadCount++;
-    		} );
+    		}, baseShader );
 
     	// reset level
         reset_game();
 
         // trace( 'SCREEN: ${Luxe.screen.w} ${Luxe.screen.h}');
+    }
+
+    function init_shaders()
+    {
+    	        // Load shaders
+        glsw = new HXSW({
+            path : './assets/',
+            ext : '.glsl',
+            logging : false,
+            load_effect : load_effect
+        });
+
+        
+        var prefix : String = "";
+
+        // Uncomment this when targeting web
+        prefix = "precision mediump float;\n\n";
+
+        var vsid = "leviathan.base.vertex";
+        var vert = glsw.get( vsid );        
+
+		var fsid = "leviathan.base.fragment";
+        var frag = prefix + glsw.get(fsid);       
+
+        baseShader = new Shader( Luxe.resources );
+		baseShader.id = "shader.base" + Luxe.utils.uniqueid();
+		baseShader.from_string( vert, frag, vsid, fsid, false );
+
+		 var fsid_ghost = "leviathan.ghost.fragment";		 
+         var frag_ghost = prefix + glsw.get(fsid_ghost);
+
+		ghostShader = new Shader( Luxe.resources );
+		ghostShader.id = "shader.ghost" + Luxe.utils.uniqueid();
+		ghostShader.from_string( vert, frag_ghost, vsid, fsid_ghost, true );        
     }
 
     function connect_events()
@@ -353,11 +403,14 @@ class Main extends luxe.Game {
 		var towerMeshSrc = cachedMeshes[ tname ];
 		
 		var towerEnt = new Tower( placingCard.topname, cloneMesh( towerMeshSrc ) );
+		towerEnt.mesh.geometry.shader = baseShader;
 		towerEnt.mesh.pos.copy_from(gameboard.ghost.pos);
 
 		// animate in
-		towerEnt.mesh.pos.y = -2.0;
-		Actuate.tween( towerEnt.mesh.pos, 1.0, { y : 0.0 } );
+		// towerEnt.mesh.pos.y = -2.0;
+		towerEnt.mesh.scale.set_xyz( 0.01, 0.01, 0.01 );
+		Actuate.tween( towerEnt.mesh.scale, 1.0, { x : 1.0, y : 1.0, z : 1.0 } )
+					.ease(luxe.tween.easing.Cubic.easeInOut);
 
 		gameboard.buildTower( gameboard.cursorBoardX,gameboard.cursorBoardY,towerEnt);
 
@@ -372,7 +425,8 @@ class Main extends luxe.Game {
 		var creepMeshSrc = cachedMeshes[ cname ];
 		if (creepMeshSrc != null)
 		{			
-			var creepEnt = new Creep( placingCard.flipname, cloneMesh( creepMeshSrc ) );					
+			var creepEnt = new Creep( placingCard.flipname, cloneMesh( creepMeshSrc ) );
+			creepEnt.mesh.geometry.shader = baseShader;
 			creepEnt.gameboard = gameboard;
 			creepEnt.playerHit = creep_hit;
 
@@ -388,6 +442,7 @@ class Main extends luxe.Game {
     function creep_hit( creep : Creep )
     {
     	setStatusText( 'Hit by ${creep.creepName}! ',  new Color().rgb( 0xff0000) );
+    	trace('Hit ${creep.creepName} HP ${creep.health}');
 
     	health -= creep.damage;
     	update_health();
@@ -698,6 +753,7 @@ class Main extends luxe.Game {
         				{
         					var ghostMeshSrc = cachedMeshes[ c.topname ];
         					gameboard.ghost = cloneMesh( ghostMeshSrc );
+        					gameboard.ghost.geometry.shader = ghostShader;
         				}
 
         				gameboard.update_ghost( true );
@@ -751,6 +807,13 @@ class Main extends luxe.Game {
 
     	// trace('loadCount ${loadCount}');
     	//var v = (mouse.y / Luxe.screen.h);
+    	if (ghostShader != null)
+    	{
+    		tval += dt;
+    		// ghostShader.set_float( "tval", tval );
+    		ghostShader.set_float( "tval", tval );
+    		//ghostShader.set_vector2( "tval", new Vector( tval, tval) );
+    	}
 
     } //update
 
@@ -810,6 +873,12 @@ class Main extends luxe.Game {
 
         setStatusText('Ludum Dare #31 Game -- Jovoc (joeld42@gmail.com)');
     } //create_hud
+
+    // load effect for shaders
+    function load_effect( path:String ) {
+        trace( '>>> load_effect: ${path}');
+        return Luxe.loadText( path ).text;
+    }
 
 
 } //Main

@@ -18,7 +18,7 @@ class Creep extends Entity
 	var moveTime : Float; // how long it takes to move 1 square
 	var spinSpeed : Float;
 	var spinAmt : Float;
-	var health : Float;
+	public var health : Float;
 
 	public var damage : Int;
 

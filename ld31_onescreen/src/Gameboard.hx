@@ -6,6 +6,7 @@ import luxe.Input;
 import luxe.Camera;
 import phoenix.Ray;
 import luxe.utils.Maths;
+import phoenix.Shader;
 
 import Tower;
 
@@ -65,7 +66,7 @@ class Gameboard
 		snapCursorPos = new Vector();
 	}
 
-	public function setup( _onload : Gameboard -> Void )
+	public function setup( _onload : Gameboard -> Void, shader : Shader )
 	{
     	// Load the gameboard
 		var tex = Luxe.loadTexture('assets/gameboard_5x5.png');     
@@ -77,7 +78,7 @@ class Gameboard
                       onload : function ( m : Mesh ) {
                             
                             mesh = m;
-                            // gameboard.geometry.shader = worldShader;
+                            mesh.geometry.shader = shader;
 
                             //loadCount++;
                             _onload( this );
