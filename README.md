@@ -14,6 +14,8 @@ List of Games
 -----
 (bolded entries are the ones in this package)
   
+  * LD31: *One Screen* -- [Leviathan](https://www.youtube.com/watch?v=iGt-Aj_CzvI)
+  * LD30: *Connected Worlds -- Untitled World Game*
   * LD26: *Minimalism -- Minimum RPG*
   * LD25: *You Are the Villian* -- [Evil Lair](http://www.vickijoel.org/ld25/ld25_villian.html)
   * LD24: *Evolution* -- [EvoWord](http://www.youtube.com/watch?v=Wr5etU6131M)
@@ -66,7 +68,8 @@ Part of the reason for creating this repository is to share the games with the w
 source games. But I'm also planning to add future games to this repo, so during future contests you can watch me code
 in real time (or as often as I check in). 
 
-== Building the Games ==
+Building the Games
+-----
 
 The build system is pretty craptastic right now. There's a CMake project that will build some of the games on linux
 but it will certainly need some tweaking to work for you. For windows, there are a few msdev project files but they
@@ -74,7 +77,8 @@ will probably need so much work you'd be better off starting from scratch.
 
 I've updated it a bit, some of them build and run on MacOS now, if you have SDL installed.
 
-== The Minibasecode ==
+The Minibasecode
+----
 
 I've collected a few bits and pieces of the code into a "minibasecode" subdirectory, and there's a script in the
 "ld_template" directory that will do a lot of the work of setting up a new entry for me, with a basic game loop and
@@ -84,3 +88,5 @@ know how to workaround all the cruft, but that's what I start my ludumdare games
 I'm also working on a "real" game engine called luddite (which lives elsewhere), unfortunately it is not yet in a
 useful state. The "luddite" directory in here is a precursor to that, it's all dead code and isn't very useful
 anyways.
+
+There's also an experimental snowkit basecode, but I wouldn't suggest using it.
