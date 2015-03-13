@@ -2,7 +2,7 @@
  LudumDare #20
  Take This!
 
-Joel Davis (joeld42@yahoo.com)
+Joel Davis (joeld42@gmail.com) (@joeld42 on twitter)
 ==============================
 
 This game was developed during the Ludum Dare 48 hour game contest.
