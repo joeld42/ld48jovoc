@@ -2,7 +2,7 @@
  LudumDare #20
  Take This!
 
-Joel Davis (joeld42@yahoo.com)
+Joel Davis (joeld42@gmail.com) (@joeld42 on twitter)
 ==============================
 
 This game was developed during the Ludum Dare 48 hour game contest.
@@ -53,10 +53,11 @@ Kill monsters to get health and Rubees.
 Chat with strange old men who live in caves.
 
 The "voxel sprites" were created in Sproxel:
+http://sproxel.blogspot.com/
 http://code.google.com/p/sproxel/
 
 Source code is available at:
-http://code.google.com/p/ld48jovoc/
+https://github.com/joeld42/ld48jovoc/tree/master/ld20_TakeThis
 Under the /ld20_TakeThis directory. This may be more recent than 
 the contest version, if you want the exact compo source, check out
 revision r146 (or so, I might make a few changes in the next few minutes).
