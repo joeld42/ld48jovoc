@@ -1,0 +1,36 @@
+{
+
+  luxe:{
+    window: {
+      width:900,
+      height:600,
+      title:'LD32 - Jovoc - Food Fight',
+      fullscreen:false,
+      resizable:false,
+      borderless:false
+    }
+  },
+
+  project : {
+    name : 'foodfight',
+    version : '1.0.0',
+    author : 'joeld42@gmail.com',
+
+    app : {
+      name : 'foodfight',
+      package : 'com.tapnik.foodfight'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}
