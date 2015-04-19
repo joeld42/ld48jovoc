@@ -65,6 +65,11 @@ class Main extends luxe.Game {
     var enemies : Array<Enemy>;
     var navPoints : Array<Vector>;
 
+    var nextWaveTimeout : Float;
+    var nextSpawnTimeout : Float;
+    var spawnCount : Int;
+    var spawnLoc : Vector;    
+
     // Geometry
     var playerDir : Vector;
     var strafeDir : Vector;
@@ -286,6 +291,9 @@ class Main extends luxe.Game {
             new Vector(  0.0, 8.4 )
         ];
 
+        // init game
+        resetGame();
+
     } // ready
 
     override function onkeyup( e:KeyEvent ) {
@@ -338,8 +346,8 @@ class Main extends luxe.Game {
         // }
 
         var enemy = new Enemy(cloneMesh( meshEnemySrc ));
-        enemy.mesh.pos.set_xyz( 0.0, 0.0, -15.0 );
-        enemy.exitPos.set_xyz( 0.0, 0.0, 15.0 );
+        enemy.mesh.pos.copy_from( spawnLoc );
+        enemy.exitPos.copy_from( randomSpawnPos() );
         enemy.goalPos.copy_from( meshPlayer.pos );
         updateEnemyTarget( enemy );
         enemies.push( enemy );
@@ -474,6 +482,9 @@ class Main extends luxe.Game {
             ee.mesh.destroy();            
         }
 
+        // Spawn new enemies
+        updateSpawns( dt );
+
         // calc player direction
         var testPlayerDir = new Vector( meshPlayer.pos.x - oldPlayerPos.x,
                                         meshPlayer.pos.y - oldPlayerPos.y,
@@ -487,7 +498,7 @@ class Main extends luxe.Game {
         if(Luxe.input.inputpressed('fire')) {
             trace('fire pressed in update');
             fireUnconventionalWeapon( dt );
-            spawnEnemy();
+            // spawnEnemy();
             firing = true;
         }
 
@@ -556,6 +567,28 @@ class Main extends luxe.Game {
         
     } //update
 
+    function updateSpawns( dt : Float )
+    {
+        nextWaveTimeout -= dt;
+        if (nextWaveTimeout <= 0.0) {
+            nextWaveTimeout = 15.0;
+
+            spawnCount = Maths.random_int( 8, 14 );
+            nextSpawnTimeout = 0.0;            
+            spawnLoc = randomSpawnPos(); // everyone in a wave starts from the same pos
+        }
+
+        if (spawnCount > 0 ) {
+            nextSpawnTimeout -= dt;
+            if (nextSpawnTimeout <= 0.0) {
+                nextSpawnTimeout = 0.6;
+                spawnCount--;
+
+                spawnEnemy();
+            }
+        }
+    }
+
     function updateEnemyTarget( ee : Enemy )
     {
     
@@ -602,6 +635,19 @@ class Main extends luxe.Game {
         }
     }
 
+    function randomSpawnPos() : Vector {
+        var i = Maths.random_int( 0, 3 );
+        if (i==0) {
+            return new Vector( 0.0, 0.0, -15.0 ); // top
+        } else if (i==1) {
+            return new Vector( 0.0, 0.0, 15.0 ); // bottom
+        } else if (i==2) {
+            return new Vector( -15.0, 0.0, 0.0 ); // left
+        } else {
+            return new Vector( 15.0, 0.0, 0.0 ); // right
+        }
+    }    
+
     override function onrender() {
 
         // Is everything initted?
@@ -618,6 +664,17 @@ class Main extends luxe.Game {
     }
 
     function resetGame() {
+
+        // general init
+        spawnCount = 0;
+        nextWaveTimeout = 5.0; // timeout for first wave
+
+        if (gameReadySemaphore > 0) {
+            return;
+        }
+
+        // below here, init that depends on stuff loaded
+
         while (bullets.length > 0) {
             var b = bullets.pop();
             b.mesh.destroy();
