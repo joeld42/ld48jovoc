@@ -155,11 +155,12 @@ class Main extends luxe.Game {
         // Create the game world
         walls = [
             // confusing: it's center, w, h
-            Polygon.rectangle( -11.0, 0.0, 2.0, 22.0),
-            Polygon.rectangle(  11.0, 0.0, 2.0, 22.0),
-            Polygon.rectangle(  0.0, -11.0, 22.0, 2.0),
-            Polygon.rectangle(  0.0, 11.0, 22.0, 2.0),
+            Polygon.rectangle( -11.0, 0.0, 2.0, 25.0),
+            Polygon.rectangle(  11.0, 0.0, 2.0, 25.0),
+            Polygon.rectangle(  0.0, -11.0, 25.0, 2.0),
+            Polygon.rectangle(  0.0, 11.0, 25.0, 2.0),
         ];
+
         playerShape = new Circle( 0.0, 0.0, 0.4 );
 
     } // ready
@@ -194,11 +195,45 @@ class Main extends luxe.Game {
             return;
         }
 
-        // update input dir                
-        meshPlayer.pos.set_xyz(
-            meshPlayer.pos.x + (inputLeft.x + inputRight.x + inputUp.x + inputDown.x) * dt,
-            meshPlayer.pos.y + (inputLeft.y + inputRight.y + inputUp.y + inputDown.y) * dt,
-            meshPlayer.pos.z + (inputLeft.z + inputRight.z + inputUp.z + inputDown.z) * dt );
+        // update input dir (the 0.1 is for substeps)                       
+        var inputDir = new Vector(
+            (inputLeft.x + inputRight.x + inputUp.x + inputDown.x) * dt * 0.2,
+            (inputLeft.y + inputRight.y + inputUp.y + inputDown.y) * dt * 0.2,
+            (inputLeft.z + inputRight.z + inputUp.z + inputDown.z) * dt * 0.2 );
+
+        for ( substep in 0...10)
+        {
+            // Try the new position for collision
+            if ((substep % 2)==0) {
+                // Even substep, move x
+                playerShape.position.set_xy( playerShape.position.x + inputDir.x,
+                                             playerShape.position.y  );
+            } else {
+                // odd substep, move y
+                playerShape.position.set_xy( playerShape.position.x,
+                                             playerShape.position.y + inputDir.z );
+            }
+
+            var collisions = Collision.shapeWithShapes( playerShape, walls);
+            if (collisions.length>0) {
+
+                // Collided, just use the first collider            
+                var coll = collisions[0];
+                var sep = coll.separation;
+
+                // trace('COLLIDE: ${coll} ${sep} ${collisions.length}');
+
+                var mover_separated_pos = new Vector( coll.shape1.position.x + sep.x*1.01, 
+                                                      coll.shape1.position.y + sep.y*1.01 );
+
+                playerShape.position.set_xy( mover_separated_pos.x, mover_separated_pos.y );
+            }
+            else 
+            {
+                // no collision here, use the new shape
+                meshPlayer.pos.set_xyz( playerShape.position.x, 0.0, playerShape.position.y );
+            }
+        }
 
         playerShape.position.set_xy( meshPlayer.pos.x, meshPlayer.pos.z );
 
