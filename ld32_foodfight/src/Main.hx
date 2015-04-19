@@ -70,6 +70,7 @@ class Main extends luxe.Game {
     var splatterMeshes : Array<Mesh>;
     var enemies : Array<Enemy>;
     var navPoints : Array<Vector>;
+    var grinderAngle = 0.0;
 
     var nextWaveTimeout : Float;
     var nextSpawnTimeout : Float;
@@ -144,8 +145,8 @@ class Main extends luxe.Game {
                              }});
 
         // Enemy
-        var texEnemy = Luxe.loadTexture('assets/ld32_foodfight_tmp_enemy.png');          
-        meshEnemySrc = new Mesh({ file:'assets/ld32_foodfight_tmp_enemy.obj', 
+        var texEnemy = Luxe.loadTexture('assets/ld32_turnip.png');          
+        meshEnemySrc = new Mesh({ file:'assets/ld32_turnip.obj', 
                             texture:texEnemy, onload: function (m : Mesh ) {
                                 m.geometry.visible = false;
                                 meshloaded(m);
@@ -389,6 +390,11 @@ class Main extends luxe.Game {
             return;
         }
 
+        // rotate the grinder
+        grinderAngle += 580*dt;
+        meshGrinder.rotation.setFromEuler(new Vector(0,grinderAngle,0).radians());
+        
+
         // Collisions and movement
         var playerDead = false;
         var oldPlayerPos = meshPlayer.pos.clone();
@@ -482,6 +488,8 @@ class Main extends luxe.Game {
             var edist = edir.length;
             edir.normalize();
 
+            ee.mesh.rotation.setFromEuler(new Vector(0,Math.atan2( edir.x, edir.z),0) );
+
             edir.multiplyScalar( espeed );
             if (edist < espeed)
             {                
@@ -528,6 +536,8 @@ class Main extends luxe.Game {
             playerDir.copy_from( testPlayerDir );
             playerDir.normalize();
         }
+
+        meshPlayer.rotation.setFromEuler(new Vector(0,Math.atan2(playerDir.z, -playerDir.x),0) );
 
         // Shooty shooty
         if(Luxe.input.inputpressed('fire')) {
@@ -638,7 +648,7 @@ class Main extends luxe.Game {
     {
         nextWaveTimeout -= dt;
         if (nextWaveTimeout <= 0.0) {
-            nextWaveTimeout = 15.0;
+            nextWaveTimeout = 5.0;
 
             spawnCount = Maths.random_int( 8, 14 );
             nextSpawnTimeout = 0.0;            
@@ -648,7 +658,7 @@ class Main extends luxe.Game {
         if (spawnCount > 0 ) {
             nextSpawnTimeout -= dt;
             if (nextSpawnTimeout <= 0.0) {
-                nextSpawnTimeout = 0.6;
+                nextSpawnTimeout = 0.4;
                 spawnCount--;
 
                 spawnEnemy();
