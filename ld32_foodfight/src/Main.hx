@@ -18,6 +18,8 @@ import phoenix.Camera;
 import phoenix.geometry.Geometry;
 import phoenix.Batcher;
 
+import luxe.tween.Actuate;
+
 class Bullet {
     public var mesh : Mesh;
     public var vel : Vector;
@@ -34,12 +36,15 @@ class Enemy {
     public var goalPos : Vector;
     public var exitPos : Vector;
     public var exiting : Bool = false;
+    public var health : Float = 10.0;
+    public var shape : Circle;
 
     public function new ( _mesh : Mesh ) {
         mesh = _mesh;
         targetPos = new Vector();
         goalPos = new Vector();
         exitPos = new Vector();
+        shape = new Circle( _mesh.pos.x, _mesh.pos.z, 0.4 );
     }
 }
 
@@ -50,6 +55,7 @@ class Main extends luxe.Game {
     var inputRight : Vector;
     var inputUp : Vector;
     var inputDown : Vector;
+    var health : Int = 5;
 
     // Camera
     var cameraTarget : Vector;
@@ -69,6 +75,7 @@ class Main extends luxe.Game {
     var nextSpawnTimeout : Float;
     var spawnCount : Int;
     var spawnLoc : Vector;    
+
 
     // Geometry
     var playerDir : Vector;
@@ -255,7 +262,7 @@ class Main extends luxe.Game {
             new Circle(  3.0, 5.5, 1.8 ),
             Polygon.rectangle(  0.0, -5.3, 7.2, 1.8),
             Polygon.rectangle(  6.7, 0.0, 1.8, 7.2 ),
-            Polygon.rectangle(  -6.7, 0.0, 1.8, 7.2 )
+            Polygon.rectangle(  -6.4, 0.0, 1.8, 7.2 )
         ];
 
         enemyWalls = walls.slice( 4 ); // enemy walls 
@@ -268,7 +275,6 @@ class Main extends luxe.Game {
         enemyWalls.push( Polygon.rectangle( -11.0,  5.56, 2.0, 9.0 ));        
         enemyWalls.push( Polygon.rectangle( 11.0, -5.56, 2.0, 9.0 ));
         enemyWalls.push( Polygon.rectangle( 11.0,  5.56, 2.0, 9.0 ));        
-
 
         playerShape = new Circle( 0.0, 0.0, 0.4 );
 
@@ -365,7 +371,15 @@ class Main extends luxe.Game {
 
         bullets.push( bullet );        
 
+        // kick-back (doesn't properly consider collision but whatevers...)
+        var kickVec = Vector.Multiply( bullet.vel, -0.2 );
+        meshPlayer.pos.add( kickVec );
+        meshPlayer.pos.y = 0.0;
+        playerShape.position.set_xy( meshPlayer.pos.x, meshPlayer.pos.z );
+
         shootyTimeout = 0.1;
+
+        Luxe.camera.shake( 0.1 );
     }
 
     override function update(dt:Float) {
@@ -425,15 +439,36 @@ class Main extends luxe.Game {
             }
         }
 
-        // check collide with enemies
-        // TODO
-
         // commit new player position
         playerShape.position.set_xy( meshPlayer.pos.x, meshPlayer.pos.z );
+
+         // check if hit enemies
+         for ( ee in enemies) {
+            
+            ee.shape.position.set_xy( ee.mesh.pos.x, ee.mesh.pos.z );
+
+            var  coll = Collision.shapeWithShape( ee.shape, playerShape ) ;
+            if (coll != null) {
+                
+                health--;
+                Luxe.camera.shake( 1.0 );
+
+                if (health <= 0) {
+                    playerDead = true;
+                }
+
+                var sep = coll.separation;
+                var knockbackDir = Vector.Subtract( meshPlayer.pos, ee.mesh.pos );
+
+                meshPlayer.pos.add( knockbackDir );
+                playerShape.position.set_xy( meshPlayer.pos.x, meshPlayer.pos.z );
+            }
+         }
 
         // Check for game over
         if (playerDead) {
             // TODO: need better splat effect
+            Luxe.camera.shake( 3.0 );
             resetGame( );
         }
 
@@ -507,11 +542,9 @@ class Main extends luxe.Game {
             firing = false;
         }
 
-        if (!firing) {
-            desc.text = 'Not Shooting';
+        if (!firing) {     
             strafeDir.copy_from( playerDir );
-        } else {
-            desc.text = 'Shooting: ${shootyTimeout}';
+        } else {    
             shootyTimeout -= dt;            
             if (shootyTimeout <= 0.0) {
                 fireUnconventionalWeapon(dt);
@@ -529,8 +562,19 @@ class Main extends luxe.Game {
             if (b.mesh.pos.lengthsq > 250.0) {
                 expiredBullets.push( b );
             } else {
-                // check against walls
+                
                 bulletShape.position.set_xy( b.mesh.pos.x, b.mesh.pos.z );
+
+                // check enemies
+                for (ee in enemies) {
+                    // enemy shape was updated already above
+                     if (Collision.shapeWithShape(ee.shape,bulletShape)!=null) {
+                        trace("Hit enemy");
+                        ee.health -= 12.0;
+                     }
+                }
+
+                // check against walls
                 var collisions = Collision.shapeWithShapes( bulletShape, walls);
                 if (collisions.length>0) {
 
@@ -555,6 +599,26 @@ class Main extends luxe.Game {
             splatterMeshes.push( b.mesh );            
         }
 
+        // Check for any dead enemies
+        var deceasedEnemies = new Array<Enemy>();
+        for (ee in enemies) {
+            if (ee.health <= 0.0) {
+                deceasedEnemies.push(ee);
+            }
+        }
+        if (deceasedEnemies.length > 0) {
+            Luxe.camera.shake( 0.8 );
+        }
+        for (ee in deceasedEnemies) {            
+            enemies.remove(ee);
+            Actuate.tween( ee.mesh.scale, 0.3, { x : 0.0, y : 15.0, z : 0.0 } 
+                ).onComplete( function() {
+                        ee.mesh.destroy();
+                    });
+            
+        }
+
+
         // Update camera pos        
         cameraTarget.set_xyz( meshPlayer.pos.x + (strafeDir.x * 3.0), 
                               meshPlayer.pos.y + 18.0,
@@ -565,6 +629,9 @@ class Main extends luxe.Game {
             Luxe.camera.pos.z + (cameraTarget.z-Luxe.camera.pos.z) * dt );
 
         
+        // update hud
+        desc.text = 'HP: ${health}';
+
     } //update
 
     function updateSpawns( dt : Float )
@@ -666,6 +733,7 @@ class Main extends luxe.Game {
     function resetGame() {
 
         // general init
+        health = 5;
         spawnCount = 0;
         nextWaveTimeout = 5.0; // timeout for first wave
 
@@ -683,6 +751,11 @@ class Main extends luxe.Game {
         while (splatterMeshes.length > 0) {
             var m = splatterMeshes.pop();
             m.destroy();
+        }
+
+        while (enemies.length > 0) {
+            var ee = enemies.pop();
+            ee.mesh.destroy();
         }
 
         meshPlayer.pos.set_xyz( 0.0, 0.0, 5.0 );
