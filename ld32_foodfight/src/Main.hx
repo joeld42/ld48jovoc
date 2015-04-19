@@ -28,6 +28,21 @@ class Bullet {
     }
 }
 
+class Enemy {
+    public var mesh : Mesh;
+    public var targetPos : Vector;
+    public var goalPos : Vector;
+    public var exitPos : Vector;
+    public var exiting : Bool = false;
+
+    public function new ( _mesh : Mesh ) {
+        mesh = _mesh;
+        targetPos = new Vector();
+        goalPos = new Vector();
+        exitPos = new Vector();
+    }
+}
+
 class Main extends luxe.Game {
 
     // Player stuff
@@ -42,10 +57,13 @@ class Main extends luxe.Game {
 
     // Game World
     var walls : Array<Shape>;
+    var enemyWalls : Array<Shape>;
     var playerShape : Shape;
     var grinderShape : Shape;
     var bullets : Array<Bullet>;
     var splatterMeshes : Array<Mesh>;
+    var enemies : Array<Enemy>;
+    var navPoints : Array<Vector>;
 
     // Geometry
     var playerDir : Vector;
@@ -54,11 +72,12 @@ class Main extends luxe.Game {
 	var meshPlayer : Mesh;
     var meshGrinder : Mesh;
     var meshBulletSrc : Mesh;
+    var meshEnemySrc : Mesh;
     var firing : Bool = false;
     var shootyTimeout : Float;
 
     // Everything is ready
-    var gameReadySemaphore : Int = 4;
+    var gameReadySemaphore : Int = 5;
 
     // Debug and HUD tools
     var hud_batcher:Batcher;
@@ -112,8 +131,16 @@ class Main extends luxe.Game {
                                 meshloaded(m);
                              }});
 
+        // Enemy
+        var texEnemy = Luxe.loadTexture('assets/ld32_foodfight_tmp_enemy.png');          
+        meshEnemySrc = new Mesh({ file:'assets/ld32_foodfight_tmp_enemy.obj', 
+                            texture:texEnemy, onload: function (m : Mesh ) {
+                                m.geometry.visible = false;
+                                meshloaded(m);
+                             }});
+
         // Grinder
-        var texGrinder = Luxe.loadTexture('assets/ld32_footfight_grinder.png');          
+        var texGrinder = Luxe.loadTexture('assets/ld32_foodfight_grinder.png');          
         meshGrinder = new Mesh({ file:'assets/ld32_foodfight_grinder.obj', 
                             texture:texGrinder, onload: function (m : Mesh ) {                                
                                 meshloaded(m);
@@ -165,17 +192,20 @@ class Main extends luxe.Game {
         playerDir = new Vector( 0.0, 0.0, -1.0 );
         strafeDir = playerDir.clone();
         bullets = new Array<Bullet>();
+        enemies = new Array<Enemy>();
         splatterMeshes = new Array<Mesh>();
-        cameraTarget = new Vector();
+        cameraTarget = new Vector();    
 
 		var preload = new Parcel();    	
     	preload.add_texture( "assets/ld32_foodfight_env.png");
     	preload.add_texture( "assets/tmp_player.png");
+        preload.add_texture( "assets/ld32_foodfight_tmp_enemy.png");
         preload.add_texture( "assets/peas.png");
         preload.add_texture( "assets/ld32_foodfight_grinder.png");
 
 		preload.add_text( "assets/ld32_foodfight_env.obj" );
 		preload.add_text( "assets/ld32_foodfight_tmp_player.obj" );
+        preload.add_text( "assets/ld32_foodfight_tmp_enemy.obj" );
         preload.add_text( "assets/ld32_foodfight_cube.obj" );
         preload.add_text( "assets/ld32_foodfight_grinder.obj" );
 
@@ -223,7 +253,38 @@ class Main extends luxe.Game {
             Polygon.rectangle(  -6.7, 0.0, 1.8, 7.2 )
         ];
 
+        enemyWalls = walls.slice( 4 ); // enemy walls 
+        enemyWalls.push( Polygon.rectangle( -5.56, -11, 9, 2.0 ));
+        enemyWalls.push( Polygon.rectangle( 5.56, -11, 9, 2.0 ));
+        enemyWalls.push( Polygon.rectangle( -5.56, 11, 9, 2.0 ));
+        enemyWalls.push( Polygon.rectangle( 5.56, 11, 9, 2.0 ));
+
+        enemyWalls.push( Polygon.rectangle( -11.0, -5.56, 2.0, 9.0 ));
+        enemyWalls.push( Polygon.rectangle( -11.0,  5.56, 2.0, 9.0 ));        
+        enemyWalls.push( Polygon.rectangle( 11.0, -5.56, 2.0, 9.0 ));
+        enemyWalls.push( Polygon.rectangle( 11.0,  5.56, 2.0, 9.0 ));        
+
+
         playerShape = new Circle( 0.0, 0.0, 0.4 );
+
+        navPoints = [
+            new Vector(  0.0, -8.0 ),
+            new Vector( -6.6, -7.2 ), 
+            new Vector(  6.6, -7.2 ),
+            new Vector( -8.7, 0.0 ),
+            new Vector(  8.7, 0.0 ),
+            new Vector( -4.6, -4.2 ),
+            new Vector(  4.6, -4.2 ),
+            new Vector(  0.0, -3.0 ),
+            new Vector( -3.8,  0.0 ),
+            new Vector(  3.8,  0.0 ),
+            new Vector( -5.0, 4.0 ),
+            new Vector(  5.0, 4.0 ),
+            new Vector(  0.0, 3.0 ),
+            new Vector( -6.6, 7.2 ), 
+            new Vector(  6.6, 7.2 ),
+            new Vector(  0.0, 8.4 )
+        ];
 
     } // ready
 
@@ -268,6 +329,21 @@ class Main extends luxe.Game {
         return mesh2;
     }
 
+    function spawnEnemy( )
+    {
+        // // DBG put bullets at nav points
+        // for (np in navPoints) {
+        //     var dot = cloneMesh( meshBulletSrc );
+        //     dot.pos.set_xyz( np.x, 0.0, np.y );
+        // }
+
+        var enemy = new Enemy(cloneMesh( meshEnemySrc ));
+        enemy.mesh.pos.set_xyz( 0.0, 0.0, -15.0 );
+        enemy.exitPos.set_xyz( 0.0, 0.0, 15.0 );
+        enemy.goalPos.copy_from( meshPlayer.pos );
+        updateEnemyTarget( enemy );
+        enemies.push( enemy );
+    }
 
     function fireUnconventionalWeapon( dt:Float )
     {
@@ -353,6 +429,51 @@ class Main extends luxe.Game {
             resetGame( );
         }
 
+        // Update enemies
+        var exitedEnemies : Array<Enemy> = new Array<Enemy>();
+
+        for (ee in enemies) {
+            var edir = Vector.Subtract( ee.targetPos, ee.mesh.pos );            
+
+            var espeed = 5.0 * dt;
+            var edist = edir.length;
+            edir.normalize();
+
+            edir.multiplyScalar( espeed );
+            if (edist < espeed)
+            {                
+                // reached target, is this our goal?
+                var goalDir = Vector.Subtract( ee.goalPos, ee.mesh.pos );
+                if (goalDir.length < 0.1) {
+                    trace('Reached goal pos...');
+                    // Are we already seeking exit?
+                    if (ee.exiting) {
+                        exitedEnemies.push( ee );
+                    } else {
+                        // Not yet, make the exit our new goal
+                        ee.exiting = true;
+                        ee.goalPos.copy_from( ee.exitPos );    
+                        
+                        updateEnemyTarget(ee);
+                    }
+                    
+                } else {
+                    // No.. pick the closest reachable nav point
+                    // to our goal
+                    updateEnemyTarget(ee);
+                }
+                
+            } else {
+                ee.mesh.pos.add( edir ); 
+            }
+        }
+
+        // clean up exited enemies
+        for ( ee in exitedEnemies) {
+            enemies.remove( ee );
+            ee.mesh.destroy();            
+        }
+
         // calc player direction
         var testPlayerDir = new Vector( meshPlayer.pos.x - oldPlayerPos.x,
                                         meshPlayer.pos.y - oldPlayerPos.y,
@@ -366,6 +487,7 @@ class Main extends luxe.Game {
         if(Luxe.input.inputpressed('fire')) {
             trace('fire pressed in update');
             fireUnconventionalWeapon( dt );
+            spawnEnemy();
             firing = true;
         }
 
@@ -434,19 +556,65 @@ class Main extends luxe.Game {
         
     } //update
 
+    function updateEnemyTarget( ee : Enemy )
+    {
+    
+        // is our goal reachable directly?
+        var meshPos2d = new Vector( ee.mesh.pos.x, ee.mesh.pos.z );
+        var goalPos2d = new Vector( ee.goalPos.x, ee.goalPos.z );
+
+        // trace('UpdateEnemyTarget, goalPos is ${goalPos2d}\n');
+
+        var goalRay = new Ray( meshPos2d, goalPos2d, false );
+
+        var colls = Collision.rayWithShapes( goalRay, enemyWalls );
+        if (colls.length==0) {
+            // Goal reachable..
+            // trace("Goal is directly reachable..\n");
+            ee.targetPos.copy_from( ee.goalPos );
+        } else {
+            // trace("Goal is not reachable...\n");
+            var bestDist = 999.0;
+            for (np in navPoints) {
+                var npDist = Vector.Subtract(  meshPos2d, np ).length;
+                // Don't consider navPoints we're alreayd standing on
+                if (npDist > 0.2) {
+                    // trace('checking pos ${ meshPos2d} np ${np}\n');
+                    var npRay = new Ray( meshPos2d, np, false );
+                    var colls = Collision.rayWithShapes( npRay, enemyWalls );
+                    if (colls.length==0)
+                    {                        
+                        var npGoalDist = Vector.Subtract( goalPos2d, np ).length;
+                        // trace('is reachable, goalDist ${npGoalDist}\n');
+
+                        if (npGoalDist < bestDist) {
+                            bestDist = npGoalDist;
+                            ee.targetPos.set_xyz( np.x, 0.0, np.y );
+                        }
+                    } 
+                    // else {
+                    //     var c = colls[0];                        
+                    //     // trace('NOT RECAHABLE: ${c} \n');
+                    //     trace('NOT RECAHABLE: \n');
+                    // }
+                }
+            }
+        }
+    }
+
     override function onrender() {
 
         // Is everything initted?
         if (gameReadySemaphore > 0) {
             return;
         }
-/*
-        for (shape in walls) {
-            drawer.drawShape(shape);
-        }
 
-        drawer.drawShape( playerShape );
-        */
+        // for (shape in enemyWalls) {
+        //     drawer.drawShape(shape);
+        // }
+
+        // drawer.drawShape( playerShape );
+
     }
 
     function resetGame() {
