@@ -17,6 +17,15 @@ import phoenix.Camera;
 import phoenix.geometry.Geometry;
 import phoenix.Batcher;
 
+class Bullet {
+    public var mesh : Mesh;
+    public var vel : Vector;
+
+    public function new ( _mesh : Mesh ) {
+        mesh = _mesh;
+        vel = new Vector();
+    }
+}
 
 class Main extends luxe.Game {
 
@@ -29,10 +38,14 @@ class Main extends luxe.Game {
     // Game World
     var walls : Array<Shape>;
     var playerShape : Shape;
+    var bullets : Array<Bullet>;
 
     // Geometry
+    var playerDir : Vector;
+    var strafeDir : Vector;
 	var meshWorld : Mesh;	
 	var meshPlayer : Mesh;
+    var meshBulletSrc : Mesh;
 
     // Everything is ready
     var gameReadySemaphore : Int = 2;
@@ -77,6 +90,15 @@ class Main extends luxe.Game {
     	meshPlayer = new Mesh({ file:'assets/ld32_foodfight_tmp_player.obj', 
     						texture:texPlayer, onload:meshloaded });
 
+        // Bullet
+        var texBullet = Luxe.loadTexture('assets/peas.png');          
+        meshBulletSrc = new Mesh({ file:'assets/ld32_foodfight_cube.obj', 
+                            texture:texBullet, onload: function (m : Mesh ) {
+                                m.geometry.visible = false;
+                                meshloaded(null);
+                             }});
+                            
+
         // Create the HUD
         create_hud();
     } 
@@ -120,6 +142,10 @@ class Main extends luxe.Game {
         inputUp = new Vector();
         inputDown = new Vector();
 
+        playerDir = new Vector( 0.0, 0.0, -1.0 );
+        strafeDir = playerDir.clone();
+        bullets = new Array<Bullet>();
+
 		var preload = new Parcel();    	
     	preload.add_texture( "assets/ld32_foodfight_env.png");
     	preload.add_texture( "assets/tmp_player.png");
@@ -159,6 +185,7 @@ class Main extends luxe.Game {
             Polygon.rectangle(  11.0, 0.0, 2.0, 25.0),
             Polygon.rectangle(  0.0, -11.0, 25.0, 2.0),
             Polygon.rectangle(  0.0, 11.0, 25.0, 2.0),
+            new Circle( 5.0, 5.0, 3.5 )
         ];
 
         playerShape = new Circle( 0.0, 0.0, 0.4 );
@@ -188,12 +215,45 @@ class Main extends luxe.Game {
         	*/
     }        
 
+    function cloneMesh( mesh : Mesh ) : Mesh
+    {
+        var mesh2 = new Mesh({
+            geometry : new Geometry({
+            batcher : Luxe.renderer.batcher,
+            immediate : false,
+            primitive_type: PrimitiveType.triangles,
+            texture: mesh.geometry.texture
+            })
+        });
+
+        for(v in mesh.geometry.vertices) {
+            mesh2.geometry.add( v.clone() );
+        }
+
+        return mesh2;
+    }
+
+
+    function fireUnconventionalWeapon( dt:Float )
+    {
+        trace('FIRE!');
+        var bullet = new Bullet(cloneMesh( meshBulletSrc ));
+        
+        bullet.mesh.pos.set_xyz( meshPlayer.pos.x, 1.0, meshPlayer.pos.z );
+        bullet.vel.copy_from( strafeDir );
+        bullets.push( bullet );        
+    }
+
+    var next_trace:Float = 0.0;
     override function update(dt:Float) {
 
         // Is everything initted?
         if (gameReadySemaphore > 0) {
             return;
         }
+
+        // Collisions and movement
+        var oldPlayerPos = meshPlayer.pos.clone();
 
         // update input dir (the 0.1 is for substeps)                       
         var inputDir = new Vector(
@@ -237,7 +297,67 @@ class Main extends luxe.Game {
 
         playerShape.position.set_xy( meshPlayer.pos.x, meshPlayer.pos.z );
 
-        desc.text = 'Pos: ${meshPlayer.pos.x}, ${meshPlayer.pos.z}';
+        // calc player direction
+        var testPlayerDir = new Vector( meshPlayer.pos.x - oldPlayerPos.x,
+                                        meshPlayer.pos.y - oldPlayerPos.y,
+                                        meshPlayer.pos.z - oldPlayerPos.z );
+        if (testPlayerDir.lengthsq > 0.0) {
+            playerDir.copy_from( testPlayerDir );
+            playerDir.normalize();
+        }
+
+        // Shooty shooty
+        var firing = false;
+        if(Luxe.input.inputdown('fire')) {
+            if(Luxe.time > next_trace) {
+                trace('fire is held down');
+                next_trace = Luxe.time + 0.4;
+                firing = true;
+            }
+        }
+
+        if(Luxe.input.inputpressed('fire')) {
+            trace('fire pressed in update');
+            fireUnconventionalWeapon( dt );
+            firing = true;
+        }
+
+        if(Luxe.input.inputreleased('fire')) {
+            trace('fire released in update');
+        }
+
+        if (!firing) {
+            strafeDir.copy_from( playerDir );
+        }
+
+        // Update bullets
+        var expiredBullets = new Array<Bullet>();
+        var bulletShape = new Circle( 0.0, 0.0, 0.25 );
+        for ( b in bullets) {
+            b.mesh.pos.set_xyz( b.mesh.pos.x + b.vel.x,
+                b.mesh.pos.y + b.vel.y,
+                b.mesh.pos.z + b.vel.z );
+
+            if (b.mesh.pos.lengthsq > 250.0) {
+                expiredBullets.push( b );
+            } else {
+                // check against walls
+                bulletShape.position.set_xy( b.mesh.pos.x, b.mesh.pos.z );
+                var collisions = Collision.shapeWithShapes( bulletShape, walls);
+                if (collisions.length>0) {
+                    expiredBullets.push( b );
+                }
+            } 
+        }
+
+        for ( b in expiredBullets) {
+            bullets.remove( b );
+
+            b.mesh.destroy();
+
+        }
+
+        desc.text = 'BULLETS: ${bullets.length}';
     } //update
 
     override function onrender() {
