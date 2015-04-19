@@ -155,11 +155,10 @@ class Main extends luxe.Game {
         // Create the game world
         walls = [
             // confusing: it's center, w, h
-            Polygon.rectangle( 0.0, 0.0, 20.0, 20.0 ),
-            Polygon.rectangle( 10.0, 10.0, 1.0, 1.0 ),
-            Polygon.rectangle( -10.0, 10.0, 1.0, 1.0 ),
-            Polygon.rectangle( -10.0, -10.0, 1.0, 1.0 ),
-            Polygon.rectangle( 10.0, -10.0, 1.0, 1.0 ),            
+            Polygon.rectangle( -11.0, 0.0, 2.0, 22.0),
+            Polygon.rectangle(  11.0, 0.0, 2.0, 22.0),
+            Polygon.rectangle(  0.0, -11.0, 22.0, 2.0),
+            Polygon.rectangle(  0.0, 11.0, 22.0, 2.0),
         ];
         playerShape = new Circle( 0.0, 0.0, 0.4 );
 
@@ -203,6 +202,7 @@ class Main extends luxe.Game {
 
         playerShape.position.set_xy( meshPlayer.pos.x, meshPlayer.pos.z );
 
+        desc.text = 'Pos: ${meshPlayer.pos.x}, ${meshPlayer.pos.z}';
     } //update
 
     override function onrender() {
