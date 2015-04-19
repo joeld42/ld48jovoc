@@ -6,7 +6,14 @@ import luxe.Parcel;
 import luxe.ParcelProgress;
 import luxe.Color;
 import luxe.Input;
+import luxe.Text;
 
+import luxe.collision.ShapeDrawerLuxe;
+import luxe.collision.Collision;
+import luxe.collision.shapes.*;
+import luxe.collision.data.*;
+
+import phoenix.Camera;
 import phoenix.geometry.Geometry;
 import phoenix.Batcher;
 
@@ -19,6 +26,10 @@ class Main extends luxe.Game {
     var inputUp : Vector;
     var inputDown : Vector;
 
+    // Game World
+    var walls : Array<Shape>;
+    var playerShape : Shape;
+
     // Geometry
 	var meshWorld : Mesh;	
 	var meshPlayer : Mesh;
@@ -26,10 +37,18 @@ class Main extends luxe.Game {
     // Everything is ready
     var gameReadySemaphore : Int = 2;
 
+    // Debug and HUD tools
+    var hud_batcher:Batcher;
+    var shape_batcher:Batcher;
+    var shape_view : Camera;
+    var drawer: ShapeDrawerLuxe;
+    var desc : Text;
+
 	override function config( config:luxe.AppConfig ) {
 
         config.render.depth_bits = 24;
         config.render.depth = true;
+        config.render.antialiasing=8;
 
         return config;
 
@@ -57,7 +76,42 @@ class Main extends luxe.Game {
         var texPlayer = Luxe.loadTexture('assets/tmp_player.png');    		
     	meshPlayer = new Mesh({ file:'assets/ld32_foodfight_tmp_player.obj', 
     						texture:texPlayer, onload:meshloaded });
+
+        // Create the HUD
+        create_hud();
     } 
+
+    function create_hud() {
+
+        //For the hud, it has a unique batcher, layer 4 is > the batcher_1, and the default(1)
+        hud_batcher = Luxe.renderer.create_batcher({ name:'hud_batcher', layer:4 });
+
+        desc = new Text({
+            pos: new Vector(10,10),
+            point_size: 18,
+            batcher: hud_batcher,
+            text: 'Hello there this is ludumdare'
+        });
+
+        // Shape batcher
+        shape_batcher = Luxe.renderer.create_batcher({ name:'shape_batcher', layer:5 });
+
+        shape_view = new Camera();  
+        
+        
+        //shape_view.zoom = 0.9;
+
+        trace( 'shape_view center is ${shape_view.center}\n');
+        trace( 'shape_view pos is ${shape_view.pos}\n');
+        trace( 'shape_view zoom is ${shape_view.zoom}\n');
+        trace( 'shape_view viewport is ${shape_view.viewport}\n');
+        shape_view.pos.set_xy( -shape_view.viewport.w/2.0, -shape_view.viewport.h/2.0 );
+        shape_view.zoom = shape_view.viewport.h/25;
+        shape_batcher.view = shape_view;
+        drawer = new ShapeDrawerLuxe( {
+                 batcher: shape_batcher
+            });
+    }
 
 	override function ready() {
 
@@ -98,6 +152,16 @@ class Main extends luxe.Game {
         Luxe.input.bind_key( 'movedown', Key.down );
         Luxe.input.bind_key( 'movedown', Key.key_s );
 
+        // Create the game world
+        walls = [
+            // confusing: it's center, w, h
+            Polygon.rectangle( 0.0, 0.0, 20.0, 20.0 ),
+            Polygon.rectangle( 10.0, 10.0, 1.0, 1.0 ),
+            Polygon.rectangle( -10.0, 10.0, 1.0, 1.0 ),
+            Polygon.rectangle( -10.0, -10.0, 1.0, 1.0 ),
+            Polygon.rectangle( 10.0, -10.0, 1.0, 1.0 ),            
+        ];
+        playerShape = new Circle( 0.0, 0.0, 0.4 );
 
     } // ready
 
@@ -137,10 +201,23 @@ class Main extends luxe.Game {
             meshPlayer.pos.y + (inputLeft.y + inputRight.y + inputUp.y + inputDown.y) * dt,
             meshPlayer.pos.z + (inputLeft.z + inputRight.z + inputUp.z + inputDown.z) * dt );
 
-        // trace('meshPlayer pos is ${meshPlayer.pos} inputDir is ${inputDir}\n');
+        playerShape.position.set_xy( meshPlayer.pos.x, meshPlayer.pos.z );
 
     } //update
 
+    override function onrender() {
+
+        // Is everything initted?
+        if (gameReadySemaphore > 0) {
+            return;
+        }
+
+        for (shape in walls) {
+            drawer.drawShape(shape);
+        }
+
+        drawer.drawShape( playerShape );
+    }
 
     // ===============================================
     //   INPUT HANDLERS
