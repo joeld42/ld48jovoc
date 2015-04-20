@@ -56,6 +56,7 @@ class Main extends luxe.Game {
     var inputUp : Vector;
     var inputDown : Vector;
     var health : Int = 5;
+    var pause : Bool = false;
 
     // Camera
     var cameraTarget : Vector;
@@ -123,7 +124,7 @@ class Main extends luxe.Game {
     	Luxe.camera.rotation.setFromEuler( new Vector( -70.0, 0, 0).radians() );
 
         // World environment
-        var tex = Luxe.loadTexture('assets/ld32_foodfight_env.png');    		
+        var tex = Luxe.loadTexture('assets/ld32_foodfight_baked.png');    		
     	meshWorld = new Mesh({ file:'assets/ld32_foodfight_env.obj', 
     					texture:tex, onload:meshloaded });
 
@@ -210,7 +211,7 @@ class Main extends luxe.Game {
         cameraTarget = new Vector();    
 
 		var preload = new Parcel();    	
-    	preload.add_texture( "assets/ld32_foodfight_env.png");
+    	preload.add_texture( "assets/ld32_foodfight_baked.png");
     	preload.add_texture( "assets/tmp_player.png");
         preload.add_texture( "assets/ld32_foodfight_tmp_enemy.png");
         preload.add_texture( "assets/peas.png");
@@ -246,6 +247,8 @@ class Main extends luxe.Game {
 
         Luxe.input.bind_key( 'movedown', Key.down );
         Luxe.input.bind_key( 'movedown', Key.key_s );
+
+        Luxe.input.bind_key( 'pause', Key.key_p );
 
         // Create the game world
         grinderShape = new Circle( 0.0, 0.0, 2.0 );
@@ -387,6 +390,10 @@ class Main extends luxe.Game {
 
         // Is everything initted?
         if (gameReadySemaphore > 0) {
+            return;
+        }
+
+        if (pause) {
             return;
         }
 
@@ -799,6 +806,8 @@ class Main extends luxe.Game {
                 inputUp.set_xyz( 0.0, 0.0, -moveSpeed );
             } else if (_input=='movedown') {
                 inputDown.set_xyz( 0.0, 0.0, moveSpeed );                
+            } else if (_input=='pause') {
+                pause = !pause;
             }
     } //oninputdown
 } //Main
