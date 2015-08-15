@@ -8,6 +8,18 @@ import struct
 
 # e.g.  /Applications/Blender/blender.app/Contents/MacOS/blender -b srcart/forest.blend -P script/export_scene.py -- ld33_export.cfg
 
+
+def texturesForObject( obj  ):
+	result = []
+	for mat_slot in obj.material_slots:
+		for mtex_slot in mat_slot.material.texture_slots:
+			if mtex_slot:
+				if hasattr(mtex_slot.texture , 'image'):
+					imgfile = mtex_slot.texture.image.filepath
+					result.append( imgfile )
+	print(result)
+	return result
+
 def exportMeshObj( mesh, meshExportName ):
 	
 	#DBG
@@ -110,6 +122,10 @@ def exportScene( cfg, sceneName ):
 	sceneObjs = []
 	for obj in bpy.data.objects:
 
+		# Only export objects on layer 0
+		if not obj.layers[0]:
+			continue
+
 		if type(obj.data) != bpy_types.Mesh:
 			continue			
 
@@ -118,6 +134,19 @@ def exportScene( cfg, sceneName ):
 					"rot"  : tuple(obj.rotation_euler),
 					"scl"  : (obj.scale.x, obj.scale.z, obj.scale.y ),
 					"mesh" : "MESH_" + obj.data.name }
+
+		textures = texturesForObject( obj )
+		print (obj.name, textures )
+		if (len(textures) > 1):
+			print ("WARNING: Object ", obj.name, " has multiple textures")
+
+		if (len(textures)==0):
+			print("WARNING: Object ", obj.name, " missing texture" );
+			textures = [ 'missing.png']
+
+		sceneObj['texture'] = os.path.split(textures[0])[-1]
+
+
 
 		sceneObjs.append( sceneObj )
 

@@ -63,9 +63,9 @@ class SceneBuilder
 			
 			// var meshName = obj["mesh"];
 			// var meshLoc = obj["loc"];
-			// var meshRot = obj["rot"]; 
-
-			var mesh = makeInstance( "assets/mesh/" + obj.mesh + ".dat", "assets/ash_uvgrid02.png");			
+			// var meshRot = obj["rot"]; 			
+			var mesh = makeInstance( "assets/mesh/" + obj.mesh + ".dat", 
+									 "assets/" + obj.texture );
 			mesh.pos.set_xyz( obj.loc[0], obj.loc[1], obj.loc[2] );
 
 			// Do it this way to control rotation order
@@ -74,14 +74,15 @@ class SceneBuilder
 			xrot.setFromEuler(new Vector( -obj.rot[0], 0.0, 0.0));
 
 			var yrot = new Quaternion();
-			yrot.setFromEuler(new Vector( 0.0, -obj.rot[2], 0.0, 0.0));			
+			yrot.setFromEuler(new Vector( 0.0, -obj.rot[2], 0.0));			
 
 			var zrot = new Quaternion();
-			yrot.setFromEuler(new Vector( 0.0, 0.0, -obj.rot[1] ));			
+			zrot.setFromEuler(new Vector( 0.0, 0.0, -obj.rot[1] ));			
 			
-			mesh.rotation.multiply( zrot );
-			mesh.rotation.multiply( yrot );
+			//mesh.rotation.multiply( zrot );
+			mesh.rotation.multiply( yrot );			
 			mesh.rotation.multiply( xrot );
+			
 
 			mesh.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
 

@@ -35,19 +35,14 @@ class Main extends luxe.Game {
 		config.render.depth_bits = 24;
 		config.render.depth = true;
 
-		config.preload.textures.push({ id :  "assets/ground_swirl.png", 
+		var texNames = [ "ground_swirl.png", "img_tree.png", "player.png", "pine.png", 
+						 "missing.png", "rock.png", "stone.png"];
+		for (texName in texNames)
+		{
+			config.preload.textures.push({ id :  "assets/" + texName,
 									clamp_s : ClampType.repeat, 
 									clamp_t : ClampType.repeat  });
-		config.preload.textures.push({ id :  "assets/img_tree.png", 
-									clamp_s : ClampType.repeat, 
-									clamp_t : ClampType.repeat  });
-		config.preload.textures.push({ id :  "assets/player.png" });
-		config.preload.textures.push({ id :  "assets/pine.png",  
-									clamp_s : ClampType.repeat, 
-									clamp_t : ClampType.repeat });
-		config.preload.textures.push({ id :  "assets/ash_uvgrid02.png", 
-									clamp_s : ClampType.repeat, 
-									clamp_t : ClampType.repeat  });
+		}
 
 		config.preload.texts.push({ id :  "assets/grid10x10.obj" });
 		config.preload.texts.push({ id :  "assets/tree_fir.obj" });
@@ -95,8 +90,8 @@ class Main extends luxe.Game {
     	cam.pos.set_xyz(0,20,15);
     	cam.rotation.setFromEuler( new Vector( -50.0, 0, 0).radians() );
 
-    	var groundTex = Luxe.resources.texture( 'assets/ground_swirl.png');
-    	groundTex.generate_mipmaps();
+    	//var groundTex = Luxe.resources.texture( 'assets/ground_swirl.png');
+    	//groundTex.generate_mipmaps();
     	// groundTex.clamp_s = groundTex.clamp_t = ClampType.repeat;
     	// groundTex.filter = mip_linear_linear;
     	//meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex } );    	    	
