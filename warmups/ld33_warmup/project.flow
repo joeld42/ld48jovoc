@@ -1,0 +1,36 @@
+{
+
+  luxe:{
+    window: {
+      width:960,
+      height:640,
+      title:'ld33 warmup',
+      fullscreen:false,
+      resizable:true,
+      borderless:false
+    }
+  },
+
+  project : {
+    name : 'ld33_warmup',
+    version : '1.0.0',
+    author : 'joeld42@gmail.com',
+
+    app : {
+      name : 'ld33_warmup',
+      package : 'com.tapnik.ld33warmup'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}
