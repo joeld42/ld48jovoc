@@ -53,8 +53,18 @@ class Main extends luxe.Game {
 		config.preload.texts.push({ id :  "assets/tree_fir.obj" });
 		config.preload.texts.push({ id :  "assets/player.obj" });
 
-		config.preload.bytes.push({ id : "assets/mesh/MESH_TreeOakMesh.dat" });
+		// config.preload.bytes.push({ id : "assets/mesh/MESH_TreeOakMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_Cube.dat" });
+
+		config.preload.bytes.push({ id : "assets/mesh/MESH_Brown_Cliff_Mesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_Brown_Cliff_Top_Mesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_Cube.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_Ground.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_Rock1Mesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_TreeOakMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_TreePineMesh.dat" });
+
+		config.preload.jsons.push( { id : "assets/forest_small_test.json" });
 
 		return config;
 	}
@@ -75,7 +85,7 @@ class Main extends luxe.Game {
     		fov:90,
     		near:0.1,
     		far:1000,
-    		cull_backfaces : false,
+    		cull_backfaces : true,
     		aspect:Luxe.screen.w/Luxe.screen.h
 		});
 
@@ -89,18 +99,15 @@ class Main extends luxe.Game {
     	groundTex.generate_mipmaps();
     	// groundTex.clamp_s = groundTex.clamp_t = ClampType.repeat;
     	// groundTex.filter = mip_linear_linear;
-    	meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex } );    	    	
+    	//meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex } );    	    	
     	//meshGround_.pos.set_xyz( 0.0, -2.0, 0.0 );
-    	meshGround_.geometry.locked = true;    	
+    	//meshGround_.geometry.locked = true;    	
 
-    	// var treeTex = Luxe.resources.texture( 'assets/img_tree.png');    	
-    	// meshTree_ = new Mesh({ file : 'assets/tree_fir.obj', texture : treeTex } );    	
-    	// meshTree_.pos.set_xyz( 3.0, 0.0, 0.0 );
+    	builder_.loadScene( "assets/forest_small_test.json");
+    }
 
-    	//var texPlayer = Luxe.resources.texture( 'assets/player.png');    	
-    	//meshPlayer_ = new Mesh({ file : 'assets/player.obj', texture : texPlayer } );    	
-    	
-    	//var texTreeOak = Luxe.resources.texture( 'assets/ash_uvgrid02.png' );
+    function makeTreeTestGrid() 
+    {
     	for (i in 0...100)
     	{
 			var meshTree = builder_.makeInstance( "assets/mesh/MESH_TreeOakMesh.dat", "assets/pine.png" );
@@ -112,7 +119,7 @@ class Main extends luxe.Game {
 			}
 			meshTree.pos.set_xyz( ii, 0, jj ); 
 			meshTree.geometry.locked = true;
-		}
+		}    	
     }
 
     override function onkeyup( e:KeyEvent ) {

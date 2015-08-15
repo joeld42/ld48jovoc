@@ -8,6 +8,7 @@ import phoenix.geometry.Vertex;
 import phoenix.geometry.TextureCoord;
 import phoenix.Batcher;
 import phoenix.Texture;
+import phoenix.Quaternion;
 
 import snow.api.buffers.Uint8Array;
 
@@ -51,6 +52,43 @@ class SceneBuilder
         return mesh;
 	}
 
+	public function loadScene( sceneName : String )
+	{
+		var scene = Luxe.resources.json( sceneName );
+		// trace( '${scene.asset.json}' );
+		var sceneObjs : Array<Dynamic> = scene.asset.json;
+		for (obj in sceneObjs)
+		{			
+			var objName = obj.name;
+			
+			// var meshName = obj["mesh"];
+			// var meshLoc = obj["loc"];
+			// var meshRot = obj["rot"]; 
+
+			var mesh = makeInstance( "assets/mesh/" + obj.mesh + ".dat", "assets/ash_uvgrid02.png");			
+			mesh.pos.set_xyz( obj.loc[0], obj.loc[1], obj.loc[2] );
+
+			// Do it this way to control rotation order
+			// TODO: export rotation order from blender
+			var xrot = new Quaternion();
+			xrot.setFromEuler(new Vector( -obj.rot[0], 0.0, 0.0));
+
+			var yrot = new Quaternion();
+			yrot.setFromEuler(new Vector( 0.0, -obj.rot[2], 0.0, 0.0));			
+
+			var zrot = new Quaternion();
+			yrot.setFromEuler(new Vector( 0.0, 0.0, -obj.rot[1] ));			
+			
+			mesh.rotation.multiply( zrot );
+			mesh.rotation.multiply( yrot );
+			mesh.rotation.multiply( xrot );
+
+			mesh.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
+
+			mesh.geometry.locked = true;
+		}
+	}
+
 	function loadGeometry( meshName : String ) : Geometry
 	{
 		var geom = new Geometry({
@@ -58,14 +96,16 @@ class SceneBuilder
             immediate : false,
             primitive_type: PrimitiveType.triangles,
             });
-		var meshData = Luxe.resources.bytes("assets/mesh/MESH_TreeOakMesh.dat");
+		var meshData = Luxe.resources.bytes(meshName);
+		trace( 'loaded bytes ${meshName} result ${meshData}');
+
     	//var meshData = Luxe.resources.bytes("assets/mesh/MESH_Cube.dat");
 		var data = meshData.asset.bytes.toBytes();
 
 		// unpack simple header
 		var magic : String = data.getString( 0, 4 );
 		var numTris : Int = data.get( 4 );
-		trace('Loaded MESH data: header ${magic} numTris ${numTris}');
+		// trace('Loaded MESH data: header ${magic} numTris ${numTris}');
 
 		var meshVerts : Array<Vertex>;		
 		var headerOffs = 8; // size of file header

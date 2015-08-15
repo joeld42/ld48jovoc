@@ -1,4 +1,5 @@
 import os, sys
+import json
 import configparser
 
 import bpy, bpy_types
@@ -27,8 +28,6 @@ def exportMeshObj( mesh, meshExportName ):
 	header = struct.pack( '<4sL', str.encode("MESH"), len(mesh.polygons) )
 
 	packedDataList = [ header ]
-	print ("headerSize", struct.calcsize('<4sL') )
-
 	uv_layer = mesh.uv_layers['UVMap'].data[:]		
 	# print(uv_layer)
 	# print ("NUM UV", len(uv_layer))
@@ -41,6 +40,9 @@ def exportMeshObj( mesh, meshExportName ):
 		assert(len(verts)==3)
 
 		print(len(verts))
+
+		packedTri = []
+
 		for vndx in verts:
 			v = mesh.vertices[vndx]
 			uv = uv_layer[stndx]
@@ -49,11 +51,14 @@ def exportMeshObj( mesh, meshExportName ):
 
 			# pack up the vert data
 			packedVert = struct.pack( '<3f3f4f', 
-				v.co[0], v.co[1], v.co[2],
+				v.co[0], v.co[2], v.co[1],
 				v.normal[0], v.normal[1], v.normal[2],
 				uv.uv[0], uv.uv[1], 0.0, 0.0 );
 
-			packedDataList.append(packedVert)
+			packedTri.append(packedVert)
+
+		packedTri.reverse()
+		packedDataList += packedTri
 
 	# Write the mesh data
 	packedData = b''.join( packedDataList )
@@ -68,6 +73,7 @@ def exportMeshObj( mesh, meshExportName ):
 def getConfig():
 	# Extract the script arguments
 	argv = sys.argv
+	
 	try:
 	    index = argv.index("--") + 1
 	except:
@@ -85,7 +91,7 @@ def getConfig():
 	return cfg
 
 
-def exportScene( cfg ):
+def exportScene( cfg, sceneName ):
 	meshes = {}
 
 	for obj in bpy.data.objects:		
@@ -99,23 +105,54 @@ def exportScene( cfg ):
 		meshExportName = os.path.join( meshPath, "MESH_" + name + ".dat" )
 		exportMeshObj( mesh, meshExportName )
 
+	print ("Exporting Scene...")
+	scenePath = cfg['Paths']['ScenePath']
+	sceneObjs = []
 	for obj in bpy.data.objects:
-		locStr = "%f,%f,%f" % tuple(obj.location)
-		rotStr = "%f,%f,%f" % tuple(obj.rotation_euler)
 
-		if type(obj.data) == bpy_types.Mesh:
-			print ("MESH: ", obj.name, obj.data.name, locStr, rotStr )
+		if type(obj.data) != bpy_types.Mesh:
+			continue			
+
+		sceneObj = { "name" : obj.name,
+					"loc"  : (obj.location.x, obj.location.z, obj.location.y),
+					"rot"  : tuple(obj.rotation_euler),
+					"scl"  : (obj.scale.x, obj.scale.z, obj.scale.y ),
+					"mesh" : "MESH_" + obj.data.name }
+
+		sceneObjs.append( sceneObj )
+
+		# locStr = "%f,%f,%f" % tuple(obj.location)
+		# rotStr = "%f,%f,%f" % tuple(obj.rotation_euler)
+
+		# if type(obj.data) == bpy_types.Mesh:
+		# 	print ("MESH: ", obj.name, obj.data.name, locStr, rotStr )
+	
+	sceneFile = os.path.join( scenePath, sceneName + ".json")
+	print (sceneFile)
+	with open(sceneFile, 'w') as fp:
+		json.dump( sceneObjs, fp, sort_keys=True, indent=4, separators=(',', ': '))
 
 
 def main():
 	print ("LD exporter...")
+
+	# Get the original scene name (todo: make better)	
+	for a in range(len(sys.argv)):
+		if (sys.argv[a]=='--'):
+			break
+		if (sys.argv[a]=='-b'):
+			sceneName = sys.argv[a+1]
+	
+	sceneName = os.path.basename( sceneName )
+	sceneName = os.path.splitext( sceneName )[0]
+
 
 	cfg = getConfig()
 	if cfg is None:
 		print ("ERROR: Missing config, export stopped")
 		return
 
-	exportScene(cfg)
+	exportScene(cfg, sceneName )
 
 	
 
