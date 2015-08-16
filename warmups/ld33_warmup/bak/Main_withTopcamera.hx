@@ -20,6 +20,7 @@ import phoenix.Texture;
 // import phoenix.Camera;
 
 import phoenix.Shader;
+import phoenix.RenderTexture;
 
 import snow.api.buffers.Uint8Array;
 import snow.system.assets.Assets;
@@ -40,6 +41,9 @@ class Main extends luxe.Game {
 	var worldShader_ : Shader;
 
 	var builder_ = new SceneBuilder();
+
+	var texTarget_ : RenderTexture;
+	var display_sprite : Sprite;
 
 	var hudBatcher_ :Batcher;
 
@@ -114,20 +118,45 @@ class Main extends luxe.Game {
 
 		Luxe.renderer.batcher.view = flyCamera_.view;
 
+		topCamera_ = new Camera({
+				name : 'topcam',
+				near: 0.1,
+				far: 1000,
+				aspect: 1.0,
+				projection: ProjectionType.ortho,				
+			});
+
+		topCamera_.viewport = new Rectangle( 0, 0, 512, 512 );
+
+		topBatcher_ = Luxe.renderer.create_batcher({ name : 'topbatcher', camera:topCamera_.view });
+
 		//move up and back a bit
     	flyCamera_.pos.set_xyz(0,20,15);
     	flyCamera_.rotation.setFromEuler( new Vector( -50.0, 0, 0).radians() );
 
-    	// var groundTex = Luxe.resources.texture( 'assets/ground_swirl.png');
-    	// groundTex.generate_mipmaps();
-    	// groundTex.clamp_s = groundTex.clamp_t = ClampType.repeat;
-    	//  // groundTex.filter = mip_linear_linear;
-    	// meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex, batcher : topBatcher_ } );    	    	
-    	// meshGround_.pos.set_xyz( 0.0, -2.0, 0.0 );
-    	// meshGround_.geometry.locked = true;    	
+    	var groundTex = Luxe.resources.texture( 'assets/ground_swirl.png');
+    	groundTex.generate_mipmaps();
+    	groundTex.clamp_s = groundTex.clamp_t = ClampType.repeat;
+    	 // groundTex.filter = mip_linear_linear;
+    	meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex, batcher : topBatcher_ } );    	    	
+    	meshGround_.pos.set_xyz( 0.0, -2.0, 0.0 );
+    	meshGround_.geometry.locked = true;    	
 
     	builder_.loadScene( "assets/forest_small_test.json");
-		hudBatcher_ = Luxe.renderer.create_batcher({ name:'hud_batcher', layer:4 });
+
+    	 texTarget_ = new RenderTexture({ id:'rtt', width:512, height:512 });
+
+     	 hudBatcher_ = Luxe.renderer.create_batcher({ name:'hud_batcher', layer:4 });
+
+    	 display_sprite = new Sprite({
+    	 	batcher : hudBatcher_,
+            texture : texTarget_,
+            size : new Vector(100, 100),
+            //pos : Luxe.screen.mid,
+            pos : new Vector( 60, 60 )
+        });
+
+
     }
 
 	// load effect for shaders
@@ -159,6 +188,26 @@ class Main extends luxe.Game {
         }
 
     } //onkeyup
+
+     override function onprerender() {
+
+            //wait for onloaded
+        if(display_sprite == null) return;
+
+            //Set the current rendering target
+        Luxe.renderer.target = texTarget_;
+
+                //clear the texture!
+            Luxe.renderer.clear(new Color().rgb(0xff4b03));
+                
+                //draw the geometry inside our batcher
+            //Luxe.renderer.batcher.draw();
+            topBatcher_.draw();
+
+            //reset the target back to no target (i.e the screen)
+        Luxe.renderer.target = null;
+
+    } //onprerender
 
     var rot = 0.0;
     override function update(dt:Float) {

@@ -9,12 +9,15 @@ import phoenix.geometry.TextureCoord;
 import phoenix.Batcher;
 import phoenix.Texture;
 import phoenix.Quaternion;
+import phoenix.Shader;
 
 import snow.api.buffers.Uint8Array;
 
 class SceneBuilder
 {
 	var meshDB_ = new Map<String,Geometry>();
+	public var testShader_ : Shader;
+
 
 	public function makeInstance( meshName : String, textureName : String ) : Mesh 
 	{
@@ -68,6 +71,8 @@ class SceneBuilder
 									 "assets/" + obj.texture );
 			mesh.pos.set_xyz( obj.loc[0], obj.loc[1], obj.loc[2] );
 
+			mesh.geometry.shader = testShader_;
+
 			// Do it this way to control rotation order
 			// TODO: export rotation order from blender
 			var xrot = new Quaternion();
@@ -81,8 +86,7 @@ class SceneBuilder
 			
 			//mesh.rotation.multiply( zrot );
 			mesh.rotation.multiply( yrot );			
-			mesh.rotation.multiply( xrot );
-			
+			mesh.rotation.multiply( xrot );			
 
 			mesh.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
 
