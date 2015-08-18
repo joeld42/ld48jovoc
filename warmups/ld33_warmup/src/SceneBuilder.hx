@@ -10,88 +10,158 @@ import phoenix.Batcher;
 import phoenix.Texture;
 import phoenix.Quaternion;
 import phoenix.Shader;
+import phoenix.Transform;
+import phoenix.Matrix;
 
 import snow.api.buffers.Uint8Array;
+import snow.modules.opengl.GL;
+
+@:publicFields
+class SceneObj {
+	var name_: String;
+	//var xform_: Transform;
+	var xform_ : Matrix;
+	public function new( name : String )
+	{
+		name_ = name;
+	}
+}
+
+@:publicFields
+class SceneMesh {
+	var mesh_ : luxe.Mesh;
+	var instList_ : Array<SceneObj>;
+
+	function new( mesh : luxe.Mesh ) {
+		mesh_ = mesh; // also contains geo
+		instList_ = new Array<SceneObj>();
+	}
+}
 
 class SceneBuilder
 {
-	var meshDB_ = new Map<String,Geometry>();
+	var meshDB_ = new Map<String,SceneMesh>();
 	public var testShader_ : Shader;
 
+	// public function makeClone( meshName : String, textureName : String ) : Mesh 
+	// {
+	// 	// Get the texture from Luxe resource system
+	// 	var tex = Luxe.resources.texture( textureName );
 
-	public function makeInstance( meshName : String, textureName : String ) : Mesh 
-	{
-		// Get the texture from Luxe resource system
-		var tex = Luxe.resources.texture( textureName );
+	// 	// Do we already have geo loaded?
+	// 	var meshGeo : SceneMesh = meshDB_.get( meshName );
+	// 	if (meshGeo == null) {
+	// 		// Need to load the geo
+	// 		// meshGeo = loadGeometry( meshName );			
+	// 		meshDB_[meshName] = meshGeo;
+	// 	}
 
-		// Do we already have geo loaded?
-		var meshGeo : Geometry = meshDB_.get( meshName );
-		if (meshGeo == null) {
-			// Need to load the geo
-			meshGeo = loadGeometry( meshName );			
-			meshDB_[meshName] = meshGeo;
-		}
+	// 	if (meshGeo==null)
+	// 	{
+	// 		trace('ERR: could not load mesh ${meshName}');
+	// 		return null;
+	// 	}
 
-		if (meshGeo==null)
-		{
-			trace('ERR: could not load mesh ${meshName}');
-			return null;
-		}
+	// 	// Make a copy of the geom
+	// 	var mesh = new Mesh({
+ //            geometry : new Geometry({
+ //            batcher : Luxe.renderer.batcher,
+ //            immediate : false,
+ //            primitive_type: PrimitiveType.triangles,
+ //            texture: tex
+ //            })
+ //        });
 
-		// Make a copy of the geom
-		var mesh = new Mesh({
-            geometry : new Geometry({
-            batcher : Luxe.renderer.batcher,
-            immediate : false,
-            primitive_type: PrimitiveType.triangles,
-            texture: tex
-            })
-        });
+	// 	// trace('Meshname ${meshName} verts ${meshGeo.vertices}');
+ //        for(v in meshGeo.vertices) {
+ //            mesh.geometry.add( v.clone() );
+ //        }
 
-        for(v in meshGeo.vertices) {
-            mesh.geometry.add( v.clone() );
-        }
-
-        return mesh;
-	}
+ //        return mesh;
+	// }
 
 	public function loadScene( sceneName : String )
 	{
-		var scene = Luxe.resources.json( sceneName );
+		var scene = Luxe.resources.json( sceneName );	
+
 		// trace( '${scene.asset.json}' );
-		var sceneObjs : Array<Dynamic> = scene.asset.json;
-		for (obj in sceneObjs)
+		var sceneFileObjs : Array<Dynamic> = scene.asset.json;
+		for (obj in sceneFileObjs)
 		{			
 			var objName = obj.name;
 			
+			var sceneObj = new SceneObj( objName);			
+			sceneObj.name_ = objName;
+			sceneObj.xform_ = new Matrix();
 			// var meshName = obj["mesh"];
 			// var meshLoc = obj["loc"];
 			// var meshRot = obj["rot"]; 			
-			var mesh = makeInstance( "assets/mesh/" + obj.mesh + ".dat", 
-									 "assets/" + obj.texture );
-			mesh.pos.set_xyz( obj.loc[0], obj.loc[1], obj.loc[2] );
-
-			mesh.geometry.shader = testShader_;
+			var sceneMesh = lookupSceneMesh( "assets/mesh/" + obj.mesh + ".dat", 
+									 		 "assets/" + obj.texture );
+			sceneObj.xform_.makeTranslation( obj.loc[0], obj.loc[1], obj.loc[2] );
+			
 
 			// Do it this way to control rotation order
 			// TODO: export rotation order from blender
-			var xrot = new Quaternion();
-			xrot.setFromEuler(new Vector( -obj.rot[0], 0.0, 0.0));
+			// var xrot = new Quaternion();
+			// xrot.setFromEuler(new Vector( -obj.rot[0], 0.0, 0.0));
 
-			var yrot = new Quaternion();
-			yrot.setFromEuler(new Vector( 0.0, -obj.rot[2], 0.0));			
+			// var yrot = new Quaternion();
+			// yrot.setFromEuler(new Vector( 0.0, -obj.rot[2], 0.0));			
 
-			var zrot = new Quaternion();
-			zrot.setFromEuler(new Vector( 0.0, 0.0, -obj.rot[1] ));			
+			// var zrot = new Quaternion();
+			// zrot.setFromEuler(new Vector( 0.0, 0.0, -obj.rot[1] ));			
 			
-			//mesh.rotation.multiply( zrot );
-			mesh.rotation.multiply( yrot );			
-			mesh.rotation.multiply( xrot );			
+			// var rot = new Quaternion();
+			// //rot.multiply( zrot );
+			// rot.multiply( yrot );			
+			// rot.multiply( xrot );			
 
-			mesh.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
+			// sceneObj.xform_.rotation = rot;
+			// sceneObj.xform_.local.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
 
-			mesh.geometry.locked = true;
+			sceneMesh.instList_.push( sceneObj );
+			trace('MESH ${obj.mesh} has ${sceneMesh.instList_.length} matrix ${sceneObj.xform_}');
+			// mesh.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
+
+			// mesh.geometry.locked = true;
 		}
+	}
+
+	function lookupSceneMesh( meshID : String, textureName : String ) : SceneMesh
+	{		
+		// Do we already have a mesh list
+		var sceneMesh : SceneMesh = meshDB_.get( meshID );
+		if (sceneMesh == null) {
+			// Need to load the src geo
+			var meshGeo = loadGeometry( meshID );
+
+			// Get the texture from Luxe resource system
+			var tex = Luxe.resources.texture( textureName );
+
+			var mesh = new luxe.Mesh({					
+					no_batcher_add: true,
+					buffer_based: true,
+					object_space: true,
+					geometry : meshGeo,
+					texture : tex
+				});		
+
+			mesh.geometry.shader = testShader_;
+
+			// add to the mesh db
+			sceneMesh = new SceneMesh( mesh );
+			meshDB_[meshID] = sceneMesh;
+		}
+
+
+		if (sceneMesh==null)
+		{
+			trace('ERR: could not load mesh ${meshID}');
+			return null;
+		}
+
+		return sceneMesh;
 	}
 
 	function loadGeometry( meshName : String ) : Geometry
@@ -100,6 +170,8 @@ class SceneBuilder
             batcher : null,
             immediate : false,
             primitive_type: PrimitiveType.triangles,
+            buffer_based: true,
+            object_space: true,
             });
 		var meshData = Luxe.resources.bytes(meshName);
 		trace( 'loaded bytes ${meshName} result ${meshData}');
@@ -110,7 +182,16 @@ class SceneBuilder
 		// unpack simple header
 		var magic : String = data.getString( 0, 4 );
 		var numTris : Int = data.get( 4 );
-		// trace('Loaded MESH data: header ${magic} numTris ${numTris}');
+
+		// for some reason my Haxe.io.bytes is missing getInt32.. 
+		var A : Int = data.get( 4 );
+		var B : Int = data.get( 5 );
+		var C : Int = data.get( 6 );
+		var D : Int = data.get( 7 );
+		numTris = (D << 24) | (C << 16) | (B << 8) | A;
+		//trace('ABCD ${A} ${B} ${C} ${D}  ');
+
+		trace('Loaded MESH data: header ${magic} numTris ${numTris}');
 
 		var meshVerts : Array<Vertex>;		
 		var headerOffs = 8; // size of file header
@@ -143,6 +224,23 @@ class SceneBuilder
 		}
 
 		return geom;
+	}
+
+	// TODO: Rearrange this
+	public function drawScene()
+	{
+		GL.enable(GL.DEPTH_TEST);
+
+		for (sceneMesh in meshDB_)
+		{
+			var mesh : Mesh = sceneMesh.mesh_;
+			mesh.geometry.texture.bind();
+
+	        for(sceneObj in sceneMesh.instList_) 
+	        {
+	            Luxe.renderer.batcher.submit_geometry(mesh.geometry, sceneObj.xform_ );
+	        }
+    	}
 	}
 
 }

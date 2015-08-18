@@ -6,6 +6,10 @@ import bpy, bpy_types
 import bmesh
 import struct
 
+# TODO:
+# - Apply modifiers before export
+# - Export list of assets and textures (and code to preload)
+
 # e.g.  /Applications/Blender/blender.app/Contents/MacOS/blender -b srcart/forest.blend -P script/export_scene.py -- ld33_export.cfg
 
 
@@ -51,15 +55,13 @@ def exportMeshObj( mesh, meshExportName ):
 		# for now, only triangles
 		assert(len(verts)==3)
 
-		print(len(verts))
-
 		packedTri = []
 
 		for vndx in verts:
 			v = mesh.vertices[vndx]
 			uv = uv_layer[stndx]
 			stndx += 1
-			print(v.co, v.normal, uv.uv )
+			#print(v.co, v.normal, uv.uv )
 
 			# pack up the vert data
 			packedVert = struct.pack( '<3f3f4f', 
@@ -108,6 +110,11 @@ def exportScene( cfg, sceneName ):
 
 	for obj in bpy.data.objects:		
 		if type(obj.data) == bpy_types.Mesh and not obj.data.name in meshes:
+
+			# Only export objects on layer 0
+			if not obj.layers[0]:
+				continue
+
 			meshes[obj.data.name] = obj.data
 		
 	print ("Exporting Meshes...")

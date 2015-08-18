@@ -53,8 +53,12 @@ class Main extends luxe.Game {
 		config.render.depth_bits = 24;
 		config.render.depth = true;
 
-		var texNames = [ "ground_swirl.png", "img_tree.png", "player.png", "pine.png", 
-						 "missing.png", "rock.png", "stone.png"];
+		// var texNames = [ "ground_swirl.png", "img_tree.png", "player.png", "pine.png", 
+		// 				 "missing.png", "rock.png", "stone.png"];
+
+
+		var texNames = [ "stone.png", "ground_swirl.png"];
+
 		for (texName in texNames)
 		{
 			config.preload.textures.push({ id :  "assets/" + texName,
@@ -62,28 +66,32 @@ class Main extends luxe.Game {
 									clamp_t : ClampType.repeat  });
 		}
 
-		config.preload.texts.push({ id :  "assets/grid10x10.obj" });
-		config.preload.texts.push({ id :  "assets/tree_fir.obj" });
-		config.preload.texts.push({ id :  "assets/player.obj" });
-
 		config.preload.texts.push({ id :  "assets/warmup.glsl" });
-		// config.preload.texts.push({ id :  "assets/world.vert.glsl" });
-		// config.preload.texts.push({ id :  "assets/world.frag.glsl" });
 		config.preload.shaders.push({ id:'world', frag_id:'assets/world.frag.glsl', vert_id:'assets/world.vert.glsl' });
 
+		// TEST SHAPE
+		config.preload.bytes.push({ id : "assets/mesh/MESH_Grid.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_Cylinder.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_Cylinder.002.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_Cylinder.003.dat" });
 
+		// SMALL FOREST SCENE
+		config.preload.texts.push({ id :  "assets/grid10x10.obj" });
+		// config.preload.texts.push({ id :  "assets/tree_fir.obj" });
+		//config.preload.texts.push({ id :  "assets/player.obj" });
+
+		// config.preload.bytes.push({ id : "assets/mesh/MESH_Cube.dat" });
+
+		// config.preload.bytes.push({ id : "assets/mesh/MESH_Brown_Cliff_Mesh.dat" });
+		// config.preload.bytes.push({ id : "assets/mesh/MESH_Brown_Cliff_Top_Mesh.dat" });
+		// config.preload.bytes.push({ id : "assets/mesh/MESH_Cube.dat" });
+		// config.preload.bytes.push({ id : "assets/mesh/MESH_Ground.dat" });
+		// config.preload.bytes.push({ id : "assets/mesh/MESH_Rock1Mesh.dat" });
 		// config.preload.bytes.push({ id : "assets/mesh/MESH_TreeOakMesh.dat" });
-		config.preload.bytes.push({ id : "assets/mesh/MESH_Cube.dat" });
+		// config.preload.bytes.push({ id : "assets/mesh/MESH_TreePineMesh.dat" });
 
-		config.preload.bytes.push({ id : "assets/mesh/MESH_Brown_Cliff_Mesh.dat" });
-		config.preload.bytes.push({ id : "assets/mesh/MESH_Brown_Cliff_Top_Mesh.dat" });
-		config.preload.bytes.push({ id : "assets/mesh/MESH_Cube.dat" });
-		config.preload.bytes.push({ id : "assets/mesh/MESH_Ground.dat" });
-		config.preload.bytes.push({ id : "assets/mesh/MESH_Rock1Mesh.dat" });
-		config.preload.bytes.push({ id : "assets/mesh/MESH_TreeOakMesh.dat" });
-		config.preload.bytes.push({ id : "assets/mesh/MESH_TreePineMesh.dat" });
-
-		config.preload.jsons.push( { id : "assets/forest_small_test.json" });
+		// config.preload.jsons.push( { id : "assets/forest_small_test.json" });
+		config.preload.jsons.push( { id : "assets/test_shapes.json" });
 
 		return config;
 	}
@@ -118,38 +126,29 @@ class Main extends luxe.Game {
     	flyCamera_.pos.set_xyz(0,20,15);
     	flyCamera_.rotation.setFromEuler( new Vector( -50.0, 0, 0).radians() );
 
-    	// var groundTex = Luxe.resources.texture( 'assets/ground_swirl.png');
-    	// groundTex.generate_mipmaps();
-    	// groundTex.clamp_s = groundTex.clamp_t = ClampType.repeat;
-    	//  // groundTex.filter = mip_linear_linear;
-    	// meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex, batcher : topBatcher_ } );    	    	
-    	// meshGround_.pos.set_xyz( 0.0, -2.0, 0.0 );
-    	// meshGround_.geometry.locked = true;    	
+    	var groundTex = Luxe.resources.texture( 'assets/ground_swirl.png');
+    	groundTex.generate_mipmaps();
+    	groundTex.clamp_s = groundTex.clamp_t = ClampType.repeat;
+    	 // groundTex.filter = mip_linear_linear;
+    	meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex, batcher : topBatcher_ } );    	    	
+    	meshGround_.pos.set_xyz( 0.0, -2.0, 0.0 );
+    	meshGround_.geometry.locked = true;    	
 
-    	builder_.loadScene( "assets/forest_small_test.json");
+    	// builder_.loadScene( "assets/forest_small_test.json");
+    	builder_.loadScene( "assets/test_shapes.json");
 		hudBatcher_ = Luxe.renderer.create_batcher({ name:'hud_batcher', layer:4 });
     }
+
+	override function onpostrender() {
+
+        builder_.drawScene();
+
+    } //onrender
 
 	// load effect for shaders
     function load_effect( path:String ) {
         trace( '>>> load_effect: ${path}');
         return Luxe.resources.text( path ).asset.text;
-    }
-
-    function makeTreeTestGrid() 
-    {
-    	for (i in 0...100)
-    	{
-			var meshTree = builder_.makeInstance( "assets/mesh/MESH_TreeOakMesh.dat", "assets/pine.png" );
-			var ii : Float = (Std.int(i/10) * 4) - 15.0;
-			var jj : Float = (Std.int(i%10) * 4) - 15.0; 
-			trace('row: ${i} ${Std.int(i/10)%2}');
-			if (Std.int(i/10)%2 > 0 ) {
-				jj += 2.0;
-			}
-			meshTree.pos.set_xyz( ii, 0, jj ); 
-			meshTree.geometry.locked = true;
-		}    	
     }
 
     override function onkeyup( e:KeyEvent ) {
