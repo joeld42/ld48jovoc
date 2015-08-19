@@ -9,6 +9,7 @@ import luxe.ParcelProgress;
 import luxe.Sprite;
 import luxe.Camera;
 import luxe.Rectangle;
+import luxe.Entity;
 
 import luxe.components.cameras.FlyCamera;
 
@@ -25,6 +26,7 @@ import snow.api.buffers.Uint8Array;
 import snow.system.assets.Assets;
 
 import SceneBuilder;
+import Rotate;
 
 // notes: small things that would be useful
 //  -- create a resource on the fly
@@ -44,8 +46,10 @@ class Main extends luxe.Game {
 	var hudBatcher_ :Batcher;
 
 	var flyCamera_ : FlyCamera;
-	var topBatcher_ : Batcher;
-	var topCamera_ : Camera;
+
+	var testEntiity_ : Entity;
+
+	var shadowBuffSprite_ : Sprite;
 
 	override function config( config : luxe.AppConfig )
 	{
@@ -137,13 +141,50 @@ class Main extends luxe.Game {
     	groundTex.generate_mipmaps();
     	groundTex.clamp_s = groundTex.clamp_t = ClampType.repeat;
     	 // groundTex.filter = mip_linear_linear;
-    	meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex, batcher : topBatcher_ } );    	    	
+    	meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex } );    	    	
     	meshGround_.pos.set_xyz( 0.0, -2.0, 0.0 );
     	meshGround_.geometry.locked = true;    	
 
     	// builder_.loadScene( "assets/forest_small_test.json");
     	builder_.loadScene( "assets/test_shapes.json");
+    	builder_.initShadows();
+
 		hudBatcher_ = Luxe.renderer.create_batcher({ name:'hud_batcher', layer:4 });
+
+		shadowBuffSprite_ = new Sprite({
+    	 	batcher : hudBatcher_,
+            texture : builder_.shadowTexture_,
+            size : new Vector(400, 400),
+            //pos : Luxe.screen.mid,
+            pos : new Vector( 210, 210 )
+        });
+        shadowBuffSprite_.depth = -100;
+
+		// set up test entity
+		var testObj_ = builder_.findSceneObj( "Cylinder.003");
+		testEntiity_ = new Entity({ transform: testObj_.xform_ });		
+ 		var rotator = new Rotate({ name:'rotator' });
+ 		testEntiity_.add( rotator );
+
+ 		// Add a buncha objects for testing
+ 		makeTestGrid();
+    }
+
+	function makeTestGrid() 
+    {    	
+    	var count = 400;
+    	var countSide = Math.sqrt(count);
+    	var center = (countSide * 3.0) / 2.0;
+    	for (i in 0...count)
+    	{
+			var obj = builder_.addSceneObj( "TestObj_" + Std.string(i), "MESH_Cylinder", "stone.png");
+			var ii : Float = (Std.int(i/countSide) * 4) - center;
+			var jj : Float = (Std.int(i%countSide) * 4) - center;
+			if (Std.int(i/10)%2 > 0 ) {
+				jj += 2.0;
+			}
+			obj.xform_.pos.set_xyz( ii, 0, jj ); 			
+		}    	
     }
 
 	override function onpostrender() {
@@ -169,7 +210,7 @@ class Main extends luxe.Game {
     var rot = 0.0;
     override function update(dt:Float) {    	
     	rot += 90*dt;
-    	builder_.update( dt );
+    	//builder_.update( dt );
     	//meshOak_.rotation.setFromEuler(new Vector(0,rot,0).radians());
     } //update
 

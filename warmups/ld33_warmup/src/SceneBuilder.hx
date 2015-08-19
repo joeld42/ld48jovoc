@@ -3,12 +3,13 @@ import luxe.Mesh;
 import luxe.Color;
 import luxe.Vector;
 import luxe.Camera;
-
+import luxe.Rectangle;
 import luxe.utils.Random;
 
 import phoenix.geometry.Geometry;
 import phoenix.geometry.Vertex;
 import phoenix.geometry.TextureCoord;
+import phoenix.RenderTexture;
 import phoenix.Batcher;
 import phoenix.Texture;
 import phoenix.Quaternion;
@@ -53,6 +54,9 @@ class SceneBuilder
 	public var testShader_ : Shader;
 	public var sceneCamera_ : Camera;
 
+	var shadowExtent= 30.0;
+	public var shadowCamera_ : Camera;	
+	public var shadowTexture_ : RenderTexture;
 	var testObj_ : SceneObj;
 
 	public function loadScene( sceneName : String )
@@ -65,19 +69,11 @@ class SceneBuilder
 		{			
 			var objName = obj.name;
 			
-			var sceneObj = new SceneObj( objName);			
-			sceneObj.name_ = objName;
-			sceneObj.xform_ = new Transform();
-			// var meshName = obj["mesh"];
-			// var meshLoc = obj["loc"];
-			// var meshRot = obj["rot"]; 			
-			var sceneMesh = lookupSceneMesh( "assets/mesh/" + obj.mesh + ".dat", 
-									 		 "assets/" + obj.texture );
-			//sceneObj.xform_.makeTranslation( obj.loc[0], obj.loc[1], obj.loc[2] );
-			
+			var sceneObj = addSceneObj( objName, obj.mesh, obj.texture );			
 
 			// Do it this way to control rotation order
 			// TODO: export rotation order from blender
+			// FIXME: use rotation order flags in Quat class..
 			var xrot = new Quaternion();
 			xrot.setFromEuler(new Vector( -obj.rot[0], 0.0, 0.0));
 
@@ -92,21 +88,12 @@ class SceneBuilder
 			rot.multiply( yrot );			
 			rot.multiply( xrot );			
 
-			// var mrot = new Matrix();
-			// mrot.makeRotationFromQuaternion( rot );
-			//sceneObj.xform_.multiply( mrot );
-
-			// var mscl = new Matrix();
-			// mscl.makeScale(obj.scl[0],  obj.scl[1],  obj.scl[2] );
-			//sceneObj.xform_.multiply( mscl );
-
 			// sceneObj.xform_.local.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
 			sceneObj.xform_.pos.set_xyz( obj.loc[0], obj.loc[1], obj.loc[2] );
 			sceneObj.xform_.scale.set_xyz(obj.scl[0],  obj.scl[1],  obj.scl[2] );
 			sceneObj.xform_.rotation.copy( rot );
 
-			sceneMesh.instList_.push( sceneObj );
-			trace('MESH ${obj.mesh} has ${sceneMesh.instList_.length} matrix ${sceneObj.xform_}');
+			// trace('MESH ${obj.mesh} has ${sceneMesh.instList_.length} matrix ${sceneObj.xform_}');
 			// mesh.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
 
 			// mesh.geometry.locked = true;
@@ -214,8 +201,45 @@ class SceneBuilder
 		return geom;
 	}
 
+	public function initShadows()
+	{
+		shadowCamera_ = new Camera({
+				name : 'topcam',
+				near: -100,
+				far: 100,
+				aspect: 1.0,
+				projection: ProjectionType.ortho,				
+			});
+
+		
+		shadowCamera_.view.viewport = new Rectangle( -shadowExtent, -shadowExtent,
+													 shadowExtent, shadowExtent );
+		shadowCamera_.pos.set_xyz(-shadowExtent/2.0,0,0);
+    	shadowCamera_.rotation.setFromEuler( new Vector( -90.0, 0, 0).radians() );
+
+    	shadowTexture_ = new RenderTexture({ id:'rtt', width:512, height:512 });
+
+	}
+
 	// TODO: Rearrange this
 	public function drawScene()
+	{
+		Luxe.renderer.target = shadowTexture_;
+		
+
+		shadowCamera_.pos.set_xyz( sceneCamera_.pos.x - shadowExtent/2.0,
+								   sceneCamera_.pos.y, sceneCamera_.pos.z );
+
+	  	GL.clear( GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT );
+        GL.clearDepth(1.0);
+		shadowCamera_.view.process();
+		drawScenePass( shadowCamera_ );
+
+		Luxe.renderer.target = null;
+		drawScenePass( sceneCamera_ );
+	}
+
+	public function drawScenePass( camera : Camera )
 	{
 		GL.enable(GL.DEPTH_TEST);
 		var modelView = new Matrix();
@@ -235,8 +259,8 @@ class SceneBuilder
 	        {
 	        	var model = sceneObj.xform_.world.matrix;
 
-	        	modelView.multiplyMatrices( sceneCamera_.view.view_matrix_inverse, model  );
-	        	mvp.multiplyMatrices( sceneCamera_.view.projection_matrix, modelView );
+	        	modelView.multiplyMatrices( camera.view.view_matrix_inverse, model  );
+	        	mvp.multiplyMatrices( camera.view.projection_matrix, modelView );
 
 	        	normalMatrix.getInverse( model );
 	        	//normalMatrix.copy( sceneObj.xform_ );
@@ -249,6 +273,19 @@ class SceneBuilder
 	            Luxe.renderer.batcher.submit_geometry(mesh.geometry, model );
 	        }
     	}
+	}
+
+	public function addSceneObj( name : String, meshID : String, texture : String ) : SceneObj
+	{
+			var sceneObj = new SceneObj(name);						
+			sceneObj.xform_ = new Transform();
+
+			var sceneMesh = lookupSceneMesh( "assets/mesh/" + meshID + ".dat", 
+									 		 "assets/" + texture );
+
+			sceneMesh.instList_.push( sceneObj );
+			//trace('MESH ${obj.mesh} has ${sceneMesh.instList_.length} matrix ${sceneObj.xform_}');
+			return sceneObj;
 	}
 
 	public function findSceneObj( name : String ) : SceneObj
