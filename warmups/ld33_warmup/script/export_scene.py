@@ -66,7 +66,7 @@ def exportMeshObj( mesh, meshExportName ):
 			# pack up the vert data
 			packedVert = struct.pack( '<3f3f4f', 
 				v.co[0], v.co[2], v.co[1],
-				v.normal[0], v.normal[1], v.normal[2],
+				v.normal[0], v.normal[2], v.normal[1],
 				uv.uv[0], uv.uv[1], 0.0, 0.0 );
 
 			packedTri.append(packedVert)

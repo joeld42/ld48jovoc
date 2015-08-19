@@ -2,6 +2,9 @@ import luxe.Input;
 import luxe.Mesh;
 import luxe.Color;
 import luxe.Vector;
+import luxe.Camera;
+
+import luxe.utils.Random;
 
 import phoenix.geometry.Geometry;
 import phoenix.geometry.Vertex;
@@ -19,11 +22,16 @@ import snow.modules.opengl.GL;
 @:publicFields
 class SceneObj {
 	var name_: String;
-	//var xform_: Transform;
-	var xform_ : Matrix;
+	var tintColor : Vector;
+	var xform_: Transform;
+	
 	public function new( name : String )
 	{
 		name_ = name;
+		// var rand = Luxe.utils.random.get();
+		tintColor = new Vector( Luxe.utils.random.float( 0.0, 1.0 ),
+								Luxe.utils.random.float( 0.0, 1.0 ),
+								Luxe.utils.random.float( 0.0, 1.0 ) );
 	}
 }
 
@@ -32,7 +40,8 @@ class SceneMesh {
 	var mesh_ : luxe.Mesh;
 	var instList_ : Array<SceneObj>;
 
-	function new( mesh : luxe.Mesh ) {
+	function new( mesh : luxe.Mesh ) 
+	{		
 		mesh_ = mesh; // also contains geo
 		instList_ = new Array<SceneObj>();
 	}
@@ -42,43 +51,9 @@ class SceneBuilder
 {
 	var meshDB_ = new Map<String,SceneMesh>();
 	public var testShader_ : Shader;
+	public var sceneCamera_ : Camera;
 
-	// public function makeClone( meshName : String, textureName : String ) : Mesh 
-	// {
-	// 	// Get the texture from Luxe resource system
-	// 	var tex = Luxe.resources.texture( textureName );
-
-	// 	// Do we already have geo loaded?
-	// 	var meshGeo : SceneMesh = meshDB_.get( meshName );
-	// 	if (meshGeo == null) {
-	// 		// Need to load the geo
-	// 		// meshGeo = loadGeometry( meshName );			
-	// 		meshDB_[meshName] = meshGeo;
-	// 	}
-
-	// 	if (meshGeo==null)
-	// 	{
-	// 		trace('ERR: could not load mesh ${meshName}');
-	// 		return null;
-	// 	}
-
-	// 	// Make a copy of the geom
-	// 	var mesh = new Mesh({
- //            geometry : new Geometry({
- //            batcher : Luxe.renderer.batcher,
- //            immediate : false,
- //            primitive_type: PrimitiveType.triangles,
- //            texture: tex
- //            })
- //        });
-
-	// 	// trace('Meshname ${meshName} verts ${meshGeo.vertices}');
- //        for(v in meshGeo.vertices) {
- //            mesh.geometry.add( v.clone() );
- //        }
-
- //        return mesh;
-	// }
+	var testObj_ : SceneObj;
 
 	public function loadScene( sceneName : String )
 	{
@@ -92,33 +67,43 @@ class SceneBuilder
 			
 			var sceneObj = new SceneObj( objName);			
 			sceneObj.name_ = objName;
-			sceneObj.xform_ = new Matrix();
+			sceneObj.xform_ = new Transform();
 			// var meshName = obj["mesh"];
 			// var meshLoc = obj["loc"];
 			// var meshRot = obj["rot"]; 			
 			var sceneMesh = lookupSceneMesh( "assets/mesh/" + obj.mesh + ".dat", 
 									 		 "assets/" + obj.texture );
-			sceneObj.xform_.makeTranslation( obj.loc[0], obj.loc[1], obj.loc[2] );
+			//sceneObj.xform_.makeTranslation( obj.loc[0], obj.loc[1], obj.loc[2] );
 			
 
 			// Do it this way to control rotation order
 			// TODO: export rotation order from blender
-			// var xrot = new Quaternion();
-			// xrot.setFromEuler(new Vector( -obj.rot[0], 0.0, 0.0));
+			var xrot = new Quaternion();
+			xrot.setFromEuler(new Vector( -obj.rot[0], 0.0, 0.0));
 
-			// var yrot = new Quaternion();
-			// yrot.setFromEuler(new Vector( 0.0, -obj.rot[2], 0.0));			
+			var yrot = new Quaternion();
+			yrot.setFromEuler(new Vector( 0.0, -obj.rot[2], 0.0));			
 
-			// var zrot = new Quaternion();
-			// zrot.setFromEuler(new Vector( 0.0, 0.0, -obj.rot[1] ));			
+			var zrot = new Quaternion();
+			zrot.setFromEuler(new Vector( 0.0, 0.0, -obj.rot[1] ));			
 			
-			// var rot = new Quaternion();
-			// //rot.multiply( zrot );
-			// rot.multiply( yrot );			
-			// rot.multiply( xrot );			
+			var rot = new Quaternion();
+			//rot.multiply( zrot );
+			rot.multiply( yrot );			
+			rot.multiply( xrot );			
 
-			// sceneObj.xform_.rotation = rot;
+			// var mrot = new Matrix();
+			// mrot.makeRotationFromQuaternion( rot );
+			//sceneObj.xform_.multiply( mrot );
+
+			// var mscl = new Matrix();
+			// mscl.makeScale(obj.scl[0],  obj.scl[1],  obj.scl[2] );
+			//sceneObj.xform_.multiply( mscl );
+
 			// sceneObj.xform_.local.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
+			sceneObj.xform_.pos.set_xyz( obj.loc[0], obj.loc[1], obj.loc[2] );
+			sceneObj.xform_.scale.set_xyz(obj.scl[0],  obj.scl[1],  obj.scl[2] );
+			sceneObj.xform_.rotation.copy( rot );
 
 			sceneMesh.instList_.push( sceneObj );
 			trace('MESH ${obj.mesh} has ${sceneMesh.instList_.length} matrix ${sceneObj.xform_}');
@@ -126,6 +111,9 @@ class SceneBuilder
 
 			// mesh.geometry.locked = true;
 		}
+
+
+		testObj_ = findSceneObj( "Cylinder.003");
 	}
 
 	function lookupSceneMesh( meshID : String, textureName : String ) : SceneMesh
@@ -230,6 +218,13 @@ class SceneBuilder
 	public function drawScene()
 	{
 		GL.enable(GL.DEPTH_TEST);
+		var modelView = new Matrix();
+		var mvp = new Matrix();
+
+		var normalMatrix = new Matrix();		
+
+		//viewProj.multiplyMatrices( sceneCamera_.view.projection_matrix, sceneCamera_.view.view_matrix_inverse );
+		// trace('view matrix is ${sceneCamera_.view.view_matrix}');
 
 		for (sceneMesh in meshDB_)
 		{
@@ -238,9 +233,46 @@ class SceneBuilder
 
 	        for(sceneObj in sceneMesh.instList_) 
 	        {
-	            Luxe.renderer.batcher.submit_geometry(mesh.geometry, sceneObj.xform_ );
+	        	var model = sceneObj.xform_.world.matrix;
+
+	        	modelView.multiplyMatrices( sceneCamera_.view.view_matrix_inverse, model  );
+	        	mvp.multiplyMatrices( sceneCamera_.view.projection_matrix, modelView );
+
+	        	normalMatrix.getInverse( model );
+	        	//normalMatrix.copy( sceneObj.xform_ );
+	        	normalMatrix.transpose();
+
+	        	mesh.geometry.shader.set_vector3( "tintColor", sceneObj.tintColor );
+	        	mesh.geometry.shader.set_matrix4( "mvp", mvp );
+	        	mesh.geometry.shader.set_matrix4( "normalMatrix", normalMatrix );
+
+	            Luxe.renderer.batcher.submit_geometry(mesh.geometry, model );
 	        }
     	}
+	}
+
+	public function findSceneObj( name : String ) : SceneObj
+	{
+		for (sceneMesh in meshDB_)
+		{
+			var mesh : Mesh = sceneMesh.mesh_;
+	        for(sceneObj in sceneMesh.instList_) 
+	        {
+	        	if (sceneObj.name_ == name) {
+	        		return sceneObj;
+	        	}
+	        }
+	    }
+	    return null;
+	}
+	
+	public function update( dt : Float )
+	{		
+		var q = new Quaternion();
+		q.setFromAxisAngle( new Vector( 1.0, 0.0, 0.0), 1.2*dt );
+		testObj_.xform_.rotation.multiply(q );
+
+		// trace('rotation ${testObj_.xform_.rotation}');
 	}
 
 }

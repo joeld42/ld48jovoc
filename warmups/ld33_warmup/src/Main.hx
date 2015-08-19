@@ -118,8 +118,15 @@ class Main extends luxe.Game {
 
  		worldShader_ = Luxe.resources.shader('world');
     	builder_.testShader_ = worldShader_;
+
+    	var lightDir = new Vector( 0.5, -1.0, 0.0 );
+    	lightDir.normalize();
+    	lightDir.invert();
+    	worldShader_.set_vector3( "lightDir", lightDir);
     	trace( 'Shader is ${worldShader_}' );
 
+    	builder_.sceneCamera_ = flyCamera_;
+    	
 		Luxe.renderer.batcher.view = flyCamera_.view;
 
 		//move up and back a bit
@@ -160,8 +167,9 @@ class Main extends luxe.Game {
     } //onkeyup
 
     var rot = 0.0;
-    override function update(dt:Float) {
+    override function update(dt:Float) {    	
     	rot += 90*dt;
+    	builder_.update( dt );
     	//meshOak_.rotation.setFromEuler(new Vector(0,rot,0).radians());
     } //update
 
