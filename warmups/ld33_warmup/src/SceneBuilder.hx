@@ -56,7 +56,12 @@ class SceneBuilder
 
 	var shadowExtent= 30.0;
 	public var shadowCamera_ : Camera;	
+	
 	public var shadowTexture_ : RenderTexture;
+	//public var texShadDepth_ : Texture;
+	public var texShadDepth_ : TextureID;
+
+
 	var testObj_ : SceneObj;
 
 	public function loadScene( sceneName : String )
@@ -201,8 +206,13 @@ class SceneBuilder
 		return geom;
 	}
 
+	
+
 	public function initShadows()
 	{
+		var depthTextureExt = GL.getExtension("WEBKIT_WEBGL_depth_texture");
+		trace('depthTextureExt ${depthTextureExt}');
+
 		shadowCamera_ = new Camera({
 				name : 'topcam',
 				near: -100,
@@ -217,15 +227,29 @@ class SceneBuilder
 		shadowCamera_.pos.set_xyz(-shadowExtent/2.0,0,0);
     	shadowCamera_.rotation.setFromEuler( new Vector( -90.0, 0, 0).radians() );
 
-    	shadowTexture_ = new RenderTexture({ id:'rtt', width:512, height:512 });
+		shadowTexture_ = new RenderTexture({ id:'rtt_shadCol', width:512, height:512 });
 
+    	// texShadDepth_ = new Texture({ id:'rtt_shadDepth', width:512, height:512, 
+    	// 									format:GL.DEPTH_COMPONENT, 
+    	// 									//data_type: GL.UNSIGNED_INT 
+    	// 									});    	
+		texShadDepth_ = GL.createTexture();
+		GL.bindTexture( GL.TEXTURE_2D, texShadDepth_ );
+		GL.texParameteri( GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+		GL.texParameteri( GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+		GL.texParameteri( GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+		GL.texImage2D(GL.TEXTURE_2D, 0, GL.DEPTH_COMPONENT, 512, 512, 0, 
+			GL.DEPTH_COMPONENT, GL.UNSIGNED_SHORT, null);
 	}
 
 	// TODO: Rearrange this
 	public function drawScene()
 	{
-		Luxe.renderer.target = shadowTexture_;
-		
+		Luxe.renderer.target = shadowTexture_;		
+		// gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
+		GL.framebufferTexture2D( GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, 
+		 						texShadDepth_, 0 );
 
 		shadowCamera_.pos.set_xyz( sceneCamera_.pos.x - shadowExtent/2.0,
 								   sceneCamera_.pos.y, sceneCamera_.pos.z );
@@ -237,6 +261,7 @@ class SceneBuilder
 
 		Luxe.renderer.target = null;
 		drawScenePass( sceneCamera_ );
+
 	}
 
 	public function drawScenePass( camera : Camera )

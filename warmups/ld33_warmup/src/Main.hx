@@ -149,11 +149,14 @@ class Main extends luxe.Game {
     	builder_.loadScene( "assets/test_shapes.json");
     	builder_.initShadows();
 
-		hudBatcher_ = Luxe.renderer.create_batcher({ name:'hud_batcher', layer:4 });
+		hudBatcher_ = Luxe.renderer.create_batcher({ name:'hud_batcher', layer:4,  no_add : true});
 
+		var shadowTex = new Texture({ id : "shadowSpriteTex", width:512, height:512, texture: builder_.texShadDepth_ });
 		shadowBuffSprite_ = new Sprite({
     	 	batcher : hudBatcher_,
-            texture : builder_.shadowTexture_,
+            // texture : builder_.shadowTexture_,
+            // texture : builder_.texShadDepth_,
+            texture : shadowTex,
             size : new Vector(400, 400),
             //pos : Luxe.screen.mid,
             pos : new Vector( 210, 210 )
@@ -172,7 +175,7 @@ class Main extends luxe.Game {
 
 	function makeTestGrid() 
     {    	
-    	var count = 400;
+    	var count = 100;
     	var countSide = Math.sqrt(count);
     	var center = (countSide * 3.0) / 2.0;
     	for (i in 0...count)
@@ -190,6 +193,9 @@ class Main extends luxe.Game {
 	override function onpostrender() {
 
         builder_.drawScene();
+
+        // Draw the hud batcher afterward so the hud scene stays on top
+		hudBatcher_.draw();
 
     } //onrender
 
