@@ -33,6 +33,7 @@ class SceneObj {
 		tintColor = new Vector( Luxe.utils.random.float( 0.0, 1.0 ),
 								Luxe.utils.random.float( 0.0, 1.0 ),
 								Luxe.utils.random.float( 0.0, 1.0 ) );
+		tintColor = new Vector( 1.0, 1.0, 1.0 );
 	}
 }
 
@@ -52,15 +53,17 @@ class SceneBuilder
 {
 	var meshDB_ = new Map<String,SceneMesh>();
 	public var testShader_ : Shader;
+	public var shadowShader_ : Shader;
 	public var sceneCamera_ : Camera;
 
-	var shadowExtent= 30.0;
-	public var shadowCamera_ : Camera;	
+	var shadowExtent= 50.0;
+	public var shadowProjMat_ : Matrix;
+	public var shadowViewMat_ : Matrix;
 	
 	public var shadowTexture_ : RenderTexture;
-	//public var texShadDepth_ : Texture;
+	
 	public var texShadDepth_ : TextureID;
-
+	public var texShadDepthWrap : Texture;
 
 	var testObj_ : SceneObj;
 
@@ -213,19 +216,12 @@ class SceneBuilder
 		var depthTextureExt = GL.getExtension("WEBKIT_WEBGL_depth_texture");
 		trace('depthTextureExt ${depthTextureExt}');
 
-		shadowCamera_ = new Camera({
-				name : 'topcam',
-				near: -100,
-				far: 100,
-				aspect: 1.0,
-				projection: ProjectionType.ortho,				
-			});
 
+		shadowProjMat_ = new Matrix();
+		shadowProjMat_.makeOrthographic( -shadowExtent, shadowExtent, 
+										 -shadowExtent, shadowExtent, 
+										 20.0, -20.0 );
 		
-		shadowCamera_.view.viewport = new Rectangle( -shadowExtent, -shadowExtent,
-													 shadowExtent, shadowExtent );
-		shadowCamera_.pos.set_xyz(-shadowExtent/2.0,0,0);
-    	shadowCamera_.rotation.setFromEuler( new Vector( -90.0, 0, 0).radians() );
 
 		shadowTexture_ = new RenderTexture({ id:'rtt_shadCol', width:512, height:512 });
 
@@ -240,35 +236,71 @@ class SceneBuilder
 		GL.texParameteri( GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
 		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
 		GL.texImage2D(GL.TEXTURE_2D, 0, GL.DEPTH_COMPONENT, 512, 512, 0, 
-			GL.DEPTH_COMPONENT, GL.UNSIGNED_SHORT, null);
+			GL.DEPTH_COMPONENT, GL.UNSIGNED_INT, null);
+		
+		shadowTexture_.bindBuffer();
+		GL.framebufferTexture2D( GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, 
+		 						texShadDepth_, 0 );
+		shadowTexture_.unbindBuffer();
+
+		texShadDepthWrap = new Texture({ id : "texShadDepthWrap", 
+			width:512, height:512, texture: texShadDepth_ });
+		texShadDepthWrap.slot = 1;
 	}
 
 	// TODO: Rearrange this
 	public function drawScene()
 	{
-		Luxe.renderer.target = shadowTexture_;		
-		// gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
-		GL.framebufferTexture2D( GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, 
-		 						texShadDepth_, 0 );
+		// Luxe.renderer.target = shadowTexture_;		
+		
+		// ==== shadow pass =======
 
-		shadowCamera_.pos.set_xyz( sceneCamera_.pos.x - shadowExtent/2.0,
-								   sceneCamera_.pos.y, sceneCamera_.pos.z );
+		shadowTexture_.bindBuffer();
+		shadowTexture_.bindRenderBuffer();
 
-	  	GL.clear( GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT );
-        GL.clearDepth(1.0);
-		shadowCamera_.view.process();
-		drawScenePass( shadowCamera_ );
+		var lightRot = new Quaternion();
+		lightRot.setFromEuler(new Vector( -85.0, 0, 0).radians() );
 
+		shadowViewMat_ = new Matrix();
+		shadowViewMat_.identity();
+    	shadowViewMat_.makeRotationFromQuaternion(lightRot);
+    	shadowViewMat_.multiply( new Matrix().makeTranslation( -sceneCamera_.pos.x, 
+					 	 									   -sceneCamera_.pos.y, 
+					 	 									   -sceneCamera_.pos.z ) ); 
+
+		// shadowCamera_.transform.pos.set_xyz( sceneCamera_.pos.x, 
+		//  									 sceneCamera_.pos.y, 
+		//  									 sceneCamera_.pos.z ); 
+		GL.enable(GL.DEPTH_TEST);
+
+		GL.depthFunc( GL.LESS );
+		GL.depthRange( 0.0, 1.0 );
+		GL.clearDepth( 1.0);
+	  	GL.clear( GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT );        
+
+        GL.viewport(0, 0, 512, 512 );
+		drawScenePass( sceneCamera_, true );
+
+		// ==== beauty pass =======
+		shadowTexture_.unbindBuffer();
+		shadowTexture_.unbindRenderBuffer();
+
+		GL.viewport(0, 0, Luxe.screen.w, Luxe.screen.h );
+		texShadDepthWrap.slot = 1;
+		testShader_.set_texture("tex1", texShadDepthWrap );
 		Luxe.renderer.target = null;
-		drawScenePass( sceneCamera_ );
+
+		drawScenePass( sceneCamera_, false );
 
 	}
 
-	public function drawScenePass( camera : Camera )
+	public function drawScenePass( camera : Camera, isShadowPass : Bool )
 	{
-		GL.enable(GL.DEPTH_TEST);
 		var modelView = new Matrix();
+		var modelViewLight = new Matrix();
+		
 		var mvp = new Matrix();
+		var mvpLight = new Matrix();
 
 		var normalMatrix = new Matrix();		
 
@@ -284,18 +316,36 @@ class SceneBuilder
 	        {
 	        	var model = sceneObj.xform_.world.matrix;
 
-	        	modelView.multiplyMatrices( camera.view.view_matrix_inverse, model  );
-	        	mvp.multiplyMatrices( camera.view.projection_matrix, modelView );
+        		modelViewLight.multiplyMatrices( shadowViewMat_, model  );
+        		mvpLight.multiplyMatrices( shadowProjMat_, modelViewLight );
+
+	        	if (!isShadowPass)
+	        	{
+	        		modelView.multiplyMatrices( camera.view.view_matrix_inverse, model  );
+	        		mvp.multiplyMatrices( camera.view.projection_matrix, modelView );
+	        	} else {
+	        		mvp = mvpLight;	        		
+	        	}
 
 	        	normalMatrix.getInverse( model );
-	        	//normalMatrix.copy( sceneObj.xform_ );
 	        	normalMatrix.transpose();
 
-	        	mesh.geometry.shader.set_vector3( "tintColor", sceneObj.tintColor );
-	        	mesh.geometry.shader.set_matrix4( "mvp", mvp );
-	        	mesh.geometry.shader.set_matrix4( "normalMatrix", normalMatrix );
+	        	
+	        	 
 
-	            Luxe.renderer.batcher.submit_geometry(mesh.geometry, model );
+
+	        	var overrideShader : Shader = null;
+	        	if (isShadowPass) 
+	        	{	        		
+	        		overrideShader = shadowShader_;
+	        		overrideShader.set_matrix4( "mvp", mvp );
+	        	} else {
+	        		mesh.geometry.shader.set_vector3( "tintColor", sceneObj.tintColor );
+	        		mesh.geometry.shader.set_matrix4( "mvp", mvp );
+	        		mesh.geometry.shader.set_matrix4( "normalMatrix", normalMatrix );
+	        		mesh.geometry.shader.set_matrix4("mvpLight", mvpLight );
+	        	}
+	            Luxe.renderer.batcher.submit_geometry(mesh.geometry, overrideShader );
 	        }
     	}
 	}

@@ -53,7 +53,7 @@ class Main extends luxe.Game {
 
 	override function config( config : luxe.AppConfig )
 	{
-		config.render.antialiasing = 8;
+		// config.render.antialiasing = 8;
 		config.render.depth_bits = 24;
 		config.render.depth = true;
 
@@ -72,6 +72,8 @@ class Main extends luxe.Game {
 
 		config.preload.texts.push({ id :  "assets/warmup.glsl" });
 		config.preload.shaders.push({ id:'world', frag_id:'assets/world.frag.glsl', vert_id:'assets/world.vert.glsl' });
+		config.preload.shaders.push({ id:'dbg_shad', frag_id:'assets/dbg_shad.frag.glsl', vert_id:'default' });
+		config.preload.shaders.push({ id:'shadow', frag_id:'assets/shadow.frag.glsl', vert_id:'assets/shadow.vert.glsl' });
 
 		// TEST SHAPE
 		config.preload.bytes.push({ id : "assets/mesh/MESH_Grid.dat" });
@@ -122,6 +124,8 @@ class Main extends luxe.Game {
 
  		worldShader_ = Luxe.resources.shader('world');
     	builder_.testShader_ = worldShader_;
+    	builder_.shadowShader_ = Luxe.resources.shader('shadow');
+    	
 
     	var lightDir = new Vector( 0.5, -1.0, 0.0 );
     	lightDir.normalize();
@@ -134,16 +138,16 @@ class Main extends luxe.Game {
 		Luxe.renderer.batcher.view = flyCamera_.view;
 
 		//move up and back a bit
-    	flyCamera_.pos.set_xyz(0,20,15);
+    	// flyCamera_.pos.set_xyz(0,20,15);
     	flyCamera_.rotation.setFromEuler( new Vector( -50.0, 0, 0).radians() );
 
-    	var groundTex = Luxe.resources.texture( 'assets/ground_swirl.png');
-    	groundTex.generate_mipmaps();
-    	groundTex.clamp_s = groundTex.clamp_t = ClampType.repeat;
-    	 // groundTex.filter = mip_linear_linear;
-    	meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex } );    	    	
-    	meshGround_.pos.set_xyz( 0.0, -2.0, 0.0 );
-    	meshGround_.geometry.locked = true;    	
+    	// var groundTex = Luxe.resources.texture( 'assets/ground_swirl.png');
+    	// groundTex.generate_mipmaps();
+    	// groundTex.clamp_s = groundTex.clamp_t = ClampType.repeat;
+    	//  // groundTex.filter = mip_linear_linear;
+    	// meshGround_ = new Mesh({ file : 'assets/grid10x10.obj', texture : groundTex } );    	    	
+    	// meshGround_.pos.set_xyz( 0.0, -2.0, 0.0 );
+    	// meshGround_.geometry.locked = true;    	
 
     	// builder_.loadScene( "assets/forest_small_test.json");
     	builder_.loadScene( "assets/test_shapes.json");
@@ -151,17 +155,34 @@ class Main extends luxe.Game {
 
 		hudBatcher_ = Luxe.renderer.create_batcher({ name:'hud_batcher', layer:4,  no_add : true});
 
+		var shadowSpriteSize = 256;
 		var shadowTex = new Texture({ id : "shadowSpriteTex", width:512, height:512, texture: builder_.texShadDepth_ });
 		shadowBuffSprite_ = new Sprite({
     	 	batcher : hudBatcher_,
             // texture : builder_.shadowTexture_,
             // texture : builder_.texShadDepth_,
-            texture : shadowTex,
-            size : new Vector(400, 400),
+            texture : Luxe.resources.texture("assets/stone.png"),
+            size : new Vector(shadowSpriteSize, shadowSpriteSize),
             //pos : Luxe.screen.mid,
-            pos : new Vector( 210, 210 )
+            pos : new Vector( 10 + shadowSpriteSize/2, 10+shadowSpriteSize/2 )
         });
+        var dbgShadShader = Luxe.resources.shader('dbg_shad');
+        dbgShadShader.set_texture('tex1', shadowTex );
         shadowBuffSprite_.depth = -100;
+        shadowBuffSprite_.shader = dbgShadShader;
+
+  //       // var shadowTex2 = new Texture({ id : "shadowSpriteTex", 
+  //       // 	width:512, height:512, texture: builder_.shadowTexture_ });
+		// var shadowBuffSprite2 = new Sprite({
+  //   	 	batcher : hudBatcher_,
+  //           // texture : builder_.shadowTexture_,
+  //           // texture : builder_.texShadDepth_,
+  //           texture : builder_.shadowTexture_,
+  //           size : new Vector(shadowSpriteSize, shadowSpriteSize),
+  //           //pos : Luxe.screen.mid,
+  //           pos : new Vector( 30 + shadowSpriteSize + shadowSpriteSize/2, 10 +shadowSpriteSize/2 )
+  //       });
+  //       shadowBuffSprite_.depth = -100;
 
 		// set up test entity
 		var testObj_ = builder_.findSceneObj( "Cylinder.003");
@@ -194,7 +215,7 @@ class Main extends luxe.Game {
 
         builder_.drawScene();
 
-        // Draw the hud batcher afterward so the hud scene stays on top
+        // Draw the hud batcher afterward so the hud scene stays on top        
 		hudBatcher_.draw();
 
     } //onrender
