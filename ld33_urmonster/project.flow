@@ -1,0 +1,36 @@
+{
+
+  luxe:{
+    window: {
+      width:960,
+      height:640,
+      title:'LD33 -- You are the Monster',
+      fullscreen:false,
+      resizable:true,
+      borderless:false
+    }
+  },
+
+  project : {
+    name : 'ld33_urmonster',
+    version : '1.0.0',
+    author : 'jovoc',
+
+    app : {
+      name : 'ld33_urmonster',
+      package : 'com.tapnik.ld33_urmonster'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}
