@@ -29,6 +29,7 @@ class SceneObj {
 	var tintColor : Vector;
 	var xform_: Transform;
 	var boundSphere_ : SceneBoundSphere; // WARN: local, just a link to mesh bounds
+	var pickable_ : Bool;
 
 	public function new( name : String )
 	{
@@ -91,6 +92,7 @@ class SceneRender
 	
 	public var texShadDepth_ : TextureID;
 	public var texShadDepthWrap : Texture;	
+	public var groundMesh_ : SceneMesh;
 
 	public function loadScene( sceneName : String )
 	{
@@ -102,7 +104,7 @@ class SceneRender
 		{			
 			var objName = obj.name;
 			
-			var sceneObj = addSceneObj( objName, obj.mesh, obj.texture );			
+			var sceneObj = addSceneObj( objName, obj.mesh, obj.texture );
 
 			// Do it this way to control rotation order
 			// TODO: export rotation order from blender
@@ -399,6 +401,15 @@ class SceneRender
 									 		 "assets/" + texture );
 			sceneObj.boundSphere_ = sceneMesh.boundSphere_;
 
+			// HACK : if this is the ground mesh, keep it around
+			if (name=="Ground1") {
+				groundMesh_ = sceneMesh;
+				sceneObj.pickable_ = false;
+			}
+			else {
+				sceneObj.pickable_ = true;
+			}
+
 			sceneMesh.instList_.push( sceneObj );
 			//trace('MESH ${obj.mesh} has ${sceneMesh.instList_.length} matrix ${sceneObj.xform_}');
 			return sceneObj;
@@ -418,4 +429,71 @@ class SceneRender
 	    }
 	    return null;
 	}
+
+	// Given an xz location, this fills in the y value so that 
+	// it is snapped to the ground mesh.
+	// NOTE: ignores xform (assumes identity)
+	public function groundPos( pos : Vector ) : Vector
+	{
+		var result = pos.clone();
+		if (groundMesh_==null) {
+			return result;
+		}
+
+		var vndx = 0;
+		while (vndx < groundMesh_.mesh_.geometry.vertices.length)
+		{			
+			var A = groundMesh_.mesh_.geometry.vertices[vndx].pos;
+			var B = groundMesh_.mesh_.geometry.vertices[vndx+1].pos;
+			var C = groundMesh_.mesh_.geometry.vertices[vndx+2].pos;
+
+			vndx += 3;
+
+			var ab = Vector.Subtract( B, A );
+			var ac = Vector.Subtract( C, A );
+			var ap = Vector.Subtract( pos, A );
+
+			var dd = ab.x * ac.z - ac.x * ab.z;
+    		var v = (ap.x * ac.z - ac.x * ap.z) / dd;
+    		var w = (ab.x * ap.z - ap.x * ab.z) / dd;
+    		var u = 1.0 - v - w;
+
+    		if ((v > 0.0) && (v < 1.0) &&
+				(w > 0.0) && (w < 1.0) &&
+				(u > 0.0) && (u < 1.0) )
+			{
+				result.y = u*A.y + v*B.y + w*C.y;
+				return result; 
+			}			
+		}
+
+		// Didn't find		
+		result.y = 0.0;
+		return result;
+	}
+
+	public function getSceneObjAtScreenPos( pos : Vector ) : SceneObj
+	{
+		var testRay = sceneCamera_.view.screen_point_to_ray( pos );
+		var scnray = new SceneRay( testRay.origin, testRay.dir.normalize() );
+		
+		for (sceneMesh in meshDB_)
+		{
+			var mesh : Mesh = sceneMesh.mesh_;
+	        for(sceneObj in sceneMesh.instList_) 
+	        {
+	        	if (!sceneObj.pickable_)
+	        	{
+	        		continue;
+	        	}
+	        	var hitTest = sceneObj.intersectRayBoundSphere( scnray );
+	        	if (hitTest.hit_)
+	        	{
+	        		return sceneObj;
+	        	}
+	        }
+	    }
+	    return null;
+	}
+
 }

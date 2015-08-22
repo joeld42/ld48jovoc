@@ -17,6 +17,7 @@ import phoenix.geometry.TextureCoord;
 import phoenix.Batcher;
 import phoenix.Texture;
 import phoenix.Shader;
+import phoenix.Quaternion;
 
 import snow.api.buffers.Uint8Array;
 import snow.system.assets.Assets;
@@ -156,7 +157,7 @@ class Main extends luxe.Game {
     	lookatObj_ = scene_.findSceneObj( "axisGadget" );
     	testSphereObj_ = scene_.findSceneObj( "testSphere" );
 
-    	testSphereObj_.xform_.pos.set_xyz( 0.0, 0.0, 1.0 );
+    	testSphereObj_.xform_.pos.set_xyz( 0.0, -10.0, 0.0 );
     	testSphereObj_.xform_.scale.set_xyz( 2.0, 2.0, 2.0 );
 
 		testHitObj_ = scene_.addSceneObj( "testHitObj", "MESH_axisGadgetMesh", "axisGadget.png");
@@ -190,7 +191,7 @@ class Main extends luxe.Game {
     } //bind_input
 
 	override function oninputup( _input:String, e:InputEvent ) {
-        trace( 'named input up : ' + _input );
+        // trace( 'named input up : ' + _input );
         if (_input=='up') {
         	zillaMover_.forceUp_ = 0.0;
         } else if (_input=='down') {
@@ -203,7 +204,7 @@ class Main extends luxe.Game {
     } //oninputup
 
     override function oninputdown( _input:String, e:InputEvent ) {
-        trace( 'named input down : ' + _input );
+        // trace( 'named input down : ' + _input );
         if (_input=='up') {
         	zillaMover_.forceUp_ = 1.0;
         } else if (_input=='down') {
@@ -232,16 +233,16 @@ class Main extends luxe.Game {
 
     	// Don't use escape because flycamera needs it to
     	// to grab mouse
-        if(e.keycode == Key.key_k) {
-		// if(e.keycode == Key.escape) {        	
+        //if(e.keycode == Key.key_k) {
+		if(e.keycode == Key.escape) {        	
             Luxe.shutdown();
         } else if (e.keycode == Key.key_z) {
         	// zap player to origin
         	zilla_.pos.set_xyz( 0.0, 0.0, 5.0 );
-        } else if (e.keycode == Key.key_n) {
-        	testSphereObj_.xform_.pos.z -= 0.1;
-		} else if (e.keycode == Key.key_m) {
-			testSphereObj_.xform_.pos.z += 0.1;
+        } else if (e.keycode == Key.key_g) {
+
+        	var g = scene_.groundPos( zilla_.pos );
+        	trace('GROUND: g');
         }
 
     } //onkeyup
@@ -262,14 +263,35 @@ class Main extends luxe.Game {
 
     override function update(dt:Float) 
     {
+    	// Update player
+    	updateZilla( dt );
+
+    	// Update zilla ground pos
+		var g = scene_.groundPos( zilla_.pos );
+		zilla_.pos.y = g.y;
+
     	// Update camera 
     	var cameraTarg = Vector.Add( zilla_.pos, new Vector( 0.0, 0.0, 5.0 ) );
+    	// cameraTarg.y = 0.0;
     	gameCamera_.pos.set_xyz( zilla_.pos.x + (zilla_.pos.x / 100.0) * 20.0, 
-    							 zilla_.pos.y + 20.0, 
+    							 20.0,//zilla_.pos.y + 20.0, 
     							 zilla_.pos.z - 15.0 );
     	gameCameraTarget_.copy_from( cameraTarg );
 
     	lookatObj_.xform_.pos.copy_from( gameCameraTarget_ );
+
+    	// Test for highlight object
+    	var pickObj = scene_.getSceneObjAtScreenPos( mouseScreenPos_ );
+
+    	if (pickObj != null)
+    	{
+    		testSphereObj_.xform_.pos.copy_from( pickObj.xform_.pos );
+    		var sz = pickObj.boundSphere_.radius_;
+    		testSphereObj_.xform_.scale.set_xyz( sz, sz, sz );
+    	} else {
+    		testSphereObj_.xform_.pos.set_xyz( 0.0, -10.0, 0.0 );
+    	}
+    	/*
     	testSphereObj_.xform_.rotation.copy( zilla_.rotation );
 		testSphereObj_.xform_.pos.copy_from( zilla_.pos );
 
@@ -288,9 +310,29 @@ class Main extends luxe.Game {
 			testHitObj_.xform_.pos.set_xyz( 0,4,0 );
 			// trace('MOUSE RAY scnRay ${scnray} ${testSphereObj_.boundSphere_} MISS');
 		}
-
-
+		*/
     } //update
+
+    function updateZilla(dt:Float)
+    {
+    	var fwd = zilla_.transform.world.matrix.forward();
+        fwd.normalize();
+        fwd.multiplyScalar( zillaMover_.forceUp_ - zillaMover_.forceDown_ );
+
+        // var right = entity.transform.world.matrix.right();
+        // right.normalize();
+        // right.multiplyScalar( forceRight_ - forceLeft_ );
+
+        var moveDir = fwd.clone();
+        moveDir.normalize();
+
+        moveDir.multiplyScalar( dt * 20.0 );
+        zilla_.pos.add( moveDir ); 
+
+        var q = new Quaternion();
+     	q.setFromAxisAngle( new Vector( 0.0, 1.0, 0.0), (zillaMover_.forceLeft_-zillaMover_.forceRight_)*4.0*dt );
+        zilla_.rotation.multiply(q);
+    }
 
 
 } //Main
