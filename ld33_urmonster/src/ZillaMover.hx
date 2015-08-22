@@ -17,7 +17,7 @@ class ZillaMover extends Component
 
     override function update( dt:Float ) {
 
-    	trace('up ${forceUp_} down ${forceDown_} left ${forceLeft_} right ${forceRight_}');
+    	//trace('up ${forceUp_} down ${forceDown_} left ${forceLeft_} right ${forceRight_}');
     	
    
         var fwd = entity.transform.world.matrix.forward();

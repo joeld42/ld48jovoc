@@ -20,12 +20,16 @@ import phoenix.Matrix;
 import snow.api.buffers.Uint8Array;
 import snow.modules.opengl.GL;
 
+import SceneIntersect;
+
+
 @:publicFields
 class SceneObj {
 	var name_: String;
 	var tintColor : Vector;
 	var xform_: Transform;
-	
+	var boundSphere_ : SceneBoundSphere; // WARN: local, just a link to mesh bounds
+
 	public function new( name : String )
 	{
 		name_ = name;
@@ -35,17 +39,40 @@ class SceneObj {
 								Luxe.utils.random.float( 0.0, 1.0 ) );
 		tintColor = new Vector( 1.0, 1.0, 1.0 );
 	}
+
+	public function intersectRayBoundSphere( ray : SceneRay )
+	{
+		var model = xform_.world.matrix;
+		var modelInv = model.inverse();
+
+		var localRay = new SceneRay( ray.origin_.clone().transform( modelInv ),
+									 ray.dir_.clone().transformDirection( modelInv ) );
+
+		// trace('ray is ${ray} localRay is ${localRay}');
+
+		var result = boundSphere_.intersectRay( localRay );
+		if (result.hit_)
+		{
+			result.hitPoint_.transform( model );
+			result.hitNormal_.transformDirection( model );
+
+		}
+		return result;
+	}
 }
 
 @:publicFields
 class SceneMesh {
 	var mesh_ : luxe.Mesh;
 	var instList_ : Array<SceneObj>;
+	var boundSphere_ : SceneBoundSphere;
 
 	function new( mesh : luxe.Mesh ) 
 	{		
 		mesh_ = mesh; // also contains geo
 		instList_ = new Array<SceneObj>();
+
+		boundSphere_ = SceneBoundSphere.BoundsFromGeom( mesh_.geometry);
 	}
 }
 
@@ -133,6 +160,8 @@ class SceneRender
 			// add to the mesh db
 			sceneMesh = new SceneMesh( mesh );
 			meshDB_[meshID] = sceneMesh;
+
+			trace('mesh ${meshID} bound ${sceneMesh.boundSphere_}');
 		}
 
 
@@ -197,9 +226,12 @@ class SceneRender
 			vtx.normal = nrm;
 			vtx.uv = uvset;
 
-			//trace('vtx ${i} is ${pos.x}, ${pos.y}, ${pos.z}');
-			//trace('nrm ${i} is ${nrm.x}, ${nrm.y}, ${nrm.z}');
-			//trace('uv ${i} is ${uv.u}, ${uv.v}, ${uv.w} ${uv.t}');
+			// if (meshName == "assets/mesh/MESH_TestSphereMesh.dat")
+			// {
+			// 	trace('vtx ${i} is ${pos.x}, ${pos.y}, ${pos.z} len ${pos.length}');
+			// 	trace('nrm ${i} is ${nrm.x}, ${nrm.y}, ${nrm.z} len ${nrm.length}');
+			// 	trace('uv ${i} is ${uv.u}, ${uv.v}, ${uv.w} ${uv.t}');
+			// }
 
 			geom.add( vtx );
 		}
@@ -365,6 +397,7 @@ class SceneRender
 
 			var sceneMesh = lookupSceneMesh( "assets/mesh/" + meshID + ".dat", 
 									 		 "assets/" + texture );
+			sceneObj.boundSphere_ = sceneMesh.boundSphere_;
 
 			sceneMesh.instList_.push( sceneObj );
 			//trace('MESH ${obj.mesh} has ${sceneMesh.instList_.length} matrix ${sceneObj.xform_}');

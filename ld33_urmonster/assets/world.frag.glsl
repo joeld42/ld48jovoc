@@ -27,4 +27,5 @@ void main() {
     */
 
     gl_FragColor = color*texcolor;
+    //gl_FragColor.a = 1.5;
 }

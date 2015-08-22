@@ -121,8 +121,48 @@
     },
     {
         "loc": [
+            4.0,
+            -0.0524943470954895,
+            0.0
+        ],
+        "mesh": "MESH_Cube.001",
+        "name": "Cube.006",
+        "rot": [
             0.0,
             0.0,
+            0.0
+        ],
+        "scl": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "texture": "house.png"
+    },
+    {
+        "loc": [
+            -4.0,
+            -0.0524943470954895,
+            0.0
+        ],
+        "mesh": "MESH_Cube.001",
+        "name": "Cube.007",
+        "rot": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scl": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "texture": "house.png"
+    },
+    {
+        "loc": [
+            0.0,
+            -2.0,
             0.0
         ],
         "mesh": "MESH_GroundMesh",
@@ -158,5 +198,25 @@
             1.0
         ],
         "texture": "suzilla.png"
+    },
+    {
+        "loc": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "mesh": "MESH_TestSphereMesh",
+        "name": "testSphere",
+        "rot": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scl": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "texture": "uvgrid.png"
     }
 ]

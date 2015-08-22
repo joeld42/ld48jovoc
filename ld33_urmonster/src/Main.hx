@@ -23,6 +23,7 @@ import snow.system.assets.Assets;
 
 import SceneRender;
 import ZillaMover;
+import SceneIntersect;
 
 class Main extends luxe.Game {
 
@@ -40,6 +41,11 @@ class Main extends luxe.Game {
 	var zillaMover_ : ZillaMover;
 
 	var lookatObj_ : SceneObj;
+	var testSphereObj_ : SceneObj;
+	var testHitObj_ : SceneObj;
+
+	var mouseScreenPos_ : Vector;
+	var mouseGroundPos_ : Vector;
 
 	override function config( config : luxe.AppConfig )
 	{
@@ -57,7 +63,7 @@ class Main extends luxe.Game {
 	function preloadResources( config : luxe.AppConfig )
 	{
 		// Configure texture
-		var texNames = [ "ground1.jpg", "house.png", "suzilla.png", "axisGadget.png" ];
+		var texNames = [ "ground1.jpg", "house.png", "suzilla.png", "axisGadget.png", "uvgrid.png" ];
 		for (texName in texNames)
 		{
 			config.preload.textures.push({ id :  "assets/" + texName,
@@ -73,7 +79,10 @@ class Main extends luxe.Game {
 		config.preload.bytes.push({ id : "assets/mesh/MESH_Cube.001.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_GroundMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_SuzillaMesh.dat" });
+		
+		// DEBUG MESHES
 		config.preload.bytes.push({ id : "assets/mesh/MESH_axisGadgetMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_TestSphereMesh.dat" });		
 
 		config.preload.jsons.push( { id : "assets/testland.json" });
 
@@ -81,18 +90,18 @@ class Main extends luxe.Game {
 
 	function initCamera()
 	{
-		flyCamera_ = new FlyCamera({
-    		name:'flycam',
-    		projection: ProjectionType.perspective,
-    		fov:90,
-    		near:0.1,
-    		far:1000,
-    		cull_backfaces : true,
-    		aspect:Luxe.screen.w/Luxe.screen.h
-		});
+		// flyCamera_ = new FlyCamera({
+  //   		name:'flycam',
+  //   		projection: ProjectionType.perspective,
+  //   		fov:90,
+  //   		near:0.1,
+  //   		far:1000,
+  //   		cull_backfaces : true,
+  //   		aspect:Luxe.screen.w/Luxe.screen.h
+		// });
 
 		gameCamera_ = new Camera({
-    		name:'flycam',
+    		name:'gamecam',
     		projection: ProjectionType.perspective,
     		fov:90,
     		near:0.1,
@@ -108,11 +117,16 @@ class Main extends luxe.Game {
     	gameCamera_.rotation.setFromEuler( new Vector( -50.0, 0, 0).radians() );
     	gameCameraTarget_ = new Vector();
     	gameCamera_.view.target = gameCameraTarget_;
+
+
 	}
 
     override function ready() 
     {
     	scene_ = new SceneRender();
+
+    	mouseScreenPos_ = new Vector();
+    	mouseGroundPos_ = new Vector();    	
 
  		worldShader_ = Luxe.resources.shader('world');
     	scene_.worldShader_ = worldShader_;
@@ -137,9 +151,16 @@ class Main extends luxe.Game {
     	var camPos = new Vector();
     	camPos.copy_from(zillaObj_.xform_.pos);
     	
-    	flyCamera_.pos.set_xyz( camPos.x, camPos.y + 5.0, camPos.z );
+    	//flyCamera_.pos.set_xyz( camPos.x, camPos.y + 5.0, camPos.z );
 
     	lookatObj_ = scene_.findSceneObj( "axisGadget" );
+    	testSphereObj_ = scene_.findSceneObj( "testSphere" );
+
+    	testSphereObj_.xform_.pos.set_xyz( 0.0, 0.0, 1.0 );
+    	testSphereObj_.xform_.scale.set_xyz( 2.0, 2.0, 2.0 );
+
+		testHitObj_ = scene_.addSceneObj( "testHitObj", "MESH_axisGadgetMesh", "axisGadget.png");
+			
 
     	bindInput();
     	setupGame();
@@ -203,6 +224,8 @@ class Main extends luxe.Game {
     	zillaMover_ = new ZillaMover({ name:'zillaMover' });
  		zilla_.add( zillaMover_ );
 
+ 		var zillaSize = zillaObj_.boundSphere_.radius_; 		
+ 		testSphereObj_.xform_.scale.set_xyz( zillaSize, zillaSize, zillaSize ); 
     }
 
     override function onkeyup( e:KeyEvent ) {
@@ -210,7 +233,15 @@ class Main extends luxe.Game {
     	// Don't use escape because flycamera needs it to
     	// to grab mouse
         if(e.keycode == Key.key_k) {
+		// if(e.keycode == Key.escape) {        	
             Luxe.shutdown();
+        } else if (e.keycode == Key.key_z) {
+        	// zap player to origin
+        	zilla_.pos.set_xyz( 0.0, 0.0, 5.0 );
+        } else if (e.keycode == Key.key_n) {
+        	testSphereObj_.xform_.pos.z -= 0.1;
+		} else if (e.keycode == Key.key_m) {
+			testSphereObj_.xform_.pos.z += 0.1;
         }
 
     } //onkeyup
@@ -224,16 +255,39 @@ class Main extends luxe.Game {
 
     } //onpostrender
 
+	 override function onmousemove( e:MouseEvent ) {
+        
+	 	mouseScreenPos_.set_xy(e.pos.x, e.pos.y);        
+     }
+
     override function update(dt:Float) 
     {
     	// Update camera 
-    	var cameraTarg = Vector.Add( zilla_.pos, new Vector( 0.0, 0.0, 10.0 ) );
-    	gameCamera_.pos.set_xyz( zilla_.pos.x, 
-    							 zilla_.pos.y + 30.0, 
-    							 zilla_.pos.z - 20.0 );
+    	var cameraTarg = Vector.Add( zilla_.pos, new Vector( 0.0, 0.0, 5.0 ) );
+    	gameCamera_.pos.set_xyz( zilla_.pos.x + (zilla_.pos.x / 100.0) * 20.0, 
+    							 zilla_.pos.y + 20.0, 
+    							 zilla_.pos.z - 15.0 );
     	gameCameraTarget_.copy_from( cameraTarg );
 
     	lookatObj_.xform_.pos.copy_from( gameCameraTarget_ );
+    	testSphereObj_.xform_.rotation.copy( zilla_.rotation );
+		testSphereObj_.xform_.pos.copy_from( zilla_.pos );
+
+		// trace("----- test ray -----" );
+		var testRay = gameCamera_.view.screen_point_to_ray( mouseScreenPos_ );
+		var scnray = new SceneRay( testRay.origin, testRay.dir.normalize() );
+
+		//testHitObj_.xform_.pos.copy_from( Vector.Add( scnray.origin_, scnray.dir_ ) );
+
+		var hitTest = testSphereObj_.intersectRayBoundSphere( scnray );
+
+		if (hitTest.hit_) {
+			// trace('MOUSE RAY scnRay ${scnray} ${testSphereObj_.boundSphere_} HIT ${hitTest.hitPoint_} ${hitTest.hitPoint_.length}');			
+			testHitObj_.xform_.pos.copy_from( hitTest.hitPoint_ );
+		} else {
+			testHitObj_.xform_.pos.set_xyz( 0,4,0 );
+			// trace('MOUSE RAY scnRay ${scnray} ${testSphereObj_.boundSphere_} MISS');
+		}
 
 
     } //update
