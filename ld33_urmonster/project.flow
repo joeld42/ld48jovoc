@@ -22,6 +22,8 @@
     },
 
     build : {
+      defines : ['phoenix_use_normals'],
+      
       dependencies : {
         luxe : '*',
       }
