@@ -44,6 +44,7 @@ class Main extends luxe.Game {
 	var zilla_ : Entity;	
 	var reye_ : SceneObj;
 	var leye_ : SceneObj;
+	var meye_ : SceneObj;
 
 	var lookatObj_ : SceneObj;
 	var testSphereObj_ : SceneObj;
@@ -262,6 +263,10 @@ class Main extends luxe.Game {
 		reye_.xform_.parent = zillaObj_.xform_;
 		reye_.pickable_ = false;
 
+		meye_ = scene_.findSceneObj( "meye" );
+		meye_.xform_.parent = zillaObj_.xform_;
+		meye_.pickable_ = false;
+
 		var lfoot = scene_.findSceneObj( "lfoot" );
 		lfoot.xform_.parent = zillaObj_.xform_;
 		lfoot.pickable_ = false;
@@ -334,26 +339,58 @@ class Main extends luxe.Game {
 
      function eyeLookat( eye : SceneObj, focus : Vector )
      {
-     	var eyePos = eye.xform_.pos.clone();     	
+     	//var eyePos = eye.xform_.pos.clone();     	
+     	var focusEyeSpace = focus.clone();
 
+     	//var zillaMat = zilla_.transform.world.matrix.inverse();
+     	var zillaMat = zilla_.transform.world.matrix.inverse();
+		focusEyeSpace.transform( zillaMat );
 
-     	var zillaMat = zillaObj_.xform_.world.matrix;
+		focusEyeSpace.subtract( eye.xform_.pos );
 
-     	eyePos.transform( zillaMat );
-//     	trace('eyePos ${eyePos}');
-
-     	var lookDir = Vector.Subtract( focus, eyePos );
+     	//var lookDir = Vector.Subtract( focusEyeSpace, eyePos );	    
+     	var lookDir = focusEyeSpace.clone();
       	lookDir.normalize();	
-     	lookDir.transformDirection( zillaMat );
+      	/*
+      	if (eye.name_ == "reye")
+      	{
+     		// trace('focusEyeSpace ${focusEyeSpace} eyePos ${eyePos}');
+     		// trace('focusEye ${focusEyeSpace} lookat ${lookDir}');
+
+     		var cnt = new Vector( Luxe.screen.w/2, Luxe.screen.h/2 );
+			Luxe.draw.ring({
+	            x : cnt.x,
+	            y : cnt.y,
+	            r : 50,            
+	            color : new Color(0,0,0,1).rgb(0xffffff),
+				immediate:true,
+				batcher : hudBatcher_
+	        });
+
+
+			Luxe.draw.line({
+	            p0 : cnt,
+	            p1 : new Vector( cnt.x + lookDir.x * 200, cnt.y + lookDir.z * 200 ),	            
+	            color : new Color(1,0,0),
+				immediate:true,
+				batcher : hudBatcher_
+	        });
+     	}
+     	*/
 
      	var frontDir = new Vector(0.0, 0.0, 1.0);
-     	frontDir.transformDirection( zillaMat );
 
-     	var axis = new Vector().cross( lookDir, frontDir );
-     	var ang = Math.asin( axis.length );
-     	axis.normalize();
+     	if (lookDir.dot( frontDir ) < 0.0)
+     	{
+	     	var axis = new Vector().cross( lookDir, frontDir );
+	     	var ang = Math.asin( axis.length );
 
-     	eye.xform_.rotation.setFromAxisAngle( axis, ang );
+	     	// limit eye rotation
+	     	if (ang * (180.0/Math.PI) < 45 ) {
+		     	axis.normalize();
+		     	eye.xform_.rotation.setFromAxisAngle( axis, ang );
+	     	}
+     	}
 
 
      }
@@ -387,6 +424,7 @@ class Main extends luxe.Game {
 		var scnRay = new SceneRay( testRay.origin, testRay.dir.normalize() );
 		// test a plane at roughly eye level
 		var result = scnRay.intersectPlane( new Vector(0.0, 1.0, 0.0), new Vector( 0.0, zilla_.pos.y + 4.0, 0.0) );
+		
 		if (result.hit_)
 		{
 			// trace( 'focus point ${result.hitPoint_}');
@@ -394,6 +432,7 @@ class Main extends luxe.Game {
 
 			eyeLookat( leye_, result.hitPoint_  );
 			eyeLookat( reye_, result.hitPoint_  );
+			eyeLookat( meye_, result.hitPoint_  );
 		}
 
     	// Test for highlight object
