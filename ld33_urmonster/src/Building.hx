@@ -43,7 +43,7 @@ class Building
 
     	var sz = 1.0;
  		healthBar_ = new Sprite({
- 			name: "health",
+ 			name: name + ".health",
  			pos : new Vector( 0, 0, 0 ),
  			size : new Vector( sz, sz/8.0 ),
  			texture : Luxe.resources.texture("assets/healthbar_half.png"),

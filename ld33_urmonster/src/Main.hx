@@ -42,6 +42,8 @@ class Main extends luxe.Game {
 
 	var zillaObj_ : SceneObj;
 	var zilla_ : Entity;	
+	var reye_ : SceneObj;
+	var leye_ : SceneObj;
 
 	var lookatObj_ : SceneObj;
 	var testSphereObj_ : SceneObj;
@@ -186,7 +188,6 @@ class Main extends luxe.Game {
 
 		testHitObj_ = scene_.addSceneObj( "testHitObj", "MESH_axisGadgetMesh", "axisGadget.png");
 				
-
     	bindInput();
     	setupGame();
     } //ready
@@ -253,13 +254,13 @@ class Main extends luxe.Game {
     	zilla_.transform = zillaObj_.xform_;
 
 		// setup our zilla parts
-		var leye = scene_.findSceneObj( "leye" );
-		leye.xform_.parent = zillaObj_.xform_;
-		leye.pickable_ = false;
+		leye_ = scene_.findSceneObj( "leye" );
+		leye_.xform_.parent = zillaObj_.xform_;
+		leye_.pickable_ = false;
 
-		var reye = scene_.findSceneObj( "reye" );
-		reye.xform_.parent = zillaObj_.xform_;
-		reye.pickable_ = false;
+		reye_ = scene_.findSceneObj( "reye" );
+		reye_.xform_.parent = zillaObj_.xform_;
+		reye_.pickable_ = false;
 
 		var lfoot = scene_.findSceneObj( "lfoot" );
 		lfoot.xform_.parent = zillaObj_.xform_;
@@ -331,6 +332,32 @@ class Main extends luxe.Game {
 	 	mouseScreenPos_.set_xy(e.pos.x, e.pos.y);        
      }
 
+     function eyeLookat( eye : SceneObj, focus : Vector )
+     {
+     	var eyePos = eye.xform_.pos.clone();     	
+
+
+     	var zillaMat = zillaObj_.xform_.world.matrix;
+
+     	eyePos.transform( zillaMat );
+//     	trace('eyePos ${eyePos}');
+
+     	var lookDir = Vector.Subtract( focus, eyePos );
+      	lookDir.normalize();	
+     	lookDir.transformDirection( zillaMat );
+
+     	var frontDir = new Vector(0.0, 0.0, 1.0);
+     	frontDir.transformDirection( zillaMat );
+
+     	var axis = new Vector().cross( lookDir, frontDir );
+     	var ang = Math.asin( axis.length );
+     	axis.normalize();
+
+     	eye.xform_.rotation.setFromAxisAngle( axis, ang );
+
+
+     }
+
     override function update(dt:Float) 
     {    	
     	// Update player
@@ -356,12 +383,17 @@ class Main extends luxe.Game {
     	// hugSprite_.rotation.copy( gameCamera_.rotation );
 
     	// The focus obj is where the zilla looks at
-    	var testRay = sceneCamera_.view.screen_point_to_ray( pos );
-		var scnray = new SceneRay( testRay.origin, testRay.dir.normalize() );
-		var result = scnRay.intersectPlane( new Vector3(0.0, 1.0, 0.0), nev Vector3( 0.0, zilla_.pos.y, 0.0) );
+    	var testRay = gameCamera_.view.screen_point_to_ray( mouseScreenPos_ );
+		var scnRay = new SceneRay( testRay.origin, testRay.dir.normalize() );
+		// test a plane at roughly eye level
+		var result = scnRay.intersectPlane( new Vector(0.0, 1.0, 0.0), new Vector( 0.0, zilla_.pos.y + 4.0, 0.0) );
 		if (result.hit_)
 		{
+			// trace( 'focus point ${result.hitPoint_}');
 			testHitObj_.xform_.pos.copy_from( result.hitPoint_ );
+
+			eyeLookat( leye_, result.hitPoint_  );
+			eyeLookat( reye_, result.hitPoint_  );
 		}
 
     	// Test for highlight object
