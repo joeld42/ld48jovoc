@@ -35,8 +35,8 @@ void main(void)
     // TODO make param
     vec3 lightColor = vec3( 1.1, 1.05, 1.0 );
     vec3 ambientColor = vec3( 0.1, 0.1, 0.15 );
-    color.xyz = (lightColor * clamp(dot(N.rgb, lightDir), 0.0, 1.0) + ambientColor) * 1.8;
-    
+    color.xyz = ((lightColor * clamp(dot(N.rgb, lightDir), 0.0, 1.0) + ambientColor) * 1.8) * tintColor;
+
     color.a = 1.0;
 
     vec3 n = vertexNormal;

@@ -20,12 +20,14 @@ import phoenix.Texture;
 import phoenix.Shader;
 import phoenix.Quaternion;
 
+import luxe.tween.Actuate;
+
 import snow.api.buffers.Uint8Array;
 import snow.system.assets.Assets;
 
 import SceneRender;
-import ZillaMover;
 import SceneIntersect;
+import Building;
 
 class Main extends luxe.Game {
 
@@ -39,8 +41,7 @@ class Main extends luxe.Game {
 	var scene_ : SceneRender;
 
 	var zillaObj_ : SceneObj;
-	var zilla_ : Entity;
-	var zillaMover_ : ZillaMover;
+	var zilla_ : Entity;	
 
 	var lookatObj_ : SceneObj;
 	var testSphereObj_ : SceneObj;
@@ -50,7 +51,14 @@ class Main extends luxe.Game {
 	var mouseGroundPos_ : Vector;
 
 	var extraBatcher_ : Batcher;
-	var hugSprite_ : Sprite;
+	// var hugSprite_ : Sprite;
+
+	var forceUp_ : Float = 0.0;
+	var forceDown_ : Float = 0.0;
+	var forceLeft_ : Float = 0.0;
+	var forceRight_ : Float = 0.0;
+
+	var buildings_ : Array<Building>;
 
 	override function config( config : luxe.AppConfig )
 	{
@@ -76,6 +84,8 @@ class Main extends luxe.Game {
 									clamp_s : ClampType.repeat, 
 									clamp_t : ClampType.repeat  });
 		}
+
+		config.preload.textures.push({ id : "assets/healthbar_half.png"});		
 
 		config.preload.shaders.push({ id:'world', frag_id:'assets/world.frag.glsl', vert_id:'assets/world.vert.glsl' });
 		//config.preload.shaders.push({ id:'dbg_shad', frag_id:'assets/dbg_shad.frag.glsl', vert_id:'default' });
@@ -175,7 +185,7 @@ class Main extends luxe.Game {
     	testSphereObj_.xform_.scale.set_xyz( 2.0, 2.0, 2.0 );
 
 		testHitObj_ = scene_.addSceneObj( "testHitObj", "MESH_axisGadgetMesh", "axisGadget.png");
-			
+				
 
     	bindInput();
     	setupGame();
@@ -208,13 +218,13 @@ class Main extends luxe.Game {
 	override function oninputup( _input:String, e:InputEvent ) {
         // trace( 'named input up : ' + _input );
         if (_input=='up') {
-        	zillaMover_.forceUp_ = 0.0;
+        	forceUp_ = 0.0;
         } else if (_input=='down') {
-    		zillaMover_.forceDown_ = 0.0;        
+    		forceDown_ = 0.0;        
         } else if (_input=='left') {
-    		zillaMover_.forceLeft_ = 0.0;
+    		forceLeft_ = 0.0;
         } else if (_input=='right') {
-    		zillaMover_.forceRight_ = 0.0;
+    		forceRight_ = 0.0;
         } else if (_input=='hug') {
         	scene_.hugging_ = false;
         }
@@ -223,13 +233,13 @@ class Main extends luxe.Game {
     override function oninputdown( _input:String, e:InputEvent ) {
         // trace( 'named input down : ' + _input );
         if (_input=='up') {
-        	zillaMover_.forceUp_ = 1.0;
+        	forceUp_ = 1.0;
         } else if (_input=='down') {
-    		zillaMover_.forceDown_ = 1.0;        
+    		forceDown_ = 1.0;        
         } else if (_input=='left') {
-    		zillaMover_.forceLeft_ = 1.0;
+    		forceLeft_ = 1.0;
         } else if (_input=='right') {
-    		zillaMover_.forceRight_ = 1.0;
+    		forceRight_ = 1.0;
         } else if (_input=='hug') {
         	scene_.hugging_ = true;
         }
@@ -241,9 +251,6 @@ class Main extends luxe.Game {
     	zillaObj_.pickable_ = false;
     	zilla_ = new Entity({ name:'zilla' });
     	zilla_.transform = zillaObj_.xform_;
-
-    	zillaMover_ = new ZillaMover({ name:'zillaMover' });
- 		zilla_.add( zillaMover_ );
 
 		// setup our zilla parts
 		var leye = scene_.findSceneObj( "leye" );
@@ -270,13 +277,24 @@ class Main extends luxe.Game {
 					no_add : true });
 		extraBatcher_.view = gameCamera_.view;
 
- 		hugSprite_ = new Sprite({
- 			name: "hug",
- 			pos : new Vector( 0, 0, 0 ),
- 			size : new Vector( 3.0, 1.0, 0.0 ),
- 			texture : Luxe.resources.texture("assets/uvgrid.png"),
- 			batcher: extraBatcher_
- 			});
+ 		// hugSprite_ = new Sprite({
+ 		// 	name: "hug",
+ 		// 	pos : new Vector( 0, 0, 0 ),
+ 		// 	size : new Vector( 3.0, 1.0, 0.0 ),
+ 		// 	texture : Luxe.resources.texture("assets/uvgrid.png"),
+ 		// 	batcher: extraBatcher_
+ 		// 	});
+
+ 		buildings_ = new Array<Building>();
+ 		trace('setupgame, have ${scene_.buildings_.length} buildings...');
+ 		for (buildObj in scene_.buildings_)
+ 		{ 			
+ 			trace('building ${buildObj.name_}');
+ 			var sepIndex = buildObj.name_.indexOf(".");
+ 			var buildType = buildObj.name_.substring( 5, sepIndex );
+ 			var bldg = new Building( buildObj.name_, buildType, buildObj, extraBatcher_ );
+ 			buildings_.push( bldg );
+ 		}
     }
 
     override function onkeyup( e:KeyEvent ) {
@@ -320,9 +338,7 @@ class Main extends luxe.Game {
 
     	// Update zilla ground pos
 		var g = scene_.groundPos( zilla_.pos );
-		zilla_.pos.y = g.y;
-
-		
+		zilla_.pos.y = g.y;		
 
     	// Update camera 
     	var cameraTarg = Vector.Add( zilla_.pos, new Vector( 0.0, 0.0, 5.0 ) );
@@ -336,8 +352,8 @@ class Main extends luxe.Game {
     	lookatObj_.xform_.pos.copy_from( gameCameraTarget_ );
 
     	// update player sprite
-    	hugSprite_.pos.set_xyz( zilla_.pos.x, zilla_.pos.y + 6.0, zilla_.pos.z );
-    	hugSprite_.rotation.copy( gameCamera_.rotation );
+    	// hugSprite_.pos.set_xyz( zilla_.pos.x, zilla_.pos.y + 6.0, zilla_.pos.z );
+    	// hugSprite_.rotation.copy( gameCamera_.rotation );
 
     	// Test for highlight object
     	var pickObj = scene_.getSceneObjAtScreenPos( mouseScreenPos_ );
@@ -376,7 +392,7 @@ class Main extends luxe.Game {
     {
     	var fwd = zilla_.transform.world.matrix.forward();
         fwd.normalize();
-        fwd.multiplyScalar( zillaMover_.forceUp_ - zillaMover_.forceDown_ );
+        fwd.multiplyScalar( forceUp_ - forceDown_ );
 
         // var right = entity.transform.world.matrix.right();
         // right.normalize();
@@ -385,15 +401,62 @@ class Main extends luxe.Game {
         var moveDir = fwd.clone();
         moveDir.normalize();
 
-        moveDir.multiplyScalar( dt * 20.0 );
-        var newPos = Vector.Add( zilla_.pos, moveDir );
+        moveDir.multiplyScalar( dt * 4.0);
+        var newPos = new Vector().copy_from( zilla_.pos );
+        //Vector.Add( zilla_.pos, moveDir );
 
         // check if our new pos doesn't hit anything
+        var hitBuilding : Building = null;
+		for ( substep in 0...10)
+        {
+            // Try the new position for collision
+            if ((substep % 2)==0) {
+                // Even substep, move x
+                newPos.x += moveDir.x;
+            } else {
+                newPos.z += moveDir.z;
+            }
 
-        zilla_.pos.copy_from( newPos );
+	        var isGood = true;
+	        for (b in buildings_)
+	        {
+	        	if (b.checkCollide(newPos, 2.0 ))
+	        	{
+	        		isGood = false;
+	        		hitBuilding = b;
+	        		break;	        		
+	        	}
+	        }
+
+	        if (isGood)
+	        {
+	     	   zilla_.pos.copy_from( newPos );
+	    	} else {
+	    		break;
+	    	}
+	    }
+
+	    if (hitBuilding!=null) {
+	    	scene_.hugging_ = true;
+	    	if (hitBuilding.takeDamage( 2.0 * dt ))
+	    	{
+	    		// building dead...
+	    		buildings_.remove( hitBuilding );
+	    		Actuate.tween( hitBuilding.sceneObj_.xform_.pos, 0.5, {  y : hitBuilding.sceneObj_.xform_.pos.y - 4.5 } );	    		
+	    	}
+	    } else {
+	    	scene_.hugging_ = false;
+	    }
+
+	    // update all the buildings
+	    for (b in buildings_)
+        {
+        	b.update( dt, gameCamera_ );
+        }
+	        
 
         var q = new Quaternion();
-     	q.setFromAxisAngle( new Vector( 0.0, 1.0, 0.0), (zillaMover_.forceLeft_-zillaMover_.forceRight_)*4.0*dt );
+     	q.setFromAxisAngle( new Vector( 0.0, 1.0, 0.0), (forceLeft_-forceRight_)*4.0*dt );
         zilla_.rotation.multiply(q);
     }
 

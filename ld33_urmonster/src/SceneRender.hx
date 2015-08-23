@@ -30,6 +30,7 @@ class SceneObj {
 	var xform_: Transform;
 	var boundSphere_ : SceneBoundSphere; // WARN: local, just a link to mesh bounds
 	var pickable_ : Bool;
+	var jitter_ = 0.0;
 
 	public function new( name : String )
 	{
@@ -39,6 +40,7 @@ class SceneObj {
 								Luxe.utils.random.float( 0.0, 1.0 ),
 								Luxe.utils.random.float( 0.0, 1.0 ) );
 		tintColor = new Vector( 1.0, 1.0, 1.0 );
+		jitter_ = 0.0;
 	}
 
 	public function intersectRayBoundSphere( ray : SceneRay )
@@ -76,6 +78,7 @@ class SceneMesh {
 		instList_ = new Array<SceneObj>();
 
 		boundSphere_ = SceneBoundSphere.BoundsFromGeom( mesh_.geometry);
+
 	}
 }
 
@@ -98,9 +101,16 @@ class SceneRender
 
 	public var hugging_ : Bool = false;
 
+	public var buildings_ : Array<SceneObj>;
+
+	public function new()
+	{
+		buildings_ = new Array<SceneObj>();
+	}
+
 	public function loadScene( sceneName : String )
 	{
-		var scene = Luxe.resources.json( sceneName );	
+		var scene = Luxe.resources.json( sceneName );			
 
 		// trace( '${scene.asset.json}' );
 		var sceneFileObjs : Array<Dynamic> = scene.asset.json;
@@ -112,7 +122,7 @@ class SceneRender
 			if (objName == 'ZillaHug') {
 				continue;
 			}
-			
+
 			var sceneObj = addSceneObj( objName, obj.mesh, obj.texture );
 
 			// Do it this way to control rotation order
@@ -141,9 +151,17 @@ class SceneRender
 			// mesh.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
 
 			// mesh.geometry.locked = true;
+
+			// Game logic crap
+			var prefix = objName.substring(0, 5);
+			trace('prefix: ${prefix}');
+			if (objName.substring(0, 5)=='BLDG_') {
+				buildings_.push( sceneObj );					
+				trace('${buildings_.length} buildings');
+			}
 		}
 
-
+		trace('loadScene done, have ${buildings_.length} ...');
 		
 	}
 
@@ -394,6 +412,15 @@ class SceneRender
 	        	if (!isShadowPass)
 	        	{
 	        		modelView.multiplyMatrices( camera.view.view_matrix_inverse, model  );
+
+	        		if (sceneObj.jitter_ > 0.0)
+	        		{
+	        			// HACK
+	        			modelView.elements[12] += Luxe.utils.random.float( -1.0, 1.0 ) * sceneObj.jitter_;
+	        			modelView.elements[13] += Luxe.utils.random.float( -1.0, 1.0 ) * sceneObj.jitter_;
+	        			modelView.elements[14] += Luxe.utils.random.float( -1.0, 1.0 ) * sceneObj.jitter_;
+	        		}
+
 	        		mvp.multiplyMatrices( camera.view.projection_matrix, modelView );
 	        	} else {
 	        		mvp = mvpLight;	        		
