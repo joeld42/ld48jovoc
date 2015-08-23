@@ -35,6 +35,8 @@ class Building
     	type_ = type;
     	if (type=="House") {
     		maxHealth_ = 3.0;
+    	} else if (type=="Tree") {
+    		maxHealth_ = 5.0;	
 		} else if (type=="Office") {
     		maxHealth_ = 8.0;
 		} else if (type=="Tower") {

@@ -52,6 +52,8 @@ class Main extends luxe.Game {
 	var mouseScreenPos_ : Vector;
 	var mouseGroundPos_ : Vector;
 
+	var titleSprite_ : Sprite;
+
 	var extraBatcher_ : Batcher;
 	// var hugSprite_ : Sprite;
 
@@ -61,6 +63,8 @@ class Main extends luxe.Game {
 	var forceRight_ : Float = 0.0;
 
 	var buildings_ : Array<Building>;
+
+	var gameStarted_ : Bool;
 
 	override function config( config : luxe.AppConfig )
 	{
@@ -79,7 +83,7 @@ class Main extends luxe.Game {
 	{
 		// Configure texture
 		var texNames = [ "hugzilla_land.png", "house.png", "suzilla.png", "axisGadget.png", "uvgrid.png",
-						"zilla_dif.png", "office.png", "tower.png" ];
+						"zilla_dif.png", "office.png", "tower.png", "tree.png" ];
 		for (texName in texNames)
 		{
 			config.preload.textures.push({ id :  "assets/" + texName,
@@ -88,6 +92,7 @@ class Main extends luxe.Game {
 		}
 
 		config.preload.textures.push({ id : "assets/healthbar_half.png"});		
+		config.preload.textures.push({ id : "assets/hugzilla_title.png"});		
 
 		config.preload.shaders.push({ id:'world', frag_id:'assets/world.frag.glsl', vert_id:'assets/world.vert.glsl' });
 		//config.preload.shaders.push({ id:'dbg_shad', frag_id:'assets/dbg_shad.frag.glsl', vert_id:'default' });
@@ -99,6 +104,7 @@ class Main extends luxe.Game {
 		config.preload.bytes.push({ id : "assets/mesh/MESH_OfficeMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_TowerMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_TowerMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_TreeMesh.dat" });
 
 		// ZILLA
 		config.preload.bytes.push({ id : "assets/mesh/MESH_BodyMesh.dat" });
@@ -140,10 +146,9 @@ class Main extends luxe.Game {
     	scene_.sceneCamera_ = gameCamera_;
     	Luxe.renderer.batcher.view = gameCamera_.view;
 
-    	gameCamera_.pos.set_xyz(0,20,15);
-    	gameCamera_.rotation.setFromEuler( new Vector( -50.0, 0, 0).radians() );
-    	gameCameraTarget_ = new Vector();
-    	gameCamera_.view.target = gameCameraTarget_;
+    	// initial view for title screen
+    	gameCamera_.pos.set_xyz(0,40,-100);
+    	gameCamera_.rotation.setFromEuler( new Vector( 25.0, 180, 0).radians() );
 
 
 	}
@@ -192,6 +197,8 @@ class Main extends luxe.Game {
 				
     	bindInput();
     	setupGame();
+
+    	gameStarted_ = false;
     } //ready
 
  	function bindInput() {
@@ -219,6 +226,11 @@ class Main extends luxe.Game {
     } //bind_input
 
 	override function oninputup( _input:String, e:InputEvent ) {
+
+		if (!gameStarted_) {
+    		return;
+    	}
+
         // trace( 'named input up : ' + _input );
         if (_input=='up') {
         	forceUp_ = 0.0;
@@ -234,6 +246,11 @@ class Main extends luxe.Game {
     } //oninputup
 
     override function oninputdown( _input:String, e:InputEvent ) {
+
+    	if (!gameStarted_) {
+    		return;
+    	}
+
         // trace( 'named input down : ' + _input );
         if (_input=='up') {
         	forceUp_ = 1.0;
@@ -280,6 +297,14 @@ class Main extends luxe.Game {
 					no_add : true });
 		extraBatcher_.view = gameCamera_.view;
 
+		titleSprite_ = new Sprite({
+ 			name: "title",
+ 			pos : new Vector( Luxe.screen.w/2, Luxe.screen.h/2 ), 		
+ 			size : new Vector( Luxe.screen.h, Luxe.screen.h ), 				
+ 			texture : Luxe.resources.texture("assets/hugzilla_title.png"),
+ 			batcher: hudBatcher_
+ 			});
+
  		// hugSprite_ = new Sprite({
  		// 	name: "hug",
  		// 	pos : new Vector( 0, 0, 0 ),
@@ -300,7 +325,15 @@ class Main extends luxe.Game {
  		}
 
  		// start pos
- 		zilla_.pos.set_xyz( -1.4266520826387687,-0.000014674251868949773,-90.06991310268205 );
+ 		zilla_.pos.set_xyz( -1.4266520826387687,-0.000014674251868949773,-85.45 );
+    }
+
+    function startGame()
+    {
+    	gameStarted_ = true;
+    	gameCameraTarget_ = new Vector();
+    	gameCamera_.view.target = gameCameraTarget_;
+
     }
 
     override function onkeyup( e:KeyEvent ) {
@@ -317,7 +350,18 @@ class Main extends luxe.Game {
 
         	var g = scene_.groundPos( zilla_.pos );
         	trace('GROUND: ${g}');
+        } else if (e.keycode == Key.space ) {
+        	if (!gameStarted_) {        	
+        		//gameCamera_.pos.set_xyz(0,40,-100);	
+        		Actuate.tween( gameCamera_.pos, 0.9, { z : -60, y : 10.0 } );
+        		Actuate.tween( titleSprite_.color, 1.0, { a : 0.0 } ).onComplete( 
+        			function() {
+        				startGame();
+    				});        
+        	}
         }
+
+
 
     } //onkeyup
 
@@ -397,6 +441,10 @@ class Main extends luxe.Game {
 
     override function update(dt:Float) 
     {    	
+    	if (!gameStarted_) {
+    		return;
+    	}
+
     	// Update player
     	updateZilla( dt );
     	
@@ -405,7 +453,7 @@ class Main extends luxe.Game {
     	
     	// cameraTarg.y = 0.0;
     	gameCamera_.pos.set_xyz( zilla_.pos.x + (zilla_.pos.x / 100.0) * 8.0, 
-    							 zilla_.pos.y + 25.0, 
+    							 20.0,
     							 zilla_.pos.z - 15.0 );
     	gameCameraTarget_.copy_from( cameraTarg );
 
