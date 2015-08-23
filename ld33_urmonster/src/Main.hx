@@ -79,7 +79,7 @@ class Main extends luxe.Game {
 	{
 		// Configure texture
 		var texNames = [ "hugzilla_land.png", "house.png", "suzilla.png", "axisGadget.png", "uvgrid.png",
-						"zilla_dif.png" ];
+						"zilla_dif.png", "office.png", "tower.png" ];
 		for (texName in texNames)
 		{
 			config.preload.textures.push({ id :  "assets/" + texName,
@@ -93,10 +93,12 @@ class Main extends luxe.Game {
 		//config.preload.shaders.push({ id:'dbg_shad', frag_id:'assets/dbg_shad.frag.glsl', vert_id:'default' });
 		//config.preload.shaders.push({ id:'shadow', frag_id:'assets/shadow.frag.glsl', vert_id:'assets/shadow.vert.glsl' });
 
-		// TESTLAND
+		// Level
 		config.preload.bytes.push({ id : "assets/mesh/MESH_Cube.001.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_GroundMesh.dat" });
-		config.preload.bytes.push({ id : "assets/mesh/MESH_SuzillaMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_OfficeMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_TowerMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_TowerMesh.dat" });
 
 		// ZILLA
 		config.preload.bytes.push({ id : "assets/mesh/MESH_BodyMesh.dat" });
@@ -397,18 +399,14 @@ class Main extends luxe.Game {
     {    	
     	// Update player
     	updateZilla( dt );
-
-    	// Update zilla ground pos
-		var g = scene_.groundPos( zilla_.pos );
-		zilla_.pos.y = g.y;		
-
+    	
     	// Update camera 
     	var cameraTarg = Vector.Add( zilla_.pos, new Vector( 0.0, 0.0, 5.0 ) );
     	
     	// cameraTarg.y = 0.0;
     	gameCamera_.pos.set_xyz( zilla_.pos.x + (zilla_.pos.x / 100.0) * 8.0, 
-    							 12.0,//zilla_.pos.y + 20.0, 
-    							 zilla_.pos.z - 10.0 );
+    							 zilla_.pos.y + 25.0, 
+    							 zilla_.pos.z - 15.0 );
     	gameCameraTarget_.copy_from( cameraTarg );
 
     	lookatObj_.xform_.pos.copy_from( gameCameraTarget_ );
@@ -479,6 +477,13 @@ class Main extends luxe.Game {
         // right.normalize();
         // right.multiplyScalar( forceRight_ - forceLeft_ );
 
+  //   	// Update zilla ground pos
+		// var g = scene_.groundPos( zilla_.pos );
+		// if (Math.abs( g.y - zilla_.pos.y) < 0.2) {
+		// 	zilla_.pos.y = g.y;		
+		// }
+		var oldPos = zilla_.pos.clone();
+
         var moveDir = fwd.clone();
         moveDir.normalize();
 
@@ -523,11 +528,22 @@ class Main extends luxe.Game {
 	    	{
 	    		// building dead...
 	    		buildings_.remove( hitBuilding );
-	    		Actuate.tween( hitBuilding.sceneObj_.xform_.pos, 0.5, {  y : hitBuilding.sceneObj_.xform_.pos.y - 4.5 } );	    		
+	    		Actuate.tween( hitBuilding.sceneObj_.xform_.pos, 0.5, {  y : hitBuilding.sceneObj_.xform_.pos.y - hitBuilding.sceneObj_.boundSphere_.radius_ } );
+	    		Actuate.tween( hitBuilding.sceneObj_.xform_.rotation, 0.7, { x : Luxe.utils.random.float( -1.0, 1.0 ) });
 	    	}
 	    } else {
 	    	scene_.hugging_ = false;
 	    }
+
+	    // janky check for ground hit .. if we can't move
+	    // here then just undo	    
+		var g = scene_.groundPos( zilla_.pos );
+		if (Math.abs( g.y - zilla_.pos.y) < 0.2) {
+			zilla_.pos.y = g.y;
+		} else {
+			// undo move
+			zilla_.pos.copy_from( oldPos );
+		}
 
 	    // update all the buildings
 	    for (b in buildings_)

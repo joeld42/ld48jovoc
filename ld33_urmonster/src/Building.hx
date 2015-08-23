@@ -16,6 +16,7 @@ class Building
 	public var entity_ : Entity;
 	public var sceneObj_ : SceneObj;
 	public var healthBar_ : Sprite;
+	public var type_ : String;
 
 	public var maxHealth_ : Float;
 	public var health_ : Float;
@@ -31,8 +32,13 @@ class Building
     	trace('New Building: ${name} ${type}');
     	sceneObj_ = obj;
 
+    	type_ = type;
     	if (type=="House") {
-    		maxHealth_ = 5.0;
+    		maxHealth_ = 3.0;
+		} else if (type=="Office") {
+    		maxHealth_ = 8.0;
+		} else if (type=="Tower") {
+			maxHealth_ = 20.0;
     	} else {
     		maxHealth_ = 1.0;
     		trace('WARNING: Unkown building type ${type}');
@@ -52,7 +58,14 @@ class Building
  			});
 
  		healthBar_.pos.copy_from( sceneObj_.xform_.pos);
- 		healthBar_.pos.y += 4.5;
+ 		
+ 		if (type=="Tower") {			
+ 			healthBar_.pos.y += 10.0;
+ 			healthBar_.pos.z -= 5.0;
+		} else {
+			healthBar_.pos.y += sceneObj_.boundSphere_.radius_ * 1.2;
+ 			healthBar_.pos.z -= 1.0;
+ 		}
 	}
 
 	public function checkCollide( newpos : Vector, radius : Float ) : Bool
