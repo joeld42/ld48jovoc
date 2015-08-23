@@ -64,7 +64,8 @@ class Main extends luxe.Game {
 	function preloadResources( config : luxe.AppConfig )
 	{
 		// Configure texture
-		var texNames = [ "ground1.jpg", "house.png", "suzilla.png", "axisGadget.png", "uvgrid.png" ];
+		var texNames = [ "ground1.jpg", "house.png", "suzilla.png", "axisGadget.png", "uvgrid.png",
+						"zilla_dif.png" ];
 		for (texName in texNames)
 		{
 			config.preload.textures.push({ id :  "assets/" + texName,
@@ -80,12 +81,18 @@ class Main extends luxe.Game {
 		config.preload.bytes.push({ id : "assets/mesh/MESH_Cube.001.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_GroundMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_SuzillaMesh.dat" });
+
+		// ZILLA
+		config.preload.bytes.push({ id : "assets/mesh/MESH_BodyMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_EyeMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_FootMesh.dat" });
 		
 		// DEBUG MESHES
 		config.preload.bytes.push({ id : "assets/mesh/MESH_axisGadgetMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_TestSphereMesh.dat" });		
 
 		config.preload.jsons.push( { id : "assets/testland.json" });
+		config.preload.jsons.push( { id : "assets/monster_export.json" });
 
 	}
 
@@ -146,9 +153,10 @@ class Main extends luxe.Game {
 		hudBatcher_ = Luxe.renderer.create_batcher({ name:'hud_batcher', layer:4,  no_add : true});
 
     	scene_.loadScene( "assets/testland.json");
+    	scene_.loadScene( "assets/monster_export.json");
     	scene_.initShadows();
 
-    	zillaObj_ = scene_.findSceneObj("Suzilla");
+    	zillaObj_ = scene_.findSceneObj("Zilla");
     	var camPos = new Vector();
     	camPos.copy_from(zillaObj_.xform_.pos);
     	
@@ -156,6 +164,7 @@ class Main extends luxe.Game {
 
     	lookatObj_ = scene_.findSceneObj( "axisGadget" );
     	testSphereObj_ = scene_.findSceneObj( "testSphere" );
+    	testSphereObj_.pickable_ = false;
 
     	testSphereObj_.xform_.pos.set_xyz( 0.0, -10.0, 0.0 );
     	testSphereObj_.xform_.scale.set_xyz( 2.0, 2.0, 2.0 );
@@ -219,11 +228,27 @@ class Main extends luxe.Game {
     function setupGame()
     {
     	// Make our zilla and link it to the sceneObj
+    	zillaObj_.pickable_ = false;
     	zilla_ = new Entity({ name:'zilla' });
     	zilla_.transform = zillaObj_.xform_;
 
     	zillaMover_ = new ZillaMover({ name:'zillaMover' });
  		zilla_.add( zillaMover_ );
+
+		// setup our zilla parts
+		var leye = scene_.findSceneObj( "leye" );
+		leye.xform_.parent = zillaObj_.xform_;
+
+		var reye = scene_.findSceneObj( "reye" );
+		reye.xform_.parent = zillaObj_.xform_;
+
+		var lfoot = scene_.findSceneObj( "lfoot" );
+		lfoot.xform_.parent = zillaObj_.xform_;
+
+
+		var rfoot = scene_.findSceneObj( "rfoot" );
+		rfoot.xform_.parent = zillaObj_.xform_;
+
 
  		var zillaSize = zillaObj_.boundSphere_.radius_; 		
  		testSphereObj_.xform_.scale.set_xyz( zillaSize, zillaSize, zillaSize ); 
@@ -273,9 +298,9 @@ class Main extends luxe.Game {
     	// Update camera 
     	var cameraTarg = Vector.Add( zilla_.pos, new Vector( 0.0, 0.0, 5.0 ) );
     	// cameraTarg.y = 0.0;
-    	gameCamera_.pos.set_xyz( zilla_.pos.x + (zilla_.pos.x / 100.0) * 20.0, 
-    							 20.0,//zilla_.pos.y + 20.0, 
-    							 zilla_.pos.z - 15.0 );
+    	gameCamera_.pos.set_xyz( zilla_.pos.x + (zilla_.pos.x / 100.0) * 8.0, 
+    							 12.0,//zilla_.pos.y + 20.0, 
+    							 zilla_.pos.z - 10.0 );
     	gameCameraTarget_.copy_from( cameraTarg );
 
     	lookatObj_.xform_.pos.copy_from( gameCameraTarget_ );
