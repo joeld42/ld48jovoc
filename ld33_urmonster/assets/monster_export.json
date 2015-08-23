@@ -98,5 +98,25 @@
             1.0
         ],
         "texture": "zilla_dif.png"
+    },
+    {
+        "loc": [
+            5.4192986488342285,
+            0.0,
+            0.0
+        ],
+        "mesh": "MESH_BodyHugMesh",
+        "name": "ZillaHug",
+        "rot": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scl": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "texture": "zilla_dif.png"
     }
 ]

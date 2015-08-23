@@ -8,6 +8,7 @@ import luxe.Sprite;
 import luxe.Camera;
 import luxe.Rectangle;
 import luxe.Entity;
+import luxe.Particles;
 
 import luxe.components.cameras.FlyCamera;
 
@@ -48,6 +49,9 @@ class Main extends luxe.Game {
 	var mouseScreenPos_ : Vector;
 	var mouseGroundPos_ : Vector;
 
+	var extraBatcher_ : Batcher;
+	var hugSprite_ : Sprite;
+
 	override function config( config : luxe.AppConfig )
 	{
 		config.render.antialiasing = 8;
@@ -84,6 +88,7 @@ class Main extends luxe.Game {
 
 		// ZILLA
 		config.preload.bytes.push({ id : "assets/mesh/MESH_BodyMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_BodyHugMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_EyeMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_FootMesh.dat" });
 		
@@ -114,7 +119,7 @@ class Main extends luxe.Game {
     		fov:90,
     		near:0.1,
     		far:1000,
-    		cull_backfaces : true,
+    		cull_backfaces : false,
     		aspect:Luxe.screen.w/Luxe.screen.h
 		});
     	
@@ -190,8 +195,9 @@ class Main extends luxe.Game {
         Luxe.input.bind_key('down', Key.key_s);
         Luxe.input.bind_key('down', Key.down);
 
-        // Luxe.input.bind_key('jump', Key.key_w);
-        // Luxe.input.bind_key('jump', Key.up);
+        Luxe.input.bind_key('hug', Key.key_z);
+		Luxe.input.bind_key('hug', Key.space);
+
         // Luxe.input.bind_key('jump', Key.space);
         // Luxe.input.bind_key('jump', Key.key_z);
         // Luxe.input.bind_key('jump', Key.key_x);
@@ -209,6 +215,8 @@ class Main extends luxe.Game {
     		zillaMover_.forceLeft_ = 0.0;
         } else if (_input=='right') {
     		zillaMover_.forceRight_ = 0.0;
+        } else if (_input=='hug') {
+        	scene_.hugging_ = false;
         }
     } //oninputup
 
@@ -222,6 +230,8 @@ class Main extends luxe.Game {
     		zillaMover_.forceLeft_ = 1.0;
         } else if (_input=='right') {
     		zillaMover_.forceRight_ = 1.0;
+        } else if (_input=='hug') {
+        	scene_.hugging_ = true;
         }
     } //oninputdown
 
@@ -238,20 +248,35 @@ class Main extends luxe.Game {
 		// setup our zilla parts
 		var leye = scene_.findSceneObj( "leye" );
 		leye.xform_.parent = zillaObj_.xform_;
+		leye.pickable_ = false;
 
 		var reye = scene_.findSceneObj( "reye" );
 		reye.xform_.parent = zillaObj_.xform_;
+		reye.pickable_ = false;
 
 		var lfoot = scene_.findSceneObj( "lfoot" );
 		lfoot.xform_.parent = zillaObj_.xform_;
-
+		lfoot.pickable_ = false;
 
 		var rfoot = scene_.findSceneObj( "rfoot" );
 		rfoot.xform_.parent = zillaObj_.xform_;
-
+		rfoot.pickable_ = false;
 
  		var zillaSize = zillaObj_.boundSphere_.radius_; 		
  		testSphereObj_.xform_.scale.set_xyz( zillaSize, zillaSize, zillaSize ); 
+
+		extraBatcher_ = Luxe.renderer.create_batcher({ name:'xtra_batcher',  
+			   		//cull_backfaces : false,
+					no_add : true });
+		extraBatcher_.view = gameCamera_.view;
+
+ 		hugSprite_ = new Sprite({
+ 			name: "hug",
+ 			pos : new Vector( 0, 0, 0 ),
+ 			size : new Vector( 3.0, 1.0, 0.0 ),
+ 			texture : Luxe.resources.texture("assets/uvgrid.png"),
+ 			batcher: extraBatcher_
+ 			});
     }
 
     override function onkeyup( e:KeyEvent ) {
@@ -261,7 +286,7 @@ class Main extends luxe.Game {
         //if(e.keycode == Key.key_k) {
 		if(e.keycode == Key.escape) {        	
             Luxe.shutdown();
-        } else if (e.keycode == Key.key_z) {
+        } else if (e.keycode == Key.key_l) {
         	// zap player to origin
         	zilla_.pos.set_xyz( 0.0, 0.0, 5.0 );
         } else if (e.keycode == Key.key_g) {
@@ -274,7 +299,9 @@ class Main extends luxe.Game {
 
 	override function onpostrender() {
 
-        scene_.drawScene();
+        scene_.drawScene();        
+
+        extraBatcher_.draw();
 
         // Draw the hud batcher afterward so the hud scene stays on top        
 		hudBatcher_.draw();
@@ -287,7 +314,7 @@ class Main extends luxe.Game {
      }
 
     override function update(dt:Float) 
-    {
+    {    	
     	// Update player
     	updateZilla( dt );
 
@@ -295,8 +322,11 @@ class Main extends luxe.Game {
 		var g = scene_.groundPos( zilla_.pos );
 		zilla_.pos.y = g.y;
 
+		
+
     	// Update camera 
     	var cameraTarg = Vector.Add( zilla_.pos, new Vector( 0.0, 0.0, 5.0 ) );
+    	
     	// cameraTarg.y = 0.0;
     	gameCamera_.pos.set_xyz( zilla_.pos.x + (zilla_.pos.x / 100.0) * 8.0, 
     							 12.0,//zilla_.pos.y + 20.0, 
@@ -304,6 +334,10 @@ class Main extends luxe.Game {
     	gameCameraTarget_.copy_from( cameraTarg );
 
     	lookatObj_.xform_.pos.copy_from( gameCameraTarget_ );
+
+    	// update player sprite
+    	hugSprite_.pos.set_xyz( zilla_.pos.x, zilla_.pos.y + 6.0, zilla_.pos.z );
+    	hugSprite_.rotation.copy( gameCamera_.rotation );
 
     	// Test for highlight object
     	var pickObj = scene_.getSceneObjAtScreenPos( mouseScreenPos_ );
@@ -352,7 +386,11 @@ class Main extends luxe.Game {
         moveDir.normalize();
 
         moveDir.multiplyScalar( dt * 20.0 );
-        zilla_.pos.add( moveDir ); 
+        var newPos = Vector.Add( zilla_.pos, moveDir );
+
+        // check if our new pos doesn't hit anything
+
+        zilla_.pos.copy_from( newPos );
 
         var q = new Quaternion();
      	q.setFromAxisAngle( new Vector( 0.0, 1.0, 0.0), (zillaMover_.forceLeft_-zillaMover_.forceRight_)*4.0*dt );

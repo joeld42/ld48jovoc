@@ -65,6 +65,8 @@ class SceneObj {
 @:publicFields
 class SceneMesh {
 	var mesh_ : luxe.Mesh;
+	var hugmesh_ : luxe.Mesh;
+
 	var instList_ : Array<SceneObj>;
 	var boundSphere_ : SceneBoundSphere;
 
@@ -94,6 +96,8 @@ class SceneRender
 	public var texShadDepthWrap : Texture;	
 	public var groundMesh_ : SceneMesh;
 
+	public var hugging_ : Bool = false;
+
 	public function loadScene( sceneName : String )
 	{
 		var scene = Luxe.resources.json( sceneName );	
@@ -103,6 +107,11 @@ class SceneRender
 		for (obj in sceneFileObjs)
 		{			
 			var objName = obj.name;
+
+			// HACK - don't add the HugMesh inst
+			if (objName == 'ZillaHug') {
+				continue;
+			}
 			
 			var sceneObj = addSceneObj( objName, obj.mesh, obj.texture );
 
@@ -157,11 +166,28 @@ class SceneRender
 					texture : tex
 				});		
 
-			mesh.geometry.shader = worldShader_;
+			mesh.geometry.shader = worldShader_;			
 
 			// add to the mesh db
 			sceneMesh = new SceneMesh( mesh );
 			meshDB_[meshID] = sceneMesh;
+
+			// HACK : if this is the body, also load the hug mesh
+			if (meshID == "assets/mesh/MESH_BodyMesh.dat")
+			{
+				trace("Loading HugMesh!");
+				var meshHugGeo = loadGeometry( "assets/mesh/MESH_BodyHugMesh.dat" );
+				var hugMesh = new luxe.Mesh({					
+					no_batcher_add: true,
+					buffer_based: true,
+					object_space: true,
+					geometry : meshHugGeo,
+					texture : tex
+				});		
+
+				hugMesh.geometry.shader = worldShader_;
+				sceneMesh.hugmesh_ = hugMesh;
+			}
 
 			trace('mesh ${meshID} bound ${sceneMesh.boundSphere_}');
 		}
@@ -350,6 +376,11 @@ class SceneRender
 		for (sceneMesh in meshDB_)
 		{
 			var mesh : Mesh = sceneMesh.mesh_;
+
+			if ((hugging_) && (sceneMesh.hugmesh_ != null)) {				
+				mesh = sceneMesh.hugmesh_;
+			}
+
 			mesh.geometry.texture.bind();
 
 	        for(sceneObj in sceneMesh.instList_) 
