@@ -355,7 +355,18 @@ class Main extends luxe.Game {
     	// hugSprite_.pos.set_xyz( zilla_.pos.x, zilla_.pos.y + 6.0, zilla_.pos.z );
     	// hugSprite_.rotation.copy( gameCamera_.rotation );
 
+    	// The focus obj is where the zilla looks at
+    	var testRay = sceneCamera_.view.screen_point_to_ray( pos );
+		var scnray = new SceneRay( testRay.origin, testRay.dir.normalize() );
+		var result = scnRay.intersectPlane( new Vector3(0.0, 1.0, 0.0), nev Vector3( 0.0, zilla_.pos.y, 0.0) );
+		if (result.hit_)
+		{
+			testHitObj_.xform_.pos.copy_from( result.hitPoint_ );
+		}
+
     	// Test for highlight object
+    	// Spent 3 hours writing this crap and I don't think I'm going to use it...
+    	/*
     	var pickObj = scene_.getSceneObjAtScreenPos( mouseScreenPos_ );
 
     	if (pickObj != null)
@@ -366,6 +377,8 @@ class Main extends luxe.Game {
     	} else {
     		testSphereObj_.xform_.pos.set_xyz( 0.0, -10.0, 0.0 );
     	}
+    	*/
+
     	/*
     	testSphereObj_.xform_.rotation.copy( zilla_.rotation );
 		testSphereObj_.xform_.pos.copy_from( zilla_.pos );

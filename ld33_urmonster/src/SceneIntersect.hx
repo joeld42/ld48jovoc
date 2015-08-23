@@ -24,6 +24,24 @@ class SceneRay {
 
     } //toString
 
+    public function intersectPlane( planeN : Vector, planeP : Vector ) : SceneRayResult
+    {
+    	SceneRayResult result = new SceneRayResult();
+    	var dd = planeN.dot( planeN );
+    	if (Math.abs(dd) > 0.0001)
+    	{
+    		var t : Float = Vector3.Subtract( planeP, origin_ ).dot( planeN ) / dd;
+    		if ( t >= 0.0) {
+    			result.hit_ = true;
+    			result.hitNormal_.copy(  planeN );
+    			result.hitPoint_ = Vector3.Add( origin_, dir_.clone().multiplyScalar(t) );
+    		}
+    	} else {
+    		result.hit_ = false;
+    	}
+    	return result;
+    }
+
 }
 
 class SceneRayResult
@@ -115,7 +133,6 @@ class SceneBoundSphere
 		return res;
 	}
 
-	
 
 }
 
