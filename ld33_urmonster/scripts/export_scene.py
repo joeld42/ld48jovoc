@@ -44,7 +44,7 @@ def exportMeshObj( mesh, meshExportName ):
 	header = struct.pack( '<4sL', str.encode("MESH"), len(mesh.polygons) )
 
 	packedDataList = [ header ]
-	uv_layer = mesh.uv_layers['UVMap'].data[:]		
+	uv_layer = mesh.uv_layers['UVMap'].data[:]
 	# print(uv_layer)
 	# print ("NUM UV", len(uv_layer))
 	# print ("NUM VERT", len(mesh.vertices))

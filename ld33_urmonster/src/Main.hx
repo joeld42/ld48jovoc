@@ -44,7 +44,6 @@ class Main extends luxe.Game {
 	var zilla_ : Entity;	
 	var reye_ : SceneObj;
 	var leye_ : SceneObj;
-	var meye_ : SceneObj;
 
 	var lookatObj_ : SceneObj;
 	var testSphereObj_ : SceneObj;
@@ -79,7 +78,7 @@ class Main extends luxe.Game {
 	function preloadResources( config : luxe.AppConfig )
 	{
 		// Configure texture
-		var texNames = [ "ground1.jpg", "house.png", "suzilla.png", "axisGadget.png", "uvgrid.png",
+		var texNames = [ "hugzilla_land.png", "house.png", "suzilla.png", "axisGadget.png", "uvgrid.png",
 						"zilla_dif.png" ];
 		for (texName in texNames)
 		{
@@ -109,7 +108,7 @@ class Main extends luxe.Game {
 		config.preload.bytes.push({ id : "assets/mesh/MESH_axisGadgetMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_TestSphereMesh.dat" });		
 
-		config.preload.jsons.push( { id : "assets/testland.json" });
+		config.preload.jsons.push( { id : "assets/hugzilla_land.json" });
 		config.preload.jsons.push( { id : "assets/monster_export.json" });
 
 	}
@@ -170,7 +169,7 @@ class Main extends luxe.Game {
 
 		hudBatcher_ = Luxe.renderer.create_batcher({ name:'hud_batcher', layer:4,  no_add : true});
 
-    	scene_.loadScene( "assets/testland.json");
+    	scene_.loadScene( "assets/hugzilla_land.json");
     	scene_.loadScene( "assets/monster_export.json");
     	scene_.initShadows();
 
@@ -263,10 +262,6 @@ class Main extends luxe.Game {
 		reye_.xform_.parent = zillaObj_.xform_;
 		reye_.pickable_ = false;
 
-		meye_ = scene_.findSceneObj( "meye" );
-		meye_.xform_.parent = zillaObj_.xform_;
-		meye_.pickable_ = false;
-
 		var lfoot = scene_.findSceneObj( "lfoot" );
 		lfoot.xform_.parent = zillaObj_.xform_;
 		lfoot.pickable_ = false;
@@ -301,6 +296,9 @@ class Main extends luxe.Game {
  			var bldg = new Building( buildObj.name_, buildType, buildObj, extraBatcher_ );
  			buildings_.push( bldg );
  		}
+
+ 		// start pos
+ 		zilla_.pos.set_xyz( -1.4266520826387687,-0.000014674251868949773,-90.06991310268205 );
     }
 
     override function onkeyup( e:KeyEvent ) {
@@ -316,7 +314,7 @@ class Main extends luxe.Game {
         } else if (e.keycode == Key.key_g) {
 
         	var g = scene_.groundPos( zilla_.pos );
-        	trace('GROUND: g');
+        	trace('GROUND: ${g}');
         }
 
     } //onkeyup
@@ -432,7 +430,6 @@ class Main extends luxe.Game {
 
 			eyeLookat( leye_, result.hitPoint_  );
 			eyeLookat( reye_, result.hitPoint_  );
-			eyeLookat( meye_, result.hitPoint_  );
 		}
 
     	// Test for highlight object

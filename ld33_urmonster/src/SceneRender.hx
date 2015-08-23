@@ -255,9 +255,10 @@ class SceneRender
 		for (i in 0...numTris*3)
 		{
 			var vertOffs = headerOffs + (10*4)*i;
+			
 			var pos = new Vector( data.getFloat( vertOffs+0 ), 
 								  data.getFloat( vertOffs+4 ), 
-								  data.getFloat( vertOffs+8 ) );
+								  data.getFloat( vertOffs+8 ));
 			var nrm = new Vector( data.getFloat( vertOffs+12 ), 
 								  data.getFloat( vertOffs+16 ), 
 								  data.getFloat( vertOffs+20 ) );
@@ -461,6 +462,7 @@ class SceneRender
 
 			// HACK : if this is the ground mesh, keep it around
 			if (name=="Ground1") {
+				trace("Found ground mesh" );
 				groundMesh_ = sceneMesh;
 				sceneObj.pickable_ = false;
 			}
@@ -495,6 +497,7 @@ class SceneRender
 	{
 		var result = pos.clone();
 		if (groundMesh_==null) {
+			trace("No ground mesh!");
 			return result;
 		}
 
