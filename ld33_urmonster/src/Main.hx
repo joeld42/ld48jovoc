@@ -56,6 +56,7 @@ class Main extends luxe.Game {
 
 	var titleSprite_ : Sprite;
 
+	var shadowBuffSprite_ : Sprite;
 	var extraBatcher_ : Batcher;
 	// var hugSprite_ : Sprite;
 
@@ -101,8 +102,8 @@ class Main extends luxe.Game {
 		config.preload.textures.push({ id : "assets/hugzilla_title.png"});		
 
 		config.preload.shaders.push({ id:'world', frag_id:'assets/world.frag.glsl', vert_id:'assets/world.vert.glsl' });
-		//config.preload.shaders.push({ id:'dbg_shad', frag_id:'assets/dbg_shad.frag.glsl', vert_id:'default' });
-		//config.preload.shaders.push({ id:'shadow', frag_id:'assets/shadow.frag.glsl', vert_id:'assets/shadow.vert.glsl' });
+		config.preload.shaders.push({ id:'dbg_shad', frag_id:'assets/dbg_shad.frag.glsl', vert_id:'default' });
+		config.preload.shaders.push({ id:'shadow', frag_id:'assets/shadow.frag.glsl', vert_id:'assets/shadow.vert.glsl' });
 
 		// Level
 		config.preload.bytes.push({ id : "assets/mesh/MESH_HouseMesh.dat" });
@@ -170,7 +171,7 @@ class Main extends luxe.Game {
 
  		worldShader_ = Luxe.resources.shader('world');
     	scene_.worldShader_ = worldShader_;
-    	//scene_.shadowShader_ = Luxe.resources.shader('shadow');
+    	scene_.shadowShader_ = Luxe.resources.shader('shadow');
     	
     	// init camera
     	initCamera();
@@ -188,6 +189,27 @@ class Main extends luxe.Game {
     	scene_.loadScene( "assets/monster_export.json");
     	scene_.initShadows();
 
+		var shadowSpriteSize = 128;
+		var shadowTex = new Texture({ id : "shadowSpriteTex", 
+					width:scene_.shadowSize, 
+					height:scene_.shadowSize, 
+					texture: scene_.texShadDepth_ });
+		shadowBuffSprite_ = new Sprite({
+    	 	batcher : hudBatcher_,
+            // texture : builder_.shadowTexture_,
+            // texture : builder_.texShadDepth_,
+            texture : Luxe.resources.texture("assets/tree.png"),
+            size : new Vector(shadowSpriteSize, shadowSpriteSize),
+            //pos : Luxe.screen.mid,
+            pos : new Vector( 10 + shadowSpriteSize/2, 10+shadowSpriteSize/2 )
+        });
+        var dbgShadShader = Luxe.resources.shader('dbg_shad');
+        dbgShadShader.set_texture('tex1', shadowTex );
+        shadowBuffSprite_.depth = -100;
+        shadowBuffSprite_.shader = dbgShadShader;
+
+
+    	/// ---- init player
     	zillaObj_ = scene_.findSceneObj("Zilla");
     	var camPos = new Vector();
     	camPos.copy_from(zillaObj_.xform_.pos);

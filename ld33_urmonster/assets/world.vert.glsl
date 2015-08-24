@@ -5,6 +5,7 @@ attribute vec3 vertexNormal;
 
 varying vec2 tcoord;
 varying vec4 color;
+varying vec4 unlitColor;
 varying vec4 posLight;
 
 varying vec2 vN;
@@ -37,9 +38,11 @@ void main(void)
     // TODO make param
     vec3 lightColor = vec3( 1.1, 1.05, 1.0 );
     vec3 ambientColor = vec3( 0.1, 0.1, 0.15 );
-    color.xyz = ((lightColor * clamp(dot(N.rgb, lightDir), 0.0, 1.0) + ambientColor) * 1.3) * tintColor;
+    float nDotL = clamp(dot(N.rgb, lightDir), 0.0, 1.0);
+    color = vec4( ((lightColor * nDotL + ambientColor) * 2.0) * tintColor, 1.0 );
 
-    color.a = 1.0;
+    vec3 ambientColor2 = vec3( 0.4, 0.2, 0.1 );
+    unlitColor = vec4( mix(ambientColor, ambientColor2, nDotL) * 1.4 * tintColor, 1.0 );
 
     // reflect for matcap
     vec4 p = vec4( vertexPosition, 1. );
