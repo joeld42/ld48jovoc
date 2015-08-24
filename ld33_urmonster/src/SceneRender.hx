@@ -31,6 +31,7 @@ class SceneObj {
 	var boundSphere_ : SceneBoundSphere; // WARN: local, just a link to mesh bounds
 	var pickable_ : Bool;
 	var jitter_ = 0.0;
+	var shiny_ = 0.3;
 
 	public function new( name : String )
 	{
@@ -95,6 +96,8 @@ class SceneRender
 	
 	public var shadowTexture_ : RenderTexture;
 	
+	public var matcapTexture_ : Texture;
+
 	public var texShadDepth_ : TextureID;
 	public var texShadDepthWrap : Texture;	
 	public var groundMesh_ : SceneMesh;
@@ -106,6 +109,9 @@ class SceneRender
 	public function new()
 	{
 		buildings_ = new Array<SceneObj>();
+
+		matcapTexture_ = Luxe.resources.texture( "assets/matcap_shiny.png");
+		matcapTexture_.slot = 2;
 	}
 
 	public function loadScene( sceneName : String )
@@ -147,6 +153,17 @@ class SceneRender
 			sceneObj.xform_.scale.set_xyz(obj.scl[0],  obj.scl[1],  obj.scl[2] );
 			sceneObj.xform_.rotation.copy( rot );
 
+			if (obj.shiny != null)
+			{
+				sceneObj.shiny_ = obj.shiny;
+			}
+			else {
+				// set shiny for certain objects
+				if (objName.substring(0,4)=="Tree") {
+					sceneObj.shiny_ = 0.6;
+				}
+			}
+
 			// trace('MESH ${obj.mesh} has ${sceneMesh.instList_.length} matrix ${sceneObj.xform_}');
 			// mesh.scale.set_xyz( obj.scl[0],  obj.scl[1],  obj.scl[2] );
 
@@ -167,6 +184,14 @@ class SceneRender
 
 	function lookupSceneMesh( meshID : String, textureName : String ) : SceneMesh
 	{		
+		// HACK : replace house mesh with dup to work around an export bug
+		if (meshID == "assets/mesh/MESH_HouseMesh.dat") {
+			meshID = "assets/mesh/MESH_HouseMeshDup.dat";
+		}
+		if (meshID == "assets/mesh/MESH_OfficeMesh.dat") {
+			meshID = "assets/mesh/MESH_OfficeMeshDup.dat";
+		}
+
 		// Do we already have a mesh list
 		var sceneMesh : SceneMesh = meshDB_.get( meshID );
 		if (sceneMesh == null) {
@@ -374,6 +399,7 @@ class SceneRender
 
 		//SHAD
 		//worldShader_.set_texture("tex1", texShadDepthWrap );
+		worldShader_.set_texture("tex2", matcapTexture_ );
 		Luxe.renderer.target = null;
 
 		drawScenePass( sceneCamera_, false );
@@ -442,6 +468,7 @@ class SceneRender
 	        		overrideShader.set_matrix4( "mvp", mvp );
 	        	} else {
 	        		mesh.geometry.shader.set_vector3( "tintColor", sceneObj.tintColor );
+	        		mesh.geometry.shader.set_float( "shiny", sceneObj.shiny_ );
 	        		mesh.geometry.shader.set_matrix4( "mvp", mvp );
 	        		mesh.geometry.shader.set_matrix4( "normalMatrix", normalMatrix );
 	        		// mesh.geometry.shader.set_matrix4("mvpLight", mvpLight );

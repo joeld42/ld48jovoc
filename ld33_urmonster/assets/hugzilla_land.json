@@ -25,7 +25,7 @@
             3.342832088470459,
             -51.89545822143555
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.000",
         "rot": [
             0.0,
@@ -45,7 +45,7 @@
             3.4800102710723877,
             -58.74055099487305
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.001",
         "rot": [
             0.0,
@@ -65,7 +65,7 @@
             2.6365134716033936,
             -44.236759185791016
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.002",
         "rot": [
             -0.10231664031744003,
@@ -85,7 +85,7 @@
             -0.29073023796081543,
             -56.841060638427734
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.003",
         "rot": [
             0.0,
@@ -105,7 +105,7 @@
             5.669443130493164,
             -49.764251708984375
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.004",
         "rot": [
             0.0,
@@ -125,7 +125,7 @@
             5.0437164306640625,
             -55.36104965209961
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.005",
         "rot": [
             -0.1412261724472046,
@@ -145,7 +145,7 @@
             -0.29073023796081543,
             -48.450923919677734
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.006",
         "rot": [
             0.0,
@@ -165,7 +165,7 @@
             9.990957260131836,
             23.81856918334961
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.007",
         "rot": [
             -0.10231664031744003,
@@ -185,7 +185,7 @@
             8.171713829040527,
             58.908748626708984
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.008",
         "rot": [
             0.0,
@@ -205,7 +205,7 @@
             1.1573941707611084,
             8.869373321533203
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.009",
         "rot": [
             0.0,
@@ -225,7 +225,7 @@
             10.102328300476074,
             5.6470160484313965
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.010",
         "rot": [
             -0.10231667011976242,
@@ -245,7 +245,7 @@
             9.726397514343262,
             70.58982849121094
         ],
-        "mesh": "MESH_Cube.001",
+        "mesh": "MESH_HouseMesh",
         "name": "BLDG_House.011",
         "rot": [
             0.18491114675998688,
@@ -867,6 +867,7 @@
         ],
         "mesh": "MESH_GroundMesh",
         "name": "Ground1",
+        "shiny": 0.0,
         "rot": [
             0.0,
             0.0,

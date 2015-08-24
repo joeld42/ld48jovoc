@@ -7,6 +7,8 @@ varying vec2 tcoord;
 varying vec4 color;
 varying vec4 posLight;
 
+varying vec2 vN;
+
 uniform mat4 projectionMatrix;
 uniform mat4 modelViewMatrix;
 
@@ -35,9 +37,21 @@ void main(void)
     // TODO make param
     vec3 lightColor = vec3( 1.1, 1.05, 1.0 );
     vec3 ambientColor = vec3( 0.1, 0.1, 0.15 );
-    color.xyz = ((lightColor * clamp(dot(N.rgb, lightDir), 0.0, 1.0) + ambientColor) * 1.8) * tintColor;
+    color.xyz = ((lightColor * clamp(dot(N.rgb, lightDir), 0.0, 1.0) + ambientColor) * 1.3) * tintColor;
 
     color.a = 1.0;
+
+    // reflect for matcap
+    vec4 p = vec4( vertexPosition, 1. );
+
+    vec3 e = normalize( vec3( modelViewMatrix * p ) );
+    vec3 r = reflect( e, N.rgb );
+    float m = 2. * sqrt( 
+        pow( r.x, 2. ) + 
+        pow( r.y, 2. ) + 
+        pow( r.z + 1., 2. ) 
+    );
+    vN = r.xy / m + .5;
 
     vec3 n = vertexNormal;
     gl_PointSize = 1.0;

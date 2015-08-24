@@ -9,12 +9,14 @@ import luxe.Camera;
 import luxe.Rectangle;
 import luxe.Entity;
 import luxe.Particles;
+import luxe.Text;
 
 import luxe.components.cameras.FlyCamera;
 
 import phoenix.geometry.Geometry;
 import phoenix.geometry.Vertex;
 import phoenix.geometry.TextureCoord;
+import phoenix.geometry.TextGeometry;
 import phoenix.Batcher;
 import phoenix.Texture;
 import phoenix.Shader;
@@ -65,6 +67,8 @@ class Main extends luxe.Game {
 	var buildings_ : Array<Building>;
 
 	var gameStarted_ : Bool;
+	var messageText_ : TextGeometry;
+	var messageText2_ : TextGeometry;
 
 	override function config( config : luxe.AppConfig )
 	{
@@ -91,6 +95,8 @@ class Main extends luxe.Game {
 									clamp_t : ClampType.repeat  });
 		}
 
+		config.preload.textures.push({ id :  "assets/matcap_shiny.png" });
+
 		config.preload.textures.push({ id : "assets/healthbar_half.png"});		
 		config.preload.textures.push({ id : "assets/hugzilla_title.png"});		
 
@@ -99,9 +105,11 @@ class Main extends luxe.Game {
 		//config.preload.shaders.push({ id:'shadow', frag_id:'assets/shadow.frag.glsl', vert_id:'assets/shadow.vert.glsl' });
 
 		// Level
-		config.preload.bytes.push({ id : "assets/mesh/MESH_Cube.001.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_HouseMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_HouseMeshDup.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_GroundMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_OfficeMesh.dat" });
+		config.preload.bytes.push({ id : "assets/mesh/MESH_OfficeMeshDup.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_TowerMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_TowerMesh.dat" });
 		config.preload.bytes.push({ id : "assets/mesh/MESH_TreeMesh.dat" });
@@ -305,6 +313,27 @@ class Main extends luxe.Game {
  			batcher: hudBatcher_
  			});
 
+        var small_amount = Luxe.screen.h * 0.05;
+		messageText_ = Luxe.draw.text({
+	            text : "Press SPACE to start.",
+	            point_size : 40,
+	            bounds : new Rectangle(small_amount/2, Luxe.screen.h - (Luxe.screen.h/4.0), Luxe.screen.w, small_amount),
+	            color : new Color().rgb(0xffffff),
+	            batcher : hudBatcher_,
+	            align : TextAlign.center,
+	            align_vertical : TextAlign.center
+	        });
+
+		messageText2_ = Luxe.draw.text({
+	            text : "A 48 Hour game for LudumDare 33 by Jovoc (joeld42@gmail.com) -- Built with Luxe",
+	            point_size : small_amount * 0.55,
+	            bounds : new Rectangle(small_amount/2, Luxe.screen.h - small_amount, Luxe.screen.w, small_amount),
+	            color : new Color().rgb(0xffffff),
+	            batcher : hudBatcher_,
+	            // align : TextAlign.center,
+	            align_vertical : TextAlign.center
+	        });
+
  		// hugSprite_ = new Sprite({
  		// 	name: "hug",
  		// 	pos : new Vector( 0, 0, 0 ),
@@ -333,7 +362,6 @@ class Main extends luxe.Game {
     	gameStarted_ = true;
     	gameCameraTarget_ = new Vector();
     	gameCamera_.view.target = gameCameraTarget_;
-
     }
 
     override function onkeyup( e:KeyEvent ) {
@@ -353,6 +381,8 @@ class Main extends luxe.Game {
         } else if (e.keycode == Key.space ) {
         	if (!gameStarted_) {        	
         		//gameCamera_.pos.set_xyz(0,40,-100);	
+        		Actuate.tween( messageText_.color, 0.3, { a : 0.0 } );
+        		Actuate.tween( messageText2_.color, 0.3, { a : 0.0 } );
         		Actuate.tween( gameCamera_.pos, 0.9, { z : -60, y : 10.0 } );
         		Actuate.tween( titleSprite_.color, 1.0, { a : 0.0 } ).onComplete( 
         			function() {
