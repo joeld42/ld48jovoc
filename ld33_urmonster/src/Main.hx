@@ -27,6 +27,12 @@ import luxe.tween.Actuate;
 import snow.api.buffers.Uint8Array;
 import snow.system.assets.Assets;
 
+import mint.Control;
+import mint.types.Types;
+import mint.render.luxe.LuxeMintRender;
+import mint.render.luxe.Convert;
+import mint.layout.margins.Margins;
+
 import SceneRender;
 import SceneIntersect;
 import Building;
@@ -71,6 +77,16 @@ class Main extends luxe.Game {
 	var messageText_ : TextGeometry;
 	var messageText2_ : TextGeometry;
 
+	// mint windowing stuff
+	public static var disp : Text;
+    public static var canvas: mint.Canvas;
+    public static var rendering: LuxeMintRender;
+    public static var layout: Margins;
+
+    //var window1: mint.Window;
+	var check: mint.Checkbox;
+    var progress: mint.Progress;    
+    var text1: mint.TextEdit;
 
 	override function config( config : luxe.AppConfig )
 	{
@@ -165,6 +181,7 @@ class Main extends luxe.Game {
 
     override function ready() 
     {
+
     	scene_ = new SceneRender();
 
     	mouseScreenPos_ = new Vector();
@@ -209,6 +226,25 @@ class Main extends luxe.Game {
         shadowBuffSprite_.depth = -100;
         shadowBuffSprite_.shader = dbgShadShader;
 
+    	// -- Initialize mint
+    	rendering = new LuxeMintRender({ batcher : hudBatcher_ });
+        layout = new Margins();
+
+        canvas = new mint.Canvas({
+            name:'canvas',
+            rendering: rendering,
+            options: { color:new Color(1,1,1,0.0) },
+            x: 0, y:0, w: 960, h: 640
+        });
+
+        disp = new Text({
+            name:'display.text',
+            pos: new Vector(Luxe.screen.w-10, Luxe.screen.h-10),
+            align: luxe.TextAlign.right,
+            align_vertical: luxe.TextAlign.bottom,
+            point_size: 15,
+            text: 'usage text goes here'
+        });
 
     	/// ---- init player
     	zillaObj_ = scene_.findSceneObj("Zilla");
@@ -229,8 +265,96 @@ class Main extends luxe.Game {
     	bindInput();
     	setupGame();
 
+    	create_basics();
+
     	gameStarted_ = false;
     } //ready
+
+       function create_basics() {
+
+        new mint.Label({
+            parent: canvas,
+            name: 'labelmain',
+            x:10, y:10, w:100, h:32,
+            text: 'hello mint',
+            align:left,
+            text_size: 14,
+            onclick: function(e,c) {trace('hello mint! ${Luxe.time}' );}
+        });
+
+        check = new mint.Checkbox({
+            parent: canvas,
+            name: 'check1',
+            x: 120, y: 16, w: 24, h: 24
+        });
+
+        new mint.Checkbox({
+            parent: canvas,
+            name: 'check2',
+            options: {
+                color_node: new Color().rgb(0xf6007b),
+                color_node_off: new Color().rgb(0xcecece),
+                color: new Color().rgb(0xefefef),
+                color_hover: new Color().rgb(0xffffff),
+                color_node_hover: new Color().rgb(0xe2005a)
+            },
+            x: 120, y: 48, w: 24, h: 24
+        });
+
+        progress = new mint.Progress({
+            parent: canvas,
+            name: 'progress1',
+            progress: 0.2,
+            options: { color:new Color(), color_bar:new Color().rgb(0x121219) },
+            x: 10, y:95 , w:128, h: 16
+        });
+
+        inline function make_slider(_n,_x,_y,_w,_h,_c,_min,_max,_initial,_step:Null<Float>,_vert) {
+
+            var _s = new mint.Slider({
+                parent: canvas, name: _n, x:_x, y:_y, w:_w, h:_h,
+                options: { color_bar:new Color().rgb(_c) },
+                min: _min, max: _max, step: _step, vertical:_vert, value:_initial
+            });
+
+            var _l = new mint.Label({
+                parent:_s, text_size:12, x:0, y:0, w:_s.w, h:_s.h,
+                align: TextAlign.center, align_vertical: TextAlign.center,
+                name : _s.name+'.label', text: '${_s.value}'
+            });
+
+            _s.onchange.listen(function(_val,_) { _l.text = '$_val'; });
+
+        } //make_slider
+
+        make_slider('slider1', 10, 330, 128, 24, 0x9dca63, -100, 100, 0, 10, false);
+        make_slider('slider2', 10, 357, 128, 24, 0x9dca63, 0, 100, 50, 1, false);
+        make_slider('slider3', 10, 385, 128, 24, 0xf6007b, null, null, null, null, false);
+
+        make_slider('slider4', 14, 424, 32, 128, 0x9dca63, 0, 100, 20, 10, true);
+        make_slider('slider5', 56, 424, 32, 128, 0x9dca63, 0, 100, 0.3, 1, true);
+        make_slider('slider6', 98, 424, 32, 128, 0xf6007b, null, null, null, null, true);
+
+        new mint.Button({
+            parent: canvas,
+            name: 'button1',
+            x: 10, y: 52, w: 60, h: 32,
+            text: 'mint',
+            text_size: 14,
+            options: { label: { color:new Color().rgb(0x9dca63) } },
+            onclick: function(e,c) {trace('mint button! ${Luxe.time}' );}
+        });
+
+        new mint.Button({
+            parent: canvas,
+            name: 'button2',
+            x: 76, y: 52, w: 32, h: 32,
+            text: 'O',
+            options: { color_hover: new Color().rgb(0xf6007b) },
+            text_size: 16,
+            onclick: function(e,c) {trace('mint button! ${Luxe.time}' );}
+        });
+    }
 
  	function bindInput() {
 
@@ -343,8 +467,8 @@ class Main extends luxe.Game {
 	            bounds : new Rectangle(small_amount/2, Luxe.screen.h - (Luxe.screen.h/4.0), Luxe.screen.w, small_amount),
 	            color : new Color().rgb(0xffffff),
 	            batcher : hudBatcher_,
-	            align : TextAlign.center,
-	            align_vertical : TextAlign.center
+	            // align : phoenix.TextAlign.center,
+	            // align_vertical : phoenix.TextAlign.center
 	        });
 
 		messageText2_ = Luxe.draw.text({
@@ -354,7 +478,7 @@ class Main extends luxe.Game {
 	            color : new Color().rgb(0xffffff),
 	            batcher : hudBatcher_,
 	            // align : TextAlign.center,
-	            align_vertical : TextAlign.center
+	            // align_vertical : TextAlign.center
 	        });
 
  		// hugSprite_ = new Sprite({
@@ -387,7 +511,7 @@ class Main extends luxe.Game {
     	gameCamera_.view.target = gameCameraTarget_;
     }
 
-    override function onkeyup( e:KeyEvent ) {
+    override function onkeyup( e:luxe.KeyEvent ) {
 
     	// Don't use escape because flycamera needs it to
     	// to grab mouse
@@ -430,11 +554,27 @@ class Main extends luxe.Game {
         // Draw the hud batcher afterward so the hud scene stays on top        
 		hudBatcher_.draw();
 
+		canvas.render();
+
     } //onpostrender
 
-	 override function onmousemove( e:MouseEvent ) {
-        
+	override function onmousewheel(e) {
+        canvas.mousewheel( Convert.mouse_event(e) );
+    }
+
+    override function onmouseup(e) {
+        canvas.mouseup( Convert.mouse_event(e) );
+    }
+
+    override function onmousedown(e) {
+        canvas.mousedown( Convert.mouse_event(e) );
+    }
+
+
+	 override function onmousemove( e:luxe.MouseEvent ) {
+
 	 	mouseScreenPos_.set_xy(e.pos.x, e.pos.y);        
+		canvas.mousemove( Convert.mouse_event(e) );
      }
 
      function eyeLookat( eye : SceneObj, focus : Vector )
@@ -497,6 +637,9 @@ class Main extends luxe.Game {
 
     override function update(dt:Float) 
     {    	
+
+    	canvas.update(dt);
+
     	if (!gameStarted_) {
     		return;
     	}
