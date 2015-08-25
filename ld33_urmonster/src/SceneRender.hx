@@ -104,6 +104,7 @@ class SceneRender
 	public var groundMesh_ : SceneMesh;
 
 	public var hugging_ : Bool = false;
+	public var showShadows_ : Bool = true;
 
 	public var buildings_ : Array<SceneObj>;
 
@@ -353,7 +354,10 @@ class SceneRender
 	// TODO: Rearrange this
 	public function drawScene()
 	{
-		drawShadowPass();
+		if (showShadows_) 
+		{
+			drawShadowPass();
+		}
 		drawBeautyPass();
 	}
 
@@ -475,6 +479,7 @@ class SceneRender
 	        	} else {
 	        		mesh.geometry.shader.set_vector3( "tintColor", sceneObj.tintColor );
 	        		mesh.geometry.shader.set_float( "shiny", sceneObj.shiny_ );
+	        		mesh.geometry.shader.set_float( "doShad", showShadows_?1.0:0.0 );
 	        		mesh.geometry.shader.set_matrix4( "mvp", mvp );
 	        		mesh.geometry.shader.set_matrix4( "normalMatrix", normalMatrix );
 	        		mesh.geometry.shader.set_matrix4("mvpLight", mvpLight );

@@ -71,6 +71,7 @@ class Main extends luxe.Game {
 	var messageText_ : TextGeometry;
 	var messageText2_ : TextGeometry;
 
+
 	override function config( config : luxe.AppConfig )
 	{
 		config.render.antialiasing = 8;
@@ -347,7 +348,7 @@ class Main extends luxe.Game {
 	        });
 
 		messageText2_ = Luxe.draw.text({
-	            text : "A 48 Hour game for LudumDare 33 by Jovoc (joeld42@gmail.com) -- Built with Luxe",
+	            text : "A 48 Hour game for LudumDare 33 by Jovoc (joeld42@gmail.com) -- Built with Luxe -- Press H to Toggle Shadows",
 	            point_size : small_amount * 0.55,
 	            bounds : new Rectangle(small_amount/2, Luxe.screen.h - small_amount, Luxe.screen.w, small_amount),
 	            color : new Color().rgb(0xffffff),
@@ -400,6 +401,9 @@ class Main extends luxe.Game {
 
         	var g = scene_.groundPos( zilla_.pos );
         	trace('GROUND: ${g}');
+		} else if (e.keycode == Key.key_h) {        
+			scene_.showShadows_ = !scene_.showShadows_;
+			shadowBuffSprite_.visible = scene_.showShadows_;
         } else if (e.keycode == Key.space ) {
         	if (!gameStarted_) {        	
         		//gameCamera_.pos.set_xyz(0,40,-100);	
