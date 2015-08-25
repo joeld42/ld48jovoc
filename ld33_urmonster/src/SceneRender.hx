@@ -90,7 +90,8 @@ class SceneRender
 	public var shadowShader_ : Shader;
 	public var sceneCamera_ : Camera;
 
-	var shadowExtent= 60.0;
+	public var shadowExtent= 60.0;
+	public var shadowHite = 20.0;
 	public var shadowSize = 1024;
 	public var shadowProjMat_ : Matrix;
 	public var shadowViewMat_ : Matrix;
@@ -323,7 +324,7 @@ class SceneRender
 		shadowProjMat_ = new Matrix();
 		shadowProjMat_.makeOrthographic( -shadowExtent, shadowExtent, 
 										 -shadowExtent, shadowExtent, 
-										 20.0, -20.0 );
+										 shadowHite, -shadowHite );
 		
 
 		shadowTexture_ = new RenderTexture({ id:'rtt_shadCol', width:shadowSize, height:shadowSize });
@@ -364,6 +365,11 @@ class SceneRender
 	function drawShadowPass()
 	{
 		// ==== shadow pass =======
+
+		// FIXME: Don't need to update this unless shadowExtent has changed
+		shadowProjMat_.makeOrthographic( -shadowExtent, shadowExtent, 
+										 -shadowExtent, shadowExtent, 
+										 shadowHite, -shadowHite );
 
 		shadowTexture_.bindBuffer();
 		shadowTexture_.bindRenderBuffer();

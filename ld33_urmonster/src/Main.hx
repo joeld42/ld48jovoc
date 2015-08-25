@@ -36,6 +36,7 @@ import mint.layout.margins.Margins;
 import SceneRender;
 import SceneIntersect;
 import Building;
+import TweakPanel;
 
 class Main extends luxe.Game {
 
@@ -46,7 +47,7 @@ class Main extends luxe.Game {
 	var gameCamera_ : Camera;
 	var gameCameraTarget_ : Vector;
 
-	var scene_ : SceneRender;
+	public var scene_ : SceneRender;
 
 	var zillaObj_ : SceneObj;
 	var zilla_ : Entity;	
@@ -83,10 +84,7 @@ class Main extends luxe.Game {
     public static var rendering: LuxeMintRender;
     public static var layout: Margins;
 
-    //var window1: mint.Window;
-	var check: mint.Checkbox;
-    var progress: mint.Progress;    
-    var text1: mint.TextEdit;
+    public var tweak_ : TweakPanel;
 
 	override function config( config : luxe.AppConfig )
 	{
@@ -237,14 +235,14 @@ class Main extends luxe.Game {
             x: 0, y:0, w: 960, h: 640
         });
 
-        disp = new Text({
-            name:'display.text',
-            pos: new Vector(Luxe.screen.w-10, Luxe.screen.h-10),
-            align: luxe.TextAlign.right,
-            align_vertical: luxe.TextAlign.bottom,
-            point_size: 15,
-            text: 'usage text goes here'
-        });
+        // disp = new Text({
+        //     name:'display.text',
+        //     pos: new Vector(Luxe.screen.w-10, Luxe.screen.h-10),
+        //     align: luxe.TextAlign.right,
+        //     align_vertical: luxe.TextAlign.bottom,
+        //     point_size: 15,
+        //     text: 'usage text goes here'
+        // });
 
     	/// ---- init player
     	zillaObj_ = scene_.findSceneObj("Zilla");
@@ -265,97 +263,14 @@ class Main extends luxe.Game {
     	bindInput();
     	setupGame();
 
-    	create_basics();
+    	// Set up gui
+    	tweak_ = new TweakPanel( scene_ );
+    	tweak_.buildPanel();
 
     	gameStarted_ = false;
     } //ready
 
-       function create_basics() {
-
-        new mint.Label({
-            parent: canvas,
-            name: 'labelmain',
-            x:10, y:10, w:100, h:32,
-            text: 'hello mint',
-            align:left,
-            text_size: 14,
-            onclick: function(e,c) {trace('hello mint! ${Luxe.time}' );}
-        });
-
-        check = new mint.Checkbox({
-            parent: canvas,
-            name: 'check1',
-            x: 120, y: 16, w: 24, h: 24
-        });
-
-        new mint.Checkbox({
-            parent: canvas,
-            name: 'check2',
-            options: {
-                color_node: new Color().rgb(0xf6007b),
-                color_node_off: new Color().rgb(0xcecece),
-                color: new Color().rgb(0xefefef),
-                color_hover: new Color().rgb(0xffffff),
-                color_node_hover: new Color().rgb(0xe2005a)
-            },
-            x: 120, y: 48, w: 24, h: 24
-        });
-
-        progress = new mint.Progress({
-            parent: canvas,
-            name: 'progress1',
-            progress: 0.2,
-            options: { color:new Color(), color_bar:new Color().rgb(0x121219) },
-            x: 10, y:95 , w:128, h: 16
-        });
-
-        inline function make_slider(_n,_x,_y,_w,_h,_c,_min,_max,_initial,_step:Null<Float>,_vert) {
-
-            var _s = new mint.Slider({
-                parent: canvas, name: _n, x:_x, y:_y, w:_w, h:_h,
-                options: { color_bar:new Color().rgb(_c) },
-                min: _min, max: _max, step: _step, vertical:_vert, value:_initial
-            });
-
-            var _l = new mint.Label({
-                parent:_s, text_size:12, x:0, y:0, w:_s.w, h:_s.h,
-                align: TextAlign.center, align_vertical: TextAlign.center,
-                name : _s.name+'.label', text: '${_s.value}'
-            });
-
-            _s.onchange.listen(function(_val,_) { _l.text = '$_val'; });
-
-        } //make_slider
-
-        make_slider('slider1', 10, 330, 128, 24, 0x9dca63, -100, 100, 0, 10, false);
-        make_slider('slider2', 10, 357, 128, 24, 0x9dca63, 0, 100, 50, 1, false);
-        make_slider('slider3', 10, 385, 128, 24, 0xf6007b, null, null, null, null, false);
-
-        make_slider('slider4', 14, 424, 32, 128, 0x9dca63, 0, 100, 20, 10, true);
-        make_slider('slider5', 56, 424, 32, 128, 0x9dca63, 0, 100, 0.3, 1, true);
-        make_slider('slider6', 98, 424, 32, 128, 0xf6007b, null, null, null, null, true);
-
-        new mint.Button({
-            parent: canvas,
-            name: 'button1',
-            x: 10, y: 52, w: 60, h: 32,
-            text: 'mint',
-            text_size: 14,
-            options: { label: { color:new Color().rgb(0x9dca63) } },
-            onclick: function(e,c) {trace('mint button! ${Luxe.time}' );}
-        });
-
-        new mint.Button({
-            parent: canvas,
-            name: 'button2',
-            x: 76, y: 52, w: 32, h: 32,
-            text: 'O',
-            options: { color_hover: new Color().rgb(0xf6007b) },
-            text_size: 16,
-            onclick: function(e,c) {trace('mint button! ${Luxe.time}' );}
-        });
-    }
-
+       
  	function bindInput() {
 
         Luxe.input.bind_key('left', Key.key_a);
@@ -481,13 +396,7 @@ class Main extends luxe.Game {
 	            // align_vertical : TextAlign.center
 	        });
 
- 		// hugSprite_ = new Sprite({
- 		// 	name: "hug",
- 		// 	pos : new Vector( 0, 0, 0 ),
- 		// 	size : new Vector( 3.0, 1.0, 0.0 ),
- 		// 	texture : Luxe.resources.texture("assets/uvgrid.png"),
- 		// 	batcher: extraBatcher_
- 		// 	});
+
 
  		buildings_ = new Array<Building>();
  		trace('setupgame, have ${scene_.buildings_.length} buildings...');
