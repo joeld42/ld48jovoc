@@ -90,9 +90,9 @@ class SceneRender
 	public var shadowShader_ : Shader;
 	public var sceneCamera_ : Camera;
 
-	public var shadowExtent= 60.0;
-	public var shadowHite = 20.0;
-	public var shadowSize = 1024;
+	public var shadowExtent= 48.0;
+	public var shadowHite = 182.0;
+	public var shadowSize = 2048;
 	public var shadowProjMat_ : Matrix;
 	public var shadowViewMat_ : Matrix;
 	
@@ -106,6 +106,8 @@ class SceneRender
 
 	public var hugging_ : Bool = false;
 	public var showShadows_ : Bool = true;
+	public var shadowAngle_ : Float = -45.0;
+	public var shadowTilt_ : Float = 20.0;
 
 	public var buildings_ : Array<SceneObj>;
 
@@ -375,7 +377,7 @@ class SceneRender
 		shadowTexture_.bindRenderBuffer();
 
 		var lightRot = new Quaternion();
-		lightRot.setFromEuler(new Vector( -45.0, 0, 20).radians() );
+		lightRot.setFromEuler(new Vector( shadowAngle_, 0, shadowTilt_ ).radians() );
 
 		shadowViewMat_ = new Matrix();
 		shadowViewMat_.identity();

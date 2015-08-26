@@ -111,8 +111,38 @@ class TweakPanel
 		    text_size: 14,
 		    onclick: function(e,c) {trace('hello mint! ${Luxe.time}' );}
 		});
-		var slide = make_slider('hite', 110, currY, 180, 24, 0x9dca63, 5, 200, scene_.shadowHite, null, false);
+		var slide = make_slider('hite', 110, currY, 180, 24, 0x9dca63, 5, 300, scene_.shadowHite, null, false);
 		slide.onchange.listen( function(_val,_) { scene_.shadowHite = _val; });
+
+		currY += 32;
+
+        // Shadow Angle -----        
+		new mint.Label({
+		    parent: windowLights_,
+		    name: 'lblShadAngle',
+		    x:10, y:currY - 5, w:100, h:32,
+		    text: 'Shadow Angle',
+		    align:left,            
+		    text_size: 14,
+		    onclick: function(e,c) {trace('hello mint! ${Luxe.time}' );}
+		});
+		var slide = make_slider('shadAngle', 110, currY, 180, 24, 0x9dca63, -180, 180, scene_.shadowAngle_, null, false);
+		slide.onchange.listen( function(_val,_) { scene_.shadowAngle_ = _val; });
+
+		currY += 32;
+
+        // Shadow Tilt -----        
+		new mint.Label({
+		    parent: windowLights_,
+		    name: 'lblShadTilt',
+		    x:10, y:currY - 5, w:100, h:32,
+		    text: 'Shadow Tilt',
+		    align:left,            
+		    text_size: 14,
+		    onclick: function(e,c) {trace('hello mint! ${Luxe.time}' );}
+		});
+		var slide = make_slider('shadAngle', 110, currY, 180, 24, 0x9dca63, -90, 90, scene_.shadowTilt_, null, false);
+		slide.onchange.listen( function(_val,_) { scene_.shadowTilt_ = _val; });
 
 		return;
 
