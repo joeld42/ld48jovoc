@@ -2,6 +2,7 @@
 
 #include "zillaGame.h"
 
+#include <png.h>
 
 ////////////////////////////////////////////
 // this is cut and pasted with some modifications from
@@ -11,6 +12,7 @@
 
 void Texture::loadPngRGBA(const char * filename )
 {
+	printf("loadPngRGBA: Loading texture %s\n", filename );
 	FILE * fp;
     png_byte sig[8];
     int bit_depth, color_type;
@@ -61,6 +63,7 @@ void Texture::loadPngRGBA(const char * filename )
 	png_read_info(png_ptr, info_ptr);
 	
 	// get width, height, bit-depth and color-type	
+	png_uint_32 ww, hh;
 	png_get_IHDR(png_ptr, info_ptr, &w, &h, &bit_depth, &color_type, 0, 0, 0);
 	
 	// expand images of all color-type and bit-depth to 3x8 bit RGB images
@@ -83,7 +86,6 @@ void Texture::loadPngRGBA(const char * filename )
 	// get again width, height and the new bit-depth and color-type
 	png_get_IHDR(png_ptr, info_ptr, &w, &h, &bit_depth, &color_type, 0, 0, 0);
 	
-	
 	// row_bytes is the width x number of channels
 	row_bytes = png_get_rowbytes(png_ptr, info_ptr);
 	channels = png_get_channels(png_ptr, info_ptr);
@@ -91,7 +93,7 @@ void Texture::loadPngRGBA(const char * filename )
     if ( channels == 3 )
     {
 		fprintf(stderr,"Unable to open image of type RGB \"%s\" using read_png_rgba().\n", filename);
-		fprintf(stderr,"Try using read_png_rgb() instead!\n\n", filename);
+		fprintf(stderr,"Try using read_png_rgb() instead!\n\n");
 		return;
     }
 
@@ -145,7 +147,7 @@ void Texture::loadPngRGBA(const char * filename )
 
 void Texture::loadPngRGB(const char * filename )
 {
-
+	printf("loadPngRGB: Loading texture %s\n", filename );
 	FILE * fp;
     png_byte sig[8];
     int bit_depth, color_type;
@@ -153,8 +155,7 @@ void Texture::loadPngRGB(const char * filename )
     png_uint_32 channels, row_bytes;
     png_byte **row_pointers = 0;
 	png_structp png_ptr = 0;
-    png_infop info_ptr = 0;
-
+    png_infop info_ptr = 0;    
 	
     // open the PNG input file
     if (!filename) return;
@@ -225,7 +226,7 @@ void Texture::loadPngRGB(const char * filename )
     if ( channels == 4 )
     {
 		fprintf(stderr,"Unable to open image of type RGBA \"%s\" using read_png_rgb().\n", filename);
-		fprintf(stderr,"Try using read_png_rgba() instead!\n\n", filename);
+		fprintf(stderr,"Try using read_png_rgba() instead!\n\n");
 		return;
     }
 		
@@ -261,7 +262,7 @@ void Texture::loadPngRGB(const char * filename )
 			data[ndx] = row[j][i*3];
 			data[ndx+1] = row[j][i*3+1];
 			data[ndx+2] = row[j][i*3+2];
-			data[ndx+3] = row[j][i*3+3];			
+			
 			//printf("%d %d -- ndx %d   (%d, %d, %d, %d)\n",
 			//		i,j, ndx, data[ndx],data[ndx+1],data[ndx+2],data[ndx+3] );
 		}

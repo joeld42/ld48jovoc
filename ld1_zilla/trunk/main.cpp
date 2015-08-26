@@ -15,9 +15,6 @@
 # include <crtdbg.h>
 #endif
 
-#include <math.h>
-#include <GL/glut.h>
-
 #include <prmath/vector3.hpp>
 
 #include <png.h>

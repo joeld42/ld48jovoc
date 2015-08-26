@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <png.h>
+#include <string.h>
 
 #include "PNGLoader.h"
 

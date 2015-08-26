@@ -50,16 +50,18 @@ ADD_SUBDIRECTORY( extern/tinyxml )
 ADD_SUBDIRECTORY( extern/glsw )
 
 # Crappy last-minute pseudo basecode
-ADD_SUBDIRECTORY( minibasecode )
+if (SDL_FOUND)
+  ADD_SUBDIRECTORY( minibasecode )
+endif (SDL_FOUND)
 
 # ==================================================
 # LD1 - Zillagame
 #     Depdencies: Glut, OpenGL, PNG
 # 
 # ==================================================
-if (OPENGL_FOUND AND GLUT_FOUND)
+if (OPENGL_FOUND AND GLUT_FOUND AND PNG_FOUND)
   ADD_SUBDIRECTORY( ld1_zilla/trunk )
-endif (OPENGL_FOUND AND GLUT_FOUND)
+endif (OPENGL_FOUND AND GLUT_FOUND AND PNG_FOUND)
 
 # ==================================================
 # LD4 - Bad Food

@@ -11,13 +11,21 @@
 #include <assert.h>
 #include <time.h>
 
+#include <stdint.h>
+
 #ifdef WIN32
 # include <windows.h>
 # include <crtdbg.h>
 #endif
 
 #include <math.h>
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/glut.h>
+#endif
 
 #include <prmath/vector2.hpp>
 #include <prmath/vector3.hpp>
@@ -48,7 +56,7 @@ struct MeshPart {
 
 struct Texture {
 	char *name;
-	unsigned long w, h;
+	uint32_t w, h;
 	unsigned char *data;
 	bool hasAlpha;
 

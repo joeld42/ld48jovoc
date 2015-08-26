@@ -8,9 +8,14 @@
 #include <ctype.h>
 
 #include "GLee.h"
+
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
-
+#endif
 //#include <boost/foreach.hpp>
 //#define foreach BOOST_FOREACH
 

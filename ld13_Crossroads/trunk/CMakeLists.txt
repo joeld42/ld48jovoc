@@ -51,7 +51,7 @@ set ( LIBS ${LIBS}
 #    )
 #endif (UNIX)
 
-ADD_EXECUTABLE( crossroads MACOSX_BUNDLE ${crossroads_SRCS} )
+ADD_EXECUTABLE( crossroads ${crossroads_SRCS} )
 target_link_libraries( crossroads ${LIBS} )
 set_target_properties( crossroads PROPERTIES
                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/ld13_Crossroads/ )
