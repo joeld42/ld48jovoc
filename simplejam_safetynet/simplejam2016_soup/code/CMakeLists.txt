@@ -1,0 +1,5 @@
+fips_begin_app(simplejam-soup windowed)
+    fips_files(SimpleJam-Soup.cpp)
+    oryol_shader(shaders.shd)
+    fips_deps(Core IO LocalFS Gfx Assets)
+fips_end_app()
