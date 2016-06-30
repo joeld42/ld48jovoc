@@ -1,0 +1,5 @@
+fips_begin_app(darkstar windowed)
+    fips_files(DarkStar-Main.cpp)
+    oryol_shader(shaders.shd)
+    fips_deps(Core IO LocalFS Gfx Assets)
+fips_end_app()
