@@ -14,20 +14,20 @@
 
 std::string getResourceDir()
 {
-#ifdef __APPLE__
-    CFBundleRef mainBundle = CFBundleGetMainBundle();
-    CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
-    char path[PATH_MAX];
-    if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
-    {
-        // error!
-    }
-    CFRelease(resourcesURL);
+// #ifdef __APPLE__
+//     CFBundleRef mainBundle = CFBundleGetMainBundle();
+//     CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+//     char path[PATH_MAX];
+//     if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
+//     {
+//         // error!
+//     }
+//     CFRelease(resourcesURL);
     
-    return std::string(path);
-#else
+//     return std::string(path);
+//#else
     return std::string("./gamedata");
-#endif
+//#endif
 }
 
 std::string gameDataFile( std::string subdir, std::string filename )

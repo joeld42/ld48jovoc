@@ -68,6 +68,7 @@ GLuint LoadObjFile( const char *objfile )
 				glNormal3f( norms[nndx].x, norms[nndx].y, norms[nndx].z );
 				glTexCoord2f( sts[stndx].x, sts[stndx].y );
 				glVertex3f( verts[vndx].x, verts[vndx].y, verts[vndx].z );
+//                printf("%s : %f %f %f\n",objfile, verts[vndx].x, verts[vndx].y, verts[vndx].z );
 
 				ch = strtok( NULL, " " );
 			}

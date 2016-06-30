@@ -1,4 +1,4 @@
-#include <luddite/GLee.h>
+//#include <luddite/GLee.h>
 
 #ifndef __APPLE__
 #  include <GL/gl.h>

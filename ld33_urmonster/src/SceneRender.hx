@@ -98,7 +98,7 @@ class SceneRender
 	
 	public var shadowTexture_ : RenderTexture;
 	
-	public var matcapTexture_ : Texture;
+	//public var matcapTexture_ : Texture;
 
 	public var texShadDepth_ : TextureID;
 	public var texShadDepthWrap : Texture;	
@@ -413,7 +413,7 @@ class SceneRender
 
 		//SHAD
 		worldShader_.set_texture("tex1", texShadDepthWrap );
-		worldShader_.set_texture("tex2", matcapTexture_ );
+		//worldShader_.set_texture("tex2", matcapTexture_ );
 		Luxe.renderer.target = null;
 
 		drawScenePass( sceneCamera_, false );

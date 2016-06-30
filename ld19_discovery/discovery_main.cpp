@@ -10,10 +10,14 @@
 # include <crtdbg.h>
 #endif
 
-#include <luddite/GLee.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-
+// #include <luddite/GLee.h>
+#ifndef __APPLE__
+#  include <GL/gl.h>
+#  include <GL/glu.h>
+#else
+#  include <OpenGL/gl.h>
+#  include <OpenGL/glu.h>
+#endif 
 // Luddite tools
 #include <luddite/luddite.h>
 #include <luddite/debug.h>
