@@ -86,7 +86,11 @@ SceneObject *Scene::addObject( const char *meshName, const char *textureName )
 
 void Scene::drawScene()
 {
-    if (!didSetupPipeline) return;
+    
+    if (!didSetupPipeline) {
+        printf("Pipeline not setup...\n");
+        return;
+    }
     
     for (int i=0; i < sceneObjs.Size(); i++) {
         
@@ -107,7 +111,7 @@ void Scene::drawScene()
             
             for (int j=0; j < info->numPrims; j++) {
                 Gfx::Draw(j);
-//                printf("draw %d\n", j );
+                printf("draw %d\n", j );
             }
         }
         

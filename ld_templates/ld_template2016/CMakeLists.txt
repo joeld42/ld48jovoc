@@ -16,11 +16,13 @@ fips_add_subdirectory(code)
 # manually define imports, don't bring all of Oryol
 fips_ide_group("Oryol")
 fips_import_oryol_Core()
+fips_import_oryol_Input()
 fips_import_oryol_IO()
 fips_import_oryol_LocalFS()
 #fips_import_oryol_Messaging()
 fips_import_oryol_Gfx()
 fips_import_oryol_Assets()
+fips_import_oryol_Dbg()
 fips_import_oryol_Resource()
 
 fips_ide_group("Libs")
