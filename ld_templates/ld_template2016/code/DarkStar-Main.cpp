@@ -14,14 +14,15 @@
 #include "Gfx/Setup/MeshSetup.h"
 #include "Assets/Gfx/TextureLoader.h"
 
+#include "glm/gtc/random.hpp"
+#include "glm/gtc/constants.hpp"
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "shaders.h"
 
-using namespace Oryol;
+#include "SceneObject.h"
 
-//uint8_t *texdata = (uint8_t*)malloc(256*256*3);
-uint8_t texdata[256*256*3];
+using namespace Oryol;
 
 // derived application class
 class TestApp : public App {
@@ -37,8 +38,6 @@ private:
     void createMaterials();
     
     void drawMeshAndTextureIfLoaded( Id mesh, Id texture );
-    
-    Oryol::GfxSetup gfxSetup;
     
     ResourceLabel curMeshLabel;
 //    MeshSetup curMeshSetup;
@@ -70,6 +69,8 @@ private:
     glm::mat4 displayProj;
     float32 angleX = 23.0f;
     float32 angleY = 0.0f;
+    
+    Scene *scene;
 };
 OryolMain(TestApp);
 
@@ -129,8 +130,15 @@ void TestApp::drawMeshAndTextureIfLoaded( Id mesh, Id texture )
         this->mainDrawState.Mesh[0] = mesh;
         
         Gfx::ApplyDrawState(this->mainDrawState);
+        
+        this->mainVSParams.ModelViewProjection = this->computeMVP(this->displayProj, -this->angleX * 0.25f, this->angleY * 0.25f,
+                                                                  glm::vec3(0.0, -200.0f, -1000.0f) );
+        
         Gfx::ApplyUniformBlock(this->mainVSParams);
-        Gfx::Draw(0);
+        
+        for (int i=0; i < 3; i++) {
+            Gfx::Draw(i);
+        }
     }
 }
 
@@ -144,7 +152,7 @@ TestApp::OnRunning() {
 //    printf("ANGLEX: %3.2f\n", angleX );
 //    this->offscrVSParams.ModelViewProjection = this->computeMVP(this->offscreenProj, this->angleX, this->angleY, glm::vec3(0.0f, 0.0f, -3.0f));
     this->mainVSParams.ModelViewProjection = this->computeMVP(this->displayProj, -this->angleX * 0.25f, this->angleY * 0.25f,
-                                                              glm::vec3(0.0f, -40.0f, -1000.0f));;
+                                                              glm::vec3(0.0f, -200.0f, -1000.0f));;
 
     // render donut to offscreen render target
 #if 0
@@ -159,16 +167,28 @@ TestApp::OnRunning() {
 //    }
     
     
-    const auto resState = Gfx::QueryResourceInfo(this->texture).State;
-    if (resState == ResourceState::Valid) {
-        this->mainDrawState.FSTexture[Textures::Texture] = this->texture;
+//    const auto resState = Gfx::QueryResourceInfo(this->texture).State;
+//    if (resState == ResourceState::Valid) {
+//        this->mainDrawState.FSTexture[Textures::Texture] = this->texture;
+//    }
+
+    for (int i=0; i < scene->sceneObjs.Size(); i++) {
+        SceneObject *obj = scene->sceneObjs[i];
+        
+        obj->vsParams.ModelViewProjection = this->computeMVP(this->displayProj, -this->angleX * 0.25f, i * 10 * 0.25f,
+//                                                             glm::vec3(0.0, -200.0f, -1000.0f)
+                                                             obj->pos );
     }
-        
+    
+
+    
     Gfx::ApplyDefaultRenderTarget(this->mainClearState);
-    if (this->mainDrawState.Pipeline.IsValid()) {
-        
-        this->drawMeshAndTextureIfLoaded( meshTree, texture );
-        
+//    if (this->mainDrawState.Pipeline.IsValid()) {
+    
+        scene->drawScene();
+//        
+//        this->drawMeshAndTextureIfLoaded( meshTree, texture );
+    
 //        const auto resState = Gfx::QueryResourceInfo(this->meshBowl).State;
 //        if (resState == ResourceState::Valid) {
 //            this->mainDrawState.Mesh[0] = meshBowl;
@@ -185,7 +205,9 @@ TestApp::OnRunning() {
 //            Gfx::Draw(0);
 //        }
 
-    }
+//    }
+    
+
     
     Gfx::CommitFrame();
     
@@ -206,151 +228,53 @@ TestApp::OnInit() {
     ioSetup.Assigns.Add("tex:", "cwd:gamedata/");
     IO::Setup(ioSetup);
     
-//    IO::Load( "data:MESH_Cube.001.dat", [](IO::LoadResult res) {
-//        Log::Info( "Loaded data file... size is %d\n", res.Data.Size());
-//    });
-    // setup rendering system
-    this->gfxSetup = GfxSetup::WindowMSAA4(800, 600, "Oryol Test App");
-    Gfx::Setup(gfxSetup);
-#if 0
-    // create an offscreen render target, we explicitly want repeat texture wrap mode
-    // and linear blending...
-    auto rtSetup = TextureSetup::RenderTarget(128, 128);
-    rtSetup.ColorFormat = PixelFormat::RGBA8;
-    rtSetup.DepthFormat = PixelFormat::DEPTH;
-    rtSetup.Sampler.WrapU = TextureWrapMode::Repeat;
-    rtSetup.Sampler.WrapV = TextureWrapMode::Repeat;
-    rtSetup.Sampler.MagFilter = TextureFilterMode::Linear;
-    rtSetup.Sampler.MinFilter = TextureFilterMode::Linear;
-    this->renderTarget = Gfx::CreateResource(rtSetup);
-    
-    // create offscreen rendering resources
-    ShapeBuilder shapeBuilder;
-    shapeBuilder.Layout
-        .Add(VertexAttr::Position, VertexFormat::Float3)
-        .Add(VertexAttr::Normal, VertexFormat::Byte4N);
-    shapeBuilder.Box(1.0f, 1.0f, 1.0f, 1);
-    this->offscrDrawState.Mesh[0] = Gfx::CreateResource(shapeBuilder.Build());
-    Id offScreenShader = Gfx::CreateResource(OffscreenShader::Setup());
-    auto offPipSetup = PipelineSetup::FromLayoutAndShader(shapeBuilder.Layout, offScreenShader);
-    offPipSetup.DepthStencilState.DepthWriteEnabled = true;
-    offPipSetup.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
-    offPipSetup.BlendState.ColorFormat = rtSetup.ColorFormat;
-    offPipSetup.BlendState.DepthFormat = rtSetup.DepthFormat;
-    this->offscrDrawState.Pipeline = Gfx::CreateResource(offPipSetup);
-#endif
-    
-    // Make a texture
+    scene = new Scene();
 
-    for (int j=0; j < 256; j++) {
-        for (int i=0; i < 256; i++) {
-            int ii = (i>>3);
-            int jj = (j>>3);
-            int check = ((ii%2)==(jj%2))?0xff:0x00;
-            texdata[(j*256 + i)*3 + 0] = check;
-            texdata[(j*256 + i)*3 + 1] = i;
-            texdata[(j*256 + i)*3 + 2] = j;
-        }
-    }
+    scene->gfxSetup = GfxSetup::WindowMSAA4(800, 600, "Oryol Test App");
+    Gfx::Setup(scene->gfxSetup);
     
-    auto texSetup = TextureSetup::FromPixelData(256, 256, 1, TextureType::Texture2D, PixelFormat::RGB8 );
-    texSetup.ImageData.Sizes[0][0] = 256*256*3;
+    scene->init();
     
-#if 1
-    MeshBuilder meshBuilder;
-    meshBuilder.Layout
-        .Clear()
-        .Add( VertexAttr::Position, VertexFormat::Float3 )
-        .Add( VertexAttr::Normal, VertexFormat::Byte4N )
-        .Add( VertexAttr::TexCoord0, VertexFormat::Float2 );
-    meshBuilder.NumVertices = 3;
-    meshBuilder.NumIndices = 3;
-    
-    PrimitiveGroup primGroup(0,3);
-    meshBuilder.PrimitiveGroups.Add(primGroup);
-    
-    meshBuilder.Begin();
-
-    meshBuilder.Vertex( 0, VertexAttr::Position, -0.5, 0.0, 0.0 );
-    meshBuilder.Vertex( 0, VertexAttr::TexCoord0, 0.0, 0.0 );
-    meshBuilder.Vertex( 0, VertexAttr::Normal, 0.0, 0.0, 1.0 );
-
-    meshBuilder.Vertex( 1, VertexAttr::Position, 0.5, 0.0, 0.0 );
-    meshBuilder.Vertex( 1, VertexAttr::TexCoord0, 1.0, 0.0 );
-    meshBuilder.Vertex( 1, VertexAttr::Normal, 0.0, 0.0, 1.0 );
-
-    meshBuilder.Vertex( 2, VertexAttr::Position, 0.5, 0.5, 0.0 );
-    meshBuilder.Vertex( 2, VertexAttr::TexCoord0, 1.0, 1.0 );
-    meshBuilder.Vertex( 2, VertexAttr::Normal, 0.0, 0.0, 1.0 );
-
-    meshBuilder.Index( 0, 0 );
-    meshBuilder.Index( 1, 1 );
-    meshBuilder.Index( 2, 2 );
-    
-    SetupAndData<MeshSetup> result = meshBuilder.Build();
-#endif
-    
-    // create display rendering resources
-#if 1
-    ShapeBuilder shapeBuilder;
-    shapeBuilder.Layout
-        .Clear()
-        .Add(VertexAttr::Position, VertexFormat::Float3)
-        .Add(VertexAttr::Normal, VertexFormat::Byte4N)
-        .Add(VertexAttr::TexCoord0, VertexFormat::Float2);
-    shapeBuilder.Sphere(0.5f, 72.0f, 40.0f);
-    this->mainDrawState.Mesh[0] = Gfx::CreateResource(shapeBuilder.Build());
-#endif
-    
-#if 1
-    this->mainDrawState.Mesh[0] = Gfx::CreateResource( result );
-#endif
-    
-    
-//    auto meshSetup = MeshSetup::FromFile("msh:radonlabs_tiger.omsh");
-//    this->mainDrawState.Mesh[0] = Gfx::LoadResource(
-//                            MeshLoader::Create( meshSetup ));
-//    
-    dispShader = Gfx::CreateResource(MainShader::Setup());
-    auto dispPipSetup = PipelineSetup::FromLayoutAndShader(shapeBuilder.Layout, dispShader);
-//    auto dispPipSetup = PipelineSetup::FromLayoutAndShader(meshBuilder.Layout, dispShader);
-//    auto dispPipSetup = PipelineSetup::FromLayoutAndShader(meshSetup.Layout, dispShader);
-
-    dispPipSetup.DepthStencilState.DepthWriteEnabled = true;
-    dispPipSetup.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
-    dispPipSetup.RasterizerState.SampleCount = gfxSetup.SampleCount;
-    this->mainDrawState.Pipeline = Gfx::CreateResource(dispPipSetup);
-    this->mainDrawState.FSTexture[Textures::Texture] = Gfx::CreateResource( texSetup, texdata, 256*256*3);
-    //this->mainDrawState.FSTexture[Textures::Texture] = this->renderTarget;
-    
-    TextureSetup texBluePrint;
-    texBluePrint.Sampler.MinFilter = TextureFilterMode::LinearMipmapLinear;
-    texBluePrint.Sampler.MagFilter = TextureFilterMode::Linear;
-    texBluePrint.Sampler.WrapU = TextureWrapMode::Repeat;
-    texBluePrint.Sampler.WrapV = TextureWrapMode::Repeat;
-    texture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile("tex:tree_062.dds", texBluePrint)));
     
     // setup clear states
-//    this->offscrClearState.Color = glm::vec4(1.0f, 0.5f, 0.25f, 1.0f);
     this->mainClearState.Color = glm::vec4(0.25f, 0.5f, 1.0f, 1.0f);
 
     // setup static transform matrices
     float32 fbWidth = Gfx::DisplayAttrs().FramebufferWidth;
     float32 fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
 //    this->offscreenProj = glm::perspective(glm::radians(45.0f), 1.0f, 0.01f, 20.0f);
-    this->displayProj = glm::perspectiveFov(glm::radians(45.0f), fbWidth, fbHeight, 0.01f, 1000.0f);
+    this->displayProj = glm::perspectiveFov(glm::radians(45.0f), fbWidth, fbHeight, 0.01f, 10000.0f);
     this->view = glm::mat4();
 
-//    this->loadMesh( "msh:bowl.omsh" );
-    this->meshTree = Gfx::LoadResource(MeshLoader::Create(MeshSetup::FromFile( "msh:tree_062_onemtl.omsh"), [this](MeshSetup &setup) {
-        printf("LOADMESH  TREE finish block");
-        auto ps = PipelineSetup::FromLayoutAndShader(setup.Layout, dispShader );
-        ps.DepthStencilState.DepthWriteEnabled = true;
-        ps.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
-        ps.RasterizerState.SampleCount = gfxSetup.SampleCount;
-        this->mainDrawState.Pipeline = Gfx::CreateResource(ps);
-    }));
+////    this->loadMesh( "msh:bowl.omsh" );
+//    this->meshTree = Gfx::LoadResource(MeshLoader::Create(MeshSetup::FromFile( "msh:tree_062.omsh"), [this](MeshSetup &setup) {
+////    this->meshTree = Gfx::LoadResource(MeshLoader::Create(MeshSetup::FromFile( "msh:ground1.omsh"), [this](MeshSetup &setup) {
+//        printf("LOADMESH  TREE finish block");
+//        auto ps = PipelineSetup::FromLayoutAndShader(setup.Layout, dispShader );
+//        ps.DepthStencilState.DepthWriteEnabled = true;
+//        ps.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
+//        ps.RasterizerState.SampleCount = gfxSetup.SampleCount;
+//        this->mainDrawState.Pipeline = Gfx::CreateResource(ps);
+//    }));
     
+    SceneObject *ground = scene->addObject( "msh:ground1.omsh", "tex:ground1.dds");
+    ground->pos = glm::vec3( 0.0, -200, -1000);
+
+    const glm::vec3 minRand(-1500.0f, -250.0f, -2000.0f);
+    const glm::vec3 maxRand(1500.0f, -200.0f, -1000.0f);
+
+        
+    for (int i=0; i < 20; i++) {
+        
+        SceneObject *obj1 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
+        obj1->pos = glm::linearRand(minRand, maxRand);
+    }
+
+//    SceneObject *obj2 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
+//    obj2->pos = glm::vec3( 250.0, -200, -1500);
+//    
+//    SceneObject *obj3 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
+//    obj3->pos = glm::vec3( -200.0, -250, -1000);
     
     return App::OnInit();
 }

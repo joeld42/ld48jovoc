@@ -14,15 +14,31 @@ ASSET_DIR = "assets"
 RUNTIME_DATA_DIR = "gamedata"
 
 MESHES = [
+	'ground1.fbx',
 	'tree_062.fbx',
 	'tree_062_onemtl.fbx',
 ]
 
 TEXTURES = {
 	# 'wood.png' : 'A8R8G8B8'
+	'ground1.png' : 'DXT5',
 	'tree_062.png' : 'DXT5',
 	#'soupbowl.png' : 'DXT5'
 }
+
+def fileNeedsUpdate( srcFile, destFile ):
+	if not os.path.exists( destFile ):
+		print "DEST", destFile, "does not exist"
+		return True
+
+	destmtime = os.path.getmtime( destFile )
+	srcmtime = os.path.getmtime( srcFile )
+
+	if srcmtime >= destmtime:
+		return True
+
+	# file is up to date
+	return False
 
 if __name__=='__main__':
 
@@ -39,13 +55,13 @@ if __name__=='__main__':
 		srcFile = os.path.join( PROJECT_DIR, ASSET_DIR, mesh )
 		destFile = os.path.join( PROJECT_DIR, RUNTIME_DATA_DIR, os.path.splitext( mesh )[0] + ".omsh" )
 
-		# TODO: add timestamp checks
-		cmd = [ ORYOL_EXPORT_TOOL, 
-				'-config', meshConfig,
-				'-model', srcFile,
-				'-out', destFile ]
-		print string.join(cmd, ' ' )
-		subprocess.call( cmd )
+		if fileNeedsUpdate( srcFile, destFile):
+			cmd = [ ORYOL_EXPORT_TOOL, 
+					'-config', meshConfig,
+					'-model', srcFile,
+					'-out', destFile ]
+			print string.join(cmd, ' ' )
+			subprocess.call( cmd )
 
 	# -----------------------------------
 	# Textures
@@ -54,13 +70,14 @@ if __name__=='__main__':
 		
 		srcFile = os.path.join( PROJECT_DIR, ASSET_DIR, tex )
 		destFile = os.path.join( PROJECT_DIR, RUNTIME_DATA_DIR, os.path.splitext( tex )[0] + ".dds"  )		
-		cmd = [ CRUNCH_TOOL,
-				'-file', srcFile,
-				'-out', destFile,
-				'-gamma', '1.0',
-				'-' + fmt
-				]
+		if fileNeedsUpdate(srcFile, destFile ):
+			cmd = [ CRUNCH_TOOL,
+					'-file', srcFile,
+					'-out', destFile,
+					'-gamma', '1.0',
+					'-' + fmt
+					]
 
-		print string.join(cmd, ' ' )
-		subprocess.call( cmd )
+			print string.join(cmd, ' ' )
+			subprocess.call( cmd )
 
