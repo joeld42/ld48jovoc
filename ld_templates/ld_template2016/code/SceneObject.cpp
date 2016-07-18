@@ -67,7 +67,7 @@ SceneObject *Scene::addObject( const char *meshName, const char *textureName )
                 this->mainDrawState.Pipeline = Gfx::CreateResource(ps);
             }
             
-            // finalie info
+            // finalize info
             info->numPrims = setup.NumPrimitiveGroups();
             info->ready=true;
         }));
@@ -111,7 +111,6 @@ void Scene::drawScene()
             
             for (int j=0; j < info->numPrims; j++) {
                 Gfx::Draw(j);
-                printf("draw %d\n", j );
             }
         }
         

@@ -19,6 +19,7 @@
 #include "glm/gtc/constants.hpp"
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
 #include "shaders.h"
 
 #include "SceneObject.h"
@@ -83,23 +84,17 @@ void dbgPrintMatrix( const char *label, glm::mat4 m )
 //------------------------------------------------------------------------------
 AppState::Code
 TestApp::OnRunning() {
-
-    this->handle_input();
     
+    this->handle_input();
     
     for (int i=0; i < scene->sceneObjs.Size(); i++) {
         SceneObject *obj = scene->sceneObjs[i];
         
         glm::mat4 modelTform = glm::translate(glm::mat4(), obj->pos);
+        modelTform = modelTform * glm::mat4_cast( obj->rot );
 //        return proj * this->view * modelTform;
         
         glm::mat4 mvp = this->camera.ViewProj * modelTform;
-//        glm::mat4 mvp = this->camera.ViewProj;
-//        glm::mat4 mvp = this->computeMVP(this->displayProj, -this->angleX * 0.25f, i * 10 * 0.25f,
-////                                                             glm::vec3(0.0, -200.0f, -1000.0f),
-//                                                             obj->pos );
-//        dbgPrintMatrix( "objMvp", mvp );
-        
         obj->vsParams.ModelViewProjection = mvp;
     }
     
@@ -158,27 +153,21 @@ TestApp::OnInit() {
     float32 fbWidth = Gfx::DisplayAttrs().FramebufferWidth;
     float32 fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
 
-    this->camera.Setup(glm::vec3(0, 0, 0), glm::radians(45.0f), fbWidth, fbHeight, 0.1f, 10000.0f);
+    this->camera.Setup(glm::vec3(-2531.f, 1959.f, 3241.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 25000.0f);
     
-    SceneObject *ground = scene->addObject( "msh:ground1.omsh", "tex:ground1.dds");
+    SceneObject *ground = scene->addObject( "msh:ground1_big.omsh", "tex:ground1.dds");
     ground->pos = glm::vec3( 0.0, 0.0, 0.0);
 
-    const glm::vec3 minRand(-1000.0f, 0.0, -1200.0f );
-    const glm::vec3 maxRand(1000.0f, 0.0, 1200.0f );
+    const glm::vec3 minRand(-5500.0f, 0.0, -5500.0f );
+    const glm::vec3 maxRand(5500.0f, 0.0, 5500.0f );
 
-        
-    for (int i=0; i < 20; i++) {
+    
+    for (int i=0; i < 4000; i++) {
         
         SceneObject *obj1 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
+        obj1->rot = glm::quat( glm::vec3( 0.0, glm::linearRand( 0.0f, 360.0f), 0.0 ) );
         obj1->pos = glm::linearRand(minRand, maxRand);
-    //    obj1->pos = glm::vec3( 0.0, 0.0, 0.0 );
     }
-
-//    SceneObject *obj2 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
-//    obj2->pos = glm::vec3( 250.0, -200, -1500);
-//    
-//    SceneObject *obj3 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
-//    obj3->pos = glm::vec3( -200.0, -250, -1000);
     
     return App::OnInit();
 }
@@ -204,11 +193,15 @@ void
 TestApp::handle_input() {
     glm::vec3 move;
     glm::vec2 rot;
-    const float vel = 0.75f;
+    float vel = 3.5f;
     const Keyboard& kbd = Input::Keyboard();
     if (kbd.Attached) {
+        
+        if (kbd.KeyPressed( Key::LeftShift)) {
+            vel *= 10.0;
+        }
+        
         if (kbd.KeyPressed(Key::W) || kbd.KeyPressed(Key::Up)) {
-            printf("fwd\n");
             move.z -= vel;
         }
         if (kbd.KeyPressed(Key::S) || kbd.KeyPressed(Key::Down)) {
@@ -224,11 +217,13 @@ TestApp::handle_input() {
     const Mouse& mouse = Input::Mouse();
     if (mouse.Attached) {
         if (mouse.ButtonPressed(Mouse::Button::LMB)) {
-            printf("move z\n");
+            
             move.z -= vel;
+            printf("move %3.2f %3.2f %3.2f\n",
+                   camera.Pos.x, camera.Pos.y, camera.Pos.z );
+
         }
         if (mouse.ButtonPressed(Mouse::Button::LMB) || mouse.ButtonPressed(Mouse::Button::RMB)) {
-            printf("rot\n");
             rot = mouse.Movement * glm::vec2(-0.01f, -0.007f);
         }
     }

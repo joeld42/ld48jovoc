@@ -3,6 +3,8 @@
 
 #include "Gfx/Setup/MeshSetup.h"
 #include "Core/Containers/Array.h"
+
+#include "glm/gtc/quaternion.hpp"
 #include "shaders.h"
 
 class SceneObjectInfo
@@ -26,6 +28,7 @@ public:
     Oryol::MainShader::VSParams vsParams;
     
     glm::vec3 pos;
+    glm::quat rot;
 };
 
 class Scene

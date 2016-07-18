@@ -15,6 +15,7 @@ RUNTIME_DATA_DIR = "gamedata"
 
 MESHES = [
 	'ground1.fbx',
+	'ground1_big.fbx',
 	'tree_062.fbx',
 	'tree_062_onemtl.fbx',
 ]
