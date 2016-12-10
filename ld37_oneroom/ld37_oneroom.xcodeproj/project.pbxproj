@@ -1,0 +1,320 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6DC65B4A1DFB9F89009D87DE /* ld37_oneroom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6DC65B491DFB9F89009D87DE /* ld37_oneroom.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6DC65B3D1DFB9E14009D87DE /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		6DC65B3F1DFB9E14009D87DE /* ld37_oneroom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ld37_oneroom; sourceTree = BUILT_PRODUCTS_DIR; };
+		6DC65B491DFB9F89009D87DE /* ld37_oneroom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ld37_oneroom.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6DC65B3C1DFB9E14009D87DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6DC65B361DFB9E14009D87DE = {
+			isa = PBXGroup;
+			children = (
+				6DC65B411DFB9E14009D87DE /* ld37_oneroom */,
+				6DC65B401DFB9E14009D87DE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6DC65B401DFB9E14009D87DE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6DC65B3F1DFB9E14009D87DE /* ld37_oneroom */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6DC65B411DFB9E14009D87DE /* ld37_oneroom */ = {
+			isa = PBXGroup;
+			children = (
+				6DC65B491DFB9F89009D87DE /* ld37_oneroom.cpp */,
+			);
+			path = ld37_oneroom;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6DC65B3E1DFB9E14009D87DE /* ld37_oneroom */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6DC65B461DFB9E14009D87DE /* Build configuration list for PBXNativeTarget "ld37_oneroom" */;
+			buildPhases = (
+				6DC65B3B1DFB9E14009D87DE /* Sources */,
+				6DC65B3C1DFB9E14009D87DE /* Frameworks */,
+				6DC65B3D1DFB9E14009D87DE /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ld37_oneroom;
+			productName = ld37_oneroom;
+			productReference = 6DC65B3F1DFB9E14009D87DE /* ld37_oneroom */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6DC65B371DFB9E14009D87DE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0800;
+				ORGANIZATIONNAME = "Joel Davis";
+				TargetAttributes = {
+					6DC65B3E1DFB9E14009D87DE = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = T4P743PG5Z;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 6DC65B3A1DFB9E14009D87DE /* Build configuration list for PBXProject "ld37_oneroom" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 6DC65B361DFB9E14009D87DE;
+			productRefGroup = 6DC65B401DFB9E14009D87DE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6DC65B3E1DFB9E14009D87DE /* ld37_oneroom */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6DC65B3B1DFB9E14009D87DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6DC65B4A1DFB9F89009D87DE /* ld37_oneroom.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		6DC65B441DFB9E14009D87DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		6DC65B451DFB9E14009D87DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		6DC65B471DFB9E14009D87DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = T4P743PG5Z;
+				HEADER_SEARCH_PATHS = (
+					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:configuration",
+					"=",
+					"Release\nHEADER_SEARCH_PATHS",
+					"=",
+					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:completeSettings",
+					"=",
+					"some\nHEADER_SEARCH_PATHS\n//:configuration",
+					"=",
+					"Debug\nHEADER_SEARCH_PATHS",
+					"=",
+					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:configuration",
+					"=",
+					"Release\nHEADER_SEARCH_PATHS",
+					"=",
+					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:completeSettings",
+					"=",
+					"some\nHEADER_SEARCH_PATHS\n/Users/joeld/Toolkits/raylib/release/osx",
+				);
+				OTHER_LDFLAGS = (
+					"-L/Users/joeld/Toolkits/raylib/release/osx",
+					"-lraylib_d",
+					"-L/usr/local/Cellar/glfw3/3.2.1/lib",
+					"-lglfw3",
+					"-framework",
+					OpenGL,
+					"-framework",
+					OpenAl,
+					"-framework",
+					Cocoa,
+					"-lpthread",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		6DC65B481DFB9E14009D87DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = T4P743PG5Z;
+				HEADER_SEARCH_PATHS = (
+					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:configuration",
+					"=",
+					"Release\nHEADER_SEARCH_PATHS",
+					"=",
+					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:completeSettings",
+					"=",
+					"some\nHEADER_SEARCH_PATHS\n//:configuration",
+					"=",
+					"Debug\nHEADER_SEARCH_PATHS",
+					"=",
+					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:configuration",
+					"=",
+					"Release\nHEADER_SEARCH_PATHS",
+					"=",
+					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:completeSettings",
+					"=",
+					"some\nHEADER_SEARCH_PATHS\n/Users/joeld/Toolkits/raylib/release/osx",
+				);
+				OTHER_LDFLAGS = (
+					"-L/Users/joeld/Toolkits/raylib/release/osx",
+					"-lraylib_d",
+					"-L/usr/local/Cellar/glfw3/3.2.1/lib",
+					"-lglfw3",
+					"-framework",
+					OpenGL,
+					"-framework",
+					OpenAl,
+					"-framework",
+					Cocoa,
+					"-lpthread",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6DC65B3A1DFB9E14009D87DE /* Build configuration list for PBXProject "ld37_oneroom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6DC65B441DFB9E14009D87DE /* Debug */,
+				6DC65B451DFB9E14009D87DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6DC65B461DFB9E14009D87DE /* Build configuration list for PBXNativeTarget "ld37_oneroom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6DC65B471DFB9E14009D87DE /* Debug */,
+				6DC65B481DFB9E14009D87DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6DC65B371DFB9E14009D87DE /* Project object */;
+}

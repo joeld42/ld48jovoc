@@ -98,8 +98,6 @@ TestApp::OnRunning() {
         obj->vsParams.ModelViewProjection = mvp;
     }
     
-
-    
     Gfx::ApplyDefaultRenderTarget(this->mainClearState);
     
     scene->drawScene();
@@ -162,7 +160,7 @@ TestApp::OnInit() {
     const glm::vec3 maxRand(5500.0f, 0.0, 5500.0f );
 
     
-    for (int i=0; i < 4000; i++) {
+    for (int i=0; i < 40000; i++) {
         
         SceneObject *obj1 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
         obj1->rot = glm::quat( glm::vec3( 0.0, glm::linearRand( 0.0f, 360.0f), 0.0 ) );

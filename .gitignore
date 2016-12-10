@@ -2,3 +2,14 @@
 bin/
 build/
 ios.project/
+
+ld13_Crossroads/Debug/*
+ld13_Crossroads/crossroads
+*.app
+
+ld1_zilla/trunk/zilla
+
+xcode/
+
+*.omsh
+xcuserdata/
