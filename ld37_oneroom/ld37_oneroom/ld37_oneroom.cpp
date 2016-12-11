@@ -479,7 +479,7 @@ Bullet *Shoot( Weapon *weapon, Vector3 pos, Vector3 dir )
 //      NAV MESH
 // ===================================================================
 
-#define MAX_NAV (100)
+#define MAX_NAV (256)
 
 enum {
     NAV_CONNECTED = 0x01, // Connected in the nav mesh
@@ -517,7 +517,237 @@ void DrawNavPoints()
         NavPoint *np = navPoints + i;
         DrawCube( np->pos, 1.0, 1.0, 1.0, PURPLE );
     }
+    
+    for (int i=0; i < numNavPoints; i++) {
+        for (int j=0; j < numNavPoints; j++) {
+            if (navAdj[i][j] & NAV_CONNECTED) {
+                DrawLine3D( navPoints[i].pos, navPoints[j].pos, VIOLET );
+            }
+        }
+    }
 }
+
+// This is old code from LudumDare 5 ! whoa..
+
+struct Edge {
+    float x1, y1, x2, y2;
+    int count;
+};
+
+#define MAX_EDGE (1000)
+Edge edgeList[MAX_EDGE];
+int numEdges = 0;
+
+// used for road making
+struct Triangle {
+    float ax, ay, bx, by, cx, cy;
+};
+
+void circumcenter( Triangle &tri, float &ccx, float &ccy, float &rad ) {
+    
+    float d;
+    float ax = tri.ax, ay = tri.ay;
+    float bx = tri.bx, by = tri.by;
+    float cx = tri.cx, cy = tri.cy;
+    float ax2 = ax*ax, ay2 = ay*ay;
+    float bx2 = bx*bx, by2 = by*by;
+    float cx2 = cx*cx, cy2 = cy*cy;
+    
+    d = 2.0 * ( ay*cx + by*ax - by*cx - ay*bx - cy*ax + cy*bx );
+    if (fabs(d) < 0.000001) {
+        ccx = ax; ccy = ay;
+        rad = 0.0;
+    } else {
+        ccx = ( by*ax2 - cy*ax2 - by2*ay + cy2*ay +
+               bx2*cy + ay2*by + cx2*ay - cy2*by -
+               cx2*by - bx2*ay + by2*cy - ay2*cy ) / d;
+        
+        
+        ccy = ( ax2*cx + ay2*cx + bx2*ax - bx2*cx +
+               by2*ax - by2*cx - ax2*bx - ay2*bx -
+               cx2*ax + cx2*bx - cy2*ax + cy2*bx) / d;
+        
+        rad = sqrt( (ccx-ax)*(ccx-ax) + (ccy-ay)*(ccy-ay) );
+    }
+    
+}
+
+void AddEdge( float x1, float y1, float x2, float y2 )
+{
+    // is edge already there
+    for (int i=0; i < numEdges; i++) {
+        
+        int match = 0;
+        if ( (fabs( edgeList[i].x1 - x1 ) < 0.1) &&
+            (fabs( edgeList[i].y1 - y1 ) < 0.1) &&
+            (fabs( edgeList[i].x2 - x2 ) < 0.1) &&
+            (fabs( edgeList[i].y2 - y2 ) < 0.1) ) {
+            
+            match = 1;
+        } else if (
+                   (fabs( edgeList[i].x1 - x2 ) < 0.1) &&
+                   (fabs( edgeList[i].y1 - y2 ) < 0.1) &&
+                   (fabs( edgeList[i].x2 - x1 ) < 0.1) &&
+                   (fabs( edgeList[i].y2 - y1 ) < 0.1) ) {
+            match = 1;
+        }
+        
+        if (match) {
+            //printf("Edge matches...count %d\n", edge[i].count );
+            edgeList[i].count++;
+            return;
+        }
+    }
+    
+    // didn't find it, add
+    Edge e;
+    e.count = 1;
+    e.x1 = x1; e.y1 = y1;
+    e.x2 = x2; e.y2 = y2;
+    edgeList[numEdges++] = e;
+}
+
+bool EdgeMatch( int ax1, int ay1, int ax2, int ay2,
+                int bx1, int by1, int bx2, int by2 ) {
+    if (  ( ((ax1==bx1) && (ay1==by1) &&
+             (ax2==bx2) && (ay2==by2)) )  ||
+        
+        ( ((ax1==bx2) && (ay1==by2) &&
+           (ax2==bx1) && (ay2==by1)) ) ) {
+        
+        return true;
+    }
+    return false;
+}
+
+#define MAX_TRI (1000)
+void MakeEdgesDelauney( )
+{
+    for (int i=0; i < numNavPoints; i++) {
+        for (int j=0; j < numNavPoints; j++) {
+            navAdj[i][j] = 0;
+        }
+    }
+    
+    // DBG: fill in edges at random
+#if 0
+    for (i=0; i <10; i++) {
+        int l1,l2;
+        l1 = random( nloc );
+        l2 = random( nloc );
+        adj[l1][l2].pass = 1;
+        adj[l2][l1].pass = 1;
+    }
+#endif
+    
+    Triangle *tris  = (Triangle*)malloc( sizeof(Triangle) * MAX_TRI );
+    int numTris = 0;
+    
+    Triangle *tris2 = (Triangle*)malloc( sizeof(Triangle) * MAX_TRI );
+    int numTris2 = 0;
+    
+    tris[0].ax = -200; tris[0].ay = -200;
+    tris[0].bx = 200; tris[0].by = -200;
+    tris[0].cx = 200; tris[0].cy = 200;
+    
+    tris[1].ax = -200;   tris[1].ay = -200;
+    tris[1].bx = -200;   tris[1].by = 200;
+    tris[1].cx = 200; tris[1].cy = 200;
+    
+    numTris = 2;
+    
+    // edgelist
+    numEdges = 0;
+    
+    for (int ndx=0; ndx < numNavPoints; ndx++) {
+        
+        // init lists
+        numTris2 = 0;
+        numEdges = 0;
+        
+        
+        // find all triangle whose circumcenter contains loc ndx
+        for (int i=0; i < numTris; i++) {
+            float cx, cy, rad;
+            
+            circumcenter( tris[i], cx, cy, rad );
+            float d = sqrt( (navPoints[ndx].pos.x - cx) * (navPoints[ndx].pos.x - cx) +
+                            (navPoints[ndx].pos.z - cy) * (navPoints[ndx].pos.z - cy) );
+            if (d <= rad) {
+                // in triangle circumcenter, add to edgelist
+                AddEdge( tris[i].ax, tris[i].ay, tris[i].bx, tris[i].by );
+                AddEdge( tris[i].bx, tris[i].by, tris[i].cx, tris[i].cy );
+                AddEdge( tris[i].cx, tris[i].cy, tris[i].ax, tris[i].ay );
+                
+            } else {
+                // just keep the tri
+                tris2[ numTris2++ ] = tris[i];
+                //printf("Keeping tri %i\n", i );
+            }
+        }
+        
+        // add a triangle for every edge appearing once in the list
+        for (int i=0; i < numEdges; i++) {
+            if ( edgeList[i].count == 1 ) {
+                Triangle t;
+                t.ax = navPoints[ndx].pos.x;
+                t.ay = navPoints[ndx].pos.z;
+                t.bx = edgeList[i].x1; t.by = edgeList[i].y1;
+                t.cx = edgeList[i].x2; t.cy = edgeList[i].y2;
+                tris2[ numTris2++ ] = t;
+                
+                //printf("constructing tri\n" );
+            }
+        }
+        
+        // update the list
+        memcpy( tris, tris2, sizeof(Triangle) * numTris2 );
+        numTris = numTris2;
+    }
+    
+    
+    // convert the tris to adjacency
+    printf("built tris done, numTris is %d\n", numTris );
+    for (int i=0; i < numTris; i++) {
+        int andx, bndx, cndx;
+        
+        andx = -1; bndx = -1; cndx = -1;
+        for (int j=0; j < numNavPoints; j++) {
+            if ( (fabs(tris[i].ax - navPoints[j].pos.x) < 0.01) &&
+               ( (fabs(tris[i].ay - navPoints[j].pos.z) < 0.01))) andx = j;
+
+            if ( (fabs(tris[i].bx - navPoints[j].pos.x) < 0.01) &&
+                ( (fabs(tris[i].by - navPoints[j].pos.z) < 0.01))) bndx = j;
+
+            if ( (fabs(tris[i].cx - navPoints[j].pos.x) < 0.01) &&
+                ( (fabs(tris[i].cy - navPoints[j].pos.z) < 0.01))) cndx = j;
+        }
+        
+        if ( (andx >= 0) && (bndx >=0 )) {
+            printf("navpoints AB %d and %d connected\n", andx, bndx );
+            navAdj[andx][bndx] |= NAV_CONNECTED;
+            navAdj[bndx][andx] |= NAV_CONNECTED;
+        }
+        
+        if ( (bndx > 0) && (cndx >=0 )) {
+            printf("navpoints BC %d and %d connected\n", bndx, cndx );
+            navAdj[bndx][cndx] |= NAV_CONNECTED;
+            navAdj[cndx][bndx] |= NAV_CONNECTED;
+        }
+        
+        if ( (cndx > 0) && (andx >=0 )) {
+            printf("navpoints CA %d and %d connected\n", cndx, andx );
+            navAdj[cndx][andx] |= NAV_CONNECTED;
+            navAdj[andx][cndx] |= NAV_CONNECTED;
+        }
+    }
+    
+    free( tris );
+    free( tris2 );
+    
+}
+
+
 
 // ===================================================================
 //       EDITOR
@@ -712,7 +942,6 @@ int main()
         if (IsKeyPressed('R')) {
             retinaHack = !retinaHack;
         }
-
         
         if (IsKeyPressed( '`' )) {
             editorMode = !editorMode;
@@ -762,12 +991,33 @@ int main()
                 showNavMesh = !showNavMesh;
             }
             
+            if (IsKeyPressed('T')) {
+                MakeEdgesDelauney();
+            }
+            
             if (IsKeyPressed('C')) {
                 // Toggle Camera
                 if (camera.position.y > 25.0) {
                     camera.position = (Vector3){ 0.0f, 21.0f, -21.0f };
                 } else {
                     camera.position = (Vector3){ 0.0f, 50.0f, -21.0f };
+                }
+            }
+            
+            float sz = 2.0;
+            if (IsKeyPressed('J')) {
+                for (int i=0; i < 10; i++) {
+                    float offs = 0;
+                    int rowNum = 10;
+                    if (i%2) {
+                        offs = (sz/2.0);
+                        rowNum--;
+                    }
+                    for (int j=0; j < rowNum; j++) {
+                        Vector3 pp = Vector3Make( ((float)i * sz) - (5.0 * sz) + (sz/2.0),
+                                                 0.0, ((float)j *sz )- (5.0*sz) + offs + (sz/2.0) );
+                        AddNavPoint( pp );
+                    }
                 }
             }
             
@@ -1091,6 +1341,7 @@ int main()
                         }
                         
                         if (IsKeyPressed('N')) {
+                            groundPos.y = 0.5;
                             AddNavPoint( groundPos );
                         }
 
