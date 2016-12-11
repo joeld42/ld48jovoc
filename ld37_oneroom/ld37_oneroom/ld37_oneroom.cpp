@@ -52,12 +52,24 @@ inline Color ColorLerp( Color a, Color b, float t) {
 struct SceneObject {
     const char *name;
     Model model;
+    
+    // Construction Params
+    int lifetimeMin;
+    int lifetimeMax;
+    float growthRate;
+    SceneObject *decayInto;
+};
+
+// Mostly for editor
+struct ObjectSettings {
+    
 };
 
 struct SceneInstance {
     SceneObject *object;
     uint32_t objId;
     Vector3 pos;
+    Vector3 scale;
     float rotation;
     BoundingBox bbox;
     bool drawWires;
@@ -71,6 +83,7 @@ SceneInstance *SceneInstanceCreate()
     SceneInstance *inst = (SceneInstance*)malloc(sizeof(SceneInstance));
     memset( inst, 0, sizeof(SceneInstance));
     inst->objId = rand();
+    inst->scale = Vector3Make( 1.0, 1.0, 1.0 );
     
     return inst;
 }
@@ -86,6 +99,7 @@ SceneInstance *SceneInstanceClone( SceneInstance *orig )
 }
 
 struct Scene {
+    char *name;
     SceneInstance *firstInst;
 };
 
@@ -99,7 +113,7 @@ Scene *scene = NULL;
 SceneObject objects[MAX_OBJECTS];
 int numObjects = 0;
 
-void LoadSceneObject( const char *name )
+SceneObject *LoadSceneObject( const char *name )
 {
     assert( numObjects < MAX_OBJECTS );
     char buff[1024];
@@ -113,6 +127,177 @@ void LoadSceneObject( const char *name )
     sprintf(buff, "gamedata/%s.png", name );
     Texture2D texture = LoadTexture(buff);
     obj->model.material.texDiffuse = texture;
+    
+    return obj;
+}
+
+void SceneStampObject( Scene *targScene, Vector3 pos, SceneObject *obj )
+{
+    SceneInstance *inst = SceneInstanceCreate();
+    
+    // Add to the current scene
+    inst->nextInst = targScene->firstInst;
+    targScene->firstInst = inst;
+
+    inst->object = obj;
+    inst->pos = pos;
+    
+    inst->rotation = RandUniformRange( 0.0, 360 );
+    
+    // Add "future" copies
+    int lifetime = GetRandomValue(obj->lifetimeMin, obj->lifetimeMax );
+    
+    Scene *currScene = targScene;
+    SceneInstance *lastInst = inst;
+    while (lifetime > 0) {
+        currScene = currScene+1;
+        
+        // Reached the end of time?
+        if (currScene >= sceneYear + NUM_YEARS) {
+            break;
+        }
+        
+        SceneInstance *childInst = SceneInstanceClone( lastInst );
+
+        // TODO: grow
+        childInst->scale = VectorAdd( childInst->scale, Vector3Make( obj->growthRate, obj->growthRate, obj->growthRate));
+        
+        childInst->nextInst = currScene->firstInst;
+        currScene->firstInst = childInst;
+        
+        lastInst = childInst;
+        
+        lifetime--;
+    }
+    
+    if (obj->decayInto) {
+        currScene = currScene+1;
+        if (currScene < sceneYear + NUM_YEARS) {
+            SceneStampObject( currScene, pos, obj->decayInto);
+        }
+    }
+}
+
+SceneObject *FindObject( char *objName )
+{
+    for (int i=0; i < numObjects; i++) {
+        SceneObject *obj = objects + i;
+        if (!strcmp(obj->name, objName )) {
+            return obj;
+        }
+    }
+    return NULL;
+}
+
+void SaveWorld( const char *filename )
+{
+    FILE *fp = fopen( filename, "wt");
+    
+    for (int year=0; year < NUM_YEARS; year++) {
+        fprintf( fp, "#-------------------------------\n");
+        fprintf( fp, "year: %d\n", year );
+        fprintf( fp, "name: todo\n");
+        
+        Scene *currScene = sceneYear + year;
+        
+        SceneInstance *inst = currScene->firstInst;
+        while (inst) {
+            fprintf( fp, "\n" );
+            fprintf( fp, "obj: %s\n", inst->object->name );
+            fprintf( fp, "pos: %f %f %f\n", inst->pos.x, inst->pos.y, inst->pos.z );
+            fprintf( fp, "scl: %f %f %f\n", inst->scale.x, inst->scale.y, inst->scale.z );
+            fprintf( fp, "rot: %f\n", inst->rotation );
+            
+            fprintf( fp, "wire: %s\n", inst->drawWires?"YES":"NO");
+            fprintf( fp, "wireColor: 0x%08X\n", GetHexValue(inst->wireColor) );
+//            bool drawWires;
+//            Color wireColor;
+
+            inst = inst->nextInst;
+        }
+    }
+    
+    fclose(fp);
+}
+
+void LoadWorld( const char *filename )
+{
+    FILE *fp = fopen(filename, "rt");
+    char line[1024];
+    
+    Scene *currScene = sceneYear;
+    SceneInstance *inst = NULL;
+    
+    while (fgets(line, 1024, fp)) {
+        
+        // Comments
+        char *ch = strchr( line, '#');
+        if (ch) *ch = 0;
+        
+        char tok[256];
+        sscanf( line, "%s", tok );
+        if (strlen(tok)==0) {
+            continue;
+        }
+        
+        char *data = strchr(line, ':' );
+        if (data) {
+            data ++;
+        } else {
+            continue;
+        }
+        
+        if (!strcmp(tok, "year:")) {
+            int yearNum;
+            sscanf( data, "%d", &yearNum );
+            currScene = sceneYear + yearNum;
+        } else if (!strcmp(tok, "name:")) {
+            char *yearName = strchr( line, ':');
+            if (yearName) {
+                if (yearName[strlen(yearName)-1]=='\0') {
+                    yearName[strlen(yearName)-1]=0;
+                }
+                currScene->name = strdup(yearName+1);
+            }
+        
+        } else if (!strcmp(tok, "obj:")) {
+            char objName[256];
+            sscanf( data, "%s", objName );
+            SceneObject *obj = FindObject( objName );
+            if (!obj) {
+                printf("WARN: Could Not find Object: %s\n" , objName);
+                inst = NULL;
+            } else {
+                inst = SceneInstanceCreate();
+                inst->object = obj;
+                
+                inst->nextInst = currScene->firstInst;
+                currScene->firstInst = inst;
+
+            }
+        } else if (!strcmp(tok, "pos:")) {
+            float x, y, z;
+            sscanf( data, "%f %f %f", &x, &y, &z );
+            if (inst) {
+                inst->pos = Vector3Make( x, y, z );
+            }
+        } else if (!strcmp(tok, "scl:")) {
+            float x, y, z;
+            sscanf( data, "%f %f %f", &x, &y, &z );
+            if (inst) {
+                inst->scale = Vector3Make( x, y, z );
+            }
+        } else if (!strcmp(tok, "rot:")) {
+            float rot;
+            sscanf( data, "%f", &rot );
+            if (inst) {
+                inst->rotation = rot;
+            }
+        } else {
+            printf("Ignoring Token: %s\n", tok );
+        }
+        
+    }
 }
 
 // ===================================================================
@@ -190,15 +375,19 @@ int main()
     lgtSun->target = Vector3{ 0.0f, 0.0f, 0.0f };
     lgtSun->intensity = 1.0f;
 
-//    SceneObject treeObj = {0};
-//    treeObj.name = "Tree";
-//    treeObj.model = LoadModel( "gamedata/blerghTree.obj" );
-//    treeObj.model.material = LoadStandardMaterial();
-//    Texture2D texture = LoadTexture("gamedata/blerghTree.png");
-//    treeObj.model.material.texDiffuse = texture;
-
-    LoadSceneObject( "blerghTree" );
-    LoadSceneObject( "stump" );
+    SceneObject *objTree = LoadSceneObject( "blerghTree" );
+    objTree->growthRate = 0.05;
+    objTree->lifetimeMin = 10;
+    objTree->lifetimeMax = 20;
+    
+    SceneObject *objStump = LoadSceneObject( "stump" );
+    objStump->lifetimeMin = 3;
+    objStump->lifetimeMax = 5;
+    objTree->decayInto = objStump;
+    
+    
+    // Load the world
+    LoadWorld( "gamedata/world.txt");
     
     edCurrentObject = objects;
     
@@ -318,6 +507,11 @@ int main()
                     edCurrentObject = objects + (numObjects-1);
                 }
             }
+            
+            if (IsKeyPressed('S')) {
+                SaveWorld( "gamedata/editorworld.txt");
+            }
+            
         } else {
             // ===================================
             // Update player movement
@@ -387,12 +581,12 @@ int main()
                 while (inst) {
 
                     DrawModelEx(inst->object->model, inst->pos,
-                                playerUp, inst->rotation, ScaleOne,
+                                playerUp, inst->rotation, inst->scale,
                                 WHITE );
                     if (inst->drawWires) {
                         //DrawModelWires(inst->object->model, inst->pos, 1.0, BLACK );
                         DrawModelWiresEx(inst->object->model, inst->pos,
-                                    playerUp, inst->rotation, ScaleOne,
+                                    playerUp, inst->rotation, inst->scale,
                                     BLACK );
                     }
                     
@@ -423,6 +617,13 @@ int main()
                     Color cursorBlink = ColorLerp( SKYBLUE, WHITE, fabs(sin(animTime * 10.0)) );
                     if (edCurrentObject) {
                         DrawModelWires( edCurrentObject->model, groundPos, 1.0, cursorBlink );
+                        
+                        
+                        if (IsKeyPressed( KEY_SPACE )) {
+                            SceneStampObject( scene, groundPos, edCurrentObject );
+                        }
+
+                        
                     } else {
                         DrawCubeWires( groundPos, 1.0, 0.2, 1.0, cursorBlink );
                     }

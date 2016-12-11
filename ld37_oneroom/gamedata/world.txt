@@ -1,0 +1,5378 @@
+#-------------------------------
+year: 0
+name: todo
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.000000 1.000000 1.000000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.000000 1.000000 1.000000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.000000 1.000000 1.000000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.000000 1.000000 1.000000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.000000 1.000000 1.000000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.000000 1.000000 1.000000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.000000 1.000000 1.000000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.000000 1.000000 1.000000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 1
+name: todo
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.050000 1.050000 1.050000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.050000 1.050000 1.050000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.050000 1.050000 1.050000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.050000 1.050000 1.050000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.050000 1.050000 1.050000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.050000 1.050000 1.050000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.050000 1.050000 1.050000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.050000 1.050000 1.050000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 2
+name: todo
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.100000 1.100000 1.100000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.100000 1.100000 1.100000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.100000 1.100000 1.100000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.100000 1.100000 1.100000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.100000 1.100000 1.100000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.100000 1.100000 1.100000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.100000 1.100000 1.100000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.100000 1.100000 1.100000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 3
+name: todo
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.150000 1.150000 1.150000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.150000 1.150000 1.150000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.150000 1.150000 1.150000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.150000 1.150000 1.150000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.150000 1.150000 1.150000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.150000 1.150000 1.150000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.150000 1.150000 1.150000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.150000 1.150000 1.150000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 4
+name: todo
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.200000 1.200000 1.200000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.200000 1.200000 1.200000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.200000 1.200000 1.200000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.200000 1.200000 1.200000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.200000 1.200000 1.200000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.200000 1.200000 1.200000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.200000 1.200000 1.200000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.200000 1.200000 1.200000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 5
+name: todo
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.000000 1.000000 1.000000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.000000 1.000000 1.000000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.000000 1.000000 1.000000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.000000 1.000000 1.000000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.000000 1.000000 1.000000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.250000 1.250000 1.250000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.250000 1.250000 1.250000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.250000 1.250000 1.250000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.250000 1.250000 1.250000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.250000 1.250000 1.250000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.250000 1.250000 1.250000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.250000 1.250000 1.250000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.250000 1.250000 1.250000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 6
+name: todo
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.050000 1.050000 1.050000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.050000 1.050000 1.050000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.050000 1.050000 1.050000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.050000 1.050000 1.050000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.050000 1.050000 1.050000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.300000 1.300000 1.300000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.300000 1.300000 1.300000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.300000 1.300000 1.300000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.300000 1.300000 1.300000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.300000 1.300000 1.300000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.300000 1.300000 1.300000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.300000 1.300000 1.300000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.300000 1.300000 1.300000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 7
+name: todo
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.100000 1.100000 1.100000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.100000 1.100000 1.100000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.100000 1.100000 1.100000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.100000 1.100000 1.100000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.100000 1.100000 1.100000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.350000 1.350000 1.350000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.350000 1.350000 1.350000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.350000 1.350000 1.350000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.350000 1.350000 1.350000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.350000 1.350000 1.350000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.350000 1.350000 1.350000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.350000 1.350000 1.350000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.350000 1.350000 1.350000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 8
+name: todo
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.150000 1.150000 1.150000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.150000 1.150000 1.150000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.150000 1.150000 1.150000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.150000 1.150000 1.150000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.150000 1.150000 1.150000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.400000 1.400000 1.400000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.400000 1.400000 1.400000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.400000 1.400000 1.400000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.400000 1.400000 1.400000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.400000 1.400000 1.400000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.400000 1.400000 1.400000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.400000 1.400000 1.400000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.400000 1.400000 1.400000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 9
+name: todo
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.000000 1.000000 1.000000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.200000 1.200000 1.200000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.200000 1.200000 1.200000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.200000 1.200000 1.200000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.200000 1.200000 1.200000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.200000 1.200000 1.200000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.450000 1.450000 1.450000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.450000 1.450000 1.450000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.450000 1.450000 1.450000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.450000 1.450000 1.450000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.450000 1.450000 1.450000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.450000 1.450000 1.450000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.450000 1.450000 1.450000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.450000 1.450000 1.450000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 10
+name: todo
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.050000 1.050000 1.050000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.250000 1.250000 1.250000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.250000 1.250000 1.250000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.250000 1.250000 1.250000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.250000 1.250000 1.250000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.250000 1.250000 1.250000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.500000 1.500000 1.500000
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.500000 1.500000 1.500000
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.500000 1.500000 1.500000
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.500000 1.500000 1.500000
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.500000 1.500000 1.500000
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.500000 1.500000 1.500000
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.500000 1.500000 1.500000
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.500000 1.500000 1.500000
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 11
+name: todo
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.100000 1.100000 1.100000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.300000 1.300000 1.300000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.300000 1.300000 1.300000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.300000 1.300000 1.300000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.300000 1.300000 1.300000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.300000 1.300000 1.300000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.549999 1.549999 1.549999
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.549999 1.549999 1.549999
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.549999 1.549999 1.549999
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.549999 1.549999 1.549999
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.549999 1.549999 1.549999
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.549999 1.549999 1.549999
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.549999 1.549999 1.549999
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.549999 1.549999 1.549999
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 12
+name: todo
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.150000 1.150000 1.150000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.350000 1.350000 1.350000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.350000 1.350000 1.350000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.350000 1.350000 1.350000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.350000 1.350000 1.350000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.350000 1.350000 1.350000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.599999 1.599999 1.599999
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.599999 1.599999 1.599999
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.599999 1.599999 1.599999
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.599999 1.599999 1.599999
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.599999 1.599999 1.599999
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.599999 1.599999 1.599999
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.599999 1.599999 1.599999
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 16.098713 0.000000 8.970444
+scl: 1.599999 1.599999 1.599999
+rot: 150.194092
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 13
+name: todo
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.200000 1.200000 1.200000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.400000 1.400000 1.400000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.400000 1.400000 1.400000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.400000 1.400000 1.400000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.400000 1.400000 1.400000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.400000 1.400000 1.400000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.649999 1.649999 1.649999
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.649999 1.649999 1.649999
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.649999 1.649999 1.649999
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.649999 1.649999 1.649999
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.649999 1.649999 1.649999
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.649999 1.649999 1.649999
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.649999 1.649999 1.649999
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 16.098713 0.000000 8.970444
+scl: 1.000000 1.000000 1.000000
+rot: 3.873291
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 14
+name: todo
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.250000 1.250000 1.250000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.450000 1.450000 1.450000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.450000 1.450000 1.450000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.450000 1.450000 1.450000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.450000 1.450000 1.450000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.450000 1.450000 1.450000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.699999 1.699999 1.699999
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.699999 1.699999 1.699999
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.699999 1.699999 1.699999
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.699999 1.699999 1.699999
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.750504 0.000000 10.680906
+scl: 1.699999 1.699999 1.699999
+rot: 146.914627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.699999 1.699999 1.699999
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 15.677419 0.000000 -1.017677
+scl: 1.699999 1.699999 1.699999
+rot: 62.405041
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 16.098713 0.000000 8.970444
+scl: 1.000000 1.000000 1.000000
+rot: 3.873291
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 15
+name: todo
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.300000 1.300000 1.300000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.500000 1.500000 1.500000
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.025646 0.000000 -11.338681
+scl: 1.500000 1.500000 1.500000
+rot: 340.998962
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.500000 1.500000 1.500000
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.500000 1.500000 1.500000
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.587555 0.000000 9.786366
+scl: 1.500000 1.500000 1.500000
+rot: 76.710693
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.749999 1.749999 1.749999
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.749999 1.749999 1.749999
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.749999 1.749999 1.749999
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -14.933433 0.000000 -0.718624
+scl: 1.749999 1.749999 1.749999
+rot: 92.236160
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.750504 0.000000 10.680906
+scl: 1.000000 1.000000 1.000000
+rot: 77.746193
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.749999 1.749999 1.749999
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 15.677419 0.000000 -1.017677
+scl: 1.000000 1.000000 1.000000
+rot: 264.889648
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 16.098713 0.000000 8.970444
+scl: 1.000000 1.000000 1.000000
+rot: 3.873291
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 16
+name: todo
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.350000 1.350000 1.350000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.549999 1.549999 1.549999
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.025646 0.000000 -11.338681
+scl: 1.000000 1.000000 1.000000
+rot: 142.952271
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.549999 1.549999 1.549999
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.549999 1.549999 1.549999
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.587555 0.000000 9.786366
+scl: 1.000000 1.000000 1.000000
+rot: 313.773773
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.799999 1.799999 1.799999
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.799999 1.799999 1.799999
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.799999 1.799999 1.799999
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -14.933433 0.000000 -0.718624
+scl: 1.000000 1.000000 1.000000
+rot: 207.375275
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.750504 0.000000 10.680906
+scl: 1.000000 1.000000 1.000000
+rot: 77.746193
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.799999 1.799999 1.799999
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 15.677419 0.000000 -1.017677
+scl: 1.000000 1.000000 1.000000
+rot: 264.889648
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 16.098713 0.000000 8.970444
+scl: 1.000000 1.000000 1.000000
+rot: 3.873291
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 17
+name: todo
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.000000 1.000000 1.000000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.000000 1.000000 1.000000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.000000 1.000000 1.000000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.400000 1.400000 1.400000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.599999 1.599999 1.599999
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.025646 0.000000 -11.338681
+scl: 1.000000 1.000000 1.000000
+rot: 142.952271
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.599999 1.599999 1.599999
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.507368 0.000000 6.080856
+scl: 1.599999 1.599999 1.599999
+rot: 45.614204
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.587555 0.000000 9.786366
+scl: 1.000000 1.000000 1.000000
+rot: 313.773773
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.849999 1.849999 1.849999
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.258997 0.000002 3.596254
+scl: 1.849999 1.849999 1.849999
+rot: 243.829132
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.849999 1.849999 1.849999
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -14.933433 0.000000 -0.718624
+scl: 1.000000 1.000000 1.000000
+rot: 207.375275
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.750504 0.000000 10.680906
+scl: 1.000000 1.000000 1.000000
+rot: 77.746193
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.849999 1.849999 1.849999
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 15.677419 0.000000 -1.017677
+scl: 1.000000 1.000000 1.000000
+rot: 264.889648
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 16.098713 0.000000 8.970444
+scl: 1.000000 1.000000 1.000000
+rot: 3.873291
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 18
+name: todo
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.050000 1.050000 1.050000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.050000 1.050000 1.050000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.050000 1.050000 1.050000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.450000 1.450000 1.450000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.649999 1.649999 1.649999
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.025646 0.000000 -11.338681
+scl: 1.000000 1.000000 1.000000
+rot: 142.952271
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.649999 1.649999 1.649999
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.507368 0.000000 6.080856
+scl: 1.000000 1.000000 1.000000
+rot: 161.040466
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.587555 0.000000 9.786366
+scl: 1.000000 1.000000 1.000000
+rot: 313.773773
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.899999 1.899999 1.899999
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.258997 0.000002 3.596254
+scl: 1.000000 1.000000 1.000000
+rot: 137.414627
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.168700 0.000000 -9.332137
+scl: 1.899999 1.899999 1.899999
+rot: 90.039436
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -14.933433 0.000000 -0.718624
+scl: 1.000000 1.000000 1.000000
+rot: 207.375275
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.750504 0.000000 10.680906
+scl: 1.000000 1.000000 1.000000
+rot: 77.746193
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.899999 1.899999 1.899999
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 15.677419 0.000000 -1.017677
+scl: 1.000000 1.000000 1.000000
+rot: 264.889648
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 16.098713 0.000000 8.970444
+scl: 1.000000 1.000000 1.000000
+rot: 3.873291
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 19
+name: todo
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.100000 1.100000 1.100000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.100000 1.100000 1.100000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.100000 1.100000 1.100000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.500000 1.500000 1.500000
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.699999 1.699999 1.699999
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.025646 0.000000 -11.338681
+scl: 1.000000 1.000000 1.000000
+rot: 142.952271
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.699999 1.699999 1.699999
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.507368 0.000000 6.080856
+scl: 1.000000 1.000000 1.000000
+rot: 161.040466
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.587555 0.000000 9.786366
+scl: 1.000000 1.000000 1.000000
+rot: 313.773773
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.949999 1.949999 1.949999
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.258997 0.000002 3.596254
+scl: 1.000000 1.000000 1.000000
+rot: 137.414627
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -12.168700 0.000000 -9.332137
+scl: 1.000000 1.000000 1.000000
+rot: 173.189072
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -14.933433 0.000000 -0.718624
+scl: 1.000000 1.000000 1.000000
+rot: 207.375275
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.481668 0.000000 -7.293462
+scl: 1.949999 1.949999 1.949999
+rot: 172.750961
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 20
+name: todo
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.150000 1.150000 1.150000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.150000 1.150000 1.150000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.150000 1.150000 1.150000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.549999 1.549999 1.549999
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.749999 1.749999 1.749999
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.025646 0.000000 -11.338681
+scl: 1.000000 1.000000 1.000000
+rot: 142.952271
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.749999 1.749999 1.749999
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.507368 0.000000 6.080856
+scl: 1.000000 1.000000 1.000000
+rot: 161.040466
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.898243 -0.000002 4.283102
+scl: 1.999999 1.999999 1.999999
+rot: 24.045258
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.258997 0.000002 3.596254
+scl: 1.000000 1.000000 1.000000
+rot: 137.414627
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -12.168700 0.000000 -9.332137
+scl: 1.000000 1.000000 1.000000
+rot: 173.189072
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -14.933433 0.000000 -0.718624
+scl: 1.000000 1.000000 1.000000
+rot: 207.375275
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.481668 0.000000 -7.293462
+scl: 1.000000 1.000000 1.000000
+rot: 125.768242
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 21
+name: todo
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.000000 1.000000 1.000000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.000000 1.000000 1.000000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.000000 1.000000 1.000000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.200000 1.200000 1.200000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.200000 1.200000 1.200000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.200000 1.200000 1.200000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.599999 1.599999 1.599999
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.799999 1.799999 1.799999
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.799999 1.799999 1.799999
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.507368 0.000000 6.080856
+scl: 1.000000 1.000000 1.000000
+rot: 161.040466
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.898243 -0.000002 4.283102
+scl: 1.000000 1.000000 1.000000
+rot: 341.838196
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.258997 0.000002 3.596254
+scl: 1.000000 1.000000 1.000000
+rot: 137.414627
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -12.168700 0.000000 -9.332137
+scl: 1.000000 1.000000 1.000000
+rot: 173.189072
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -14.933433 0.000000 -0.718624
+scl: 1.000000 1.000000 1.000000
+rot: 207.375275
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.481668 0.000000 -7.293462
+scl: 1.000000 1.000000 1.000000
+rot: 125.768242
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 22
+name: todo
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.050000 1.050000 1.050000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.050000 1.050000 1.050000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.050000 1.050000 1.050000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.250000 1.250000 1.250000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.250000 1.250000 1.250000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.250000 1.250000 1.250000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.649999 1.649999 1.649999
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.849999 1.849999 1.849999
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.849999 1.849999 1.849999
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.898243 -0.000002 4.283102
+scl: 1.000000 1.000000 1.000000
+rot: 341.838196
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.258997 0.000002 3.596254
+scl: 1.000000 1.000000 1.000000
+rot: 137.414627
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -12.168700 0.000000 -9.332137
+scl: 1.000000 1.000000 1.000000
+rot: 173.189072
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.481668 0.000000 -7.293462
+scl: 1.000000 1.000000 1.000000
+rot: 125.768242
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 23
+name: todo
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.100000 1.100000 1.100000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.100000 1.100000 1.100000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.100000 1.100000 1.100000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.300000 1.300000 1.300000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.300000 1.300000 1.300000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.300000 1.300000 1.300000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.699999 1.699999 1.699999
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.374623 0.000000 -3.839283
+scl: 1.899999 1.899999 1.899999
+rot: 128.324722
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.547503 0.000000 -1.845106
+scl: 1.899999 1.899999 1.899999
+rot: 75.950516
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.898243 -0.000002 4.283102
+scl: 1.000000 1.000000 1.000000
+rot: 341.838196
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -12.168700 0.000000 -9.332137
+scl: 1.000000 1.000000 1.000000
+rot: 173.189072
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.481668 0.000000 -7.293462
+scl: 1.000000 1.000000 1.000000
+rot: 125.768242
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 24
+name: todo
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.150000 1.150000 1.150000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.150000 1.150000 1.150000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.150000 1.150000 1.150000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.350000 1.350000 1.350000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.350000 1.350000 1.350000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.350000 1.350000 1.350000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 12.000061 0.000002 4.821302
+scl: 1.749999 1.749999 1.749999
+rot: 18.924269
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.374623 0.000000 -3.839283
+scl: 1.000000 1.000000 1.000000
+rot: 158.141602
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.547503 0.000000 -1.845106
+scl: 1.000000 1.000000 1.000000
+rot: 351.118317
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.898243 -0.000002 4.283102
+scl: 1.000000 1.000000 1.000000
+rot: 341.838196
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -12.168700 0.000000 -9.332137
+scl: 1.000000 1.000000 1.000000
+rot: 173.189072
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.481668 0.000000 -7.293462
+scl: 1.000000 1.000000 1.000000
+rot: 125.768242
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 25
+name: todo
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.200000 1.200000 1.200000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.200000 1.200000 1.200000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.200000 1.200000 1.200000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.400000 1.400000 1.400000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.400000 1.400000 1.400000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.400000 1.400000 1.400000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.000061 0.000002 4.821302
+scl: 1.000000 1.000000 1.000000
+rot: 158.157867
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.374623 0.000000 -3.839283
+scl: 1.000000 1.000000 1.000000
+rot: 158.141602
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.547503 0.000000 -1.845106
+scl: 1.000000 1.000000 1.000000
+rot: 351.118317
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.898243 -0.000002 4.283102
+scl: 1.000000 1.000000 1.000000
+rot: 341.838196
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.481668 0.000000 -7.293462
+scl: 1.000000 1.000000 1.000000
+rot: 125.768242
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 26
+name: todo
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.250000 1.250000 1.250000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.250000 1.250000 1.250000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.250000 1.250000 1.250000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.450000 1.450000 1.450000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.450000 1.450000 1.450000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.450000 1.450000 1.450000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.000061 0.000002 4.821302
+scl: 1.000000 1.000000 1.000000
+rot: 158.157867
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.374623 0.000000 -3.839283
+scl: 1.000000 1.000000 1.000000
+rot: 158.141602
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.547503 0.000000 -1.845106
+scl: 1.000000 1.000000 1.000000
+rot: 351.118317
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.898243 -0.000002 4.283102
+scl: 1.000000 1.000000 1.000000
+rot: 341.838196
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 27
+name: todo
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.300000 1.300000 1.300000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.300000 1.300000 1.300000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.300000 1.300000 1.300000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.500000 1.500000 1.500000
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.500000 1.500000 1.500000
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.500000 1.500000 1.500000
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.000061 0.000002 4.821302
+scl: 1.000000 1.000000 1.000000
+rot: 158.157867
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.374623 0.000000 -3.839283
+scl: 1.000000 1.000000 1.000000
+rot: 158.141602
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.547503 0.000000 -1.845106
+scl: 1.000000 1.000000 1.000000
+rot: 351.118317
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 28
+name: todo
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.350000 1.350000 1.350000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.350000 1.350000 1.350000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.350000 1.350000 1.350000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.549999 1.549999 1.549999
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.549999 1.549999 1.549999
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.549999 1.549999 1.549999
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 12.000061 0.000002 4.821302
+scl: 1.000000 1.000000 1.000000
+rot: 158.157867
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.374623 0.000000 -3.839283
+scl: 1.000000 1.000000 1.000000
+rot: 158.141602
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 29
+name: todo
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.000000 1.000000 1.000000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.000000 1.000000 1.000000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.000000 1.000000 1.000000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.400000 1.400000 1.400000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.400000 1.400000 1.400000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.400000 1.400000 1.400000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.599999 1.599999 1.599999
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.599999 1.599999 1.599999
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.599999 1.599999 1.599999
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.374623 0.000000 -3.839283
+scl: 1.000000 1.000000 1.000000
+rot: 158.141602
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 30
+name: todo
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.050000 1.050000 1.050000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.050000 1.050000 1.050000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.050000 1.050000 1.050000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.450000 1.450000 1.450000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.450000 1.450000 1.450000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.450000 1.450000 1.450000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.649999 1.649999 1.649999
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.649999 1.649999 1.649999
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.649999 1.649999 1.649999
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 31
+name: todo
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.100000 1.100000 1.100000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.100000 1.100000 1.100000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.100000 1.100000 1.100000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.500000 1.500000 1.500000
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.500000 1.500000 1.500000
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.500000 1.500000 1.500000
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.699999 1.699999 1.699999
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.699999 1.699999 1.699999
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.699999 1.699999 1.699999
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 32
+name: todo
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.000000 1.000000 1.000000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.150000 1.150000 1.150000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.150000 1.150000 1.150000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.150000 1.150000 1.150000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.549999 1.549999 1.549999
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.549999 1.549999 1.549999
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.549999 1.549999 1.549999
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.749999 1.749999 1.749999
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.488760 0.000000 2.067146
+scl: 1.749999 1.749999 1.749999
+rot: 199.796463
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 10.468605 0.000000 -6.232677
+scl: 1.749999 1.749999 1.749999
+rot: 110.603851
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 33
+name: todo
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.050000 1.050000 1.050000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.200000 1.200000 1.200000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.200000 1.200000 1.200000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.200000 1.200000 1.200000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.599999 1.599999 1.599999
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.599999 1.599999 1.599999
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.599999 1.599999 1.599999
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.799999 1.799999 1.799999
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.488760 0.000000 2.067146
+scl: 1.000000 1.000000 1.000000
+rot: 167.570282
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.468605 0.000000 -6.232677
+scl: 1.000000 1.000000 1.000000
+rot: 353.686584
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 34
+name: todo
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.100000 1.100000 1.100000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.250000 1.250000 1.250000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.250000 1.250000 1.250000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.250000 1.250000 1.250000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.342175 0.000000 -9.391419
+scl: 1.649999 1.649999 1.649999
+rot: 162.843933
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.649999 1.649999 1.649999
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.649999 1.649999 1.649999
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.849999 1.849999 1.849999
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.488760 0.000000 2.067146
+scl: 1.000000 1.000000 1.000000
+rot: 167.570282
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.468605 0.000000 -6.232677
+scl: 1.000000 1.000000 1.000000
+rot: 353.686584
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 35
+name: todo
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.150000 1.150000 1.150000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.300000 1.300000 1.300000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.300000 1.300000 1.300000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.300000 1.300000 1.300000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -13.342175 0.000000 -9.391419
+scl: 1.000000 1.000000 1.000000
+rot: 250.341064
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.699999 1.699999 1.699999
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.699999 1.699999 1.699999
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.899999 1.899999 1.899999
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.488760 0.000000 2.067146
+scl: 1.000000 1.000000 1.000000
+rot: 167.570282
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.468605 0.000000 -6.232677
+scl: 1.000000 1.000000 1.000000
+rot: 353.686584
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 36
+name: todo
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.000000 1.000000 1.000000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.000000 1.000000 1.000000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.000000 1.000000 1.000000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.200000 1.200000 1.200000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.350000 1.350000 1.350000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.350000 1.350000 1.350000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.350000 1.350000 1.350000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -13.342175 0.000000 -9.391419
+scl: 1.000000 1.000000 1.000000
+rot: 250.341064
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.749999 1.749999 1.749999
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.749999 1.749999 1.749999
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.949999 1.949999 1.949999
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.488760 0.000000 2.067146
+scl: 1.000000 1.000000 1.000000
+rot: 167.570282
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.468605 0.000000 -6.232677
+scl: 1.000000 1.000000 1.000000
+rot: 353.686584
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 37
+name: todo
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.050000 1.050000 1.050000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.050000 1.050000 1.050000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.050000 1.050000 1.050000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.250000 1.250000 1.250000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.400000 1.400000 1.400000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.400000 1.400000 1.400000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.400000 1.400000 1.400000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -13.342175 0.000000 -9.391419
+scl: 1.000000 1.000000 1.000000
+rot: 250.341064
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.799999 1.799999 1.799999
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.799999 1.799999 1.799999
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 9.315189 0.000000 10.957640
+scl: 1.999999 1.999999 1.999999
+rot: 209.558823
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.488760 0.000000 2.067146
+scl: 1.000000 1.000000 1.000000
+rot: 167.570282
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.468605 0.000000 -6.232677
+scl: 1.000000 1.000000 1.000000
+rot: 353.686584
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 38
+name: todo
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.100000 1.100000 1.100000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.100000 1.100000 1.100000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.100000 1.100000 1.100000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.300000 1.300000 1.300000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.450000 1.450000 1.450000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.450000 1.450000 1.450000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.450000 1.450000 1.450000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -13.342175 0.000000 -9.391419
+scl: 1.000000 1.000000 1.000000
+rot: 250.341064
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.849999 1.849999 1.849999
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.849999 1.849999 1.849999
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 9.315189 0.000000 10.957640
+scl: 1.000000 1.000000 1.000000
+rot: 86.339966
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 10.468605 0.000000 -6.232677
+scl: 1.000000 1.000000 1.000000
+rot: 353.686584
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 39
+name: todo
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.150000 1.150000 1.150000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.150000 1.150000 1.150000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.150000 1.150000 1.150000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.350000 1.350000 1.350000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.500000 1.500000 1.500000
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.500000 1.500000 1.500000
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.500000 1.500000 1.500000
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -13.342175 0.000000 -9.391419
+scl: 1.000000 1.000000 1.000000
+rot: 250.341064
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.899999 1.899999 1.899999
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.955172 0.000000 5.698500
+scl: 1.899999 1.899999 1.899999
+rot: 15.797456
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 9.315189 0.000000 10.957640
+scl: 1.000000 1.000000 1.000000
+rot: 86.339966
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 40
+name: todo
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.200000 1.200000 1.200000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.200000 1.200000 1.200000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.200000 1.200000 1.200000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.400000 1.400000 1.400000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.811251 0.000000 3.935335
+scl: 1.549999 1.549999 1.549999
+rot: 115.195602
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.549999 1.549999 1.549999
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.549999 1.549999 1.549999
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -13.342175 0.000000 -9.391419
+scl: 1.000000 1.000000 1.000000
+rot: 250.341064
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -15.611337 0.000000 -2.348213
+scl: 1.949999 1.949999 1.949999
+rot: 189.858231
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.955172 0.000000 5.698500
+scl: 1.000000 1.000000 1.000000
+rot: 114.223953
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 9.315189 0.000000 10.957640
+scl: 1.000000 1.000000 1.000000
+rot: 86.339966
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 41
+name: todo
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.000000 1.000000 1.000000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.000000 1.000000 1.000000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.250000 1.250000 1.250000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.250000 1.250000 1.250000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.250000 1.250000 1.250000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.450000 1.450000 1.450000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.811251 0.000000 3.935335
+scl: 1.000000 1.000000 1.000000
+rot: 176.585785
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.599999 1.599999 1.599999
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.599999 1.599999 1.599999
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -15.611337 0.000000 -2.348213
+scl: 1.000000 1.000000 1.000000
+rot: 264.610962
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.955172 0.000000 5.698500
+scl: 1.000000 1.000000 1.000000
+rot: 114.223953
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 9.315189 0.000000 10.957640
+scl: 1.000000 1.000000 1.000000
+rot: 86.339966
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 42
+name: todo
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.050000 1.050000 1.050000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.050000 1.050000 1.050000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.300000 1.300000 1.300000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.300000 1.300000 1.300000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.300000 1.300000 1.300000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.500000 1.500000 1.500000
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.811251 0.000000 3.935335
+scl: 1.000000 1.000000 1.000000
+rot: 176.585785
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.649999 1.649999 1.649999
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.649999 1.649999 1.649999
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -15.611337 0.000000 -2.348213
+scl: 1.000000 1.000000 1.000000
+rot: 264.610962
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.955172 0.000000 5.698500
+scl: 1.000000 1.000000 1.000000
+rot: 114.223953
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 9.315189 0.000000 10.957640
+scl: 1.000000 1.000000 1.000000
+rot: 86.339966
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 43
+name: todo
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.100000 1.100000 1.100000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.100000 1.100000 1.100000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.350000 1.350000 1.350000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.350000 1.350000 1.350000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.350000 1.350000 1.350000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.549999 1.549999 1.549999
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.811251 0.000000 3.935335
+scl: 1.000000 1.000000 1.000000
+rot: 176.585785
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.699999 1.699999 1.699999
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.699999 1.699999 1.699999
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -15.611337 0.000000 -2.348213
+scl: 1.000000 1.000000 1.000000
+rot: 264.610962
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.955172 0.000000 5.698500
+scl: 1.000000 1.000000 1.000000
+rot: 114.223953
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 9.315189 0.000000 10.957640
+scl: 1.000000 1.000000 1.000000
+rot: 86.339966
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 44
+name: todo
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.150000 1.150000 1.150000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.150000 1.150000 1.150000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.400000 1.400000 1.400000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.400000 1.400000 1.400000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.400000 1.400000 1.400000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -13.833302 0.000000 -0.351500
+scl: 1.599999 1.599999 1.599999
+rot: 208.923889
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.811251 0.000000 3.935335
+scl: 1.000000 1.000000 1.000000
+rot: 176.585785
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.749999 1.749999 1.749999
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.707406 0.000000 -11.571522
+scl: 1.749999 1.749999 1.749999
+rot: 146.272110
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -15.611337 0.000000 -2.348213
+scl: 1.000000 1.000000 1.000000
+rot: 264.610962
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.955172 0.000000 5.698500
+scl: 1.000000 1.000000 1.000000
+rot: 114.223953
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 45
+name: todo
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.200000 1.200000 1.200000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.200000 1.200000 1.200000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.450000 1.450000 1.450000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.450000 1.450000 1.450000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.450000 1.450000 1.450000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -13.833302 0.000000 -0.351500
+scl: 1.000000 1.000000 1.000000
+rot: 203.878769
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.811251 0.000000 3.935335
+scl: 1.000000 1.000000 1.000000
+rot: 176.585785
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.799999 1.799999 1.799999
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 11.707406 0.000000 -11.571522
+scl: 1.000000 1.000000 1.000000
+rot: 25.930136
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 46
+name: todo
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.250000 1.250000 1.250000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.250000 1.250000 1.250000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.500000 1.500000 1.500000
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.500000 1.500000 1.500000
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.500000 1.500000 1.500000
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -13.833302 0.000000 -0.351500
+scl: 1.000000 1.000000 1.000000
+rot: 203.878769
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.811251 0.000000 3.935335
+scl: 1.000000 1.000000 1.000000
+rot: 176.585785
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 18.182514 0.000000 9.743071
+scl: 1.849999 1.849999 1.849999
+rot: 256.502319
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 11.707406 0.000000 -11.571522
+scl: 1.000000 1.000000 1.000000
+rot: 25.930136
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 47
+name: todo
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.300000 1.300000 1.300000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.300000 1.300000 1.300000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.549999 1.549999 1.549999
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.549999 1.549999 1.549999
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.549999 1.549999 1.549999
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -13.833302 0.000000 -0.351500
+scl: 1.000000 1.000000 1.000000
+rot: 203.878769
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.182514 0.000000 9.743071
+scl: 1.000000 1.000000 1.000000
+rot: 262.271942
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 11.707406 0.000000 -11.571522
+scl: 1.000000 1.000000 1.000000
+rot: 25.930136
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 48
+name: todo
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.000000 1.000000 1.000000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.000000 1.000000 1.000000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.000000 1.000000 1.000000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.350000 1.350000 1.350000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.350000 1.350000 1.350000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.599999 1.599999 1.599999
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -10.087443 0.000000 -12.169558
+scl: 1.599999 1.599999 1.599999
+rot: 298.861755
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.599999 1.599999 1.599999
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -13.833302 0.000000 -0.351500
+scl: 1.000000 1.000000 1.000000
+rot: 203.878769
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.182514 0.000000 9.743071
+scl: 1.000000 1.000000 1.000000
+rot: 262.271942
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 11.707406 0.000000 -11.571522
+scl: 1.000000 1.000000 1.000000
+rot: 25.930136
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 49
+name: todo
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.050000 1.050000 1.050000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.050000 1.050000 1.050000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.050000 1.050000 1.050000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.400000 1.400000 1.400000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.400000 1.400000 1.400000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.649999 1.649999 1.649999
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -10.087443 0.000000 -12.169558
+scl: 1.000000 1.000000 1.000000
+rot: 187.328049
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.649999 1.649999 1.649999
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.182514 0.000000 9.743071
+scl: 1.000000 1.000000 1.000000
+rot: 262.271942
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 11.707406 0.000000 -11.571522
+scl: 1.000000 1.000000 1.000000
+rot: 25.930136
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 50
+name: todo
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.100000 1.100000 1.100000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.100000 1.100000 1.100000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.100000 1.100000 1.100000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.450000 1.450000 1.450000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.450000 1.450000 1.450000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.699999 1.699999 1.699999
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -10.087443 0.000000 -12.169558
+scl: 1.000000 1.000000 1.000000
+rot: 187.328049
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.699999 1.699999 1.699999
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 18.182514 0.000000 9.743071
+scl: 1.000000 1.000000 1.000000
+rot: 262.271942
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 51
+name: todo
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.150000 1.150000 1.150000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.150000 1.150000 1.150000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.150000 1.150000 1.150000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.500000 1.500000 1.500000
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.500000 1.500000 1.500000
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.749999 1.749999 1.749999
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -10.087443 0.000000 -12.169558
+scl: 1.000000 1.000000 1.000000
+rot: 187.328049
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.749999 1.749999 1.749999
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 52
+name: todo
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.200000 1.200000 1.200000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.200000 1.200000 1.200000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.200000 1.200000 1.200000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.549999 1.549999 1.549999
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.549999 1.549999 1.549999
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.799999 1.799999 1.799999
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -10.087443 0.000000 -12.169558
+scl: 1.000000 1.000000 1.000000
+rot: 187.328049
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.799999 1.799999 1.799999
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 53
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.000000 1.000000 1.000000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.000000 1.000000 1.000000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.250000 1.250000 1.250000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.250000 1.250000 1.250000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.250000 1.250000 1.250000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.599999 1.599999 1.599999
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.599999 1.599999 1.599999
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 14.313244 0.000000 -5.068570
+scl: 1.849999 1.849999 1.849999
+rot: 144.313278
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.849999 1.849999 1.849999
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 54
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.050000 1.050000 1.050000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.050000 1.050000 1.050000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.300000 1.300000 1.300000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.300000 1.300000 1.300000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.300000 1.300000 1.300000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.976711 0.000000 12.790028
+scl: 1.649999 1.649999 1.649999
+rot: 154.196899
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 13.246318 0.000000 3.307465
+scl: 1.649999 1.649999 1.649999
+rot: 288.178253
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 14.313244 0.000000 -5.068570
+scl: 1.000000 1.000000 1.000000
+rot: 311.125275
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.899999 1.899999 1.899999
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 55
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.100000 1.100000 1.100000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.100000 1.100000 1.100000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.350000 1.350000 1.350000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.350000 1.350000 1.350000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.350000 1.350000 1.350000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.976711 0.000000 12.790028
+scl: 1.000000 1.000000 1.000000
+rot: 323.509460
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.246318 0.000000 3.307465
+scl: 1.000000 1.000000 1.000000
+rot: 126.915390
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 14.313244 0.000000 -5.068570
+scl: 1.000000 1.000000 1.000000
+rot: 311.125275
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.949999 1.949999 1.949999
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 56
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.150000 1.150000 1.150000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.150000 1.150000 1.150000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.400000 1.400000 1.400000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.400000 1.400000 1.400000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.400000 1.400000 1.400000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.976711 0.000000 12.790028
+scl: 1.000000 1.000000 1.000000
+rot: 323.509460
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.246318 0.000000 3.307465
+scl: 1.000000 1.000000 1.000000
+rot: 126.915390
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 14.313244 0.000000 -5.068570
+scl: 1.000000 1.000000 1.000000
+rot: 311.125275
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -11.343513 0.000000 -8.368803
+scl: 1.999999 1.999999 1.999999
+rot: 83.471313
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 57
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.200000 1.200000 1.200000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.200000 1.200000 1.200000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.450000 1.450000 1.450000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.450000 1.450000 1.450000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.450000 1.450000 1.450000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.976711 0.000000 12.790028
+scl: 1.000000 1.000000 1.000000
+rot: 323.509460
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.246318 0.000000 3.307465
+scl: 1.000000 1.000000 1.000000
+rot: 126.915390
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 14.313244 0.000000 -5.068570
+scl: 1.000000 1.000000 1.000000
+rot: 311.125275
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.343513 0.000000 -8.368803
+scl: 1.000000 1.000000 1.000000
+rot: 353.579926
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 58
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.250000 1.250000 1.250000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.250000 1.250000 1.250000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.500000 1.500000 1.500000
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -18.781534 0.000000 5.065285
+scl: 1.500000 1.500000 1.500000
+rot: 281.392273
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.500000 1.500000 1.500000
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.976711 0.000000 12.790028
+scl: 1.000000 1.000000 1.000000
+rot: 323.509460
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.246318 0.000000 3.307465
+scl: 1.000000 1.000000 1.000000
+rot: 126.915390
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 14.313244 0.000000 -5.068570
+scl: 1.000000 1.000000 1.000000
+rot: 311.125275
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.343513 0.000000 -8.368803
+scl: 1.000000 1.000000 1.000000
+rot: 353.579926
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 59
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.300000 1.300000 1.300000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.300000 1.300000 1.300000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.549999 1.549999 1.549999
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -18.781534 0.000000 5.065285
+scl: 1.000000 1.000000 1.000000
+rot: 98.390671
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.549999 1.549999 1.549999
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.246318 0.000000 3.307465
+scl: 1.000000 1.000000 1.000000
+rot: 126.915390
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 14.313244 0.000000 -5.068570
+scl: 1.000000 1.000000 1.000000
+rot: 311.125275
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.343513 0.000000 -8.368803
+scl: 1.000000 1.000000 1.000000
+rot: 353.579926
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 60
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.350000 1.350000 1.350000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.350000 1.350000 1.350000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.599999 1.599999 1.599999
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -18.781534 0.000000 5.065285
+scl: 1.000000 1.000000 1.000000
+rot: 98.390671
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.599999 1.599999 1.599999
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 13.246318 0.000000 3.307465
+scl: 1.000000 1.000000 1.000000
+rot: 126.915390
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.343513 0.000000 -8.368803
+scl: 1.000000 1.000000 1.000000
+rot: 353.579926
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 61
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.400000 1.400000 1.400000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.400000 1.400000 1.400000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.649999 1.649999 1.649999
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -18.781534 0.000000 5.065285
+scl: 1.000000 1.000000 1.000000
+rot: 98.390671
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.649999 1.649999 1.649999
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -11.343513 0.000000 -8.368803
+scl: 1.000000 1.000000 1.000000
+rot: 353.579926
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 62
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.450000 1.450000 1.450000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.450000 1.450000 1.450000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.699999 1.699999 1.699999
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -18.781534 0.000000 5.065285
+scl: 1.000000 1.000000 1.000000
+rot: 98.390671
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.699999 1.699999 1.699999
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 63
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.500000 1.500000 1.500000
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.500000 1.500000 1.500000
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.749999 1.749999 1.749999
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -18.781534 0.000000 5.065285
+scl: 1.000000 1.000000 1.000000
+rot: 98.390671
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.749999 1.749999 1.749999
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 64
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.549999 1.549999 1.549999
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.549999 1.549999 1.549999
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.799999 1.799999 1.799999
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.799999 1.799999 1.799999
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 65
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.599999 1.599999 1.599999
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.599999 1.599999 1.599999
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.849999 1.849999 1.849999
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.849999 1.849999 1.849999
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 66
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.649999 1.649999 1.649999
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.649999 1.649999 1.649999
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -16.347397 0.000000 0.630373
+scl: 1.899999 1.899999 1.899999
+rot: 102.772186
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.899999 1.899999 1.899999
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 67
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.699999 1.699999 1.699999
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.699999 1.699999 1.699999
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -16.347397 0.000000 0.630373
+scl: 1.000000 1.000000 1.000000
+rot: 0.726437
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: -12.182337 0.000000 8.959942
+scl: 1.949999 1.949999 1.949999
+rot: 16.861719
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 68
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.749999 1.749999 1.749999
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.749999 1.749999 1.749999
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -16.347397 0.000000 0.630373
+scl: 1.000000 1.000000 1.000000
+rot: 0.726437
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -12.182337 0.000000 8.959942
+scl: 1.000000 1.000000 1.000000
+rot: 319.267365
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 69
+name: todo
+
+obj: blerghTree
+pos: 11.621404 0.000000 -10.232507
+scl: 1.799999 1.799999 1.799999
+rot: 102.635025
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.799999 1.799999 1.799999
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -16.347397 0.000000 0.630373
+scl: 1.000000 1.000000 1.000000
+rot: 0.726437
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -12.182337 0.000000 8.959942
+scl: 1.000000 1.000000 1.000000
+rot: 319.267365
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 70
+name: todo
+
+obj: stump
+pos: 11.621404 0.000000 -10.232507
+scl: 1.000000 1.000000 1.000000
+rot: 230.382812
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.849999 1.849999 1.849999
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -16.347397 0.000000 0.630373
+scl: 1.000000 1.000000 1.000000
+rot: 0.726437
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -12.182337 0.000000 8.959942
+scl: 1.000000 1.000000 1.000000
+rot: 319.267365
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 71
+name: todo
+
+obj: stump
+pos: 11.621404 0.000000 -10.232507
+scl: 1.000000 1.000000 1.000000
+rot: 230.382812
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+pos: 11.670400 0.000000 -3.339268
+scl: 1.899999 1.899999 1.899999
+rot: 289.754242
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: -12.182337 0.000000 8.959942
+scl: 1.000000 1.000000 1.000000
+rot: 319.267365
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 72
+name: todo
+
+obj: stump
+pos: 11.621404 0.000000 -10.232507
+scl: 1.000000 1.000000 1.000000
+rot: 230.382812
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 11.670400 0.000000 -3.339268
+scl: 1.000000 1.000000 1.000000
+rot: 228.411407
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 73
+name: todo
+
+obj: stump
+pos: 11.621404 0.000000 -10.232507
+scl: 1.000000 1.000000 1.000000
+rot: 230.382812
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 11.670400 0.000000 -3.339268
+scl: 1.000000 1.000000 1.000000
+rot: 228.411407
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 74
+name: todo
+
+obj: stump
+pos: 11.621404 0.000000 -10.232507
+scl: 1.000000 1.000000 1.000000
+rot: 230.382812
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+pos: 11.670400 0.000000 -3.339268
+scl: 1.000000 1.000000 1.000000
+rot: 228.411407
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 75
+name: todo
+
+obj: stump
+pos: 11.670400 0.000000 -3.339268
+scl: 1.000000 1.000000 1.000000
+rot: 228.411407
+wire: NO
+wireColor: 0x00000000
+#-------------------------------
+year: 76
+name: todo
+#-------------------------------
+year: 77
+name: todo
+#-------------------------------
+year: 78
+name: todo
+#-------------------------------
+year: 79
+name: todo
+#-------------------------------
+year: 80
+name: todo
+#-------------------------------
+year: 81
+name: todo
+#-------------------------------
+year: 82
+name: todo
+#-------------------------------
+year: 83
+name: todo
+#-------------------------------
+year: 84
+name: todo
+#-------------------------------
+year: 85
+name: todo
+#-------------------------------
+year: 86
+name: todo
+#-------------------------------
+year: 87
+name: todo
+#-------------------------------
+year: 88
+name: todo
+#-------------------------------
+year: 89
+name: todo
+#-------------------------------
+year: 90
+name: todo
+#-------------------------------
+year: 91
+name: todo
+#-------------------------------
+year: 92
+name: todo
+#-------------------------------
+year: 93
+name: todo
+#-------------------------------
+year: 94
+name: todo
+#-------------------------------
+year: 95
+name: todo
+#-------------------------------
+year: 96
+name: todo
+#-------------------------------
+year: 97
+name: todo
+#-------------------------------
+year: 98
+name: todo
+#-------------------------------
+year: 99
+name: todo
+#-------------------------------
+year: 100
+name: todo
