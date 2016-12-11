@@ -48,21 +48,25 @@ inline Color ColorLerp( Color a, Color b, float t) {
     return result;
 }
 
+
+struct CreepObject;
+
 // ===================================================================
 struct SceneObject {
     const char *name;
     Model model;
     
+    // Special for spawners
+    CreepObject *spawner;
+    
     // Construction Params
     int lifetimeMin;
     int lifetimeMax;
     float growthRate;
+    Vector3 startSize;
     SceneObject *decayInto;
-};
-
-// Mostly for editor
-struct ObjectSettings {
     
+    float spawnTime;
 };
 
 struct SceneInstance {
@@ -74,6 +78,9 @@ struct SceneInstance {
     BoundingBox bbox;
     bool drawWires;
     Color wireColor;
+    
+    // Spawner settings
+    float spawnCooldown;
     
     SceneInstance *nextInst;
 };
@@ -127,9 +134,11 @@ SceneObject *LoadSceneObject( const char *name )
     sprintf(buff, "gamedata/%s.png", name );
     Texture2D texture = LoadTexture(buff);
     obj->model.material.texDiffuse = texture;
+    obj->startSize = Vector3Make(1.0, 1.0, 1.0);
     
     return obj;
 }
+
 
 void SceneStampObject( Scene *targScene, Vector3 pos, SceneObject *obj )
 {
@@ -141,6 +150,7 @@ void SceneStampObject( Scene *targScene, Vector3 pos, SceneObject *obj )
 
     inst->object = obj;
     inst->pos = pos;
+    inst->scale = obj->startSize;
     
     inst->rotation = RandUniformRange( 0.0, 360 );
     
@@ -225,6 +235,11 @@ void LoadWorld( const char *filename )
     FILE *fp = fopen(filename, "rt");
     char line[1024];
     
+    if (!fp) {
+        printf("ERR: Could not load %s\n", filename );
+        return;
+    }
+    
     Scene *currScene = sceneYear;
     SceneInstance *inst = NULL;
     
@@ -301,12 +316,175 @@ void LoadWorld( const char *filename )
 }
 
 // ===================================================================
+//      CREEPS
+// ===================================================================
+
+struct CreepObject {
+    char *name;
+    Model model;
+    
+    float startingHealth;
+    float spawnRateMin;
+    float spawnRateMax;
+    float collideRadius;
+};
+
+struct CreepInst {
+    CreepObject *creepObj;
+    Vector3 position;
+    float hp;
+    float angle;
+};
+
+#define MAX_CREEP_OBJS (50)
+CreepObject creepObjects[MAX_CREEP_OBJS];
+int numCreepObjects = 0;
+
+#define MAX_CREEPS (1000)
+CreepInst creeps[MAX_CREEPS];
+int numCreeps = 0;
+
+SceneObject *MakeSpawner( CreepObject *creepObj )
+{
+    assert( numObjects < MAX_OBJECTS );
+    
+    char buff[1024];
+    sprintf(buff, "SPAWN_%s", creepObj->name );
+
+    SceneObject *obj = objects + numObjects++;
+    obj->name = strdup(buff);
+
+    obj->spawner = creepObj;
+    
+    obj->lifetimeMin = 10;
+    obj->lifetimeMax = 12;
+    
+    return obj;
+}
+
+
+CreepObject *LoadCreep( const char *name)
+{
+    assert( numCreepObjects < MAX_CREEP_OBJS );
+    CreepObject *creepObj = creepObjects + numCreepObjects++;
+    
+    char buff[1024];
+    sprintf(buff, "gamedata/%s.obj", name );
+    creepObj->name = strdup( name );
+    creepObj->model = LoadModel( buff );
+    creepObj->model.material = LoadStandardMaterial();
+    sprintf(buff, "gamedata/%s.png", name );
+    Texture2D texture = LoadTexture(buff);
+    creepObj->model.material.texDiffuse = texture;
+    
+    // Defaults
+    creepObj->startingHealth = 10.0;
+    creepObj->spawnRateMin = 2.0;
+    creepObj->spawnRateMin = 3.0;
+    creepObj->collideRadius = 1.5;
+    
+    return creepObj;
+}
+
+CreepInst *SpawnCreep( CreepObject *creepObj, Vector3 pos )
+{
+    assert( numCreeps < MAX_CREEPS );
+    
+    CreepInst *creep = creeps + numCreeps++;
+    memset( creep, 0, sizeof(CreepInst));
+    
+    creep->creepObj = creepObj;
+    creep->hp = creepObj->startingHealth;
+    creep->position = pos;
+    
+    return creep;
+}
+
+CreepInst *CheckCollideCreeps( Vector3 pos, float radius, CreepInst *self )
+{
+    for (int i=0; i < numCreeps; i++) {
+        CreepInst *creep = creeps + i;
+        
+        if (creep == self) continue;
+        
+        Vector3 v = VectorSubtract( pos, creep->position );
+        float dd = VectorLength( v );
+        
+        if (dd < radius + creep->creepObj->collideRadius ) {
+            return creep;
+        }
+    }
+    return NULL;
+}
+
+void VanishAllCreeps( bool effects ) {
+    // TODO: effects
+    
+    numCreeps = 0;
+}
+
+
+// ===================================================================
+//      WEAPONS
+// ===================================================================
+
+struct Weapon {
+    char *name;
+    float cooldown;
+    float cooldownRate;
+    float muzzleVel;
+};
+
+struct Bullet
+{
+    Vector3 pos;
+    Vector3 vel;
+    // type..
+};
+
+#define MAX_WEAPONS (10)
+Weapon weapons[MAX_WEAPONS];
+int numWeapons = 0;
+
+#define MAX_BULLETS (5000)
+Bullet bullets[MAX_BULLETS];
+int numBullets = 0;
+
+Weapon *MakeWeapon( char *name )
+{
+    assert( numWeapons < MAX_WEAPONS );
+    Weapon *w = weapons + numWeapons++;
+    w->name = strdup( name );
+    w->cooldown = 0.6;
+    w->muzzleVel = 80.0;
+    return w;
+}
+
+Bullet *Shoot( Weapon *weapon, Vector3 pos, Vector3 dir )
+{
+    assert( numBullets < MAX_BULLETS);
+    Bullet *b = bullets + numBullets++;
+    
+    b->pos = pos;
+    b->vel = dir;
+    VectorNormalize( &(b->vel) );
+    VectorScale( &(b->vel), weapon->muzzleVel );
+    
+    weapon->cooldown = weapon->cooldownRate;
+    
+    return b;
+}
+
+// ===================================================================
 //       EDITOR
 // ===================================================================
 SceneInstance *edSelectedInst = NULL;
 SceneObject *edCurrentObject = NULL;
 
+// somebody needs to move the editor code up heres...
 
+// ===================================================================
+//      EL MAIN
 // ===================================================================
 
 int main()
@@ -326,6 +504,8 @@ int main()
     bool retinaHack = false; // TODO: set this automatically with glfwSetFramebufferSizeCallback
     bool doPostProcess = false;
     bool editorMode = false;
+    
+    int frameCounter = 0;
     
  	//SetConfigFlags(FLAG_MSAA_4X_HINT);
     
@@ -375,8 +555,10 @@ int main()
     lgtSun->target = Vector3{ 0.0f, 0.0f, 0.0f };
     lgtSun->intensity = 1.0f;
 
+    // Load Objects
     SceneObject *objTree = LoadSceneObject( "blerghTree" );
     objTree->growthRate = 0.05;
+    objTree->startSize = Vector3Make( 0.6, 0.6, 0.6);
     objTree->lifetimeMin = 10;
     objTree->lifetimeMax = 20;
     
@@ -385,6 +567,9 @@ int main()
     objStump->lifetimeMax = 5;
     objTree->decayInto = objStump;
     
+    // Load Creeps
+    CreepObject *creepTest = LoadCreep( "creep" );
+    MakeSpawner( creepTest );
     
     // Load the world
     LoadWorld( "gamedata/world.txt");
@@ -395,17 +580,23 @@ int main()
     player.material = LoadStandardMaterial();
     player.material.texDiffuse = LoadTexture( "gamedata/puck.png");
     SetTextureFilter( player.material.texDiffuse, FILTER_POINT );
-    Vector3 playerPos = (Vector3){ 0.0, 0.0, -10.0 };
+    Vector3 playerStartPos = (Vector3){ 0.0, 2.0, -10.0 };
+    Vector3 playerPos = playerStartPos;
     
     float playerAngle = 180.0; // angle used for gameplay
     float playerDisplayAngle = 180.0; // angle used for display
     
     float playerSz = 2.0;
     float playerSz2 =  playerSz;
+    float playerHealth = 100.0;
+    float playerInvulerable = 0.0;
+    
     Vector3 playerUp = (Vector3){ 0.0, 1.0, 0.0};
     Vector3 playerScale = (Vector3){ playerSz,  playerSz, playerSz };
     Vector3 playerMoveDir = (Vector3){ 0.0, 0.0, 1.0 };
 
+    Weapon *currWeapon = MakeWeapon("shooty");
+    
 //    Material mtlTerrain = LoadStandardMaterial();
 //    mtlTerrain.colDiffuse = LIGHTGRAY;
 //    mtlTerrain.colAmbient = colorAmbient;
@@ -423,6 +614,10 @@ int main()
     // playArea is shrunk by the player size
     BoundingBox bboxPlayArea = (BoundingBox) { -10.0f + playerSz2, -0.1f, -10.0f + playerSz2,
                                                 10.0f - playerSz2, 1000.0f,  10.0f - playerSz2 };
+
+    BoundingBox bboxWorld = (BoundingBox) { -30.0, -1.0,  -30.0,
+                                            30.0, 1000.0f,  30.0 };
+
     
     // Start at year 0
     currentYear = 0;
@@ -451,9 +646,15 @@ int main()
 //        inst->drawWires = true;
 //    }
     
+    Vector3 lastShootyDir;
+    
 	while (!WindowShouldClose())
 	{
-        animTime += GetFrameTime();
+        float dt = GetFrameTime();
+        animTime += dt;
+        
+        frameCounter += 1;
+        if (frameCounter > 100000) frameCounter = 0;
         
         UpdateCamera( &camera );
          if (IsKeyDown('Z')) camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
@@ -512,6 +713,15 @@ int main()
                 SaveWorld( "gamedata/editorworld.txt");
             }
             
+            if (IsKeyPressed('C')) {
+                // Toggle Camera
+                if (camera.position.y > 25.0) {
+                    camera.position = (Vector3){ 0.0f, 21.0f, -21.0f };
+                } else {
+                    camera.position = (Vector3){ 0.0f, 50.0f, -21.0f };
+                }
+            }
+            
         } else {
             // ===================================
             // Update player movement
@@ -533,10 +743,60 @@ int main()
                 playerMoveDir.x -= 1.0;
             }
             
+            Vector3 shootyDir = { 0.0, 0.0, 0.0 };
+            bool wantShoot = false;
+            if (IsKeyDown( KEY_UP)) {
+                shootyDir.z += 1.0;
+                wantShoot = true;
+            }
+            
+            if (IsKeyDown( KEY_DOWN)) {
+                shootyDir.z -= 1.0;
+                wantShoot = true;
+            }
+
+            if (IsKeyDown( KEY_LEFT)) {
+                shootyDir.x += 1.0;
+                wantShoot = true;
+            }
+
+            if (IsKeyDown( KEY_RIGHT)) {
+                shootyDir.x -= 1.0;
+                wantShoot = true;
+            }
+            
+            if (wantShoot) {
+                // if player is holding opposing shoot directions, keep firing
+                // in last valid direction
+                if (VectorLength(shootyDir) < 0.1) {
+                    shootyDir = lastShootyDir;
+                } else {
+                    lastShootyDir = shootyDir;
+                }
+            }
+            
+            currWeapon->cooldown -= dt;
+            
+            if ((wantShoot) && (currWeapon->cooldown <= 0.0)) {
+                Vector3 shootPos = playerPos;
+                shootPos.y = 2.0;
+                Shoot( currWeapon, shootPos, shootyDir );
+            }
+            
+            // Special Keys
+            if (IsKeyPressed('O')) {
+                // Reset Level
+                VanishAllCreeps( true );
+                playerHealth = 100.0;
+                playerPos = playerStartPos;
+                numBullets = 0;
+                playerInvulerable = 0.0;
+            }
+            
             float moveSpeed = 20.0;
             if (VectorLength( playerMoveDir) > 0.01)
             {
-                VectorScale( &playerMoveDir, GetFrameTime() * moveSpeed );
+                VectorScale( &playerMoveDir, dt * moveSpeed );
                 Vector3 newPlayerPos = VectorAdd( playerPos, playerMoveDir );
                 
                 BoundingBox bboxPlayer;
@@ -554,6 +814,121 @@ int main()
                 
                 playerAngle = targetAngle;
             }
+            
+            // Check hits
+            if (playerInvulerable <= 0.0) {
+                CreepInst *ouchCreep = CheckCollideCreeps( playerPos, 1.5, NULL );
+                if (ouchCreep) {
+                    playerHealth -= RandUniformRange( 5.0, 8.0 );
+                    playerInvulerable = 1.0;
+                    
+                    // Knockback
+                    Vector3 knockBackDir = VectorSubtract( playerPos,ouchCreep->position );
+                    knockBackDir.y = 0.0;
+                    VectorNormalize( &knockBackDir );
+                    VectorScale( &knockBackDir, 2.0 );
+                    printf("Knockback %3.2f %3.2f %3.2f\n",
+                           knockBackDir.x,knockBackDir.y,knockBackDir.z );
+                    
+                    // fixme - cleanup
+                    Vector3 newPlayerPos;
+                    BoundingBox bboxPlayer;
+                    newPlayerPos = VectorAdd( playerPos, knockBackDir );
+                    bboxPlayer.min = Vector3Make( newPlayerPos.x - playerSz, 0.0, newPlayerPos.z - playerSz);
+                    bboxPlayer.max = Vector3Make( newPlayerPos.x + playerSz, 5.0, newPlayerPos.z + playerSz);
+                    if (CheckCollisionBoxes( bboxPlayArea, bboxPlayer)) {
+                        playerPos = newPlayerPos;
+                    }
+                    
+                    if (playerHealth < 0.0 ) {
+                        // TMP -- Game Over
+                        VanishAllCreeps( true );
+                        playerHealth = 100.0;
+                    }
+                }
+            }
+
+            
+            
+            
+            // Update Creep movement
+            for (int cndx = 0; cndx < numCreeps; cndx++) {
+                CreepInst *creep = creeps + cndx;
+                
+                Vector3 creepDir = VectorSubtract( playerPos, creep->position );
+                creep->angle =  atan2f( creepDir.x, -creepDir.z ) * (180.0/M_PI);
+                
+                VectorNormalize( &creepDir );
+                VectorScale( &creepDir, dt * 6.0);
+                
+                Vector3 creepNewPos = VectorAdd( creep->position, creepDir );
+                
+                if (!CheckCollideCreeps( creepNewPos, creep->creepObj->collideRadius, creep )) {
+                    creep->position = creepNewPos;
+                }
+            }
+            
+            // Spawn Creeps
+            SceneInstance *inst = scene->firstInst;
+            while (inst) {
+                
+                // Is this a spawner?
+                if (inst->object->spawner) {
+                    
+                    inst->spawnCooldown -= dt;
+                    
+                    if (inst->spawnCooldown < 0.0) {
+                        
+                        // See if there's room to spawn
+                        if (!CheckCollideCreeps( inst->pos, inst->object->spawner->collideRadius, NULL )) {
+                            
+                            // Reset cooldown
+                            inst->spawnCooldown = RandUniformRange( inst->object->spawner->spawnRateMin,
+                                                                    inst->object->spawner->spawnRateMax );
+                            SpawnCreep( inst->object->spawner, inst->pos );
+                        }
+                    }
+                }
+                
+                inst = inst->nextInst;
+            }
+            
+            // Update Bullets
+            for (int i=0; i < numBullets; i++) {
+                Bullet *b = bullets + i;
+                Vector3 bulletMove = b->vel;
+                VectorScale( &bulletMove, dt );
+                b->pos = VectorAdd( b->pos, bulletMove );
+            }
+            
+            // Expire bullets and check collides
+            
+            for (int i=numBullets-1; i >= 0; i--) {
+                Bullet *b = bullets + i;
+                BoundingBox bulletBbox;
+                bulletBbox.min = VectorAdd( b->pos, (Vector3){ -0.5, -0.5, -0.5 });
+                bulletBbox.max = VectorAdd( b->pos, (Vector3){ 0.5, 0.5, 0.5 });
+                
+                CreepInst *hitCreep = CheckCollideCreeps( b->pos, 0.6, NULL );
+                if (hitCreep) {
+                    printf("Hit Creep\n");
+                    numCreeps--;
+                    if (numCreeps) {
+                        *hitCreep = *(creeps + numCreeps);
+                    }
+                }
+                
+                // Out of bounds?
+                if ((hitCreep) || (!CheckCollisionBoxes( bulletBbox, bboxWorld ))) {
+                    numBullets -= 1;
+                    if (i < numBullets) {
+                        *b = *(bullets + numBullets);
+                        i++; // Re-eval this slot
+                    }
+                }
+            }
+
+            
         }
 		BeginDrawing();
         {
@@ -580,22 +955,54 @@ int main()
                 SceneInstance *inst = scene->firstInst;
                 while (inst) {
 
-                    DrawModelEx(inst->object->model, inst->pos,
-                                playerUp, inst->rotation, inst->scale,
-                                WHITE );
-                    if (inst->drawWires) {
-                        //DrawModelWires(inst->object->model, inst->pos, 1.0, BLACK );
-                        DrawModelWiresEx(inst->object->model, inst->pos,
+                    // Is this a spawner?
+                    if (inst->object->spawner) {
+                        
+                        DrawCylinderWires( inst->pos, 1.5, 1.5, 3.0, 8, BLUE );
+                        
+                    } else {
+                    
+                        DrawModelEx(inst->object->model, inst->pos,
                                     playerUp, inst->rotation, inst->scale,
-                                    BLACK );
+                                    WHITE );
+                        if (inst->drawWires) {
+                            //DrawModelWires(inst->object->model, inst->pos, 1.0, BLACK );
+                            DrawModelWiresEx(inst->object->model, inst->pos,
+                                        playerUp, inst->rotation, inst->scale,
+                                        BLACK );
+                        }
                     }
                     
                     inst = inst->nextInst;
                 }
                 
+                for (int i=0; i < numCreeps; i++) {
+                    CreepInst *creepInst = creeps + i;
+                    DrawModelEx( creepInst->creepObj->model,
+                                creepInst->position,
+                                playerUp, creepInst->angle, ScaleOne, WHITE );
+                }
+                
+                // Draw bullets
+                for (int i=0; i < numBullets; i++) {
+                    Bullet *b = bullets + i;
+                    DrawCube( b->pos, 0.5, 0.5, 0.5, RED );
+                }
+                
                 if (!editorMode) {
+                    
+                    Color tintColor = YELLOW;
+                    
+                    if (playerInvulerable > 0.0) {
+                        playerInvulerable -= dt;
+                        
+                        if (frameCounter % 2) {
+                            tintColor = RED;
+                        }
+                    }
+                    
                     DrawModelEx( player, playerPos, playerUp, playerDisplayAngle,
-                                playerScale, YELLOW );
+                                playerScale, tintColor );
                     
                 } else {
                     // Edit Mode
@@ -616,11 +1023,19 @@ int main()
 
                     Color cursorBlink = ColorLerp( SKYBLUE, WHITE, fabs(sin(animTime * 10.0)) );
                     if (edCurrentObject) {
-                        DrawModelWires( edCurrentObject->model, groundPos, 1.0, cursorBlink );
+                        
+                        if (edCurrentObject->spawner) {
+                            DrawModelWires( edCurrentObject->spawner->model, groundPos, 1.0, cursorBlink );
+                        } else {
+                            DrawModelWires( edCurrentObject->model, groundPos, 1.0, cursorBlink );
+                        }
                         
                         
                         if (IsKeyPressed( KEY_SPACE )) {
                             SceneStampObject( scene, groundPos, edCurrentObject );
+                        }
+                        else if (IsKeyPressed( 'K')) {
+                            SpawnCreep( creepTest, groundPos );
                         }
 
                         
@@ -678,8 +1093,6 @@ int main()
             // ===================================
             // Draw Timeline and HUD
             // ===================================
-
-            
             
             if (editorMode) {
                 DrawText( "Edit Mode", 572, 22, 40, BLACK );
@@ -690,9 +1103,16 @@ int main()
                 sprintf(buff, "BRUSH: %s", edCurrentObject->name );
                 
                 DrawText( buff, screenWidth-244, 4, 10, SKYBLUE );
+            } else {
+                DrawText( "Health:", 10, 12, 20, PINK );
+                DrawRectangle( 80, 10, 204, 24, BLACK );
+                DrawRectangle( 82, 12, 2*playerHealth, 20, PINK );
             }
             
-            int timelineY = 600;
+            int timelineY = 750;
+            
+            DrawRectangle( 130, timelineY - 10, 1020, 42, Fade( WHITE, 0.6) );
+            
             DrawRectangle( 140, timelineY, 1000, 2, SKYBLUE );
             
             int step = 1000 / 100;
@@ -705,7 +1125,10 @@ int main()
 
         }
         
-        DrawFPS(10, 10);
+        char buff[256];
+        sprintf(buff, "Bullets: %d", numBullets );
+        DrawText( buff, 10, 50, 20, WHITE );
+        DrawFPS(10, screenHeight - 30);
         
 		EndDrawing();
 	}
