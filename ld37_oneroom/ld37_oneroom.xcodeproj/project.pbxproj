@@ -25,6 +25,8 @@
 /* Begin PBXFileReference section */
 		6DC65B3F1DFB9E14009D87DE /* ld37_oneroom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ld37_oneroom; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DC65B491DFB9F89009D87DE /* ld37_oneroom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ld37_oneroom.cpp; sourceTree = "<group>"; };
+		6DEE295A1DFBE8CC00CC3ED2 /* bloom.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = bloom.fs; path = gamedata/bloom.fs; sourceTree = SOURCE_ROOT; };
+		6DEE295B1DFBE8CC00CC3ED2 /* base.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = base.vs; path = gamedata/base.vs; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,8 @@
 			isa = PBXGroup;
 			children = (
 				6DC65B491DFB9F89009D87DE /* ld37_oneroom.cpp */,
+				6DEE295A1DFBE8CC00CC3ED2 /* bloom.fs */,
+				6DEE295B1DFBE8CC00CC3ED2 /* base.vs */,
 			);
 			path = ld37_oneroom;
 			sourceTree = "<group>";
@@ -218,25 +222,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEVELOPMENT_TEAM = T4P743PG5Z;
-				HEADER_SEARCH_PATHS = (
-					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:configuration",
-					"=",
-					"Release\nHEADER_SEARCH_PATHS",
-					"=",
-					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:completeSettings",
-					"=",
-					"some\nHEADER_SEARCH_PATHS\n//:configuration",
-					"=",
-					"Debug\nHEADER_SEARCH_PATHS",
-					"=",
-					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:configuration",
-					"=",
-					"Release\nHEADER_SEARCH_PATHS",
-					"=",
-					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:completeSettings",
-					"=",
-					"some\nHEADER_SEARCH_PATHS\n/Users/joeld/Toolkits/raylib/release/osx",
-				);
+				HEADER_SEARCH_PATHS = /Users/joeld/Toolkits/raylib/src;
 				OTHER_LDFLAGS = (
 					"-L/Users/joeld/Toolkits/raylib/release/osx",
 					"-lraylib_d",
@@ -258,25 +244,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEVELOPMENT_TEAM = T4P743PG5Z;
-				HEADER_SEARCH_PATHS = (
-					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:configuration",
-					"=",
-					"Release\nHEADER_SEARCH_PATHS",
-					"=",
-					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:completeSettings",
-					"=",
-					"some\nHEADER_SEARCH_PATHS\n//:configuration",
-					"=",
-					"Debug\nHEADER_SEARCH_PATHS",
-					"=",
-					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:configuration",
-					"=",
-					"Release\nHEADER_SEARCH_PATHS",
-					"=",
-					"/Users/joeld/Toolkits/raylib/release/osx\n\n//:completeSettings",
-					"=",
-					"some\nHEADER_SEARCH_PATHS\n/Users/joeld/Toolkits/raylib/release/osx",
-				);
+				HEADER_SEARCH_PATHS = /Users/joeld/Toolkits/raylib/src;
 				OTHER_LDFLAGS = (
 					"-L/Users/joeld/Toolkits/raylib/release/osx",
 					"-lraylib_d",
@@ -313,6 +281,7 @@
 				6DC65B481DFB9E14009D87DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
