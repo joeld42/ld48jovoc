@@ -476,6 +476,50 @@ Bullet *Shoot( Weapon *weapon, Vector3 pos, Vector3 dir )
 }
 
 // ===================================================================
+//      NAV MESH
+// ===================================================================
+
+#define MAX_NAV (100)
+
+enum {
+    NAV_CONNECTED = 0x01, // Connected in the nav mesh
+    NAV_ACTIVE = 0x02,    // Active in this year
+};
+
+struct NavPoint {
+    Vector3 pos;
+};
+
+int numNavPoints;
+NavPoint navPoints[MAX_NAV];
+uint8_t navAdj[MAX_NAV][MAX_NAV];
+
+void AddNavPoint( Vector3 pos )
+{
+    // don't assert since this is a low ceiling
+    if (numNavPoints == MAX_NAV) return;
+    
+    NavPoint *np = navPoints + numNavPoints;
+    np->pos = pos;
+    
+    for (int i=0; i < numNavPoints; i++) {
+        navAdj[i][numNavPoints] = 0;
+        navAdj[numNavPoints][i] = 0;
+    }
+    
+    navAdj[numNavPoints][numNavPoints] = NAV_CONNECTED;
+    numNavPoints++;
+}
+
+void DrawNavPoints()
+{
+    for (int i=0; i < numNavPoints; i++) {
+        NavPoint *np = navPoints + i;
+        DrawCube( np->pos, 1.0, 1.0, 1.0, PURPLE );
+    }
+}
+
+// ===================================================================
 //       EDITOR
 // ===================================================================
 SceneInstance *edSelectedInst = NULL;
@@ -504,6 +548,7 @@ int main()
     bool retinaHack = false; // TODO: set this automatically with glfwSetFramebufferSizeCallback
     bool doPostProcess = false;
     bool editorMode = false;
+    bool showNavMesh = true;
     
     int frameCounter = 0;
     
@@ -713,6 +758,10 @@ int main()
                 SaveWorld( "gamedata/editorworld.txt");
             }
             
+            if (IsKeyPressed('M')) {
+                showNavMesh = !showNavMesh;
+            }
+            
             if (IsKeyPressed('C')) {
                 // Toggle Camera
                 if (camera.position.y > 25.0) {
@@ -721,6 +770,7 @@ int main()
                     camera.position = (Vector3){ 0.0f, 50.0f, -21.0f };
                 }
             }
+            
             
         } else {
             // ===================================
@@ -827,8 +877,6 @@ int main()
                     knockBackDir.y = 0.0;
                     VectorNormalize( &knockBackDir );
                     VectorScale( &knockBackDir, 2.0 );
-                    printf("Knockback %3.2f %3.2f %3.2f\n",
-                           knockBackDir.x,knockBackDir.y,knockBackDir.z );
                     
                     // fixme - cleanup
                     Vector3 newPlayerPos;
@@ -1009,6 +1057,10 @@ int main()
                     DrawLight( lgtSun );
                     DrawGrid( 10, 2.0f );
                     
+                    if (showNavMesh) {
+                        DrawNavPoints();
+                    }
+                    
                     // draw cursor
                     Vector2 mousePos = GetMousePosition();
                     Ray ray = GetMouseRay( mousePos, camera);
@@ -1037,6 +1089,11 @@ int main()
                         else if (IsKeyPressed( 'K')) {
                             SpawnCreep( creepTest, groundPos );
                         }
+                        
+                        if (IsKeyPressed('N')) {
+                            AddNavPoint( groundPos );
+                        }
+
 
                         
                     } else {
