@@ -30,6 +30,16 @@ inline Vector3 Vector3Make( float x, float y, float z )
     return result;
 }
 
+inline Vector3 VectorMultScalar( Vector3 v, float x )
+{
+    return Vector3Make( v.x * x, v.y*x, v.z*x );
+}
+
+inline Vector3 VectorHadamard( Vector3 a, Vector3 b )
+{
+    return (Vector3){ a.x*b.x, a.y * b.y, a.z*b.z };
+}
+
 inline float RandUniform() {
     return (float)rand() / (float)RAND_MAX;
 }
@@ -65,6 +75,7 @@ struct SceneObject {
     float growthRate;
     Vector3 startSize;
     SceneObject *decayInto;
+    BoundingBox bboxLocal;
     
     float spawnTime;
 };
@@ -120,27 +131,52 @@ Scene *scene = NULL;
 SceneObject objects[MAX_OBJECTS];
 int numObjects = 0;
 
-SceneObject *LoadSceneObject( const char *name )
+SceneObject *MakeSceneObject( const char *name, const Model &model, const Texture2D &texture )
 {
     assert( numObjects < MAX_OBJECTS );
-    char buff[1024];
-    
+
     SceneObject *obj = objects + numObjects++;
     obj->name = strdup(name);
-    
-    sprintf(buff, "gamedata/%s.obj", name );
-    obj->model = LoadModel( buff );
+    obj->model = model;
     obj->model.material = LoadStandardMaterial();
-    sprintf(buff, "gamedata/%s.png", name );
-    Texture2D texture = LoadTexture(buff);
     obj->model.material.texDiffuse = texture;
     obj->startSize = Vector3Make(1.0, 1.0, 1.0);
+    obj->bboxLocal = CalculateBoundingBox( obj->model.mesh);
     
     return obj;
 }
 
+SceneObject *LoadSceneObject( const char *name )
+{
+    char buff[1024];
+    sprintf(buff, "gamedata/%s.obj", name );
+    Model model = LoadModel( buff );
+    
+    sprintf(buff, "gamedata/%s.png", name );
+    Texture2D texture = LoadTexture(buff);
+    
+    return MakeSceneObject( name, model, texture );
+}
 
-void SceneStampObject( Scene *targScene, Vector3 pos, SceneObject *obj )
+SceneObject *LoadSceneObjectReuseTexture( const char *name, const Texture2D &texture )
+{
+    char buff[1024];
+    sprintf(buff, "gamedata/%s.obj", name );
+    Model model = LoadModel( buff );
+    
+    return MakeSceneObject( name, model, texture );
+}
+
+
+void SceneInstUpdateBBox( SceneInstance *inst )
+{
+    
+    inst->bbox.min = VectorAdd( VectorHadamard( inst->object->bboxLocal.min, inst->scale), inst->pos );
+    inst->bbox.max = VectorAdd( VectorHadamard( inst->object->bboxLocal.max, inst->scale), inst->pos );
+    
+}
+
+void SceneStampObject( Scene *targScene, Vector3 pos, float rotation, SceneObject *obj )
 {
     SceneInstance *inst = SceneInstanceCreate();
     
@@ -150,9 +186,12 @@ void SceneStampObject( Scene *targScene, Vector3 pos, SceneObject *obj )
 
     inst->object = obj;
     inst->pos = pos;
+    
     inst->scale = obj->startSize;
     
-    inst->rotation = RandUniformRange( 0.0, 360 );
+    inst->rotation = rotation;
+    
+    SceneInstUpdateBBox( inst );
     
     // Add "future" copies
     int lifetime = GetRandomValue(obj->lifetimeMin, obj->lifetimeMax );
@@ -183,7 +222,7 @@ void SceneStampObject( Scene *targScene, Vector3 pos, SceneObject *obj )
     if (obj->decayInto) {
         currScene = currScene+1;
         if (currScene < sceneYear + NUM_YEARS) {
-            SceneStampObject( currScene, pos, obj->decayInto);
+            SceneStampObject( currScene, pos, rotation, obj->decayInto);
         }
     }
 }
@@ -214,6 +253,7 @@ void SaveWorld( const char *filename )
         while (inst) {
             fprintf( fp, "\n" );
             fprintf( fp, "obj: %s\n", inst->object->name );
+            fprintf( fp, "id: 0x%08X\n", inst->objId );
             fprintf( fp, "pos: %f %f %f\n", inst->pos.x, inst->pos.y, inst->pos.z );
             fprintf( fp, "scl: %f %f %f\n", inst->scale.x, inst->scale.y, inst->scale.z );
             fprintf( fp, "rot: %f\n", inst->rotation );
@@ -290,23 +330,30 @@ void LoadWorld( const char *filename )
                 currScene->firstInst = inst;
 
             }
+        } else if (!strcmp(tok, "id:")) {
+            int objId;
+            sscanf( data, "%X", &objId );
+            inst->objId = objId;
         } else if (!strcmp(tok, "pos:")) {
             float x, y, z;
             sscanf( data, "%f %f %f", &x, &y, &z );
             if (inst) {
                 inst->pos = Vector3Make( x, y, z );
+                SceneInstUpdateBBox( inst );
             }
         } else if (!strcmp(tok, "scl:")) {
             float x, y, z;
             sscanf( data, "%f %f %f", &x, &y, &z );
             if (inst) {
                 inst->scale = Vector3Make( x, y, z );
+                SceneInstUpdateBBox( inst );
             }
         } else if (!strcmp(tok, "rot:")) {
             float rot;
             sscanf( data, "%f", &rot );
             if (inst) {
                 inst->rotation = rot;
+                SceneInstUpdateBBox( inst );
             }
         } else {
             printf("Ignoring Token: %s\n", tok );
@@ -329,11 +376,15 @@ struct CreepObject {
     float collideRadius;
 };
 
+struct NavPoint;
+
 struct CreepInst {
     CreepObject *creepObj;
     Vector3 position;
     float hp;
     float angle;
+    
+    NavPoint *currTarget;
 };
 
 #define MAX_CREEP_OBJS (50)
@@ -748,14 +799,91 @@ void MakeEdgesDelauney( )
 }
 
 
+void SaveNavMesh( const char *filename )
+{
+    FILE *fp = fopen( filename, "wt");
+    
+    for (int i=0; i < numNavPoints; i++) {
+        fprintf( fp, "p %f %f\n", navPoints[i].pos.x, navPoints[i].pos.z );
+    }
+    
+    for (int i=0; i< numNavPoints; i++) {
+        for (int j=0; j < i; j++) {
+            if (navAdj[i][j] & NAV_CONNECTED) {
+                fprintf( fp, "c %d %d\n", i, j );
+            }
+        }
+    }
+    
+    fclose(fp);
+}
+
+void LoadNavMesh( const char *filename )
+{
+    FILE *fp = fopen( filename, "rt" );
+    if (!fp) return;
+    
+    numNavPoints = 0;
+    memset( navAdj, 0, MAX_NAV*MAX_NAV );
+    
+    char line[1024];
+    char tok[100];
+    while (!feof(fp)) {
+        fgets( line, 1024, fp);
+        sscanf( line, "%s", tok );
+        if (tok[0]=='p') {
+            float x, y;
+            sscanf( line, "%*s %f %f", &x, &y );
+            AddNavPoint( Vector3Make( x, 0, y ));
+        } else if (tok[0]=='c') {
+            int i, j;
+            sscanf( line, "%*s %d %d", &i, &j );
+            navAdj[i][j] |= NAV_CONNECTED;
+        }
+    }
+}
+
+
+
 
 // ===================================================================
 //       EDITOR
 // ===================================================================
+
 SceneInstance *edSelectedInst = NULL;
-SceneObject *edCurrentObject = NULL;
+SceneObject *edCurrBrush = NULL;
 
 // somebody needs to move the editor code up heres...
+
+void UpdateSelection()
+{
+    SceneInstance *oldSelectedInst = edSelectedInst;
+    
+    if (!edSelectedInst) {
+        return;
+    }
+    
+    edSelectedInst = NULL;
+    
+    // See if there's a matching object in the current year
+    for (SceneInstance *inst = scene->firstInst; inst; inst = inst->nextInst) {
+        if (inst->objId == oldSelectedInst->objId) {
+            edSelectedInst = inst;
+            break;
+        }
+    }
+    return;
+}
+
+void UpdateNavActives()
+{
+    
+}
+
+void UpdateAfterYearChanged()
+{
+    UpdateSelection();
+}
 
 // ===================================================================
 //      EL MAIN
@@ -779,6 +907,9 @@ int main()
     bool doPostProcess = false;
     bool editorMode = false;
     bool showNavMesh = true;
+    
+    bool randomRotate = false;
+    float currRotation = 0.0;
     
     int frameCounter = 0;
     
@@ -842,14 +973,29 @@ int main()
     objStump->lifetimeMax = 5;
     objTree->decayInto = objStump;
     
+    SceneObject *objWall = LoadSceneObject( "wall" );
+    objWall->lifetimeMin = 10;
+    objWall->lifetimeMax = 10;
+    //objTree->decayInto = objStump;
+    
+    SceneObject *objWall2 = LoadSceneObjectReuseTexture( "wall2", objWall->model.material.texDiffuse );
+    objWall2->lifetimeMin = 10;
+    objWall2->lifetimeMax = 10;
+
+    SceneObject *objBigWall = LoadSceneObjectReuseTexture( "bigwall", objWall->model.material.texDiffuse );
+    objBigWall->lifetimeMin = 10;
+    objBigWall->lifetimeMax = 10;
+
+    
     // Load Creeps
     CreepObject *creepTest = LoadCreep( "creep" );
     MakeSpawner( creepTest );
     
     // Load the world
     LoadWorld( "gamedata/world.txt");
+    LoadNavMesh( "gamedata/navmesh.txt");
     
-    edCurrentObject = objects;
+    edCurrBrush = objects;
     
     Model player = LoadModel( "gamedata/puck.obj");
     player.material = LoadStandardMaterial();
@@ -880,11 +1026,13 @@ int main()
     float angle = (M_PI/180.0)*120.0;
 
     // Build World
+#if 0
     Model model = LoadModel( "gamedata/ground1.obj");
     model.material = LoadStandardMaterial();
     model.material.texDiffuse = LoadTexture( "gamedata/ground1.png");
     model.material.colAmbient = LIGHTGRAY;
     SetTextureFilter( model.material.texDiffuse, FILTER_POINT );
+#endif
     
     // playArea is shrunk by the player size
     BoundingBox bboxPlayArea = (BoundingBox) { -10.0f + playerSz2, -0.1f, -10.0f + playerSz2,
@@ -958,6 +1106,7 @@ int main()
                     currentYear++;
                     scene = sceneYear + currentYear;
                 }
+                UpdateAfterYearChanged();
             }
             
             if (IsKeyDown(',')) {
@@ -965,26 +1114,28 @@ int main()
                     currentYear--;
                     scene = sceneYear + currentYear;
                 }
+                UpdateAfterYearChanged();
             }
             
             if (IsKeyPressed(']')) {
-                edCurrentObject += 1;
-                if ((edCurrentObject - objects)==numObjects) {
-                    edCurrentObject = objects;
+                edCurrBrush += 1;
+                if ((edCurrBrush - objects)==numObjects) {
+                    edCurrBrush = objects;
                 }
             }
             
             if (IsKeyPressed('[')) {
                 
-                if (edCurrentObject > objects) {
-                    edCurrentObject -= 1;
+                if (edCurrBrush > objects) {
+                    edCurrBrush -= 1;
                 } else {
-                    edCurrentObject = objects + (numObjects-1);
+                    edCurrBrush = objects + (numObjects-1);
                 }
             }
             
             if (IsKeyPressed('S')) {
                 SaveWorld( "gamedata/editorworld.txt");
+                SaveNavMesh( "gamedata/editornavmesh.txt");
             }
             
             if (IsKeyPressed('M')) {
@@ -1001,6 +1152,29 @@ int main()
                     camera.position = (Vector3){ 0.0f, 21.0f, -21.0f };
                 } else {
                     camera.position = (Vector3){ 0.0f, 50.0f, -21.0f };
+                }
+            }
+            
+            if (IsKeyPressed('B')) {
+                if (edCurrBrush) {
+                    edCurrBrush = NULL;
+                } else {
+                    edCurrBrush = objects;
+                }
+            }
+            
+            if (IsKeyPressed('1')) {
+                randomRotate = !randomRotate;
+            }
+            
+            if (GetMouseWheelMove() != 0) {
+                currRotation += (GetMouseWheelMove() * 1.0);
+                while (currRotation < 0.0) {
+                    currRotation += 360.0;
+                }
+                
+                while (currRotation > 360.0) {
+                    currRotation -= 360.0;
                 }
             }
             
@@ -1244,7 +1418,9 @@ int main()
 //                DrawCube( cubePosition, 2.0f, 2.0f, 2.0f, RED );
 //                DrawCubeWires( cubePosition, 2.0f, 2.0f, 2.0f, WHITE );
                 
+#if 0
                 DrawModel( model, cubePosition, 1.0, WHITE );
+#endif
 //                DrawModelWires( model, cubePosition, 1.0, WHITE );
 
                 glPolygonOffset( -1.0, 1.0 );
@@ -1322,19 +1498,30 @@ int main()
 
 //                    printf("Ground Pos: %3.2f %3.2f %3.2f tval %3.2f\n",
 //                           groundPos.x, groundPos.y, groundPos.z, t );
+                    
+                    // Snap pos
+                    if (IsKeyDown(KEY_LEFT_SHIFT)) {
+                        groundPos = Vector3Make( floorf(groundPos.x), floorf(groundPos.y), floorf(groundPos.z));
+                    }
 
                     Color cursorBlink = ColorLerp( SKYBLUE, WHITE, fabs(sin(animTime * 10.0)) );
-                    if (edCurrentObject) {
+                    if (edCurrBrush) {
                         
-                        if (edCurrentObject->spawner) {
-                            DrawModelWires( edCurrentObject->spawner->model, groundPos, 1.0, cursorBlink );
+                        if (edCurrBrush->spawner) {
+                            DrawModelWires( edCurrBrush->spawner->model, groundPos, 1.0, cursorBlink );
                         } else {
-                            DrawModelWires( edCurrentObject->model, groundPos, 1.0, cursorBlink );
+                            //DrawModelWires( edCurrBrush->model, groundPos, 1.0, cursorBlink );
+                            DrawModelWiresEx( edCurrBrush->model, groundPos, playerUp,
+                                             currRotation, edCurrBrush->startSize, cursorBlink );
                         }
                         
                         
-                        if (IsKeyPressed( KEY_SPACE )) {
-                            SceneStampObject( scene, groundPos, edCurrentObject );
+                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                            float angle = currRotation;
+                            if (randomRotate) {
+                                angle = RandUniformRange( 0.0, 360.0);
+                            }
+                            SceneStampObject( scene, groundPos, angle, edCurrBrush );
                         }
                         else if (IsKeyPressed( 'K')) {
                             SpawnCreep( creepTest, groundPos );
@@ -1344,11 +1531,43 @@ int main()
                             groundPos.y = 0.5;
                             AddNavPoint( groundPos );
                         }
-
-
                         
                     } else {
+                        
+                        // See if the current brush overlaps any instances
+                        SceneInstance *hoverInst = scene->firstInst;
+//                        BoundingBox cursorBox;
+//                        cursorBox.min = VectorAdd( groundPos, (Vector3){ -0.5, -0.1, -0.5  } );
+//                        cursorBox.max = VectorAdd( groundPos, (Vector3){  0.5,  1.0,  0.5  } );
+                        
+                        SceneInstance *selectInst = NULL;
+                        while (hoverInst)
+                        {
+                            if (CheckCollisionRayBox( ray, hoverInst->bbox )) {
+                                DrawModelWiresEx( hoverInst->object->model, hoverInst->pos, playerUp, hoverInst->rotation,
+                                                 hoverInst->scale, cursorBlink );
+                                
+                                if (!selectInst) {
+                                  selectInst = hoverInst;
+                                }
+                            }
+//                            else {
+//                                DrawBoundingBox( hoverInst->bbox, RED );
+//                            }
+                            hoverInst = hoverInst->nextInst;
+                        }
+                        
+                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                            edSelectedInst = selectInst;
+                        }
+                        
+
+                        
                         DrawCubeWires( groundPos, 1.0, 0.2, 1.0, cursorBlink );
+                        
+                        if (edSelectedInst) {
+                                DrawBoundingBox( edSelectedInst->bbox, WHITE );
+                        }
                     }
                 }
                 
@@ -1408,9 +1627,52 @@ int main()
                 
                 DrawRectangle( screenWidth-250, 0, 250, 200, Fade( BLACK, 0.5f));
                 char buff[256];
-                sprintf(buff, "BRUSH: %s", edCurrentObject->name );
+                if (edCurrBrush) {
+                    sprintf(buff, "BRUSH: %s", edCurrBrush->name );
+                } else {
+                    sprintf( buff, "Select Mode");
+                }
                 
                 DrawText( buff, screenWidth-244, 4, 10, SKYBLUE );
+                
+                if (!edCurrBrush) {
+                    if (edSelectedInst){
+                        // Selected object info
+                        float curry = 15;
+                        float leading = 12;
+                        sprintf( buff, "%s #%04X", edSelectedInst->object->name,
+                                (edSelectedInst->objId & 0xFFFF) );
+                        DrawText( buff, screenWidth-244, curry, 10, SKYBLUE );
+                        curry += leading;
+                        
+                        sprintf( buff, "POS: %3.2f %3.2f %3.2f",
+                                edSelectedInst->pos.x, edSelectedInst->pos.y, edSelectedInst->pos.z );
+                        DrawText( buff, screenWidth-244, curry, 10, SKYBLUE );
+                        curry += leading;
+                        
+                        sprintf( buff, "SCL: %3.2f %3.2f %3.2f",
+                                edSelectedInst->scale.x, edSelectedInst->scale.y, edSelectedInst->scale.z );
+                        DrawText( buff, screenWidth-244, curry, 10, SKYBLUE );
+                        curry += leading;
+                        
+                        sprintf( buff, "ANG: %3.2f",
+                                edSelectedInst->rotation );
+                        DrawText( buff, screenWidth-244, curry, 10, SKYBLUE );
+                        curry += leading;
+                    }
+                } else {
+                    float curry = 15;
+                    float leading = 12;
+                    sprintf( buff, "RND ROT: %s", randomRotate?"ON":"OFF" );
+                    DrawText( buff, screenWidth-244, curry, 10, SKYBLUE );
+                    curry += leading;
+                    
+                    sprintf( buff, "Angle: %f", currRotation );
+                    DrawText( buff, screenWidth-244, curry, 10, SKYBLUE );
+                    curry += leading;
+                    
+                }
+                
             } else {
                 DrawText( "Health:", 10, 12, 20, PINK );
                 DrawRectangle( 80, 10, 204, 24, BLACK );
