@@ -2,6 +2,22 @@
 year: 0
 name: todo
 
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: sph_facet
 id: 0x62D372DD
 pos: -6.032477 0.000000 7.854959
@@ -196,6 +212,22 @@ wireColor: 0x00000000
 #-------------------------------
 year: 1
 name: todo
+
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: sph_facet
 id: 0x62D372DD
@@ -392,6 +424,22 @@ wireColor: 0x00000000
 year: 2
 name: todo
 
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: sph_facet
 id: 0x62D372DD
 pos: -6.032477 0.000000 7.854959
@@ -586,6 +634,22 @@ wireColor: 0x00000000
 #-------------------------------
 year: 3
 name: todo
+
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: sph_facet
 id: 0x62D372DD
@@ -782,6 +846,22 @@ wireColor: 0x00000000
 year: 4
 name: todo
 
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: sph_facet
 id: 0x62D372DD
 pos: -6.032477 0.000000 7.854959
@@ -976,6 +1056,22 @@ wireColor: 0x00000000
 #-------------------------------
 year: 5
 name: todo
+
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: sph_facet
 id: 0x62D372DD
@@ -1172,6 +1268,22 @@ wireColor: 0x00000000
 year: 6
 name: todo
 
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: sph_facet
 id: 0x62D372DD
 pos: -6.032477 0.000000 7.854959
@@ -1366,6 +1478,22 @@ wireColor: 0x00000000
 #-------------------------------
 year: 7
 name: todo
+
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: sph_facet
 id: 0x62D372DD
@@ -1562,6 +1690,22 @@ wireColor: 0x00000000
 year: 8
 name: todo
 
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: sph_facet
 id: 0x62D372DD
 pos: -6.032477 0.000000 7.854959
@@ -1757,6 +1901,22 @@ wireColor: 0x00000000
 year: 9
 name: todo
 
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: sph_facet
 id: 0x62D372DD
 pos: -6.032477 0.000000 7.854959
@@ -1951,6 +2111,22 @@ wireColor: 0x00000000
 #-------------------------------
 year: 10
 name: todo
+
+obj: lite_test
+id: 0x0F0D1802
+pos: -0.055151 0.000000 -3.177265
+scl: 1.800000 1.800000 1.800000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: lite_test
+id: 0x588A750F
+pos: 5.667621 0.000000 -0.315899
+scl: 2.900000 2.900000 2.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: sph_facet
 id: 0x62D372DD

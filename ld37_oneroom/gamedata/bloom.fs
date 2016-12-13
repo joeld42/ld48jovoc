@@ -11,6 +11,7 @@ uniform vec4 colDiffuse;
 // Extra textures for the 16-color effect
 uniform sampler3D pally;
 uniform sampler2D dither;
+uniform float ditherStrength;
 
 // Output fragment color
 out vec4 finalColor;
@@ -32,16 +33,19 @@ void main()
     
     vec4 ditherColor = texture( dither, fragTexCoord*vec2(80,50) );
     
-    float ditherAmt = (ditherColor.r * 0.2) - 0.1;
+    float ditherAmt = (ditherColor.r * ditherStrength) - (ditherStrength/2.0);
     vec3 lookupColor = source.rgb + vec3(ditherAmt, ditherAmt, ditherAmt);
+    lookupColor = max( lookupColor, vec3(0.0, 0.0, 0.0) );
+    lookupColor = min( lookupColor, vec3(0.9, 0.9, 0.9) );
     
-    float brite = source.r + source.g + source.b;
+//    float brite = source.r + source.g + source.b;
     vec4 pallycolor = texture( pally, lookupColor);
-    if (brite <0.01) {
-        pallycolor = vec4(0.0, 0.0, 0.0, 1.0);
-    } else if (brite > 2.9) {
-           pallycolor = vec4(1.0, 1.0, 1.0, 1.0);
-    }
+//    vec4 pallycolor = texture( pally, vec3( fragTexCoord.x, fragTexCoord.y, ditherStrength ));
+//    if (brite <0.01) {
+//        pallycolor = vec4(0.0, 0.0, 0.0, 1.0);
+//    } else if (brite > 2.9) {
+//           pallycolor = vec4(1.0, 1.0, 1.0, 1.0);
+//    }
     //vec4 pallycolor = vec4(lookupColor, 1.0);
     //vec4 pallycolor = vec4(lookupColor, 1.0);
     
@@ -51,8 +55,14 @@ void main()
     
     //pallycolor.rgb = vec3(1.0, 0.0, 1.0);
     //finalColor = vec4( fragTexCoord.x, pallycolor.r, fragTexCoord.y, 1.0 );
-    finalColor = pallycolor;
+//    if (fragTexCoord.x > 0.25) {
+        finalColor = pallycolor;
+//    } else {
+//        finalColor = vec4(lookupColor, 1.0);
+//    }
     //finalColor = ditherColor;
+    
+    //finalColor = texture( pally, )
     
     //finalColor = texture( texture0, fragTexCoord) * colDiffuse;
     

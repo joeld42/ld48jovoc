@@ -153,8 +153,14 @@ SceneObject *MakeSceneObject( const char *name, const Model &model, const Textur
     SceneObject *obj = objects + numObjects++;
     obj->name = strdup(name);
     obj->model = model;
-    obj->model.material = LoadStandardMaterial();
+    if (name !="lite_test") {
+        obj->model.material = LoadStandardMaterial();
+    }
     obj->model.material.texDiffuse = texture;
+    //obj->model.material.colAmbient = BLACK;
+    //    mtlTerrain.colDiffuse = LIGHTGRAY;
+    //    mtlTerrain.colAmbient = colorAmbient;
+
     obj->startSize = Vector3Make(1.0, 1.0, 1.0);
     obj->bboxLocal = CalculateBoundingBox( obj->model.mesh);
     
@@ -504,8 +510,8 @@ Color arnePalette[16] = {
     { 157, 157, 157, 255 },
     { 255, 255, 255, 255 },
     { 190, 38, 51, 255 },
-    //{ 224, 111, 139, 255 }, // MEAT
-    { 220, 220, 230, 255 }, // LIGHTER GRAY
+    { 224, 111, 139, 255 }, // MEAT
+    //{ 220, 220, 230, 255 }, // LIGHTER GRAY
     { 73, 60, 43, 255 },
     { 164, 100, 34, 255 },
     { 235, 137, 49, 255 },
@@ -1145,6 +1151,7 @@ enum {
     EditXformMode_ROTATE,
     EditXformMode_SCALE,
     EditXformMode_MOVE,
+    EditXformMode_DITHER,
     
     EditXformMode_COUNT
 };
@@ -1229,10 +1236,15 @@ int main()
 
     // DBG/test options
     bool retinaHack = false; // TODO: set this automatically with glfwSetFramebufferSizeCallback
-    bool doPostProcess = false;
+    bool doPostProcess = true;
     bool editorMode = false;
     bool showNavMesh = true;
     
+    // dither controls
+    bool showLookup = false;
+    float ditherStrength = 0.1;
+    
+    // editor stamp controls
     bool randomRotate = false;
     float currRotation = 0.0;
     float currScale = 1.0;
@@ -1285,7 +1297,8 @@ int main()
     Vector3 lightDir = { -4.0, 5.0, 0.5 };
     VectorNormalize( &lightDir );
     Light lgtSun = CreateLight( LIGHT_DIRECTIONAL, lightDir, colorSun );
-    lgtSun->target = Vector3{ 0.0f, 0.0f, 0.0f };
+    lgtSun->target = (Vector3){ 0.0f, 0.0f, 0.0f };
+    lgtSun->position = (Vector3){ -5.0f, 0.0f, 0.0f };
     lgtSun->intensity = 2.0f;
 
     // Load Objects
@@ -1304,6 +1317,11 @@ int main()
     objWall->lifetimeMin = 10;
     objWall->lifetimeMax = 10;
     //objTree->decayInto = objStump;
+
+    SceneObject *objLiteTest = LoadSceneObject( "lite_test" );
+    objLiteTest->lifetimeMin = 10;
+    objLiteTest->lifetimeMax = 10;
+
     
     SceneObject *objWall2 = LoadSceneObjectReuseTexture( "wall2", objWall->model.material.texDiffuse );
     objWall2->lifetimeMin = 10;
@@ -1358,7 +1376,7 @@ int main()
 //    mtlTerrain.colAmbient = colorAmbient;
 //    model.material = mtlTerrain;
 
-    float angle = (M_PI/180.0)*120.0;
+    float angle = (M_PI/180.0)*90.0;
 
     // Build World
 #if 1
@@ -1410,7 +1428,8 @@ int main()
     
     
     // for testing
-    //Texture2D dbgLookup = LoadTexture("gamedata/lookup.png");
+//    Texture2D dbgLookup = LoadTexture("gamedata/lookup.png");
+    Texture2D dbgLookup = LoadTexture("gamedata/lite_test.png");
     
     // Set up pixelate filter
     MakePaletteTexture(64);
@@ -1432,6 +1451,11 @@ int main()
             doPostProcess = !doPostProcess;
         }
         
+        if (IsKeyPressed('I')) {
+            showLookup = !showLookup;
+        }
+
+        
         if (IsKeyPressed('R')) {
             retinaHack = !retinaHack;
         }
@@ -1440,9 +1464,9 @@ int main()
             editorMode = !editorMode;
         }
         
-        lgtSun->position.x = -cos( angle + 2 ) * 10.0;
-        lgtSun->position.y = 8.0;
-        lgtSun->position.z = -sin( angle + 2) * 10.0;
+//        lgtSun->position.x = -cos( angle + 2 ) * 10.0;
+//        lgtSun->position.y = 0.0;
+//        lgtSun->position.z = -sin( angle + 2) * 10.0;
         
         if (editorMode) {
             
@@ -1528,6 +1552,10 @@ int main()
                     
                 } if (editXformMode == EditXformMode_MOVE) {
                     currZoffs +=  -(float)GetMouseWheelMove() * 0.1;
+                } if (editXformMode == EditXformMode_DITHER) {
+                    ditherStrength +=  -(float)GetMouseWheelMove() * 0.01;
+                    if (ditherStrength < 0.0) ditherStrength = 0.0;
+                    if (ditherStrength > 1.0) ditherStrength = 1.0;
                 } if (editXformMode == EditXformMode_ROTATE) {
                     currRotation += (GetMouseWheelMove() * 1.0);
                     while (currRotation < 0.0) {
@@ -1981,12 +2009,14 @@ int main()
                 
             }
             End3dMode();
-            
-//            DrawTexturePro( dbgLookup,
-//                           (Rectangle){ 0, 0, 512, 512 },
-//                           (Rectangle){ 0, 0, 200, 200 },
-//                           (Vector2){ 0, 0 }, 0, WHITE);
-            
+
+            if (showLookup) {
+                DrawTexturePro( dbgLookup,
+                               //(Rectangle){ 0, 0, 512, 512 },
+                               (Rectangle){ 0, 0, 128, 128 },
+                               (Rectangle){ 0, 0, 200, 200 },
+                               (Vector2){ 0, 0 }, 0, WHITE);
+            }
             EndTextureMode();
             
             // ===================================
@@ -2013,6 +2043,7 @@ int main()
             // directly bind palette shader
             static GLint samplerPally = -2;
             static GLint samplerDither = -2;
+            static GLint ditherStrengthParam;
             CHECKGL("start");
             if (samplerPally < -1) {
                 
@@ -2024,6 +2055,7 @@ int main()
                 
                 samplerDither = glGetUniformLocation( shader.id, "dither" );
                 
+                ditherStrengthParam = glGetUniformLocation( shader.id, "ditherStrength" );
             }
             
             if (samplerPally >= 0) {
@@ -2035,6 +2067,8 @@ int main()
                 
                 glUniform1i( samplerDither, 4 );
                 CHECKGL("set dither sampler");
+                
+                glUniform1f( ditherStrengthParam, ditherStrength );
 
                 
                 glActiveTexture( GL_TEXTURE3 );
@@ -2141,6 +2175,14 @@ int main()
                     if (editXformMode==EditXformMode_MOVE) lineColor = WHITE;
                     DrawText( buff, screenWidth-244, curry, 10, lineColor );
                     curry += leading;
+                    
+                    
+                    sprintf( buff, "Dither: %3.2f", ditherStrength );
+                    lineColor = SKYBLUE;
+                    if (editXformMode==EditXformMode_DITHER) lineColor = WHITE;
+                    DrawText( buff, screenWidth-244, curry, 10, lineColor );
+                    curry += leading;
+
 
                     
                 }
