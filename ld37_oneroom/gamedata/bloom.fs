@@ -8,6 +8,10 @@ in vec4 fragColor;
 uniform sampler2D texture0;
 uniform vec4 colDiffuse;
 
+// Extra textures for the 16-color effect
+uniform sampler3D pally;
+uniform sampler2D dither;
+
 // Output fragment color
 out vec4 finalColor;
 
@@ -20,22 +24,48 @@ const float quality = 2.5; 	        // lower = smaller glow, better quality
 
 void main()
 {
-    vec4 sum = vec4(0);
-    vec2 sizeFactor = vec2(1)/size*quality;
+//    vec4 sum = vec4(0);
+//    vec2 sizeFactor = vec2(1)/size*quality;
 
     // Texel color fetching from texture sampler
     vec4 source = texture(texture0, fragTexCoord);
-
-    const int range = 3;            // should be = (samples - 1)/2;
-
-    for (int x = -range; x <= range; x++)
-    {
-        for (int y = -range; y <= range; y++)
-        {
-            sum += texture(texture0, fragTexCoord + vec2(x, y)*sizeFactor);
-        }
+    
+    vec4 ditherColor = texture( dither, fragTexCoord*vec2(80,50) );
+    
+    float ditherAmt = (ditherColor.r * 0.2) - 0.1;
+    vec3 lookupColor = source.rgb + vec3(ditherAmt, ditherAmt, ditherAmt);
+    
+    float brite = source.r + source.g + source.b;
+    vec4 pallycolor = texture( pally, lookupColor);
+    if (brite <0.01) {
+        pallycolor = vec4(0.0, 0.0, 0.0, 1.0);
+    } else if (brite > 2.9) {
+           pallycolor = vec4(1.0, 1.0, 1.0, 1.0);
     }
-
-    // Calculate final fragment color
-    finalColor = ((sum/(samples*samples)) + source)*colDiffuse;
+    //vec4 pallycolor = vec4(lookupColor, 1.0);
+    //vec4 pallycolor = vec4(lookupColor, 1.0);
+    
+    
+    
+    //vec4 pallycolor = texture( pally, fragTexCoord);
+    
+    //pallycolor.rgb = vec3(1.0, 0.0, 1.0);
+    //finalColor = vec4( fragTexCoord.x, pallycolor.r, fragTexCoord.y, 1.0 );
+    finalColor = pallycolor;
+    //finalColor = ditherColor;
+    
+    //finalColor = texture( texture0, fragTexCoord) * colDiffuse;
+    
+//    const int range = 3;            // should be = (samples - 1)/2;
+//
+//    for (int x = -range; x <= range; x++)
+//    {
+//        for (int y = -range; y <= range; y++)
+//        {
+//            sum += texture(texture0, fragTexCoord + vec2(x, y)*sizeFactor);
+//        }
+//    }
+//
+//    // Calculate final fragment color
+//    finalColor = ((sum/(samples*samples)) + source)*colDiffuse;
 }

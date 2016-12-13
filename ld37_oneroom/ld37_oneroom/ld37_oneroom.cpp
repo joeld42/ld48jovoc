@@ -13,7 +13,14 @@
 
 #include <OpenGL/gl3.h>
 
-Color colorBackground = (Color){ 90, 102, 140, 255 };
+
+#ifdef DEBUG
+#undef DEBUG
+#endif
+#include "rlgl.h"
+
+//Color colorBackground = (Color){ 0, 0, 60, 255 };
+Color colorBackground = (Color){ 68, 137, 26 };
 Color colorSun = (Color){ 242, 232, 144, 255 };
 Color colorAmbient = (Color){ 49, 56, 80 };
 
@@ -55,6 +62,14 @@ inline Color ColorLerp( Color a, Color b, float t) {
     result.g = t*a.g + tInv*b.g;
     result.b = t*a.b + tInv*b.b;
     result.a = t*a.a + tInv*b.a;
+    return result;
+}
+
+inline BoundingBox BoundingBoxMake( Vector3 point, float halfSize )
+{
+    BoundingBox result;
+    result.min = Vector3Make( point.x-halfSize,  point.y-halfSize,  point.z-halfSize );
+    result.max = Vector3Make( point.x+halfSize,  point.y+halfSize,  point.z+halfSize );
     return result;
 }
 
@@ -176,7 +191,7 @@ void SceneInstUpdateBBox( SceneInstance *inst )
     
 }
 
-void SceneStampObject( Scene *targScene, Vector3 pos, float rotation, SceneObject *obj )
+void SceneStampObject( Scene *targScene, Vector3 pos, float rotation, Vector3 scale, SceneObject *obj )
 {
     SceneInstance *inst = SceneInstanceCreate();
     
@@ -187,7 +202,7 @@ void SceneStampObject( Scene *targScene, Vector3 pos, float rotation, SceneObjec
     inst->object = obj;
     inst->pos = pos;
     
-    inst->scale = obj->startSize;
+    inst->scale =  VectorHadamard( obj->startSize, scale );
     
     inst->rotation = rotation;
     
@@ -222,7 +237,7 @@ void SceneStampObject( Scene *targScene, Vector3 pos, float rotation, SceneObjec
     if (obj->decayInto) {
         currScene = currScene+1;
         if (currScene < sceneYear + NUM_YEARS) {
-            SceneStampObject( currScene, pos, rotation, obj->decayInto);
+            SceneStampObject( currScene, pos, rotation, scale, obj->decayInto);
         }
     }
 }
@@ -356,7 +371,7 @@ void LoadWorld( const char *filename )
                 SceneInstUpdateBBox( inst );
             }
         } else {
-            printf("Ignoring Token: %s\n", tok );
+//            printf("Ignoring Token: %s\n", tok );
         }
         
     }
@@ -385,6 +400,7 @@ struct CreepInst {
     float angle;
     
     NavPoint *currTarget;
+    
 };
 
 #define MAX_CREEP_OBJS (50)
@@ -474,6 +490,176 @@ void VanishAllCreeps( bool effects ) {
     numCreeps = 0;
 }
 
+// ===================================================================
+//     DITHER EFFECT
+// ===================================================================
+
+GLuint texPalette;
+GLuint texBayerDither;
+
+// ARNE retro 16-color palette from
+// https://androidarts.com/palette/16pal.htm
+Color arnePalette[16] = {
+    { 0, 0, 0, 255 },
+    { 157, 157, 157, 255 },
+    { 255, 255, 255, 255 },
+    { 190, 38, 51, 255 },
+    //{ 224, 111, 139, 255 }, // MEAT
+    { 220, 220, 230, 255 }, // LIGHTER GRAY
+    { 73, 60, 43, 255 },
+    { 164, 100, 34, 255 },
+    { 235, 137, 49, 255 },
+    { 247, 226, 107, 255 },
+    { 47, 72, 78, 255 },
+    { 68, 137, 26, 255 },
+    { 163, 206, 39, 255 },
+    { 27, 38, 50, 255 },
+    { 0, 87, 132, 255 },
+    { 49, 162, 242, 255 },
+    { 178, 220, 239, 255 },
+};
+
+// Bayer dither pattern
+// https://en.wikipedia.org/wiki/Ordered_dithering
+unsigned char bayerDither[16] = {
+    0, 8, 2, 10,
+    12, 4, 14, 6,
+    3, 11, 1, 9,
+    15, 7, 13, 6
+};
+
+int checkForGLErrors( const char *s, const char * file, int line )
+{
+    int errors = 0 ;
+    int counter = 0 ;
+    
+    while ( counter < 1000 )
+    {
+        GLenum x = glGetError() ;
+        
+        if ( x == GL_NO_ERROR )
+            return errors ;
+        
+        //printf( "%s:%d [%s] OpenGL error: %s [%08x]\n",  file, line, s ? s : "", gluErrorString ( x ), x ) ;
+        printf( "%s:%d [%s] OpenGL error: [%08x]\n",  file, line, s ? s : "",  x ) ;
+        errors++ ;
+        counter++ ;
+    }
+    return 0;
+}
+
+#ifdef NDEBUG
+#define CHECKGL( msg )
+#else
+#define CHECKGL( msg ) checkForGLErrors( msg, __FILE__, __LINE__ );
+#endif
+
+
+// For now just use RGB distance, should use a better distance like L*a*b* deltaE
+float ColorDistance( Color a, Color b) {
+    return sqrt( (a.r-b.r)*(a.r-b.r) + (a.g-b.g)*(a.g-b.g) + (a.b-b.b)*(a.b-b.b) );
+}
+
+// from
+// http://www.compuphase.com/cmetric.htm
+double ColorDistance2(Color e1, Color e2)
+{
+    long rmean = ( (long)e1.r + (long)e2.r ) / 2;
+    long r = (long)e1.r - (long)e2.r;
+    long g = (long)e1.g - (long)e2.g;
+    long b = (long)e1.b - (long)e2.b;
+    return sqrt((((512+rmean)*r*r)>>8) + 4*g*g + (((767-rmean)*b*b)>>8));
+}
+
+void MakePaletteTexture( int size ) {
+    uint8_t *paldata = (uint8_t*)malloc( size*size*size*3 );
+    
+    int shiftAmt =0;
+    int t = size;
+    while (t < 255) {
+        shiftAmt += 1;
+        t <<= 1;
+    }
+    printf("shiftamt %d %d\n", shiftAmt, size << shiftAmt );
+    
+    for (int i=0; i < size; i++) {
+        for (int j=0; j < size; j++) {
+            for (int k=0; k < size; k++) {
+                int ndx = ((k*size*size) + (j*size) + i) * 3;
+                Color cellc;
+                cellc.r = (i << shiftAmt);
+                cellc.g = (j << shiftAmt);
+                cellc.b = (k << shiftAmt);
+                
+                int bestIndex = 0;
+                float bestDistance = 0.0;
+                for (int pal=0; pal < 16; pal++) {
+                    float d = ColorDistance2( arnePalette[pal], cellc );
+                    if ((pal==0)||(d < bestDistance)) {
+                        bestIndex = pal;
+                        bestDistance = d;
+                    }
+                }
+                
+                Color palColor = arnePalette[bestIndex];
+                paldata[ndx + 0] = palColor.r;
+                paldata[ndx + 1] = palColor.g;
+                paldata[ndx + 2] = palColor.b;
+                
+//                paldata[ndx + 0] = cellc.r;
+//                paldata[ndx + 1] = cellc.g;
+//                paldata[ndx + 2] = cellc.b;
+//                
+//                paldata[ndx + 0] = rand() & 0xFF;
+//                paldata[ndx + 1] = rand() & 0xFF;
+//                paldata[ndx + 2] = rand() & 0xFF;
+            }
+        }
+    }
+    
+    // Make a 3D pallete lookup texture
+    glGenTextures( 1, &texPalette );
+    glBindTexture( GL_TEXTURE_3D, texPalette );
+    CHECKGL("makepal");
+    
+    glTexImage3D( GL_TEXTURE_3D, 0, GL_RGB8, size, size, size, 0, GL_RGB, GL_UNSIGNED_BYTE, paldata );
+    CHECKGL("makepal teximage");
+    
+    glTexParameterf( GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameterf( GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    
+    glTexParameterf( GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE );
+    glTexParameterf( GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTexParameterf( GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    
+    printf("Palette texture is texid %d\n", texPalette );
+
+    // Make a 2d Bayer dither texture
+    
+    // scale up to 0..255
+    for (int i=0; i < 16; i++) {
+        bayerDither[i] = bayerDither[i] * 17;
+    }
+    
+    glGenTextures( 1, &texBayerDither );
+    glBindTexture( GL_TEXTURE_2D, texBayerDither );
+    CHECKGL("makepal");
+    
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_R8, 4, 4, 0, GL_RED, GL_UNSIGNED_BYTE, bayerDither );
+    
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    glTexParameterf( GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+    
+    printf("texBayer is %d\n", texBayerDither );
+    CHECKGL("makepal texbayer");
+
+    
+    
+    free (paldata);
+}
 
 // ===================================================================
 //      WEAPONS
@@ -539,11 +725,16 @@ enum {
 
 struct NavPoint {
     Vector3 pos;
+    bool active;
+    
+    // pathed distance to target
+    float pdist;
 };
 
 int numNavPoints;
 NavPoint navPoints[MAX_NAV];
 uint8_t navAdj[MAX_NAV][MAX_NAV];
+float navMaxDist;
 
 void AddNavPoint( Vector3 pos )
 {
@@ -566,17 +757,36 @@ void DrawNavPoints()
 {
     for (int i=0; i < numNavPoints; i++) {
         NavPoint *np = navPoints + i;
-        DrawCube( np->pos, 1.0, 1.0, 1.0, PURPLE );
+        
+        
+        Color color = ColorLerp( ORANGE, DARKPURPLE, np->pdist / navMaxDist );
+        
+        if (np->pdist > 9000) {
+            color = RED;
+        }
+        
+        if (!np->active) {
+            color = DARKGRAY;
+            continue;
+        }
+        DrawCube( np->pos, 1.0, 1.0, 1.0, color );
     }
     
     for (int i=0; i < numNavPoints; i++) {
         for (int j=0; j < numNavPoints; j++) {
             if (navAdj[i][j] & NAV_CONNECTED) {
-                DrawLine3D( navPoints[i].pos, navPoints[j].pos, VIOLET );
+                Color color = VIOLET;
+                if (!(navAdj[i][j] & NAV_ACTIVE)) {
+                    color = DARKGRAY;
+                    continue;
+                }
+                DrawLine3D( navPoints[i].pos, navPoints[j].pos, color );
             }
         }
     }
 }
+
+void UpdateNavActives();
 
 // This is old code from LudumDare 5 ! whoa..
 
@@ -843,6 +1053,82 @@ void LoadNavMesh( const char *filename )
     }
 }
 
+NavPoint *GetClosestNav( Vector3 target )
+{
+    NavPoint *result = NULL;
+    float bestDist = 0;
+    
+    for (int i=0; i < numNavPoints; i++) {
+        NavPoint *p = navPoints + i;
+        if (!p->active) continue;
+        
+        float pdist = VectorDistance( p->pos, target );
+        if ((i==0)||(pdist < bestDist)) {
+            bestDist = pdist;
+            result = p;
+        }
+    }
+    
+    return result;
+}
+
+void UpdateNavDists( Vector3 target )
+{
+    NavPoint *startPoint = GetClosestNav( target );
+    if (!startPoint) return;
+    
+    for (int i=0; i < numNavPoints; i++) {
+        navPoints[i].pdist = 99999.0;
+    }
+    
+//    startPoint->pdist = VectorDistance( startPoint->pos, target );
+        startPoint->pdist = 1.0;
+    
+    bool changed = true;
+    int count = 0;
+    while (changed) {
+        count++;
+//        printf("iter %d ---\n" );
+        changed = false;
+        for (int i=0; i < numNavPoints; i++) {
+            if (!navPoints[i].active) continue;
+            
+            NavPoint *np = navPoints + i;
+            for (int j=0; j < numNavPoints; j++) {
+                
+                if (j==i) continue;
+                if (!navPoints[j].active) continue;
+                
+                if ((navAdj[i][j] & NAV_CONNECTED) || (navAdj[j][i] & NAV_CONNECTED)) {
+                    
+//                    printf("Conn: %d %d\n", i, j );
+                    
+                    NavPoint *np2 = navPoints + j;
+                    float d = np->pdist + VectorDistance( np->pos, np2->pos );
+//                    float d = np->pdist + 1.0;
+                    if (d < np2->pdist) {
+//                        printf("update dist %d %d, old %f new %f\n", i, j,  np2->pdist, d );
+                        np2->pdist = d;
+                        changed = true;
+                    }
+                }
+            }
+        }
+    }
+    
+    navMaxDist = 0.0;
+    for (int i=0; i < numNavPoints; i++) {
+        if (navPoints[i].pdist > 9000) continue;
+        if (navPoints[i].pdist > navMaxDist) {
+            navMaxDist = navPoints[i].pdist;
+        }
+    }
+    
+    
+    //printf("Update NavDists: count %d maxDist %f\n", count , navMaxDist );
+    
+    
+}
 
 
 
@@ -854,6 +1140,15 @@ SceneInstance *edSelectedInst = NULL;
 SceneObject *edCurrBrush = NULL;
 
 // somebody needs to move the editor code up heres...
+
+enum {
+    EditXformMode_ROTATE,
+    EditXformMode_SCALE,
+    EditXformMode_MOVE,
+    
+    EditXformMode_COUNT
+};
+int editXformMode = EditXformMode_ROTATE;
 
 void UpdateSelection()
 {
@@ -878,11 +1173,41 @@ void UpdateSelection()
 void UpdateNavActives()
 {
     
+    for (int i=0; i < numNavPoints; i++) {
+        for (int j=0; j < numNavPoints; j++) {
+            if (navAdj[i][j] & NAV_CONNECTED) {
+                navAdj[i][j] |= NAV_ACTIVE;
+            } else {
+                navAdj[i][j] = 0;
+            }
+        }
+    }
+    
+    for (int i=0; i < numNavPoints; i++) {
+        NavPoint *p = navPoints + i;
+        
+        p->active = true;
+        for (SceneInstance *inst=scene->firstInst;
+             inst; inst = inst->nextInst ) {
+            if (CheckCollisionBoxSphere( inst->bbox, p->pos, 0.5)) {
+                p->active = false;
+                for (int j=0; j < numNavPoints; j++) {
+                    navAdj[i][j] &= ~NAV_ACTIVE;
+                    navAdj[j][i] &= ~NAV_ACTIVE;
+                }
+                
+                break;
+            }
+        }
+    }
+    
+    
 }
 
 void UpdateAfterYearChanged()
 {
     UpdateSelection();
+    UpdateNavActives();
 }
 
 // ===================================================================
@@ -910,6 +1235,8 @@ int main()
     
     bool randomRotate = false;
     float currRotation = 0.0;
+    float currScale = 1.0;
+    float currZoffs = 0.0;
     
     int frameCounter = 0;
     
@@ -959,7 +1286,7 @@ int main()
     VectorNormalize( &lightDir );
     Light lgtSun = CreateLight( LIGHT_DIRECTIONAL, lightDir, colorSun );
     lgtSun->target = Vector3{ 0.0f, 0.0f, 0.0f };
-    lgtSun->intensity = 1.0f;
+    lgtSun->intensity = 2.0f;
 
     // Load Objects
     SceneObject *objTree = LoadSceneObject( "blerghTree" );
@@ -985,6 +1312,14 @@ int main()
     SceneObject *objBigWall = LoadSceneObjectReuseTexture( "bigwall", objWall->model.material.texDiffuse );
     objBigWall->lifetimeMin = 10;
     objBigWall->lifetimeMax = 10;
+
+    SceneObject *objSph1 = LoadSceneObjectReuseTexture( "sph_smooth", objWall->model.material.texDiffuse );
+    objSph1->lifetimeMin = 10;
+    objSph1->lifetimeMax = 10;
+
+    SceneObject *objSph2 = LoadSceneObjectReuseTexture( "sph_facet", objWall->model.material.texDiffuse );
+    objSph2->lifetimeMin = 10;
+    objSph2->lifetimeMax = 10;
 
     
     // Load Creeps
@@ -1026,11 +1361,11 @@ int main()
     float angle = (M_PI/180.0)*120.0;
 
     // Build World
-#if 0
+#if 1
     Model model = LoadModel( "gamedata/ground1.obj");
-    model.material = LoadStandardMaterial();
+    //model.material = LoadStandardMaterial();
     model.material.texDiffuse = LoadTexture( "gamedata/ground1.png");
-    model.material.colAmbient = LIGHTGRAY;
+    //pmodel.material.colAmbient = LIGHTGRAY;
     SetTextureFilter( model.material.texDiffuse, FILTER_POINT );
 #endif
     
@@ -1045,6 +1380,8 @@ int main()
     // Start at year 0
     currentYear = 0;
     scene = sceneYear + currentYear;
+    
+    UpdateNavActives();
     
 //    int numTree = 30;
 //    for (int i=0; i < numTree; i++) {
@@ -1070,6 +1407,14 @@ int main()
 //    }
     
     Vector3 lastShootyDir;
+    
+    
+    // for testing
+    //Texture2D dbgLookup = LoadTexture("gamedata/lookup.png");
+    
+    // Set up pixelate filter
+    MakePaletteTexture(64);
+
     
 	while (!WindowShouldClose())
 	{
@@ -1119,7 +1464,7 @@ int main()
             
             if (IsKeyPressed(']')) {
                 edCurrBrush += 1;
-                if ((edCurrBrush - objects)==numObjects) {
+                if ((edCurrBrush - objects) >= numObjects) {
                     edCurrBrush = objects;
                 }
             }
@@ -1167,14 +1512,31 @@ int main()
                 randomRotate = !randomRotate;
             }
             
-            if (GetMouseWheelMove() != 0) {
-                currRotation += (GetMouseWheelMove() * 1.0);
-                while (currRotation < 0.0) {
-                    currRotation += 360.0;
+            if (IsKeyPressed('2')) {
+                editXformMode ++;
+                if (editXformMode == EditXformMode_COUNT) {
+                    editXformMode = EditXformMode_ROTATE;
                 }
+            }
+            
+            if (GetMouseWheelMove() != 0) {
                 
-                while (currRotation > 360.0) {
-                    currRotation -= 360.0;
+                if (editXformMode == EditXformMode_SCALE) {
+                    
+                    currScale += -(float)GetMouseWheelMove() * 0.1;
+                    if (currScale < 0.1) currScale = 0.1;
+                    
+                } if (editXformMode == EditXformMode_MOVE) {
+                    currZoffs +=  -(float)GetMouseWheelMove() * 0.1;
+                } if (editXformMode == EditXformMode_ROTATE) {
+                    currRotation += (GetMouseWheelMove() * 1.0);
+                    while (currRotation < 0.0) {
+                        currRotation += 360.0;
+                    }
+                    
+                    while (currRotation > 360.0) {
+                        currRotation -= 360.0;
+                    }
                 }
             }
             
@@ -1320,14 +1682,52 @@ int main()
                 }
             }
 
-            
+            // Update nav
+            UpdateNavDists( playerPos );
             
             
             // Update Creep movement
             for (int cndx = 0; cndx < numCreeps; cndx++) {
                 CreepInst *creep = creeps + cndx;
                 
-                Vector3 creepDir = VectorSubtract( playerPos, creep->position );
+                Vector3 creepDir;
+                if (!creep->currTarget) {
+                    creep->currTarget = GetClosestNav( creep->position );
+                }
+                
+                if (creep->currTarget) {
+                    
+                    Vector3 creepNav = VectorSubtract( creep->currTarget->pos, creep->position );
+                    float dist = VectorLength( creepNav );
+                    if (dist < 0.5) {
+                        NavPoint *bestTarg = NULL;
+                        
+                        // Go to nearest connected navPoint
+                        int navNdx = (int)(creep->currTarget - navPoints);
+                        for (int i=0; i < numNavPoints; i++) {
+                            if (i == navNdx) continue;
+                            if (!navPoints[i].active) continue;
+                            
+                            if ((navAdj[navNdx][i] & NAV_CONNECTED) ||
+                                (navAdj[i][navNdx] & NAV_CONNECTED) ) {
+                                NavPoint *pp = navPoints + i;
+                                if ((!bestTarg)||(pp->pdist < bestTarg->pdist)) {
+                                    bestTarg = pp;
+                                }
+                            }
+                        }
+                        
+                        creep->currTarget = bestTarg;
+                    }
+                    
+                }
+                
+                if (creep->currTarget) {
+                     creepDir = VectorSubtract( creep->currTarget->pos, creep->position );
+                } else {
+                     creepDir = VectorSubtract( playerPos, creep->position );
+                }
+                
                 creep->angle =  atan2f( creepDir.x, -creepDir.z ) * (180.0/M_PI);
                 
                 VectorNormalize( &creepDir );
@@ -1418,7 +1818,7 @@ int main()
 //                DrawCube( cubePosition, 2.0f, 2.0f, 2.0f, RED );
 //                DrawCubeWires( cubePosition, 2.0f, 2.0f, 2.0f, WHITE );
                 
-#if 0
+#if 1
                 DrawModel( model, cubePosition, 1.0, WHITE );
 #endif
 //                DrawModelWires( model, cubePosition, 1.0, WHITE );
@@ -1439,7 +1839,7 @@ int main()
                         DrawModelEx(inst->object->model, inst->pos,
                                     playerUp, inst->rotation, inst->scale,
                                     WHITE );
-                        if (inst->drawWires) {
+                        if ((inst->drawWires) || (inst->object == objTree)) {
                             //DrawModelWires(inst->object->model, inst->pos, 1.0, BLACK );
                             DrawModelWiresEx(inst->object->model, inst->pos,
                                         playerUp, inst->rotation, inst->scale,
@@ -1499,10 +1899,15 @@ int main()
 //                    printf("Ground Pos: %3.2f %3.2f %3.2f tval %3.2f\n",
 //                           groundPos.x, groundPos.y, groundPos.z, t );
                     
+                    UpdateNavDists( groundPos );
+                    
                     // Snap pos
                     if (IsKeyDown(KEY_LEFT_SHIFT)) {
                         groundPos = Vector3Make( floorf(groundPos.x), floorf(groundPos.y), floorf(groundPos.z));
                     }
+                    
+                    Vector3 stampPos = groundPos;
+                    stampPos.y += currZoffs;
 
                     Color cursorBlink = ColorLerp( SKYBLUE, WHITE, fabs(sin(animTime * 10.0)) );
                     if (edCurrBrush) {
@@ -1511,8 +1916,9 @@ int main()
                             DrawModelWires( edCurrBrush->spawner->model, groundPos, 1.0, cursorBlink );
                         } else {
                             //DrawModelWires( edCurrBrush->model, groundPos, 1.0, cursorBlink );
-                            DrawModelWiresEx( edCurrBrush->model, groundPos, playerUp,
-                                             currRotation, edCurrBrush->startSize, cursorBlink );
+                            DrawModelWiresEx( edCurrBrush->model, stampPos, playerUp,
+                                             currRotation,
+                                             VectorMultScalar( edCurrBrush->startSize, currScale), cursorBlink );
                         }
                         
                         
@@ -1521,7 +1927,9 @@ int main()
                             if (randomRotate) {
                                 angle = RandUniformRange( 0.0, 360.0);
                             }
-                            SceneStampObject( scene, groundPos, angle, edCurrBrush );
+                            
+                            SceneStampObject( scene, stampPos, angle, Vector3Make( currScale, currScale, currScale), edCurrBrush );
+                            UpdateNavActives();
                         }
                         else if (IsKeyPressed( 'K')) {
                             SpawnCreep( creepTest, groundPos );
@@ -1574,6 +1982,11 @@ int main()
             }
             End3dMode();
             
+//            DrawTexturePro( dbgLookup,
+//                           (Rectangle){ 0, 0, 512, 512 },
+//                           (Rectangle){ 0, 0, 200, 200 },
+//                           (Vector2){ 0, 0 }, 0, WHITE);
+            
             EndTextureMode();
             
             // ===================================
@@ -1581,6 +1994,8 @@ int main()
             // ===================================
             BeginTextureMode(postProcTarget);
             BeginShaderMode(shader);
+            
+            
             // NOTE: Render texture must be y-flipped due to default OpenGL coordinates (left-bottom)
 //            DrawTextureRec(target.texture, (Rectangle){ 0, 0,
 //                        target.texture.width, -target.texture.height },
@@ -1590,8 +2005,50 @@ int main()
                            (Rectangle){ 0, 0, pixelWidth, pixelHeight },
                            (Vector2){ 0, 0 }, 0, WHITE);
 
-            
+            CHECKGL("drawtex");
             EndShaderMode();
+            CHECKGL("start1");
+            
+            
+            // directly bind palette shader
+            static GLint samplerPally = -2;
+            static GLint samplerDither = -2;
+            CHECKGL("start");
+            if (samplerPally < -1) {
+                
+                glUseProgram(shader.id);
+                
+                samplerPally = glGetUniformLocation( shader.id, "pally" );
+                CHECKGL("get uniform");
+                printf("pixelize shader prog %d samplerId %d\n", shader.id, samplerPally );
+                
+                samplerDither = glGetUniformLocation( shader.id, "dither" );
+                
+            }
+            
+            if (samplerPally >= 0) {
+                glUseProgram(shader.id);
+                CHECKGL("use shader");
+                
+                glUniform1i( samplerPally, 3 );
+                CHECKGL("set pally sampler");
+                
+                glUniform1i( samplerDither, 4 );
+                CHECKGL("set dither sampler");
+
+                
+                glActiveTexture( GL_TEXTURE3 );
+                glBindTexture( GL_TEXTURE_3D, texPalette );
+                CHECKGL("bind pally texture");
+                
+                glActiveTexture( GL_TEXTURE4 );
+                glBindTexture( GL_TEXTURE_2D, texBayerDither );
+                CHECKGL("bind dither texture");
+
+                
+                glActiveTexture( GL_TEXTURE0 );
+            }
+            
             EndTextureMode();
             
             // HACK work around displayScale
@@ -1668,8 +2125,23 @@ int main()
                     curry += leading;
                     
                     sprintf( buff, "Angle: %f", currRotation );
-                    DrawText( buff, screenWidth-244, curry, 10, SKYBLUE );
+                    Color lineColor = SKYBLUE;
+                    if (editXformMode==EditXformMode_ROTATE) lineColor = WHITE;
+                    DrawText( buff, screenWidth-244, curry, 10, lineColor );
                     curry += leading;
+                    
+                    sprintf( buff, "Scale: %3.2f", currScale );
+                    lineColor = SKYBLUE;
+                    if (editXformMode==EditXformMode_SCALE) lineColor = WHITE;
+                    DrawText( buff, screenWidth-244, curry, 10, lineColor );
+                    curry += leading;
+                    
+                    sprintf( buff, "Move: %3.2f", currZoffs );
+                    lineColor = SKYBLUE;
+                    if (editXformMode==EditXformMode_MOVE) lineColor = WHITE;
+                    DrawText( buff, screenWidth-244, curry, 10, lineColor );
+                    curry += leading;
+
                     
                 }
                 

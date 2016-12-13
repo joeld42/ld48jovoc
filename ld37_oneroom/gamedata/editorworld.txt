@@ -2,6 +2,30 @@
 year: 0
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.020000 1.020000 1.020000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.440000 1.440000 1.440000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.440000 1.440000 1.440000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1D81BF6E
 pos: 0.688185 0.000000 16.426483
@@ -151,12 +175,76 @@ id: 0x71164792
 pos: -17.617769 0.000000 2.211964
 scl: 0.600000 0.600000 0.600000
 rot: 308.550842
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
 wire: NO
 wireColor: 0x00000000
 #-------------------------------
 year: 1
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.070000 1.070000 1.070000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.490000 1.490000 1.490000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.490000 1.490000 1.490000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1D81BF6E
 pos: 0.688185 0.000000 16.426483
@@ -306,12 +394,76 @@ id: 0x71164792
 pos: -17.617769 0.000000 2.211964
 scl: 0.650000 0.650000 0.650000
 rot: 308.550842
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
 wire: NO
 wireColor: 0x00000000
 #-------------------------------
 year: 2
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.120000 1.120000 1.120000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.540000 1.540000 1.540000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.540000 1.540000 1.540000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1D81BF6E
 pos: 0.688185 0.000000 16.426483
@@ -461,12 +613,76 @@ id: 0x71164792
 pos: -17.617769 0.000000 2.211964
 scl: 0.700000 0.700000 0.700000
 rot: 308.550842
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
 wire: NO
 wireColor: 0x00000000
 #-------------------------------
 year: 3
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.170000 1.170000 1.170000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.590000 1.590000 1.590000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.590000 1.590000 1.590000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1D81BF6E
 pos: 0.688185 0.000000 16.426483
@@ -616,12 +832,76 @@ id: 0x71164792
 pos: -17.617769 0.000000 2.211964
 scl: 0.750000 0.750000 0.750000
 rot: 308.550842
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
 wire: NO
 wireColor: 0x00000000
 #-------------------------------
 year: 4
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.220000 1.220000 1.220000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.640000 1.640000 1.640000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.640000 1.640000 1.640000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1D81BF6E
 pos: 0.688185 0.000000 16.426483
@@ -771,12 +1051,76 @@ id: 0x71164792
 pos: -17.617769 0.000000 2.211964
 scl: 0.800000 0.800000 0.800000
 rot: 308.550842
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
 wire: NO
 wireColor: 0x00000000
 #-------------------------------
 year: 5
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.270000 1.270000 1.270000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.690000 1.690000 1.690000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.690000 1.690000 1.690000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1D81BF6E
 pos: 0.688185 0.000000 16.426483
@@ -926,12 +1270,76 @@ id: 0x71164792
 pos: -17.617769 0.000000 2.211964
 scl: 0.850000 0.850000 0.850000
 rot: 308.550842
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
 wire: NO
 wireColor: 0x00000000
 #-------------------------------
 year: 6
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.320000 1.320000 1.320000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.740000 1.740000 1.740000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.740000 1.740000 1.740000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1D81BF6E
 pos: 0.688185 0.000000 16.426483
@@ -1081,12 +1489,76 @@ id: 0x71164792
 pos: -17.617769 0.000000 2.211964
 scl: 0.900000 0.900000 0.900000
 rot: 308.550842
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
 wire: NO
 wireColor: 0x00000000
 #-------------------------------
 year: 7
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.370000 1.370000 1.370000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.790000 1.790000 1.790000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.790000 1.790000 1.790000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1D81BF6E
 pos: 0.688185 0.000000 16.426483
@@ -1236,12 +1708,76 @@ id: 0x71164792
 pos: -17.617769 0.000000 2.211964
 scl: 0.950000 0.950000 0.950000
 rot: 308.550842
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
 wire: NO
 wireColor: 0x00000000
 #-------------------------------
 year: 8
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.419999 1.419999 1.419999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.840000 1.840000 1.840000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.840000 1.840000 1.840000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1D81BF6E
 pos: 0.688185 0.000000 16.426483
@@ -1391,12 +1927,76 @@ id: 0x71164792
 pos: -17.617769 0.000000 2.211964
 scl: 1.000000 1.000000 1.000000
 rot: 308.550842
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
 wire: NO
 wireColor: 0x00000000
 #-------------------------------
 year: 9
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.469999 1.469999 1.469999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.890000 1.890000 1.890000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.890000 1.890000 1.890000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1D81BF6E
 pos: 0.688185 0.000000 16.426483
@@ -1548,9 +2148,73 @@ scl: 1.050000 1.050000 1.050000
 rot: 308.550842
 wire: NO
 wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
 #-------------------------------
 year: 10
 name: todo
+
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.519999 1.519999 1.519999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.939999 1.939999 1.939999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.939999 1.939999 1.939999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: SPAWN_creep
 id: 0x1D81BF6E
@@ -1775,9 +2439,73 @@ scl: 0.600000 0.600000 0.600000
 rot: 356.555939
 wire: NO
 wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x72EC44AB
+pos: 13.560535 0.000000 -0.652023
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x5E0B437E
+pos: -10.313596 0.000000 -1.801804
+scl: 4.100000 4.100000 4.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_smooth
+id: 0x6D97E430
+pos: -8.825834 0.000000 -4.908218
+scl: 2.100000 2.100000 2.100000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x642FDAFA
+pos: 13.090179 0.000000 8.646156
+scl: 3.900000 3.900000 3.900000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: sph_facet
+id: 0x62D372DD
+pos: -6.032477 0.000000 7.854959
+scl: 4.700000 4.700000 4.700000
+rot: 0.000000
+wire: NO
+wireColor: 0x00000000
 #-------------------------------
 year: 11
 name: todo
+
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.569999 1.569999 1.569999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 1.989999 1.989999 1.989999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x2474CD8B
+pos: 6.817918 0.000000 7.889416
+scl: 1.989999 1.989999 1.989999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: SPAWN_creep
 id: 0x1D81BF6E
@@ -2006,6 +2734,30 @@ wireColor: 0x00000000
 year: 12
 name: todo
 
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.619999 1.619999 1.619999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 2.039999 2.039999 2.039999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+id: 0x4F849B9D
+pos: 6.817918 0.000000 7.889416
+scl: 2.400000 2.400000 2.400000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x3002CAB4
 pos: -17.392229 0.000000 13.995773
@@ -2216,6 +2968,30 @@ wireColor: 0x00000000
 #-------------------------------
 year: 13
 name: todo
+
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.669999 1.669999 1.669999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 2.089999 2.089999 2.089999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+id: 0x4F849B9D
+pos: 6.817918 0.000000 7.889416
+scl: 2.400000 2.400000 2.400000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: SPAWN_creep
 id: 0x1978BAAE
@@ -2435,6 +3211,30 @@ wireColor: 0x00000000
 #-------------------------------
 year: 14
 name: todo
+
+obj: blerghTree
+id: 0x6F3488D3
+pos: -8.307998 0.000000 -9.277142
+scl: 1.719999 1.719999 1.719999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 2.139999 2.139999 2.139999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+id: 0x4F849B9D
+pos: 6.817918 0.000000 7.889416
+scl: 2.400000 2.400000 2.400000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: SPAWN_creep
 id: 0x1978BAAE
@@ -2671,6 +3471,30 @@ wireColor: 0x00000000
 year: 15
 name: todo
 
+obj: stump
+id: 0x36774CC7
+pos: -8.307998 0.000000 -9.277142
+scl: 1.700000 1.700000 1.700000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 2.189999 2.189999 2.189999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+id: 0x4F849B9D
+pos: 6.817918 0.000000 7.889416
+scl: 2.400000 2.400000 2.400000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1978BAAE
 pos: -20.252029 0.000000 0.492580
@@ -2898,6 +3722,22 @@ wireColor: 0x00000000
 year: 16
 name: todo
 
+obj: stump
+id: 0x36774CC7
+pos: -8.307998 0.000000 -9.277142
+scl: 1.700000 1.700000 1.700000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 2.239999 2.239999 2.239999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1978BAAE
 pos: -20.252029 0.000000 0.492580
@@ -3109,6 +3949,22 @@ wireColor: 0x00000000
 year: 17
 name: todo
 
+obj: stump
+id: 0x36774CC7
+pos: -8.307998 0.000000 -9.277142
+scl: 1.700000 1.700000 1.700000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 2.289999 2.289999 2.289999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1978BAAE
 pos: -20.252029 0.000000 0.492580
@@ -3303,6 +4159,22 @@ wireColor: 0x00000000
 #-------------------------------
 year: 18
 name: todo
+
+obj: stump
+id: 0x36774CC7
+pos: -8.307998 0.000000 -9.277142
+scl: 1.700000 1.700000 1.700000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 2.339999 2.339999 2.339999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: SPAWN_creep
 id: 0x1978BAAE
@@ -3523,6 +4395,22 @@ wireColor: 0x00000000
 year: 19
 name: todo
 
+obj: stump
+id: 0x36774CC7
+pos: -8.307998 0.000000 -9.277142
+scl: 1.700000 1.700000 1.700000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: blerghTree
+id: 0x56CBBA92
+pos: 8.872643 0.000000 -8.395358
+scl: 2.389999 2.389999 2.389999
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1978BAAE
 pos: -20.252029 0.000000 0.492580
@@ -3734,6 +4622,22 @@ wireColor: 0x00000000
 year: 20
 name: todo
 
+obj: stump
+id: 0x36774CC7
+pos: -8.307998 0.000000 -9.277142
+scl: 1.700000 1.700000 1.700000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
+obj: stump
+id: 0x7F867357
+pos: 8.872643 0.000000 -8.395358
+scl: 2.400000 2.400000 2.400000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1978BAAE
 pos: -20.252029 0.000000 0.492580
@@ -3929,6 +4833,14 @@ wireColor: 0x00000000
 year: 21
 name: todo
 
+obj: stump
+id: 0x7F867357
+pos: 8.872643 0.000000 -8.395358
+scl: 2.400000 2.400000 2.400000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1978BAAE
 pos: -20.252029 0.000000 0.492580
@@ -4108,6 +5020,14 @@ wireColor: 0x00000000
 year: 22
 name: todo
 
+obj: stump
+id: 0x7F867357
+pos: 8.872643 0.000000 -8.395358
+scl: 2.400000 2.400000 2.400000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
+
 obj: SPAWN_creep
 id: 0x1978BAAE
 pos: -20.252029 0.000000 0.492580
@@ -4286,6 +5206,14 @@ wireColor: 0x00000000
 #-------------------------------
 year: 23
 name: todo
+
+obj: stump
+id: 0x7F867357
+pos: 8.872643 0.000000 -8.395358
+scl: 2.400000 2.400000 2.400000
+rot: 338.000000
+wire: NO
+wireColor: 0x00000000
 
 obj: SPAWN_creep
 id: 0x1978BAAE
