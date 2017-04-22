@@ -31,6 +31,17 @@ public:
     
     glm::vec4 color;
     
+    float fx, fy, fz;
+    int i1, j1, k1;
+    
+    float dbgPush;
+    float pdbg[8];
+    
+    int gridRes; // resolution of grid, e.g. 64x64x64
+    
+    float evalSDF( glm::vec3 p );
+    glm::vec3 evalNormal( glm::vec3 p );
+    
     Oryol::MeshBuilder meshBuilder;
 };
 

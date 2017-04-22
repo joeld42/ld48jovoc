@@ -255,8 +255,11 @@ float matSpecularPower MatSpecularPower
     float diff = n_dot_l;
     float spec = pow(r_dot_v, matSpecularPower) * n_dot_l;
     vec4 col = vec4(lightColor.xyz * (matSpecular.xyz*spec + matDiffuse.xyz*diff), 1.0);
+    
+    //col = vec4( n, 1.0 );
+    
     //col = lerp( col, vec4( 1.0, 0.0, 1.0, 1.0));
-    col.x = 1.0;
+    
     if (gammaCorrect) {
         _color = gamma(col);
     } else {

@@ -82,6 +82,8 @@ private:
     
     /// load a single icon, asynchronously
     void load_icon(const char* url, struct nk_image* img);
+    
+    bool tmpUI;
 
 };
 OryolMain(TestApp);
@@ -131,6 +133,7 @@ TestApp::OnRunning() {
     // Draw planet isosurf
     planet.Draw();
     
+#if 1
     // Draw UI
     nk_context* ctx = NKUI::NewFrame();
     
@@ -139,32 +142,67 @@ TestApp::OnRunning() {
     static float value = 0.6f;
     struct nk_panel layout;
     
-    if (nk_begin(ctx, &layout, "Show", nk_rect(50, 50, 220, 220),
+    if (tmpUI) {
+        if (nk_begin(ctx, &layout, "Show", nk_rect(50, 50, 220, 500),
                  NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_CLOSABLE)) {
-        /* fixed widget pixel width */
-        nk_layout_row_static(ctx, 30, 80, 1);
-        if (nk_button_label(ctx, "button")) {
-            /* event handling */
-        }
-        
-        /* fixed widget window ratio width */
-        nk_layout_row_dynamic(ctx, 30, 2);
-        if (nk_option_label(ctx, "easy", op == EASY)) op = EASY;
-        if (nk_option_label(ctx, "hard", op == HARD)) op = HARD;
-        
-        /* custom widget pixel width */
-        nk_layout_row_begin(ctx, NK_STATIC, 30, 2);
-        {
+            
+            /* fixed widget pixel width */
+            nk_layout_row_static(ctx, 30, 80, 1);
+            if (nk_button_label(ctx, "button")) {
+                /* event handling */
+            }
+            
+            /* fixed widget window ratio width */
+            nk_layout_row_dynamic(ctx, 30, 2);
+            if (nk_option_label(ctx, "easy", op == EASY)) op = EASY;
+            if (nk_option_label(ctx, "hard", op == HARD)) op = HARD;
+            
+            /* custom widget pixel width */
+    //        nk_layout_row_begin(ctx, NK_STATIC, 30, 2);
+    //        {
+    //            nk_layout_row_push (ctx, 50);
+    //            nk_label(ctx, "Volume:", NK_TEXT_LEFT);
+    //            nk_layout_row_push(ctx, 110);
+    //            nk_slider_float(ctx, 0, &value, 1.0f, 0.1f);
+    //        }
+    //        nk_layout_row_end(ctx);
+            
+            
+            char buff[20];
+            bool needsRebuild = false;
+            
+            nk_layout_row_begin(ctx, NK_STATIC, 30, 2);
             nk_layout_row_push (ctx, 50);
-            nk_label(ctx, "Volume:", NK_TEXT_LEFT);
+            nk_label(ctx, "Flex:", NK_TEXT_LEFT);
             nk_layout_row_push(ctx, 110);
-            nk_slider_float(ctx, 0, &value, 1.0f, 0.1f);
+            if (nk_slider_float(ctx, -1.0f, &(planet.surfBuilder.dbgPush), 1.0f, 0.1f)) {
+                needsRebuild = true;
+            }
+            nk_layout_row_end(ctx);
+            
+            for (int i=0; i < 8; i++) {
+                nk_layout_row_begin(ctx, NK_STATIC, 30, 2);
+                nk_layout_row_push (ctx, 50);
+                sprintf( buff, "P%d:", i );
+                nk_label(ctx, buff, NK_TEXT_LEFT);
+                nk_layout_row_push(ctx, 110);
+                if (nk_slider_float(ctx, -1.0f, &(planet.surfBuilder.pdbg[i]), 1.0f, 0.1f)) {
+                    needsRebuild = true;
+                }
+                nk_layout_row_end(ctx);
+            }
+            
+            if (needsRebuild) {
+                planet.Rebuild( scene );
+            }
+        
+            nk_end(ctx);
         }
-        nk_layout_row_end(ctx);
     }
-    nk_end(ctx);
+    
     
     NKUI::Draw();
+#endif
     
     Gfx::EndPass();
     
@@ -224,10 +262,10 @@ TestApp::OnInit() {
     this->camera.Setup(glm::vec3(-2531.f, 1959.f, 3241.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 25000.0f);
     
     SceneObject *ground = scene->addObject( "msh:ground1_big.omsh", "tex:ground1.dds");
-    ground->pos = glm::vec3( 0.0, 0.0, 0.0);
+    ground->pos = glm::vec3( 0.0, -3000.0, 0.0);
 
-    const glm::vec3 minRand(-5500.0f, 0.0, -5500.0f );
-    const glm::vec3 maxRand(5500.0f, 0.0, 5500.0f );
+    const glm::vec3 minRand(-5500.0f, -3010.0, -5500.0f );
+    const glm::vec3 maxRand(5500.0f, -2990.0, 5500.0f );
 
     
     for (int i=0; i < 100; i++) {
@@ -296,28 +334,61 @@ TestApp::handle_input() {
                 planet.Rebuild( scene );
             }
         }
+        
+        if (Input::KeyDown(Key::N1)) {
+            planet.surfBuilder.fx *= -1.0;
+            planet.Rebuild( scene );
+        }
+        if (Input::KeyDown(Key::N2)) {
+            planet.surfBuilder.fy *= -1.0;
+            planet.Rebuild( scene );
+        }
+        if (Input::KeyDown(Key::N3)) {
+            planet.surfBuilder.fz *= -1.0;
+            planet.Rebuild( scene );
+        }
+        
+        if (Input::KeyDown(Key::N4)) {
+            planet.surfBuilder.i1 = 1-planet.surfBuilder.i1;
+            planet.Rebuild( scene );
+        }
+        if (Input::KeyDown(Key::N5)) {
+            planet.surfBuilder.j1 = 1-planet.surfBuilder.j1;
+            planet.Rebuild( scene );
+        }
+        if (Input::KeyDown(Key::N6)) {
+            planet.surfBuilder.k1 = 1-planet.surfBuilder.k1;
+            planet.Rebuild( scene );
+        }
+        
+        if (Input::KeyDown(Key::Tab)) {
+            tmpUI = !tmpUI;
+        }
     }
     
-    if (Input::MouseAttached() ) {
-        if (Input::MouseButtonPressed(MouseButton::Left)) {
-            
-            move.z -= vel;
-            printf("move %3.2f %3.2f %3.2f\n",
-                   camera.Pos.x, camera.Pos.y, camera.Pos.z );
+    if (!tmpUI)
+    {
+        if (Input::MouseAttached() ) {
+            if (Input::MouseButtonPressed(MouseButton::Left)) {
+                
+                move.z -= vel;
+                printf("move %3.2f %3.2f %3.2f\n",
+                       camera.Pos.x, camera.Pos.y, camera.Pos.z );
 
+            }
+            if (Input::MouseButtonPressed(MouseButton::Left) || Input::MouseButtonPressed(MouseButton::Right)) {
+                rot = Input::MouseMovement() * glm::vec2(-0.01f, -0.007f);
+            }
         }
-        if (Input::MouseButtonPressed(MouseButton::Left) || Input::MouseButtonPressed(MouseButton::Right)) {
-            rot = Input::MouseMovement() * glm::vec2(-0.01f, -0.007f);
-        }
-    }
 
-    if (Input::TouchpadAttached() ) {
-        if (Input::TouchPanning() ) {
-            move.z -= vel;
-            rot = Input::TouchMovement(0) * glm::vec2(-0.01f, 0.01f);
+        if (Input::TouchpadAttached() ) {
+            if (Input::TouchPanning() ) {
+                move.z -= vel;
+                rot = Input::TouchMovement(0) * glm::vec2(-0.01f, 0.01f);
+            }
         }
+        this->camera.MoveRotate(move, rot);
     }
-    this->camera.MoveRotate(move, rot);
 }
 
 //------------------------------------------------------------------------------

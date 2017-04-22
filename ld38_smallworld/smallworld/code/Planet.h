@@ -28,6 +28,8 @@ class Planet {
 public:
     Planet();
     
+    static const float kWorldSize;
+    
     IsosurfaceBuilder surfBuilder;
     
     Oryol::VertexLayout surfLayout;
@@ -45,6 +47,10 @@ public:
     void Draw();
     
     void UpdateCamera( Camera *camera );
+    
+    float evalSDF( glm::vec3 p );
+    
+    Oryol::ResourceLabel planetResource;
     
     bool _built;
 };

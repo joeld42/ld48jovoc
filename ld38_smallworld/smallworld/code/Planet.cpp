@@ -3,11 +3,24 @@
 
 using namespace Oryol;
 
+static const float kWorldSize = 3000.0f;
+
 Planet::Planet() : _built(false)
 {
-    
 }
 
+// ==================================================================
+//   Engine stuff
+// ==================================================================
+float Planet::evalSDF( glm::vec3 p )
+{
+    // Test SDF
+    return glm::length(p)-1.0;
+}
+
+// ==================================================================
+//   Engine stuff
+// ==================================================================
 void Planet::Setup( GfxSetup *gfxSetup )
 {
     planetShader = Gfx::CreateResource( PlanetShader::Setup());
@@ -28,9 +41,18 @@ void Planet::Setup( GfxSetup *gfxSetup )
 
 void Planet::Rebuild( Scene *scene )
 {
+    
+    if (_built) {
+        // clean up mesh
+        Gfx::DestroyResources( planetResource );
+    }
+    
     // Build isosurf
     surfBuilder.Layout = surfLayout;
+    
+    Gfx::PushResourceLabel();
     meshIsosurf = Gfx::CreateResource( surfBuilder.Build() );
+    planetResource = Gfx::PopResourceLabel();
     
     // Borrow texture
     planetTexture = scene->sceneInfos[0]->texture;
@@ -43,11 +65,11 @@ void Planet::UpdateCamera( Camera *camera )
     planetVSParams.ModelViewProjection = camera->ViewProj;
     
     planetFSParams.LightColor = glm::vec4( 1.0, 1.0, 1.0, 1.0 );
-    planetFSParams.MatDiffuse = glm::vec4( 0.9, 0.9, 1.0, 1.0 );
-    planetFSParams.MatSpecular = glm::vec4( 1.0, 1.0, 1.0, 1.0 );
-    planetFSParams.LightDir = glm::vec3( 1.0, 0.0, 0.0 );
+    planetFSParams.MatDiffuse = glm::vec4( 0.92,0.41,0.25, 1.0 );
+    planetFSParams.MatSpecular = glm::vec4( 1.0, 0.8, 0.5, 1.0 ) * 3.0f;
+    planetFSParams.LightDir = glm::normalize( glm::vec3( -1.0, -0.3, 0.1 ) );
     planetFSParams.EyePos = camera->Pos;
-    planetFSParams.MatSpecularPower = 1.0f;
+    planetFSParams.MatSpecularPower = 50.0f;
     planetFSParams.GammaCorrect = 0;
 }
 
