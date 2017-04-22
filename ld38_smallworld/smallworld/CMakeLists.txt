@@ -30,6 +30,7 @@ fips_import_oryol_Resource()
 fips_import_oryol_Input()
 fips_ide_group("Libs")
 fips_import_fips_glfw_glfw3()
+fips_import_oryol_nuklear_NKUI()
 fips_ide_group("")
 
 fips_finish()
