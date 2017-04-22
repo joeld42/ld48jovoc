@@ -26,6 +26,12 @@
 
 #include "NKUI/NKUI.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_STDIO
+#define STBI_ONLY_PNG
+#define STBI_NO_SIMD
+#include "stb_image.h"
+
 // FIXME: Not really used...
 #include <unistd.h>
 #include <stdio.h>
@@ -118,7 +124,6 @@ TestApp::OnRunning() {
     enum {EASY, HARD};
     static int op = EASY;
     static float value = 0.6f;
-    static int i =  20;
     struct nk_panel layout;
     
     if (nk_begin(ctx, &layout, "Show", nk_rect(50, 50, 220, 220),
@@ -161,8 +166,8 @@ AppState::Code
 TestApp::OnInit() {
     
     // Dev hack to ensure we're running from the right place...
-    chdir("/Users/joeld/Projects/darkstar/darkstar");
-    FILE *fp = fopen( "./gamedata/bowl.omsh", "rt");
+    chdir("/Users/joeld/Projects/ld48jovoc/ld38_smallworld/smallworld");
+    FILE *fp = fopen( "./gamedata/tree_062.omsh", "rt");
     if (!fp) {
         printf("Error! Not running from the right path...??\n");
         exit(1);
@@ -179,7 +184,7 @@ TestApp::OnInit() {
     
     scene = new Scene();
 
-    scene->gfxSetup = GfxSetup::WindowMSAA4(800, 600, "Oryol Test App");
+    scene->gfxSetup = GfxSetup::WindowMSAA4(800, 600, "LD32 Small World");
     scene->gfxSetup.DefaultPassAction = PassAction::Clear(glm::vec4(0.25f, 0.5f, 1.0f, 1.0f) );
     Gfx::Setup(scene->gfxSetup);
     
