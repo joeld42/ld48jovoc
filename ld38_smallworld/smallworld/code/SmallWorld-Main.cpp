@@ -19,10 +19,12 @@
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
-#include "shaders.h"
 
+#include "shaders.h"
 #include "SceneObject.h"
 #include "Camera.h"
+#include "IsosurfaceBuilder.h"
+#include "Planet.h"
 
 #include "NKUI/NKUI.h"
 
@@ -55,6 +57,8 @@ private:
     
     void drawMeshAndTextureIfLoaded( Id mesh, Id texture );
     
+    void BuildPlanet();
+    
     ResourceLabel curMeshLabel;
 //    MeshSetup curMeshSetup;
     ResourceLabel curMaterialLabel;
@@ -68,10 +72,10 @@ private:
         Phong
     };
     
-    Id meshTree;
-    Id dispShader;
     Id texture;
     DrawState mainDrawState;
+    
+    Planet planet;
   
     Camera camera;
     Scene *scene;
@@ -116,9 +120,18 @@ TestApp::OnRunning() {
         obj->vsParams.ModelViewProjection = mvp;
     }
     
+    // Planet has no model transform, is always at 0,0,0
+    planet.UpdateCamera( &camera );
+    
     Gfx::BeginPass();
+    
+    // Draw scene objects
     scene->drawScene();
     
+    // Draw planet isosurf
+    planet.Draw();
+    
+    // Draw UI
     nk_context* ctx = NKUI::NewFrame();
     
     enum {EASY, HARD};
@@ -217,15 +230,19 @@ TestApp::OnInit() {
     const glm::vec3 maxRand(5500.0f, 0.0, 5500.0f );
 
     
-    for (int i=0; i < 4000; i++) {
+    for (int i=0; i < 100; i++) {
         
         SceneObject *obj1 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
         obj1->rot = glm::quat( glm::vec3( 0.0, glm::linearRand( 0.0f, 360.0f), 0.0 ) );
         obj1->pos = glm::linearRand(minRand, maxRand);
     }
     
+    // Setup planet
+    planet.Setup( &(scene->gfxSetup) );
+    
     // Setup UI
     NKUI::Setup();
+    
     
     return App::OnInit();
 }
@@ -245,6 +262,7 @@ TestApp::OnCleanup() {
 //    modelTform = glm::rotate(modelTform, rotY, glm::vec3(0.0f, 1.0f, 0.0f));
 //    return proj * this->view * modelTform;
 //}
+
 
 //------------------------------------------------------------------------------
 void
@@ -270,6 +288,13 @@ TestApp::handle_input() {
         }
         if (Input::KeyPressed(Key::D) || Input::KeyPressed(Key::Right)) {
             move.x += vel;
+        }
+        
+        if (Input::KeyDown(Key::B)) {
+            if (scene->didSetupPipeline) {
+                printf("Build planet...\n");
+                planet.Rebuild( scene );
+            }
         }
     }
     

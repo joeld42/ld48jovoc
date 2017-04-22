@@ -66,6 +66,7 @@ SceneObject *Scene::addObject( const char *meshName, const char *textureName )
                 ps.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
                 ps.RasterizerState.SampleCount = gfxSetup.SampleCount;
                 this->mainDrawState.Pipeline = Gfx::CreateResource(ps);
+                this->Layout = setup.Layout;
             }
             
             // finalize info

@@ -51,6 +51,9 @@ public:
     
     Oryol::TextureSetup texBluePrint;
     bool didSetupPipeline = false;
+    Oryol::VertexLayout Layout;
 };
+
+SceneObject *makeObject( SceneObjectInfo *info );
 
 #endif

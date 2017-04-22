@@ -206,5 +206,68 @@ float matSpecularPower MatSpecularPower
 
 @program PhongShader phongVS phongFS
 
+//------------------------------------------------------------------------------
+//  planet shader
+//
+@uniform_block planetVSParams VSParams
+mat4 mvp ModelViewProjection
+mat4 model Model
+@end
+
+@uniform_block planetFSParams FSParams
+vec3 lightDir LightDir     // light dir in global space
+vec3 eyePos EyePos
+vec4 lightColor LightColor
+vec4 matDiffuse MatDiffuse
+vec4 matSpecular MatSpecular
+bool gammaCorrect GammaCorrect
+float matSpecularPower MatSpecularPower
+@end
+
+@vs planetVS
+@use_uniform_block phongVSParams
+@in vec4 position
+@in vec4 color0
+@in vec2 texcoord0
+@in vec4 normal
+@out vec3 N
+@out vec3 P
+{
+    _position = mul(mvp, position);
+    P = mul(model, position).xyz;
+    N = mul(model, vec4(normal.xyz, 0.0)).xyz;
+}
+@end
+
+@fs planetFS
+@use_code_block Util
+@use_uniform_block planetFSParams
+@in vec3 N
+@in vec3 P
+{
+    vec3 l = lightDir;
+    vec3 n = normalize(N);
+    vec3 v = normalize(eyePos - P);
+    float n_dot_l = max(dot(n, l), 0.0);
+    vec3 r = reflect(-l, n);
+    float r_dot_v = max(dot(r, v), 0.0);
+    
+    float diff = n_dot_l;
+    float spec = pow(r_dot_v, matSpecularPower) * n_dot_l;
+    vec4 col = vec4(lightColor.xyz * (matSpecular.xyz*spec + matDiffuse.xyz*diff), 1.0);
+    //col = lerp( col, vec4( 1.0, 0.0, 1.0, 1.0));
+    col.x = 1.0;
+    if (gammaCorrect) {
+        _color = gamma(col);
+    } else {
+        _color = col;
+    }
+}
+@end
+
+@program PlanetShader planetVS planetFS
+
+
+
 
 
