@@ -222,10 +222,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEVELOPMENT_TEAM = T4P743PG5Z;
-				HEADER_SEARCH_PATHS = /Users/joeld/Toolkits/raylib/src;
+				HEADER_SEARCH_PATHS = /Users/joeld/Toolkits/tk_raylib/src;
 				OTHER_LDFLAGS = (
-					"-L/Users/joeld/Toolkits/raylib/release/osx",
-					"-lraylib_d",
+					"-L/Users/joeld/Toolkits/tk_raylib/release/osx",
+					"-lraylib",
 					"-L/usr/local/Cellar/glfw3/3.2.1/lib",
 					"-lglfw3",
 					"-framework",
@@ -244,10 +244,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEVELOPMENT_TEAM = T4P743PG5Z;
-				HEADER_SEARCH_PATHS = /Users/joeld/Toolkits/raylib/src;
+				HEADER_SEARCH_PATHS = /Users/joeld/Toolkits/tk_raylib/src;
 				OTHER_LDFLAGS = (
-					"-L/Users/joeld/Toolkits/raylib/release/osx",
-					"-lraylib_d",
+					"-L/Users/joeld/Toolkits/tk_raylib/release/osx",
+					"-lraylib",
 					"-L/usr/local/Cellar/glfw3/3.2.1/lib",
 					"-lglfw3",
 					"-framework",

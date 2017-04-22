@@ -14,6 +14,7 @@
 #include <OpenGL/gl3.h>
 
 
+// raylib defines "DEBUG" for loggins :(
 #ifdef DEBUG
 #undef DEBUG
 #endif
@@ -1322,6 +1323,25 @@ int main()
     objLiteTest->lifetimeMin = 10;
     objLiteTest->lifetimeMax = 10;
 
+    SceneObject *objTile1 = LoadSceneObject( "tile_basic" );
+    objTile1->lifetimeMin = 4;
+    objTile1->lifetimeMax = 6;
+    
+    SceneObject *objTileBroke = LoadSceneObjectReuseTexture( "tile_broke1", objTile1->model.material.texDiffuse );
+    objTileBroke->lifetimeMin = 2;
+    objTileBroke->lifetimeMax = 4;
+
+    SceneObject *objTileBroke2 = LoadSceneObjectReuseTexture( "tile_broke2", objTile1->model.material.texDiffuse );
+    objTileBroke2->lifetimeMin = 2;
+    objTileBroke2->lifetimeMax = 4;
+
+    objTile1->decayInto = objTileBroke;
+    objTileBroke->decayInto = objTileBroke2;
+    
+    SceneObject *objTileTall = LoadSceneObjectReuseTexture( "tile_tall", objTile1->model.material.texDiffuse );
+    objTileTall->lifetimeMin = 2;
+    objTileTall->lifetimeMax = 4;
+
     
     SceneObject *objWall2 = LoadSceneObjectReuseTexture( "wall2", objWall->model.material.texDiffuse );
     objWall2->lifetimeMin = 10;
@@ -1382,7 +1402,8 @@ int main()
 #if 1
     Model model = LoadModel( "gamedata/ground1.obj");
     //model.material = LoadStandardMaterial();
-    model.material.texDiffuse = LoadTexture( "gamedata/ground1.png");
+    model.material.texDiffuse = LoadTexture( "gamedata/ground2.png");
+    //model.material.texDiffuse = LoadTexture( "gamedata/colortest.png");
     //pmodel.material.colAmbient = LIGHTGRAY;
     SetTextureFilter( model.material.texDiffuse, FILTER_POINT );
 #endif
@@ -1428,8 +1449,8 @@ int main()
     
     
     // for testing
-//    Texture2D dbgLookup = LoadTexture("gamedata/lookup.png");
-    Texture2D dbgLookup = LoadTexture("gamedata/lite_test.png");
+    Texture2D dbgLookup = LoadTexture("gamedata/lookup.png");
+//    Texture2D dbgLookup = LoadTexture("gamedata/lite_test.png");
     
     // Set up pixelate filter
     MakePaletteTexture(64);
@@ -2012,8 +2033,8 @@ int main()
 
             if (showLookup) {
                 DrawTexturePro( dbgLookup,
-                               //(Rectangle){ 0, 0, 512, 512 },
-                               (Rectangle){ 0, 0, 128, 128 },
+                               (Rectangle){ 0, 0, 512, 512 },
+                               //(Rectangle){ 0, 0, 128, 128 },
                                (Rectangle){ 0, 0, 200, 200 },
                                (Vector2){ 0, 0 }, 0, WHITE);
             }
@@ -2086,9 +2107,9 @@ int main()
             EndTextureMode();
             
             // HACK work around displayScale
-            if (retinaHack) {
-                glViewport(0, 0, GetScreenWidth() * 2.0, GetScreenHeight() * 2.0 );
-            }
+            //if (retinaHack) {
+            //    glViewport(0, 0, GetScreenWidth() * 2.0, GetScreenHeight() * 2.0 );
+           // }
             
             // ===================================
             // Blit to final screen res
