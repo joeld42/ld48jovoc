@@ -25,6 +25,7 @@ class SceneObject
 public:
     SceneObjectInfo *info;
     Oryol::MainShader::VSParams vsParams;
+    Oryol::MainShader::FSParams fsParams;
     
     glm::vec3 pos;
     glm::quat rot;

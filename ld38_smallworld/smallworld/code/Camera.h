@@ -41,6 +41,8 @@ public:
     glm::vec2 Rot;
     
     /// current camera rotation (for arcball camera)
+    // NOTE: this is all garbage
+    void SetRotationForAnim(  glm::quat qrot );
     glm::vec3 arcpos;
     glm::quat Rotq;
 

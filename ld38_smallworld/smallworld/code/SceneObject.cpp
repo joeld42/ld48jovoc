@@ -19,6 +19,8 @@ using namespace Oryol;
 SceneObject *makeObject( SceneObjectInfo *info )
 {
     SceneObject *object = new SceneObject();
+    
+    object->fsParams.TintColor = glm::vec4(1.0f);
     object->info = info;
     
     return object;
@@ -120,6 +122,7 @@ void Scene::drawScene()
             
             Gfx::ApplyDrawState(this->mainDrawState);            
             Gfx::ApplyUniformBlock( obj->vsParams);
+            Gfx::ApplyUniformBlock( obj->fsParams);
             
             for (int j=0; j < info->numPrims; j++) {
                 Gfx::Draw(j);

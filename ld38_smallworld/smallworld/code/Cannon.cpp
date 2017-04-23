@@ -3,9 +3,17 @@
 
 Cannon::Cannon( Scene *scene, glm::vec3 anchorPos, glm::vec3 upDir )
 {
-    _placementAngle = glm::linearRand( 0.0f, 360.0f );
-    _anchorPoint = anchorPos;
-    _upDir = upDir;
+    
+    int teamNum = rand() % 4;
+    if (teamNum==0) {
+        teamColor = glm::vec4(0.84,0.38,0.29, 1.0);
+    } else if (teamNum==1) {
+        teamColor = glm::vec4(0.16,0.68,0.68, 1.0);
+    } else if (teamNum==2) {
+        teamColor = glm::vec4(0.52,0.67,0.20,1.0);
+    } else if (teamNum==3) {
+        teamColor = glm::vec4(0.68,0.40,0.74, 1.0);
+    }
     
     // Initialize gameplay stuff
     aimHeading = 0.0;
@@ -19,6 +27,14 @@ Cannon::Cannon( Scene *scene, glm::vec3 anchorPos, glm::vec3 upDir )
     objBushing = scene->addObject( "msh:cannon_bushing.omsh", "tex:cannon_basecolor.dds");
     objBarrel = scene->addObject( "msh:cannon_barrel.omsh", "tex:cannon_basecolor.dds");
     
+    _placementAngle = glm::linearRand( 0.0f, 360.0f );
+    place( anchorPos, upDir );
+}
+
+void Cannon::place( glm::vec3 anchorPos, glm::vec3 upDir )
+{
+    _anchorPoint = anchorPos;
+    _upDir = upDir;
     updatePlacement();
 }
 
@@ -50,6 +66,26 @@ void Cannon::updatePlacement()
 glm::vec3 Cannon::calcProjectileVel()
 {
     return _shootyDir * (power*5000.0f);
+}
+
+void Cannon::applyTeamColor()
+{
+    // TODO: Pulse active color
+    glm::vec4 color = teamColor;
+    objBase->fsParams.TintColor = color;
+    objBarrel->fsParams.TintColor = color;
+    objBushing->fsParams.TintColor = color;
+    
+}
+
+void Cannon::pulseActive( float t )
+{
+    glm::vec4 highlightColor = glm::vec4(1.00,0.86,0.48,1.0);
+    glm::vec4 color = glm::mix( teamColor, highlightColor, fabs(sinf( t * 10.0 )) );
+    
+    objBase->fsParams.TintColor = color;
+    objBarrel->fsParams.TintColor = color;
+    objBushing->fsParams.TintColor = color;
 }
 
 // ========================================================

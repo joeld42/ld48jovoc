@@ -28,6 +28,9 @@
 #include "Planet.h"
 #include "Cannon.h"
 
+#define PAR_EASINGS_IMPLEMENTATION
+#include "par_easings.h"
+
 #include "NKUI/NKUI.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -51,7 +54,7 @@ public:
     AppState::Code OnCleanup();
 
 private:
-    void handle_input();
+    void handle_input( float dt ); // and update camera..
     
     glm::mat4 computeMVP(const glm::mat4& proj, float32 rotX, float32 rotY, const glm::vec3& pos);
 
@@ -102,12 +105,22 @@ private:
     glm::vec3 arcballAxis;
     float arcballAngle;
     
+    // camera moves
+    glm::quat animCamTarg;
+    glm::quat animCamStart;
+    float animCamTimer;
+    bool doAnimCam;
+    
+    float animT;
+    
     // Gameplay thinggys
     int activeCannon;
     Oryol::Array<Cannon> cannons;
     Oryol::Array<Shot> shots;
     void finishTurn();
     void fireActiveCannon();
+    void lookAtCannon( Cannon &cc );
+    void lookAtPos( glm::vec3 pos );
     
     
     struct nk_style_item mkColorStyleItem( const char *hexColor );
@@ -145,12 +158,35 @@ TestApp::OnRunning() {
     
     static TimePoint tp;
     Duration frameDuration = Clock::LapTime(tp);
-    double dt = frameDuration.AsSeconds();
+    float dt = frameDuration.AsSeconds();
     
-    this->handle_input();
+    this->handle_input( dt );
     
     if (!paused)
     {
+        
+        // Update cannons "falling"
+        for (int i=0; i < cannons.Size(); i++ ) {
+            
+            Cannon &cc = cannons[i];
+            
+            for(int step = 0; step < 10; step++)
+            {
+                glm::vec3 evalP = cc.objBase->pos / planet.worldSize;
+                float d = planet.surfBuilder.evalSDF( evalP );
+
+                if (d < 0.001) {
+                    // on surface
+                    break;
+                } else {
+                    // Cannon is off the ground, make falling
+                    glm::vec3 upDir = planet.surfBuilder.evalNormal( evalP );
+                    
+                    glm::vec3 newPos = cc.objBase->pos + (upDir*-100.0f*dt);
+                    cc.place( newPos, upDir );
+                }
+            }
+        }
         
         // Update shots
         bool planetNeedsRebuild = false;
@@ -185,7 +221,7 @@ TestApp::OnRunning() {
                 // FIXME: sloppy and might break stuff, removing while iterating
                 shots.EraseSwapBack( i );
                 
-                finishTurn();            
+                lookAtPos( ss.objShot->pos );
             }
         }
         
@@ -340,6 +376,7 @@ TestApp::OnInit() {
     fclose(fp);
     
     useDebugCamera = false;
+    animT = 0.0f;
     
     // set up IO system
     IOSetup ioSetup;
@@ -397,14 +434,14 @@ TestApp::OnInit() {
     
     
     // Note: there is a 100x scale from blender units
-    cannonBase = scene->addObject( "msh:cannon_base.omsh", "tex:cannon_basecolor.dds");
-    cannonBase->pos = glm::vec3(0.0, 0.0, 0.0 );
-    
-    cannonBushing = scene->addObject( "msh:cannon_bushing.omsh", "tex:cannon_basecolor.dds");
-    cannonBushing->pos = glm::vec3(0.0, 0.0, 0.0 );
-    
-    cannonBarrel = scene->addObject( "msh:cannon_barrel.omsh", "tex:cannon_basecolor.dds");
-    cannonBarrel->pos = glm::vec3(0.0, 191.6, 0.0 );
+//    cannonBase = scene->addObject( "msh:cannon_base.omsh", "tex:cannon_basecolor.dds");
+//    cannonBase->pos = glm::vec3(0.0, 0.0, 0.0 );
+//    
+//    cannonBushing = scene->addObject( "msh:cannon_bushing.omsh", "tex:cannon_basecolor.dds");
+//    cannonBushing->pos = glm::vec3(0.0, 0.0, 0.0 );
+//    
+//    cannonBarrel = scene->addObject( "msh:cannon_barrel.omsh", "tex:cannon_basecolor.dds");
+//    cannonBarrel->pos = glm::vec3(0.0, 191.6, 0.0 );
     
     
     // Setup planet
@@ -417,6 +454,7 @@ TestApp::OnInit() {
     
     // Build initial planet
     BuildPlanet();
+    
     
     // DEMO
 //    paused = true;
@@ -464,8 +502,11 @@ TestApp::BuildPlanet()
         glm::vec3 p = glm::sphericalRand( planet.planetApproxRadius  );
         glm::vec3 upDir = planet.surfBuilder.evalNormal( p );
         Cannon cc( scene, p, upDir );
+        cc.applyTeamColor();
         cannons.Add(cc);
     }
+    
+    lookAtCannon( cannons[activeCannon] );
 }
 
 void
@@ -473,12 +514,20 @@ TestApp::finishTurn()
 {
     // HERE check if there's only one team with cannons remaining
     
+    cannons[activeCannon].applyTeamColor();
+    
     do {
+        
         activeCannon++;
         if (activeCannon == cannons.Size()) {
             activeCannon = 0;
         }
+        
     } while (cannons[activeCannon].health == 0);
+    
+    
+    // Move camera to active cannon
+    lookAtCannon( cannons[activeCannon] );
 }
 
 void
@@ -495,10 +544,34 @@ TestApp::fireActiveCannon()
     }
 }
 
+void
+TestApp::lookAtCannon( Cannon &cc )
+{
+    lookAtPos( cc.objBase->pos );
+}
+
+void
+TestApp::lookAtPos( glm::vec3 pos )
+{
+    doAnimCam = true;
+    animCamStart = gameCamera.Rotq;
+    glm::vec3 front(0.0f,0.0f,1.0f);
+    glm::vec3 cannonDir = glm::normalize( pos );
+    
+    animCamTarg = glm::quat( front, cannonDir );
+    animCamTimer = 0.0;
+}
+
 //------------------------------------------------------------------------------
 void
-TestApp::handle_input() {
+TestApp::handle_input( float dt )
+{
     
+    
+    // Update active
+    animT += dt;
+    cannons[activeCannon].pulseActive( animT );
+        
     glm::vec3 move;
     glm::vec2 rot;
     float vel = 3.5f;
@@ -560,6 +633,10 @@ TestApp::handle_input() {
             if (Input::KeyDown(Key::Space) || Input::KeyDown(Key::Z) || Input::KeyDown(Key::X)) {
                 
                 fireActiveCannon();
+            }
+            
+            if (Input::KeyDown(Key::N)) {
+                finishTurn();
             }
             
         }
@@ -643,9 +720,22 @@ TestApp::handle_input() {
 //            
 //        }
         
-        
-        // Arcball (with momentum)
-        if (fabs( arcballAngle ) > 0.001) {
+        // Are we animating the camera?
+        if (doAnimCam) {
+            
+            animCamTimer += dt;
+            if (animCamTimer > 1.0f) {
+                doAnimCam = false;
+            } else {
+                float t = par_easings_in_out_cubic( animCamTimer );
+                glm::quat animQ = glm::mix( animCamStart, animCamTarg, t );
+                gameCamera.SetRotationForAnim( animQ );
+            }
+            
+        } else if (fabs( arcballAngle ) > 0.001) {
+            
+            // Are we arcballing?
+            
             gameCamera.RotateArcball( arcballAxis, arcballAngle );
             arcballAngle = arcballAngle * 0.9;
         }

@@ -23,14 +23,17 @@
 #include "IsosurfaceBuilder.h"
 #include "SceneObject.h"
 
+
 class Cannon
 {
 public:
 
     Cannon() {}
     Cannon( Scene *scene, glm::vec3 anchorPos, glm::vec3 upDir );
-        
-    glm::vec3 teamColor;
+    
+    char name[20];
+    glm::vec4 teamColor;
+    
     
     // Gameplay fields
     int health;
@@ -46,7 +49,11 @@ public:
     glm::vec3 _shootyDir;
     glm::vec3 _upDir;
     
+    void place( glm::vec3 anchorPos, glm::vec3 upDir );
     void updatePlacement();
+    
+    void applyTeamColor();
+    void pulseActive( float t );
     
     glm::vec3 calcProjectileVel();
     

@@ -7,6 +7,11 @@
 mat4 mvp ModelViewProjection
 @end
 
+@uniform_block fsParams FSParams
+vec4 tintColor TintColor
+@end
+
+
 @texture_block textures Textures
 sampler2D tex Texture
 @end
@@ -52,6 +57,7 @@ sampler2D tex Texture
 @end
 
 @fs mainFS
+@use_uniform_block fsParams
 @use_texture_block textures
 @in vec4 nrm
 @in vec2 uv
@@ -59,7 +65,7 @@ sampler2D tex Texture
     
     vec4 c = tex2D(tex, uv * vec2(1.0, -1.0));
     float l = clamp(dot(nrm.xyz, normalize(vec3(1.0, 0.34, -4.0))), 0.0, 1.0) * 2.0;
-    _color = vec4(c.xyz * (l + 0.25), 1.0);
+    _color = vec4(c.xyz * (l + 0.25), 1.0) * tintColor;
     
 }
 @end
@@ -276,7 +282,7 @@ float rimPower RimPower
         _color = gamma(col);
     } else {
         _color = col;
-    }
+    }        
 }
 @end
 
