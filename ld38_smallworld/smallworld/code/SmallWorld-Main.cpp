@@ -3,6 +3,7 @@
 //------------------------------------------------------------------------------
 #include "Pre.h"
 #include "Core/Main.h"
+#include "Core/Time/Clock.h"
 #include "Gfx/Gfx.h"
 #include "Input/Input.h"
 
@@ -25,6 +26,7 @@
 #include "Camera.h"
 #include "IsosurfaceBuilder.h"
 #include "Planet.h"
+#include "Cannon.h"
 
 #include "NKUI/NKUI.h"
 
@@ -75,7 +77,7 @@ private:
     
     Scene *scene;
     
-    SceneObject *treeCursor;
+    //SceneObject *treeCursor;
     
     SceneObject *cannonBase;
     SceneObject *cannonBushing;
@@ -97,6 +99,13 @@ private:
     glm::vec3 lastArcball;
     glm::vec3 arcballAxis;
     float arcballAngle;
+    
+    // Gameplay thinggys
+    int activeCannon;
+    Oryol::Array<Cannon> cannons;
+    Oryol::Array<Shot> shots;
+    void finishTurn();
+    void fireActiveCannon();
     
 };
 OryolMain(TestApp);
@@ -127,8 +136,38 @@ Camera *TestApp::currentCamera()
 AppState::Code
 TestApp::OnRunning() {
     
+    static TimePoint tp;
+    Duration frameDuration = Clock::LapTime(tp);
+    double dt = frameDuration.AsSeconds();
+    
     this->handle_input();
     
+    // Update shots
+    for (int i=0; i < shots.Size(); i++) {
+        Shot &ss = shots[i];
+        
+        glm::vec3 evalP = ss.objShot->pos / planet.worldSize;
+        
+        glm::vec3 grav = planet.surfBuilder.evalNormal( evalP );
+        grav *= -10000.0;
+        
+        ss.updateBallistic( dt, grav );
+        evalP = ss.objShot->pos / planet.worldSize;
+        
+        // check if we hit..
+        float f = planet.surfBuilder.evalSDF( evalP );
+        if (f <= 0.0f) {
+            printf("Hit Planet...");
+            scene->removeObject( ss.objShot );
+            
+            // FIXME: sloppy and might break stuff, removing while iterating
+            shots.EraseSwapBack( i );
+        }
+        
+    }
+    
+    
+    // Update model mats
     for (int i=0; i < scene->sceneObjs.Size(); i++) {
         SceneObject *obj = scene->sceneObjs[i];
         
@@ -140,9 +179,6 @@ TestApp::OnRunning() {
         obj->vsParams.ModelViewProjection = mvp;
     }
     
-    // Update arcball
-    
-    
     // Planet has no model transform, is always at 0,0,0
     planet.UpdateCamera( currentCamera() );
     
@@ -153,6 +189,8 @@ TestApp::OnRunning() {
     
     // Draw planet isosurf
     planet.Draw();
+    
+    
     
 #if 1
     // Draw UI
@@ -265,7 +303,7 @@ TestApp::OnInit() {
     }
     fclose(fp);
     
-    useDebugCamera = true;
+    useDebugCamera = false;
     
     // set up IO system
     IOSetup ioSetup;
@@ -313,21 +351,22 @@ TestApp::OnInit() {
     
     //for (int i=0; i < 100; i++) {
         
-        SceneObject *obj1 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
-        obj1->rot = glm::quat( glm::vec3( 0.0, glm::linearRand( 0.0f, 360.0f), 0.0 ) );
-        obj1->pos = glm::linearRand(minRand, maxRand);
-    
-    treeCursor = obj1;
+//        SceneObject *obj1 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
+//        obj1->rot = glm::quat( glm::vec3( 0.0, glm::linearRand( 0.0f, 360.0f), 0.0 ) );
+//        obj1->pos = glm::linearRand(minRand, maxRand);
+//    
+//    treeCursor = obj1;
     //}
     
+    
     // Note: there is a 100x scale from blender units
-    cannonBase = scene->addObject( "msh:cannon_base.omsh", "tex:cannon.dds");
+    cannonBase = scene->addObject( "msh:cannon_base.omsh", "tex:cannon_basecolor.dds");
     cannonBase->pos = glm::vec3(0.0, 0.0, 0.0 );
     
-    cannonBushing = scene->addObject( "msh:cannon_bushing.omsh", "tex:cannon.dds");
+    cannonBushing = scene->addObject( "msh:cannon_bushing.omsh", "tex:cannon_basecolor.dds");
     cannonBushing->pos = glm::vec3(0.0, 0.0, 0.0 );
     
-    cannonBarrel = scene->addObject( "msh:cannon_barrel.omsh", "tex:cannon.dds");
+    cannonBarrel = scene->addObject( "msh:cannon_barrel.omsh", "tex:cannon_basecolor.dds");
     cannonBarrel->pos = glm::vec3(0.0, 191.6, 0.0 );
     
     
@@ -339,6 +378,8 @@ TestApp::OnInit() {
     // Setup UI
     NKUI::Setup();
     
+    // Build initial planet
+    BuildPlanet();
     
     return App::OnInit();
 }
@@ -359,6 +400,44 @@ TestApp::OnCleanup() {
 //    return proj * this->view * modelTform;
 //}
 
+void
+TestApp::BuildPlanet()
+{
+    printf("Build planet...\n");
+    planet.Rebuild( scene );
+    
+    // Add cannons
+    while (cannons.Size() < 12) {
+        
+        glm::vec3 p = glm::sphericalRand( planet.planetApproxRadius  );
+        glm::vec3 upDir = planet.surfBuilder.evalNormal( p );
+        Cannon cc( scene, p, upDir );
+        cannons.Add(cc);
+    }
+}
+
+void
+TestApp::finishTurn()
+{
+    // HERE check if there's only one team with cannons remaining
+    
+    do {
+        activeCannon++;
+        if (activeCannon > cannons.Size()) {
+            activeCannon = 0;
+        }
+    } while (cannons[activeCannon].health == 0);
+}
+
+void
+TestApp::fireActiveCannon()
+{
+    Cannon &cc = cannons[activeCannon];
+    
+    SceneObject *objShot = scene->addObject( "msh:pea_shot.omsh", "tex:pea_shot.dds");
+    Shot shot( objShot, cc._shootyPoint, cc.calcProjectileVel() );
+    shots.Add( shot );
+}
 
 //------------------------------------------------------------------------------
 void
@@ -367,57 +446,69 @@ TestApp::handle_input() {
     glm::vec3 move;
     glm::vec2 rot;
     float vel = 3.5f;
+    float angSpeed = 1.0f;
     if (Input::KeyboardAttached() ) {
         
         if (Input::KeyPressed( Key::LeftShift)) {
             vel *= 10.0;
+            angSpeed *= 10.0f;
         }
         
-        if (Input::KeyPressed(Key::W) || Input::KeyPressed(Key::Up)) {
-            move.z -= vel;
-        }
-        if (Input::KeyPressed(Key::S) || Input::KeyPressed(Key::Down)) {
-            move.z += vel;
-        }
-        if (Input::KeyPressed(Key::A) || Input::KeyPressed(Key::Left)) {
-            move.x -= vel;
-        }
-        if (Input::KeyPressed(Key::D) || Input::KeyPressed(Key::Right)) {
-            move.x += vel;
-        }
-        
-        if (Input::KeyDown(Key::B)) {
-            if (scene->didSetupPipeline) {
-                printf("Build planet...\n");
-                planet.Rebuild( scene );
+        if (useDebugCamera) {
+            if (Input::KeyPressed(Key::W) || Input::KeyPressed(Key::Up)) {
+                move.z -= vel;
             }
+            if (Input::KeyPressed(Key::S) || Input::KeyPressed(Key::Down)) {
+                move.z += vel;
+            }
+            if (Input::KeyPressed(Key::A) || Input::KeyPressed(Key::Left)) {
+                move.x -= vel;
+            }
+            if (Input::KeyPressed(Key::D) || Input::KeyPressed(Key::Right)) {
+                move.x += vel;
+            }
+        } else {
+            Cannon &cc = cannons[activeCannon];
+            if (Input::KeyPressed(Key::W) || Input::KeyPressed(Key::Up)) {
+                cc.cannonAngle += angSpeed;
+                if (cc.cannonAngle > 180.0) {
+                    cc.cannonAngle = 180.0;
+                }
+            }
+            if (Input::KeyPressed(Key::S) || Input::KeyPressed(Key::Down)) {
+                cc.cannonAngle -= angSpeed;
+                if (cc.cannonAngle < 0.0) {
+                    cc.cannonAngle = 0.0;
+                }
+            }
+            if (Input::KeyPressed(Key::A) || Input::KeyPressed(Key::Left)) {
+                cc.aimHeading -= angSpeed;
+                if (cc.aimHeading < -180.0){
+                    cc.aimHeading = 180.0;
+                }
+            }
+            if (Input::KeyPressed(Key::D) || Input::KeyPressed(Key::Right)) {
+                cc.aimHeading += angSpeed;
+                if (cc.aimHeading > 180.0){
+                    cc.aimHeading = -180.0;
+                }
+            }
+            cc.updatePlacement();
+            
+
+            // FIRE?
+            if (Input::KeyDown(Key::Space) || Input::KeyDown(Key::Z) || Input::KeyDown(Key::X)) {
+                fireActiveCannon();
+            }
+            
         }
         
-        if (Input::KeyDown(Key::N1)) {
-            planet.surfBuilder.fx *= -1.0;
-            planet.Rebuild( scene );
-        }
-        if (Input::KeyDown(Key::N2)) {
-            planet.surfBuilder.fy *= -1.0;
-            planet.Rebuild( scene );
-        }
-        if (Input::KeyDown(Key::N3)) {
-            planet.surfBuilder.fz *= -1.0;
-            planet.Rebuild( scene );
-        }
+//        if (Input::KeyDown(Key::B)) {
+//            if (scene->didSetupPipeline) {
+//                BuildPlanet();
+//            }
+//        }
         
-        if (Input::KeyDown(Key::N4)) {
-            planet.surfBuilder.i1 = 1-planet.surfBuilder.i1;
-            planet.Rebuild( scene );
-        }
-        if (Input::KeyDown(Key::N5)) {
-            planet.surfBuilder.j1 = 1-planet.surfBuilder.j1;
-            planet.Rebuild( scene );
-        }
-        if (Input::KeyDown(Key::N6)) {
-            planet.surfBuilder.k1 = 1-planet.surfBuilder.k1;
-            planet.Rebuild( scene );
-        }
         
         if (Input::KeyDown(Key::GraveAccent)) {
             tmpUI = !tmpUI;
@@ -461,7 +552,7 @@ TestApp::handle_input() {
                 glm::vec2 mousePos = Input::MousePosition();
                 glm::vec3 arcballVec = arcballVector( mousePos );
                 
-                treeCursor->pos = arcballVec * (3000.0f * 0.8f);
+                //treeCursor->pos = arcballVec * planet.planetApproxRadius;
                 
 //                printf("Tree Cursor %f %f arcball %3.2f, %3.2f, %3.2f\n",
 //                       mousePos.x, mousePos.y,

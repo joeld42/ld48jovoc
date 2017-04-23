@@ -3,20 +3,20 @@
 
 using namespace Oryol;
 
-static const float kWorldSize = 3000.0f;
-
-Planet::Planet() : _built(false)
+Planet::Planet() : _built(false), worldSize( 3000.0f )
 {
 }
 
 // ==================================================================
 //   Engine stuff
 // ==================================================================
-float Planet::evalSDF( glm::vec3 p )
-{
-    // Test SDF
-    return glm::length(p)-1.0;
-}
+
+// FIXME: move this into planet and out of Isobuilder
+//float Planet::evalSDF( glm::vec3 p )
+//{
+//    // Test SDF
+//    return glm::length(p)-1.0;
+//}
 
 // ==================================================================
 //   Engine stuff
@@ -51,8 +51,10 @@ void Planet::Rebuild( Scene *scene )
     surfBuilder.Layout = surfLayout;
     
     Gfx::PushResourceLabel();
-    meshIsosurf = Gfx::CreateResource( surfBuilder.Build() );
+    meshIsosurf = Gfx::CreateResource( surfBuilder.Build( worldSize ) );
     planetResource = Gfx::PopResourceLabel();
+    
+    planetApproxRadius = 3000.0f * 0.8f;
     
     _built = true;
 }

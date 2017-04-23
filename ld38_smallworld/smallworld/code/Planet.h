@@ -48,7 +48,12 @@ public:
     
     void UpdateCamera( Camera *camera );
     
-    float evalSDF( glm::vec3 p );
+//    float evalSDF( glm::vec3 p );
+//    float evalNormal( glm::vec3 p );
+    
+    // Info
+    const glm::vec3 worldSize;
+    float planetApproxRadius;
     
     Oryol::ResourceLabel planetResource;
     

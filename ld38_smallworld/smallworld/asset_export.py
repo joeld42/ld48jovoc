@@ -20,13 +20,16 @@ RUNTIME_DATA_DIR = "gamedata"
 MESHES = [
     'cannon_base.fbx',
     'cannon_bushing.fbx',
-    'cannon_barrel.fbx'
+    'cannon_barrel.fbx',
+    'pea_shot.fbx',
 ]
 
 
 TEXTURES = {
     # 'wood.png' : 'A8R8G8B8'
     'cannon.png' : 'DXT5',
+    'cannon_basecolor.png': 'DXT5',
+    'pea_shot.png': 'DXT5',
     #'tree_062.png' : 'DXT5',
     #'soupbowl.png' : 'DXT5'
 }

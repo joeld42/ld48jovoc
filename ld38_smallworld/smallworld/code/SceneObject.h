@@ -42,7 +42,8 @@ public:
     Oryol::Array<SceneObject*> sceneObjs;
     
     SceneObject *addObject( const char *meshName, const char *textureName );
-
+    void removeObject( SceneObject *obj );
+    
     Oryol::GfxSetup gfxSetup;
     Oryol::DrawState mainDrawState;
     

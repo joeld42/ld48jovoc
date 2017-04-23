@@ -85,6 +85,14 @@ SceneObject *Scene::addObject( const char *meshName, const char *textureName )
     return obj;
 }
 
+void Scene::removeObject( SceneObject *obj ) {
+    int ndx = sceneObjs.FindIndexLinear(obj);
+    sceneObjs.EraseSwapBack( ndx );
+    
+    // TODO: use a pool or an oryol thinggy for this
+    delete obj;
+}
+
 
 void Scene::drawScene()
 {

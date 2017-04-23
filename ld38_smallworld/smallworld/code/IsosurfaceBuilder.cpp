@@ -159,7 +159,7 @@ float IsosurfaceBuilder::evalSDF( glm::vec3 p, glm::vec4 *color )
     float dSphere = glm::length(p)-(0.8 + dbgPush);
     
     
-    glm::vec3 c = glm::vec3( 0.0, 0.0,0.45);
+    glm::vec3 c = glm::vec3( 0.0, 0.0,0.25);
     float dCyl1 = glm::length( glm::vec3( p.x-c.x, p.z-c.y, 0.0 )) - c.z;
     float dCyl2 = glm::length( glm::vec3( p.x-c.x, p.y-c.y, 0.0 )) - c.z;
     float dCyl3 = glm::length( glm::vec3( p.y-c.x, p.z-c.y, 0.0 )) - c.z;
@@ -195,7 +195,7 @@ glm::vec3 IsosurfaceBuilder::evalNormal( glm::vec3 p )
     return nrm;
 }
 
-Oryol::SetupAndData<Oryol::MeshSetup> IsosurfaceBuilder::Build()
+Oryol::SetupAndData<Oryol::MeshSetup> IsosurfaceBuilder::Build( glm::vec3 worldSize )
 {
     
     printf("Isosurface:BUILD: Flips: %3.0f %3.0f %3.0f ijk1 %d %d %d\n", fx, fy, fz, i1, j1, k1 );
@@ -302,8 +302,6 @@ Oryol::SetupAndData<Oryol::MeshSetup> IsosurfaceBuilder::Build()
     meshBuilder.PrimitiveGroups.Clear();
     meshBuilder.PrimitiveGroups.Add( 0, numTotalTris*3 );
     meshBuilder.Begin();
-    
-    const glm::vec3 worldSize( 3000.0f, 3000.0f, 3000.0f );
     
 //    const glm::vec3 minRand(-3000.0f, -3000.0f, -3000.0f );
 //    const glm::vec3 maxRand( 3000.0f,  3000.0f,  3000.0f );

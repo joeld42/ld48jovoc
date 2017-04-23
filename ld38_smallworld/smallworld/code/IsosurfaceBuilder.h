@@ -27,7 +27,7 @@ public:
     bool RandomColors;
     
     /// build geometry and clear object state
-    Oryol::SetupAndData<Oryol::MeshSetup> Build();
+    Oryol::SetupAndData<Oryol::MeshSetup> Build( glm::vec3 worldSize );
     
     glm::vec4 color;
     
