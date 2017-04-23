@@ -39,6 +39,13 @@ public:
     
     int gridRes; // resolution of grid, e.g. 64x64x64
     
+    // FIXME: this should live in the planet
+    int damageRes;
+    float *damage;
+    void clearDamage();
+    void addDamage( glm::vec3 p, float radius );
+    float lookupDamage( glm::vec3 p );
+    
     float evalSDF( glm::vec3 p, glm::vec4 *color=NULL );
     glm::vec3 evalNormal( glm::vec3 p );
     

@@ -107,6 +107,8 @@ private:
     void finishTurn();
     void fireActiveCannon();
     
+    void DoGameUI( nk_context* ctx );
+    
 };
 OryolMain(TestApp);
 
@@ -143,12 +145,15 @@ TestApp::OnRunning() {
     this->handle_input();
     
     // Update shots
+    bool planetNeedsRebuild = false;
     for (int i=0; i < shots.Size(); i++) {
         Shot &ss = shots[i];
         
         glm::vec3 evalP = ss.objShot->pos / planet.worldSize;
         
-        glm::vec3 grav = planet.surfBuilder.evalNormal( evalP );
+        //glm::vec3 grav = planet.surfBuilder.evalNormal( evalP );
+        glm::vec3 grav = glm::normalize( evalP );
+        
         grav *= -10000.0;
         
         ss.updateBallistic( dt, grav );
@@ -157,13 +162,21 @@ TestApp::OnRunning() {
         // check if we hit..
         float f = planet.surfBuilder.evalSDF( evalP );
         if (f <= 0.0f) {
-            printf("Hit Planet...");
+            planetNeedsRebuild = true;
+            printf("Hit Planet (%3.2f %3.2f %3.2f)...\n",
+                   evalP.x, evalP.y, evalP.z );
+            
+            planet.surfBuilder.addDamage( evalP, 1000.0/planet.worldSize.x );
+            
             scene->removeObject( ss.objShot );
             
             // FIXME: sloppy and might break stuff, removing while iterating
             shots.EraseSwapBack( i );
         }
-        
+    }
+    
+    if (planetNeedsRebuild) {
+        planet.Rebuild( scene );
     }
     
     
@@ -259,6 +272,8 @@ TestApp::OnRunning() {
         }
     }
     
+    // Game Mode UI
+    DoGameUI( ctx );
     
     NKUI::Draw();
 #endif
@@ -404,6 +419,15 @@ void
 TestApp::BuildPlanet()
 {
     printf("Build planet...\n");
+    
+    planet.surfBuilder.clearDamage();
+
+    // Start with some damage
+//    for (int i=0; i < 10; i++) {
+//        glm::vec3 p = glm::sphericalRand( 0.8 );
+//        planet.surfBuilder.addDamage( p, glm::linearRand( 0.1f, 0.2f) );
+//    }
+    
     planet.Rebuild( scene );
     
     // Add cannons
@@ -581,10 +605,26 @@ TestApp::handle_input() {
             gameCamera.RotateArcball( arcballAxis, arcballAngle );
             arcballAngle = arcballAngle * 0.9;
         }
+        
+        glm::vec3 lightDir = glm::normalize( glm::vec3( -1.0, -0.3, 0.1 ) );
+        planet.planetFSParams.LightDir = lightDir * gameCamera.Rotq;
     }
     
     
     
+}
+
+//------------------------------------------------------------------------------
+void
+TestApp::DoGameUI( nk_context* ctx )
+{
+    struct nk_panel layout;
+    if (nk_begin(ctx, &layout, "Player 1", nk_rect(0, 0, 220, fbHeight), NK_WINDOW_BORDER)) {
+        
+        
+        
+        nk_end(ctx);
+    }
 }
 
 //------------------------------------------------------------------------------

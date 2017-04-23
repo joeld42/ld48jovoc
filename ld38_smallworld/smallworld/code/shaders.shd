@@ -264,9 +264,10 @@ float rimPower RimPower
     float n_dot_v = max(dot(n, v), 0.0);
     float rim = pow(1.0 - n_dot_v, rimPower );
     
-    vec4 col = vec4(lightColor.xyz * (matSpecular.xyz*spec + C.xyz*diff + ambientColor.xyz + rim*rimColor.xyz), 1.0);
+    // Color al
+    vec4 col = vec4(lightColor.xyz * (matSpecular.xyz*spec*C.a + C.xyz*diff + ambientColor.xyz + rim*rimColor.xyz), 1.0);
     
-    //col = vec4( rim, rim, rim, 1.0 );
+    //col = vec4( C.a, C.a, C.a, 1.0 );
     //col = vec4( n, 1.0 );
     
     //col = lerp( col, vec4( 1.0, 0.0, 1.0, 1.0));

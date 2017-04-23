@@ -146,7 +146,9 @@ IsosurfaceBuilder::IsosurfaceBuilder() :
     //curPrimGroupNumElements(0),
     color(1.0f, 1.0f, 1.0f, 1.0f),
     fx(1.0), fy(1.0), fz(1.0),
-    gridRes(64)
+    gridRes(64),
+    damageRes(20),
+    damage(NULL)
 {
     dbgPush = 0.0f;
 }
@@ -158,7 +160,9 @@ float IsosurfaceBuilder::evalSDF( glm::vec3 p, glm::vec4 *color )
     
     float dSphere = glm::length(p)-(0.8 + dbgPush);
     
+    float dDamage = lookupDamage( p );
     
+    /*
     glm::vec3 c = glm::vec3( 0.0, 0.0,0.25);
     float dCyl1 = glm::length( glm::vec3( p.x-c.x, p.z-c.y, 0.0 )) - c.z;
     float dCyl2 = glm::length( glm::vec3( p.x-c.x, p.y-c.y, 0.0 )) - c.z;
@@ -176,6 +180,25 @@ float IsosurfaceBuilder::evalSDF( glm::vec3 p, glm::vec4 *color )
     }
     
     return fmax( dSphere, -dCyl );
+     */
+    
+    if (color) {
+        if (dSphere < -0.001) {
+            // inside the ground
+            *color = glm::vec4(0.60,0.35,0.11,0.3);
+        } else {
+            *color = glm::vec4(0.53,0.77,0.15,1.0);
+        }
+        
+        // darken the color if we're near the edge of damage
+        float burnAmount = 1.0 - glm::smoothstep( 0.0f, 0.1f, fmaxf(fabs(dDamage),fabs(dSphere)) );
+        *color = glm::mix( *color,
+                          glm::vec4(0.0, 0.0, 0.0, 0.0),
+                          //glm::vec4(0.22,0.19,0.16, 1.0),
+                          burnAmount );
+    }
+    
+    return fmax( dSphere, -dDamage );
 }
 
 glm::vec3 IsosurfaceBuilder::evalNormal( glm::vec3 p )
@@ -231,14 +254,12 @@ Oryol::SetupAndData<Oryol::MeshSetup> IsosurfaceBuilder::Build( glm::vec3 worldS
     IsoSurfGridCell cell;
     float halfSz = 1.0f / float(gridRes-1);
     for (int nk=0; nk < gridRes-1; nk++) {
+        float kk = ((float(nk) / float(gridRes-1)) - 0.5f) * 2.0;
         
         for (int nj=0; nj < gridRes-1; nj++) {
-            
+            float jj = ((float(nj) / float(gridRes-1)) - 0.5f) * 2.0;
+
             for (int ni=0; ni < gridRes-1; ni++) {
-            
-                
-                float kk = ((float(nk) / float(gridRes-1)) - 0.5f) * 2.0;
-                float jj = ((float(nj) / float(gridRes-1)) - 0.5f) * 2.0;
                 float ii = ((float(ni) / float(gridRes-1)) - 0.5f) * 2.0;
                 
                 int i = ni;
@@ -362,5 +383,86 @@ Oryol::SetupAndData<Oryol::MeshSetup> IsosurfaceBuilder::Build( glm::vec3 worldS
     
     return meshBuilder.Build();
     
+}
+
+// FIXME: move this stuff to Planet
+void IsosurfaceBuilder::clearDamage()
+{
+    if (!damage) {
+        damage = (float*)Memory::Alloc( sizeof(float) * damageRes * damageRes * damageRes );
+    }
     
+    for (int i=0; i < damageRes*damageRes*damageRes; i++) {
+        damage[i] = 9999.0;
+    }
+}
+
+void IsosurfaceBuilder::addDamage( glm::vec3 p, float radius )
+{
+    // TODO: maybe add a half-cell offset to p to line up?
+    
+    for (int k=0; k < damageRes; k++) {
+        float kk = ((float(k) / float(damageRes-1)) - 0.5f) * 2.0;
+        
+        for (int j=0; j < damageRes; j++) {
+            float jj = ((float(j) / float(damageRes-1)) - 0.5f) * 2.0;
+            
+            for (int i=0; i < damageRes; i++) {
+                float ii = ((float(i) / float(damageRes-1)) - 0.5f) * 2.0;
+                
+                glm::vec3 pp(ii,jj,kk);
+                float d = glm::length(pp - p) - radius;
+                float *v = damage + ((k*damageRes*damageRes) + (j*damageRes) + i);
+                *v = fmin( *v, d );
+//                printf("AddDamage %d %d %d pp %3.2f %3.2f %3.2f result %f\n",
+//                       i,j,k,
+//                       ii,jj,kk,
+//                       *v );
+            }
+        }
+    }
+}
+
+
+// This interpolation is buggy but I don't really care right now
+// since it looks pretty good noisy.
+float IsosurfaceBuilder::lookupDamage( glm::vec3 p )
+{
+    glm::vec3 pp = ((p*0.5f)+glm::vec3(0.5f)) * float(damageRes-1);
+    pp = glm::clamp( pp, glm::vec3(0.0f), glm::vec3(float(damageRes-1) - 0.0001) );
+    
+    float ii = floorf( pp.x );
+    float ti = pp.x - ii;
+    
+    float jj = floorf( pp.y );
+    float tj = pp.y - jj;
+    
+    float kk = floorf( pp.z );
+    float tk = pp.z - kk;
+    
+    int i = int(ii);
+    int j = int(jj);
+    int k = int(kk);
+    
+    float p0 = *(damage + ((k+0)*damageRes*damageRes) + ((j+0)*damageRes) + (i+0));
+    float p1 = *(damage + ((k+0)*damageRes*damageRes) + ((j+0)*damageRes) + (i+1));
+    float p2 = *(damage + ((k+1)*damageRes*damageRes) + ((j+0)*damageRes) + (i+1));
+    float p3 = *(damage + ((k+0)*damageRes*damageRes) + ((j+0)*damageRes) + (i+0));
+
+    float p4 = *(damage + ((k+0)*damageRes*damageRes) + ((j+1)*damageRes) + (i+0));
+    float p5 = *(damage + ((k+0)*damageRes*damageRes) + ((j+1)*damageRes) + (i+1));
+    float p6 = *(damage + ((k+1)*damageRes*damageRes) + ((j+1)*damageRes) + (i+1));
+    float p7 = *(damage + ((k+0)*damageRes*damageRes) + ((j+1)*damageRes) + (i+0));
+    
+    float lerpA = (1.0-ti)*p0 + ti*p1;
+    float lerpB = (1.0-ti)*p4 + ti*p5;
+    float lerpC = (1.0-ti)*p7 + ti*p6;
+    float lerpD = (1.0-ti)*p3 + ti*p2;
+    
+    float lerpE = (1.0-tj)*lerpD + tj*lerpC;
+    float lerpF = (1.0-tj)*lerpA + tj*lerpB;
+    
+    float result = (1.0-tk)*lerpF + tk*lerpE;
+    
+    return result;
 }
