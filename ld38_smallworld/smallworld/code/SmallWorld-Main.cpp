@@ -64,27 +64,36 @@ private:
     ResourceLabel curMaterialLabel;
     int numMaterials = 0;
 
-    static const int numShaders = 3;
-    static const char *shaderNames[numShaders];
-    enum {
-        Normals,
-        Lambert,
-        Phong
-    };
     
     Id texture;
     DrawState mainDrawState;
     
     Planet planet;
   
-    Camera camera;
+    Camera dbgCamera;
+    Camera gameCamera;
+    
     Scene *scene;
+    
+    SceneObject *treeCursor;
     
     /// load a single icon, asynchronously
     void load_icon(const char* url, struct nk_image* img);
     
     bool tmpUI;
+    
+    bool useDebugCamera;
+    Camera *currentCamera();
 
+    float32 fbWidth;
+    float32 fbHeight;
+    glm::vec3 screenPosToPlanet( glm::vec2 screenPos );
+    glm::vec3 arcballVector( glm::vec2 screenPos );
+    
+    glm::vec3 lastArcball;
+    glm::vec3 arcballAxis;
+    float arcballAngle;
+    
 };
 OryolMain(TestApp);
 
@@ -105,6 +114,11 @@ void dbgPrintMatrix( const char *label, glm::mat4 m )
            m[3][0], m[3][1], m[3][2], m[3][3] );
 }
 
+Camera *TestApp::currentCamera()
+{
+    return useDebugCamera?&dbgCamera:&gameCamera;
+}
+
 //------------------------------------------------------------------------------
 AppState::Code
 TestApp::OnRunning() {
@@ -118,12 +132,15 @@ TestApp::OnRunning() {
         modelTform = modelTform * glm::mat4_cast( obj->rot );
 //        return proj * this->view * modelTform;
         
-        glm::mat4 mvp = this->camera.ViewProj * modelTform;
+        glm::mat4 mvp = currentCamera()->ViewProj * modelTform;
         obj->vsParams.ModelViewProjection = mvp;
     }
     
+    // Update arcball
+    
+    
     // Planet has no model transform, is always at 0,0,0
-    planet.UpdateCamera( &camera );
+    planet.UpdateCamera( currentCamera() );
     
     Gfx::BeginPass();
     
@@ -212,6 +229,25 @@ TestApp::OnRunning() {
     return Gfx::QuitRequested() ? AppState::Cleanup : AppState::Running;
 }
 
+glm::vec3 TestApp::arcballVector( glm::vec2 screenPos )
+{
+    glm::vec3 P = glm::vec3(1.0*screenPos.x/fbWidth*2 - 1.0,
+                            1.0*screenPos.y/fbHeight*2 - 1.0,
+                            0);
+    P.y = -P.y;
+    float OP_squared = P.x * P.x + P.y * P.y;
+    if (OP_squared <= 1*1)
+        P.z = sqrt(1*1 - OP_squared);  // Pythagore
+    else
+        P = glm::normalize(P);  // nearest point
+    return P;
+}
+
+//glm::vec3 TestApp::arcballVector( glm::vec2 screenPos )
+//{
+//    
+//}
+
 //------------------------------------------------------------------------------
 AppState::Code
 TestApp::OnInit() {
@@ -225,6 +261,8 @@ TestApp::OnInit() {
     }
     fclose(fp);
     
+    useDebugCamera = true;
+    
     // set up IO system
     IOSetup ioSetup;
     ioSetup.FileSystems.Add( "file", LocalFileSystem::Creator() );
@@ -235,8 +273,8 @@ TestApp::OnInit() {
     
     scene = new Scene();
 
-    scene->gfxSetup = GfxSetup::WindowMSAA4(800, 600, "LD32 Small World");
-    scene->gfxSetup.DefaultPassAction = PassAction::Clear(glm::vec4(0.25f, 0.5f, 1.0f, 1.0f) );
+    scene->gfxSetup = GfxSetup::WindowMSAA4(1280, 720, "LD32 Small World");
+    scene->gfxSetup.DefaultPassAction = PassAction::Clear(glm::vec4(0.12,0.11,0.24, 1.0f) );
     Gfx::Setup(scene->gfxSetup);
     
     scene->init();
@@ -256,26 +294,32 @@ TestApp::OnInit() {
 //    });
     
     // setup static transform matrices
-    float32 fbWidth = Gfx::DisplayAttrs().FramebufferWidth;
-    float32 fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
-
-    this->camera.Setup(glm::vec3(-2531.f, 1959.f, 3241.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 25000.0f);
+    fbWidth = Gfx::DisplayAttrs().FramebufferWidth;
+    fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
     
-    SceneObject *ground = scene->addObject( "msh:ground1_big.omsh", "tex:ground1.dds");
-    ground->pos = glm::vec3( 0.0, -3000.0, 0.0);
+    this->dbgCamera.Setup(glm::vec3(0.f, 0.f, 5000.0f), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 10000.0f);
+    this->gameCamera.Setup(glm::vec3(0.0f, 0.0f, 4000.0f), glm::radians(90.0f), fbWidth, fbHeight, 1.0f, 10000.0f);
+    
+//    SceneObject *ground = scene->addObject( "msh:ground1_big.omsh", "tex:ground1.dds");
+//    ground->pos = glm::vec3( 0.0, -3000.0, 0.0);
 
     const glm::vec3 minRand(-5500.0f, -3010.0, -5500.0f );
     const glm::vec3 maxRand(5500.0f, -2990.0, 5500.0f );
 
     
-    for (int i=0; i < 100; i++) {
+    //for (int i=0; i < 100; i++) {
         
         SceneObject *obj1 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
         obj1->rot = glm::quat( glm::vec3( 0.0, glm::linearRand( 0.0f, 360.0f), 0.0 ) );
         obj1->pos = glm::linearRand(minRand, maxRand);
-    }
+    
+    treeCursor = obj1;
+    //}
+    
     
     // Setup planet
+    planet.planetTexture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "tex:ground1.dds",
+                                                                                          scene->texSetup)));
     planet.Setup( &(scene->gfxSetup) );
     
     // Setup UI
@@ -361,34 +405,81 @@ TestApp::handle_input() {
             planet.Rebuild( scene );
         }
         
-        if (Input::KeyDown(Key::Tab)) {
+        if (Input::KeyDown(Key::GraveAccent)) {
             tmpUI = !tmpUI;
+        }
+        
+        if (Input::KeyDown(Key::Tab)) {
+            useDebugCamera = !useDebugCamera;
         }
     }
     
     if (!tmpUI)
     {
-        if (Input::MouseAttached() ) {
-            if (Input::MouseButtonPressed(MouseButton::Left)) {
+        // If debug camera is active, move it with WASD
+        if (useDebugCamera)
+        {
+            if (Input::MouseAttached() ) {
+                if (Input::MouseButtonPressed(MouseButton::Left)) {
+                    
+                    move.z -= vel;
+    //                printf("move %3.2f %3.2f %3.2f\n",
+    //                       camera.Pos.x, camera.Pos.y, camera.Pos.z );
+
+                }
+                if (Input::MouseButtonPressed(MouseButton::Left) || Input::MouseButtonPressed(MouseButton::Right)) {
+                    rot = Input::MouseMovement() * glm::vec2(-0.01f, -0.007f);
+                }
+            }
+
+            if (Input::TouchpadAttached() ) {
+                if (Input::TouchPanning() ) {
+                    move.z -= vel;
+                    rot = Input::TouchMovement(0) * glm::vec2(-0.01f, 0.01f);
+                }
+            }
+            this->dbgCamera.MoveRotate(move, rot);
+            
+        } else {
+            
+            if (Input::MouseAttached() ) {
+                // Game camera arcballs
+                glm::vec2 mousePos = Input::MousePosition();
+                glm::vec3 arcballVec = arcballVector( mousePos );
                 
-                move.z -= vel;
-                printf("move %3.2f %3.2f %3.2f\n",
-                       camera.Pos.x, camera.Pos.y, camera.Pos.z );
-
-            }
-            if (Input::MouseButtonPressed(MouseButton::Left) || Input::MouseButtonPressed(MouseButton::Right)) {
-                rot = Input::MouseMovement() * glm::vec2(-0.01f, -0.007f);
+                treeCursor->pos = arcballVec * (3000.0f * 0.8f);
+                
+//                printf("Tree Cursor %f %f arcball %3.2f, %3.2f, %3.2f\n",
+//                       mousePos.x, mousePos.y,
+//                       arcballVec.x, arcballVec.y, arcballVec.z
+//                       );
+                
+                if (Input::MouseButtonPressed(MouseButton::Left)) {
+                    
+                    // DBG:
+                    //gameCamera.RotateArcball( glm::vec3(0.0, 1.0, 0.0), glm::radians(1.0f) );
+                    
+                    arcballAngle = acos(fmin( 1.0f, glm::dot( lastArcball, arcballVec )));
+                    if (fabs( arcballAngle ) > 0.001) {
+                        arcballAxis = glm::cross( arcballVec, lastArcball );
+                        
+                        //gameCamera.RotateArcball( axis, angle );
+                    }
+                    
+                }
+                lastArcball = arcballVec;
             }
         }
-
-        if (Input::TouchpadAttached() ) {
-            if (Input::TouchPanning() ) {
-                move.z -= vel;
-                rot = Input::TouchMovement(0) * glm::vec2(-0.01f, 0.01f);
-            }
+        
+        // Arcball (with momentum)
+        if (fabs( arcballAngle ) > 0.001) {
+            gameCamera.RotateArcball( arcballAxis, arcballAngle );
+            arcballAngle = arcballAngle * 0.9;
         }
-        this->camera.MoveRotate(move, rot);
     }
+    
+    
+    
 }
 
 //------------------------------------------------------------------------------

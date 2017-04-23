@@ -218,10 +218,13 @@ mat4 model Model
 vec3 lightDir LightDir     // light dir in global space
 vec3 eyePos EyePos
 vec4 lightColor LightColor
+vec4 ambientColor AmbientColor
+vec4 rimColor RimColor
 vec4 matDiffuse MatDiffuse
 vec4 matSpecular MatSpecular
 bool gammaCorrect GammaCorrect
 float matSpecularPower MatSpecularPower
+float rimPower RimPower
 @end
 
 @vs planetVS
@@ -232,10 +235,12 @@ float matSpecularPower MatSpecularPower
 @in vec4 normal
 @out vec3 N
 @out vec3 P
+@out vec4 C
 {
     _position = mul(mvp, position);
     P = mul(model, position).xyz;
     N = mul(model, vec4(normal.xyz, 0.0)).xyz;
+    C = color0;
 }
 @end
 
@@ -244,6 +249,7 @@ float matSpecularPower MatSpecularPower
 @use_uniform_block planetFSParams
 @in vec3 N
 @in vec3 P
+@in vec4 C
 {
     vec3 l = lightDir;
     vec3 n = normalize(N);
@@ -254,8 +260,13 @@ float matSpecularPower MatSpecularPower
     
     float diff = n_dot_l;
     float spec = pow(r_dot_v, matSpecularPower) * n_dot_l;
-    vec4 col = vec4(lightColor.xyz * (matSpecular.xyz*spec + matDiffuse.xyz*diff), 1.0);
     
+    float n_dot_v = max(dot(n, v), 0.0);
+    float rim = pow(1.0 - n_dot_v, rimPower );
+    
+    vec4 col = vec4(lightColor.xyz * (matSpecular.xyz*spec + C.xyz*diff + ambientColor.xyz + rim*rimColor.xyz), 1.0);
+    
+    //col = vec4( rim, rim, rim, 1.0 );
     //col = vec4( n, 1.0 );
     
     //col = lerp( col, vec4( 1.0, 0.0, 1.0, 1.0));

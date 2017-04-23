@@ -39,7 +39,7 @@ public:
     
     int gridRes; // resolution of grid, e.g. 64x64x64
     
-    float evalSDF( glm::vec3 p );
+    float evalSDF( glm::vec3 p, glm::vec4 *color=NULL );
     glm::vec3 evalNormal( glm::vec3 p );
     
     Oryol::MeshBuilder meshBuilder;

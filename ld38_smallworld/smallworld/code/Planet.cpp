@@ -54,9 +54,6 @@ void Planet::Rebuild( Scene *scene )
     meshIsosurf = Gfx::CreateResource( surfBuilder.Build() );
     planetResource = Gfx::PopResourceLabel();
     
-    // Borrow texture
-    planetTexture = scene->sceneInfos[0]->texture;
-    
     _built = true;
 }
 
@@ -68,9 +65,12 @@ void Planet::UpdateCamera( Camera *camera )
     planetFSParams.MatDiffuse = glm::vec4( 0.92,0.41,0.25, 1.0 );
     planetFSParams.MatSpecular = glm::vec4( 1.0, 0.8, 0.5, 1.0 ) * 3.0f;
     planetFSParams.LightDir = glm::normalize( glm::vec3( -1.0, -0.3, 0.1 ) );
+    planetFSParams.AmbientColor = glm::vec4( 0.25,0.75,0.80,1.0) * 0.1f;
+    planetFSParams.RimColor = glm::vec4( 0.82,0.74,0.95,1.0) * 0.2f;
+    planetFSParams.RimPower = 10.0;
     planetFSParams.EyePos = camera->Pos;
     planetFSParams.MatSpecularPower = 50.0f;
-    planetFSParams.GammaCorrect = 0;
+    planetFSParams.GammaCorrect = 1;
 }
 
 void Planet::Draw()

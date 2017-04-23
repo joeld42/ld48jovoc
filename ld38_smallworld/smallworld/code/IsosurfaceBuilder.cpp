@@ -151,9 +151,8 @@ IsosurfaceBuilder::IsosurfaceBuilder() :
     dbgPush = 0.0f;
 }
 
-float IsosurfaceBuilder::evalSDF( glm::vec3 p )
+float IsosurfaceBuilder::evalSDF( glm::vec3 p, glm::vec4 *color )
 {
-    
     glm::vec3 p2 = p;
     p2.y = 0.0;
     
@@ -166,6 +165,15 @@ float IsosurfaceBuilder::evalSDF( glm::vec3 p )
     float dCyl3 = glm::length( glm::vec3( p.y-c.x, p.z-c.y, 0.0 )) - c.z;
     
     float dCyl = fmin( dCyl1, fmin( dCyl2, dCyl3));
+    
+    if (color) {
+        if (dSphere < -0.001) {
+            // inside the ground
+            *color = glm::vec4(0.60,0.35,0.11,1.0);
+        } else {
+            *color = glm::vec4(0.53,0.77,0.15,1.0);
+        }
+    }
     
     return fmax( dSphere, -dCyl );
 }
@@ -314,6 +322,12 @@ Oryol::SetupAndData<Oryol::MeshSetup> IsosurfaceBuilder::Build()
         glm::vec3 nrmB = evalNormal( vertB );
         glm::vec3 nrmC = evalNormal( vertC );
         
+        // eval color
+        glm::vec4 colorA, colorB, colorC;
+        evalSDF( vertA, &colorA );
+        evalSDF( vertB, &colorB );
+        evalSDF( vertC, &colorC );
+        
         vertA = vertA * worldSize;
         vertB = vertB * worldSize;
         vertC = vertC * worldSize;
@@ -328,14 +342,17 @@ Oryol::SetupAndData<Oryol::MeshSetup> IsosurfaceBuilder::Build()
             .Vertex( (i*3)+0, VertexAttr::Position, vertA.x, vertA.y, vertA.z )
             .Vertex( (i*3)+0, VertexAttr::TexCoord0, 0.0f, 1.0f )
             .Vertex( (i*3)+0, VertexAttr::Normal, nrmA.x, nrmA.y, nrmA.z )
+            .Vertex( (i*3)+0, VertexAttr::Color0, colorA.x, colorA.y, colorA.z, colorA.a )
         
             .Vertex( (i*3)+1, VertexAttr::Position, vertB.x, vertB.y, vertB.z )
             .Vertex( (i*3)+1, VertexAttr::TexCoord0, 1.0f, 1.0f )
             .Vertex( (i*3)+1, VertexAttr::Normal, nrmB.x, nrmB.y, nrmB.z )
+            .Vertex( (i*3)+1, VertexAttr::Color0, colorB.x, colorB.y, colorB.z, colorB.a )
         
             .Vertex( (i*3)+2, VertexAttr::Position, vertC.x, vertC.y, vertC.z )
             .Vertex( (i*3)+2, VertexAttr::TexCoord0, 1.0f, 0.0f )
             .Vertex( (i*3)+2, VertexAttr::Normal, nrmC.x, nrmC.y, nrmC.z )
+            .Vertex( (i*3)+2, VertexAttr::Color0, colorB.x, colorB.y, colorB.z, colorB.a )
         ;
         
         //meshBuilder.Triangle( i, (i*3)+0, (i*3)+1, (i*3)+2 );

@@ -6,6 +6,11 @@
 #include "glm/trigonometric.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/matrix_access.hpp"
+#include "glm/gtc/quaternion.hpp"
+
+#include "stdio.h"
+
+void dbgPrintMatrix( const char *label, glm::mat4 m );
 
 using namespace Oryol;
 
@@ -15,6 +20,8 @@ Camera::Setup(const glm::vec3 pos, float fov, int dispWidth, int dispHeight, flo
     this->Pos = pos;
     this->Model = glm::translate(glm::mat4(), pos);
     this->UpdateProj(fov, dispWidth, dispHeight, near, far);
+    this->Rotq = glm::quat();
+    this->arcpos = pos;
 }
 
 //------------------------------------------------------------------------------
@@ -45,6 +52,35 @@ Camera::MoveRotate(const glm::vec3& move, const glm::vec2& rot) {
     this->Model = m;
     this->Pos = glm::vec3(this->Model[3].x, this->Model[3].y, this->Model[3].z);
     this->updateViewProjFrustum();
+}
+
+void
+Camera::RotateArcball( const glm::vec3 axis, float angle )
+{
+    glm::quat rot = glm::rotate( Rotq, angle, axis );
+    Rotq = rot;
+    
+//    printf("rot: %3.2f %3.2f %3.2f %3.2f\n", rot.x, rot.y, rot.z, rot.w );
+//
+    glm::mat4 m = glm::translate( (glm::mat4x4)rot, arcpos );
+    //m = glm::rotate(m, angle, axis );
+    
+    this->Model = m;
+    this->Pos = glm::vec3(this->Model[3].x, this->Model[3].y, this->Model[3].z);
+    this->updateViewProjFrustum();
+    
+//    const glm::vec3 up(0.0f, 1.0f, 0.0f);
+//    const glm::vec3 hori(1.0f, 0.0f, 0.0f);
+//    this->Rotq = glm::rotate( this->Rotq, angle, axis );
+//    
+//    glm::mat4 m = glm::translate(glm::mat4(), this->Pos);
+//    
+//    
+//    
+//    this->Model = m;
+//    this->Pos = glm::vec3(this->Model[3].x, this->Model[3].y, this->Model[3].z);    
+//    
+//    this->updateViewProjFrustum();
 }
 
 //------------------------------------------------------------------------------

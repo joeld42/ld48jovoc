@@ -8,6 +8,7 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include "glm/mat4x4.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 class Camera {
 public:
@@ -19,6 +20,8 @@ public:
     void UpdateModel(const glm::mat4& model);
     /// move and rotate relative to current view
     void MoveRotate(const glm::vec3& move, const glm::vec2& rot);
+    
+    void RotateArcball( const glm::vec3 axis, float angle );
     /// return true if box is visible
     bool BoxVisible(int x0, int x1, int y0, int y1, int z0, int z1) const;
     /// the camera's world-space matrix
@@ -34,8 +37,12 @@ public:
     glm::vec4 Frustum[NumFrustumPlanes];
     /// current camera position
     glm::vec3 Pos;
-    /// current camera rotation
+    /// current camera rotation (for pan/tilt camera)
     glm::vec2 Rot;
+    
+    /// current camera rotation (for arcball camera)
+    glm::vec3 arcpos;
+    glm::quat Rotq;
 
     /// update the viewProj matrix and Frustum (called when view or proj changes)
     void updateViewProjFrustum();

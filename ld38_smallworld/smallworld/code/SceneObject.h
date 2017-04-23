@@ -49,7 +49,7 @@ public:
     // for now, share a shader
     Oryol::Id dispShader;
     
-    Oryol::TextureSetup texBluePrint;
+    Oryol::TextureSetup texSetup;
     bool didSetupPipeline = false;
     Oryol::VertexLayout Layout;
 };

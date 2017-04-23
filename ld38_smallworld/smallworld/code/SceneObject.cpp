@@ -32,10 +32,10 @@ void Scene::init()
 {
     dispShader = Gfx::CreateResource(MainShader::Setup());
         
-    texBluePrint.Sampler.MinFilter = TextureFilterMode::LinearMipmapLinear;
-    texBluePrint.Sampler.MagFilter = TextureFilterMode::Linear;
-    texBluePrint.Sampler.WrapU = TextureWrapMode::Repeat;
-    texBluePrint.Sampler.WrapV = TextureWrapMode::Repeat;
+    texSetup.Sampler.MinFilter = TextureFilterMode::LinearMipmapLinear;
+    texSetup.Sampler.MagFilter = TextureFilterMode::Linear;
+    texSetup.Sampler.WrapU = TextureWrapMode::Repeat;
+    texSetup.Sampler.WrapV = TextureWrapMode::Repeat;
     
 }
 
@@ -75,7 +75,7 @@ SceneObject *Scene::addObject( const char *meshName, const char *textureName )
         }));
 
         
-        info->texture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( textureName, texBluePrint)));
+        info->texture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( textureName, texSetup)));
         
     }
     
