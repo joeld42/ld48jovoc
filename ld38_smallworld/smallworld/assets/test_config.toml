@@ -1,0 +1,118 @@
+#-------------------------------------------------------------------------------
+# aiProcess: assimp scene processing flags
+#
+#   CalcTangentSpace
+#   JoinIdenticalVertices
+#   MakeLeftHanded
+#   Triangulate
+#   RemoveComponent             -- see PP_RVC_FLAGS
+#   GenNormals
+#   GenSmoothNormals
+#   SplitLargeMeshes
+#   PreTransformVertices
+#   LimitBoneWeights
+#   ValidateDataStructure
+#   ImproveCacheLocality
+#   RemoveRedundantMaterials
+#   FixInfacingNormals
+#   SortByPType                 -- see PP_SBP_REMOVE
+#   FindDegenerates
+#   FindInvalidData
+#   GenUVCoords
+#   TransformUVCoords
+#   FindInstances
+#   OptimizeMeshes
+#   OptimizeGraph
+#   FlipUVs
+#   FlipWindingOrder
+#   SplitByBoneCount
+#   Debone
+#
+aiProcess = [
+    "CalcTangentSpace",
+    "JoinIdenticalVertices",
+    "Triangulate",
+    "GenNormals",
+    "ImproveCacheLocality",
+    "RemoveRedundantMaterials",
+    "SortByPType",
+    "FindDegenerates",
+    "FindInvalidData",
+    "GenUVCoords",
+    "PreTransformVertices",
+    "FlipWindingOrder"
+#    "OptimizeGraph",
+#    "OptimizeMeshes"
+]
+
+#-------------------------------------------------------------------------------
+# PP_RVC_FLAGS: what components to remove when RemoveComponents aiProcess
+# flag is set.
+#
+#   NORMALS
+#   TANGENTS_AND_BITANGENTS
+#   COLORS
+#   COLORSn(0..7)
+#   TEXCOORDS
+#   TEXCOORDSn(0..7)
+#   BONEWEIGHTS
+#   ANIMATIONS
+#   TEXTURES 
+#   LIGHTS
+#   CAMERAS
+#   MESHES 
+#   MATERIALS
+#
+PP_RVC_FLAGS = [
+    "BONEWEIGHTS",
+    "ANIMATIONS",
+    "LIGHTS",
+    "CAMERAS",
+    "COLORS",
+    "TEXCOORDSn1",
+    "TEXCOORDSn2"
+]
+
+#-------------------------------------------------------------------------------
+# PP_SBP_REMOVE: what primitive types to remove when SortByPType aiProcess
+# flag is set.
+#
+#   POINT
+#   LINE
+#   TRIANGLE
+#   POLYGON
+#
+PP_SBP_REMOVE = [
+    "POINT",
+    "LINE"
+]
+
+#-------------------------------------------------------------------------------
+# Layout: vertex processing and packing rules
+#
+[Layout]
+    [Layout.Position]
+        format = "Float3"
+    [Layout.Normal]
+        format = "Byte4N"
+    [Layout.TexCoord0]
+        format = "Float2"
+    [Layout.TexCoord1]
+        format = "Float2"
+    [Layout.TexCoord2]
+        format = "Float2"
+    [Layout.TexCoord3]
+        format = "Float2"
+    [Layout.Binormal]
+        format = "Byte4N"
+    [Layout.Tangent]
+        format = "Byte4N"
+    [Layout.Weight]
+        format = "UByte4N"
+    [Layout.Indices]
+        format = "UByte4"
+    [Layout.Color0]
+        format = "UByte4N"
+    [Layout.Color1]
+        format = "UByte4N"
+

@@ -1,3 +1,4 @@
+# Cruft fips puts here when it builds
 fips-build/
 fips-bullet/
 fips-deploy/
@@ -20,6 +21,12 @@ oryol-samples/
 oryol-sound/
 oryol-tbui/
 oryol/
+fips-assimp/
+fips-cjson/
+fips-cpptoml/
+fips-pystring/
+fips-spirvcross/
+oryol-tools/
 smallworld/.fips-gen.py
 smallworld/.fips-imports.cmake
 yakc/

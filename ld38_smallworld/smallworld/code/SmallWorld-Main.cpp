@@ -77,6 +77,10 @@ private:
     
     SceneObject *treeCursor;
     
+    SceneObject *cannonBase;
+    SceneObject *cannonBushing;
+    SceneObject *cannonBarrel;
+    
     /// load a single icon, asynchronously
     void load_icon(const char* url, struct nk_image* img);
     
@@ -315,6 +319,16 @@ TestApp::OnInit() {
     
     treeCursor = obj1;
     //}
+    
+    // Note: there is a 100x scale from blender units
+    cannonBase = scene->addObject( "msh:cannon_base.omsh", "tex:cannon.dds");
+    cannonBase->pos = glm::vec3(0.0, 0.0, 0.0 );
+    
+    cannonBushing = scene->addObject( "msh:cannon_bushing.omsh", "tex:cannon.dds");
+    cannonBushing->pos = glm::vec3(0.0, 0.0, 0.0 );
+    
+    cannonBarrel = scene->addObject( "msh:cannon_barrel.omsh", "tex:cannon.dds");
+    cannonBarrel->pos = glm::vec3(0.0, 191.6, 0.0 );
     
     
     // Setup planet
