@@ -355,7 +355,8 @@ TestApp::OnInit() {
     fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
     
     this->dbgCamera.Setup(glm::vec3(0.f, 0.f, 5000.0f), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 10000.0f);
-    this->gameCamera.Setup(glm::vec3(0.0f, 0.0f, 4000.0f), glm::radians(90.0f), fbWidth, fbHeight, 1.0f, 10000.0f);
+    this->gameCamera.Setup(glm::vec3(0.0f, 0.0f, 4000.0f), glm::radians(80.0f), fbWidth, fbHeight, 1.0f, 10000.0f);
+    //this->gameCamera.Setup(glm::vec3(0.0f, 0.0f, 6000.0f), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 10000.0f);
     
 //    SceneObject *ground = scene->addObject( "msh:ground1_big.omsh", "tex:ground1.dds");
 //    ground->pos = glm::vec3( 0.0, -3000.0, 0.0);
@@ -615,11 +616,73 @@ TestApp::handle_input() {
 }
 
 //------------------------------------------------------------------------------
+static void
+//ui_header(struct nk_context *ctx, struct media *media, const char *title)
+ui_header(struct nk_context *ctx, const char *title)
+{
+    //nk_style_set_font(ctx, &media->font_18->handle);
+    nk_layout_row_dynamic(ctx, 20, 1);
+    nk_label(ctx, title, NK_TEXT_CENTERED );
+}
+
 void
 TestApp::DoGameUI( nk_context* ctx )
 {
     struct nk_panel layout;
-    if (nk_begin(ctx, &layout, "Player 1", nk_rect(0, 0, 220, fbHeight), NK_WINDOW_BORDER)) {
+    if (nk_begin(ctx, &layout, "Player 1", nk_rect(0, 0, 220, fbHeight),
+                NK_WINDOW_BORDER|NK_WINDOW_BORDER_HEADER|NK_WINDOW_TITLE)) {
+        
+        ui_header(ctx,  "Henry");
+        
+        Cannon &cc = cannons[activeCannon];
+        nk_layout_row_dynamic(ctx, 20, 1);
+        nk_label(ctx, "Aim", NK_TEXT_LEFT );
+        nk_slider_float(ctx, -180.0f, &(cc.aimHeading), 180.0f, 0.1f);
+        
+        nk_layout_row_dynamic(ctx, 20, 1);
+        nk_label(ctx, "Tilt", NK_TEXT_LEFT );
+        nk_slider_float(ctx, 0.0f, &(cc.cannonAngle), 180.0f, 0.1f);
+        
+        nk_layout_row_dynamic(ctx, 20, 1);
+        nk_label(ctx, "Power", NK_TEXT_LEFT );
+        nk_slider_float(ctx, 0.0f, &(cc.power), 1.0f, 0.001f);
+        
+        nk_layout_row_dynamic(ctx, 20, 1);
+        if (nk_button_label(ctx, "Fire!")) {
+            /* event handling */
+        }
+        
+        
+        nk_end(ctx);
+    }
+    
+    if (nk_begin(ctx, &layout, "Weapons", nk_rect(fbWidth-220, 0, 220, fbHeight),
+                 NK_WINDOW_BORDER|NK_WINDOW_BORDER_HEADER|NK_WINDOW_TITLE)) {
+        
+//        if (nk_group_begin(ctx, &layout, "Group",
+//                           NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR)) {
+        
+        const char *weaponNames[] = {
+            "Pea Shooter",
+            "Pumpkin Eater",
+            "Grapeshot",
+            "Emoji Eggplant",
+            "Guided Carrot",
+            "Fertilizer"
+        };
+        
+        char number[2] = "1";
+        for (int i = 0; i < sizeof(weaponNames)/sizeof(weaponNames[0]); i++)
+        {
+            nk_layout_row_dynamic( ctx, 44.0, 2 );
+            number[0] = '1'+i;
+                nk_button_label( ctx, number );
+                nk_label( ctx, weaponNames[i], NK_TEXT_RIGHT );
+            nk_layout_row_end(ctx);
+        }
+//
+//            nk_group_end(ctx);
+//        }
         
         
         
