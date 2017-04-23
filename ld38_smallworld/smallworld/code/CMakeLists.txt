@@ -2,7 +2,7 @@ fips_begin_app(smallworld windowed)
     fips_files(SmallWorld-Main.cpp 
     		   SceneObject.cpp SceneObject.h
     		   Camera.h Camera.cpp
-    		   Cannon.h Cannon.cpp
+    		   GameObjects.h GameObjects.cpp
     		   Planet.cpp Planet.h
     		   IsosurfaceBuilder.h IsosurfaceBuilder.cpp IsosurfaceTables.cpp
                 par_easings.h

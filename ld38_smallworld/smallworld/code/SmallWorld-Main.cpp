@@ -26,7 +26,7 @@
 #include "Camera.h"
 #include "IsosurfaceBuilder.h"
 #include "Planet.h"
-#include "Cannon.h"
+#include "GameObjects.h"
 
 #define PAR_EASINGS_IMPLEMENTATION
 #include "par_easings.h"
