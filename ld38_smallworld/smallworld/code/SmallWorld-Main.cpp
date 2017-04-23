@@ -42,6 +42,7 @@
 
 using namespace Oryol;
 
+
 // derived application class
 class TestApp : public App {
 public:
@@ -66,6 +67,7 @@ private:
     ResourceLabel curMaterialLabel;
     int numMaterials = 0;
 
+    bool paused;
     
     Id texture;
     DrawState mainDrawState;
@@ -107,6 +109,9 @@ private:
     void finishTurn();
     void fireActiveCannon();
     
+    
+    struct nk_style_item mkColorStyleItem( const char *hexColor );
+    
     void DoGameUI( nk_context* ctx );
     
 };
@@ -144,41 +149,57 @@ TestApp::OnRunning() {
     
     this->handle_input();
     
-    // Update shots
-    bool planetNeedsRebuild = false;
-    for (int i=0; i < shots.Size(); i++) {
-        Shot &ss = shots[i];
+    if (!paused)
+    {
         
-        glm::vec3 evalP = ss.objShot->pos / planet.worldSize;
-        
-        //glm::vec3 grav = planet.surfBuilder.evalNormal( evalP );
-        glm::vec3 grav = glm::normalize( evalP );
-        
-        grav *= -10000.0;
-        
-        ss.updateBallistic( dt, grav );
-        evalP = ss.objShot->pos / planet.worldSize;
-        
-        // check if we hit..
-        float f = planet.surfBuilder.evalSDF( evalP );
-        if (f <= 0.0f) {
-            planetNeedsRebuild = true;
-            printf("Hit Planet (%3.2f %3.2f %3.2f)...\n",
-                   evalP.x, evalP.y, evalP.z );
+        // Update shots
+        bool planetNeedsRebuild = false;
+        for (int i=0; i < shots.Size(); i++) {
+            Shot &ss = shots[i];
             
-            planet.surfBuilder.addDamage( evalP, 1000.0/planet.worldSize.x );
+            glm::vec3 evalP = ss.objShot->pos / planet.worldSize;
             
-            scene->removeObject( ss.objShot );
+            //glm::vec3 grav = planet.surfBuilder.evalNormal( evalP );
+            glm::vec3 grav = glm::normalize( evalP );
             
-            // FIXME: sloppy and might break stuff, removing while iterating
-            shots.EraseSwapBack( i );
+            // Less gravity as you get near the center
+            float gravStr = glm::smoothstep( 0.0f, planet.planetApproxRadius,
+                                             glm::length(ss.objShot->pos) );
+            
+            grav *= -10000.0 * gravStr;
+            
+            ss.updateBallistic( dt, grav );
+            evalP = ss.objShot->pos / planet.worldSize;
+            
+            // check if we hit..
+            float f = planet.surfBuilder.evalSDF( evalP );
+            if ((f <= 0.0f)||(ss.age <= 0.0)) {
+                
+                planetNeedsRebuild = true;
+                printf("Hit Planet (%3.2f %3.2f %3.2f)...\n",
+                       evalP.x, evalP.y, evalP.z );
+                
+                planet.surfBuilder.addDamage( evalP, 1000.0/planet.worldSize.x );
+                scene->removeObject( ss.objShot );
+                
+                // FIXME: sloppy and might break stuff, removing while iterating
+                shots.EraseSwapBack( i );
+                
+                finishTurn();            
+            }
         }
+        
+        if (planetNeedsRebuild) {
+            planet.Rebuild( scene );
+        }
+        
+//        // DEMO, autofire if able
+//        if (shots.Size()==0) {
+//            fireActiveCannon();
+//        }
     }
     
-    if (planetNeedsRebuild) {
-        planet.Rebuild( scene );
-    }
-    
+    // ----------------------------------------
     
     // Update model mats
     for (int i=0; i < scene->sceneObjs.Size(); i++) {
@@ -355,7 +376,7 @@ TestApp::OnInit() {
     fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
     
     this->dbgCamera.Setup(glm::vec3(0.f, 0.f, 5000.0f), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 10000.0f);
-    this->gameCamera.Setup(glm::vec3(0.0f, 0.0f, 4000.0f), glm::radians(80.0f), fbWidth, fbHeight, 1.0f, 10000.0f);
+    this->gameCamera.Setup(glm::vec3(0.0f, 0.0f, 4000.0f), glm::radians(90.0f), fbWidth, fbHeight, 1.0f, 10000.0f);
     //this->gameCamera.Setup(glm::vec3(0.0f, 0.0f, 6000.0f), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 10000.0f);
     
 //    SceneObject *ground = scene->addObject( "msh:ground1_big.omsh", "tex:ground1.dds");
@@ -397,6 +418,9 @@ TestApp::OnInit() {
     // Build initial planet
     BuildPlanet();
     
+    // DEMO
+//    paused = true;
+    
     return App::OnInit();
 }
 
@@ -422,12 +446,15 @@ TestApp::BuildPlanet()
     printf("Build planet...\n");
     
     planet.surfBuilder.clearDamage();
+    
+    Oryol::TimePoint tp = Clock::Now();
+    srand( tp.getRaw() );
 
     // Start with some damage
-//    for (int i=0; i < 10; i++) {
-//        glm::vec3 p = glm::sphericalRand( 0.8 );
-//        planet.surfBuilder.addDamage( p, glm::linearRand( 0.1f, 0.2f) );
-//    }
+    for (int i=0; i < 10; i++) {
+        glm::vec3 p = glm::sphericalRand( 0.8 );
+        planet.surfBuilder.addDamage( p, glm::linearRand( 0.1f, 0.2f) );
+    }
     
     planet.Rebuild( scene );
     
@@ -448,7 +475,7 @@ TestApp::finishTurn()
     
     do {
         activeCannon++;
-        if (activeCannon > cannons.Size()) {
+        if (activeCannon == cannons.Size()) {
             activeCannon = 0;
         }
     } while (cannons[activeCannon].health == 0);
@@ -459,9 +486,13 @@ TestApp::fireActiveCannon()
 {
     Cannon &cc = cannons[activeCannon];
     
-    SceneObject *objShot = scene->addObject( "msh:pea_shot.omsh", "tex:pea_shot.dds");
-    Shot shot( objShot, cc._shootyPoint, cc.calcProjectileVel() );
-    shots.Add( shot );
+    // Make sure there's not already a shot in-flight...
+    if (shots.Size() == 0)
+    {
+        SceneObject *objShot = scene->addObject( "msh:pea_shot.omsh", "tex:pea_shot.dds");
+        Shot shot( objShot, cc._shootyPoint, cc.calcProjectileVel() );
+        shots.Add( shot );
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -477,6 +508,10 @@ TestApp::handle_input() {
         if (Input::KeyPressed( Key::LeftShift)) {
             vel *= 10.0;
             angSpeed *= 10.0f;
+        }
+        
+        if (Input::KeyDown(Key::P)) {
+            paused = !paused;
         }
         
         if (useDebugCamera) {
@@ -523,6 +558,7 @@ TestApp::handle_input() {
 
             // FIRE?
             if (Input::KeyDown(Key::Space) || Input::KeyDown(Key::Z) || Input::KeyDown(Key::X)) {
+                
                 fireActiveCannon();
             }
             
@@ -595,11 +631,18 @@ TestApp::handle_input() {
                         
                         //gameCamera.RotateArcball( axis, angle );
                     }
-                    
                 }
                 lastArcball = arcballVec;
             }
         }
+        
+        // AUTO-ORBIT
+//        if (fabs( arcballAngle ) < 0.01) {
+//            arcballAxis = glm::vec3( 0.0, 1.0, 0.0 );
+//            arcballAngle = glm::radians( 0.25 );
+//            
+//        }
+        
         
         // Arcball (with momentum)
         if (fabs( arcballAngle ) > 0.001) {
@@ -607,8 +650,9 @@ TestApp::handle_input() {
             arcballAngle = arcballAngle * 0.9;
         }
         
-        glm::vec3 lightDir = glm::normalize( glm::vec3( -1.0, -0.3, 0.1 ) );
-        planet.planetFSParams.LightDir = lightDir * gameCamera.Rotq;
+        glm::vec3 lightDir = glm::normalize( glm::vec3( -1.0, 0.5, 0.2 ) );
+        planet.planetFSParams.LightDir = lightDir * glm::inverse( gameCamera.Rotq );
+        //planet.planetFSParams.LightDir = glm::normalize( glm::ballRand(1.0));
     }
     
     
@@ -623,6 +667,30 @@ ui_header(struct nk_context *ctx, const char *title)
     //nk_style_set_font(ctx, &media->font_18->handle);
     nk_layout_row_dynamic(ctx, 20, 1);
     nk_label(ctx, title, NK_TEXT_CENTERED );
+}
+
+struct nk_style_item TestApp::mkColorStyleItem( const char *hexColor )
+{
+    struct nk_style_item result;
+    int r = 0xff;
+    int g = 0xff;
+    int b = 0xff;
+    int a = 0xff;
+    if (strlen(hexColor)==7) {
+        sscanf(hexColor, "#%02x%02x%02x", &r, &g, &b);
+    } else if (strlen(hexColor)==9) {
+        sscanf(hexColor, "#%02x%02x%02x%02x", &r, &g, &b, &a);
+    }
+    
+    // TODO: color modifiers
+    
+    result.type = NK_STYLE_ITEM_COLOR;
+    result.data.color.r = glm::clamp( r, 0, 255 );
+    result.data.color.g = glm::clamp( g, 0, 255 );
+    result.data.color.b = glm::clamp( b, 0, 255 );
+    result.data.color.a = glm::clamp( a, 0, 255 );
+    
+    return result;
 }
 
 void
@@ -648,9 +716,25 @@ TestApp::DoGameUI( nk_context* ctx )
         nk_slider_float(ctx, 0.0f, &(cc.power), 1.0f, 0.001f);
         
         nk_layout_row_dynamic(ctx, 20, 1);
-        if (nk_button_label(ctx, "Fire!")) {
-            /* event handling */
+        
+        bool canFire = shots.Size() == 0;
+        struct nk_style_button button_style = ctx->style.button;
+        if (canFire) {
+            ctx->style.button.normal = mkColorStyleItem( "#84db45" );
+            ctx->style.button.hover = mkColorStyleItem( "#b0e787" );
+            ctx->style.button.active = mkColorStyleItem( "#6da247" );
+            ctx->style.button.border_color = mkColorStyleItem( "#f5e458" ).data.color;
+            
+            ctx->style.button.text_normal = mkColorStyleItem( "#631e0c" ).data.color;
+            ctx->style.button.text_hover = mkColorStyleItem( "#bb8e36" ).data.color;;
+            ctx->style.button.text_active = mkColorStyleItem( "#ff0000" ).data.color;;
+        } else {
+            ctx->style.button.hover = ctx->style.button.normal;
         }
+        if (nk_button_label(ctx, "Fire!") && canFire) {
+            fireActiveCannon();
+        }
+        ctx->style.button = button_style;
         
         
         nk_end(ctx);

@@ -61,7 +61,7 @@ Shot::Shot( SceneObject *shotObj, glm::vec3 pos, glm::vec3 startVel )
     objShot = shotObj;
     objShot->pos = pos;
     vel = startVel;
-    age = 5.0f;
+    age = 8.0f;
     
     // TODO: random spin
 }
