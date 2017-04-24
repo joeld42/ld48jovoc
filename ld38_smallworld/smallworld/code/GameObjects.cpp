@@ -125,32 +125,56 @@ void MakeDefaultTeams( Oryol::Array<TeamInfo> &teams )
 AmmoInfo::AmmoInfo( const char *_name )
 {
     name = _name;
+    boomAge = 8.0;
+    ammoScale = 1.0f;
+    splitAge = 100.0;
+    splitNum = 3;
     fatalRadius = 500.0f;
     damageRadius = 500.0f;
     splashRadius = 800.0f;
     wackyGravity = false;
     craterNoise = 0.0f;
     defaultSupply = -1;
+    meshName = "msh:pea_shot.omsh";
+    textureName = "tex:pea_shot.dds";
 }
 
 void MakeDefaultAmmos( Oryol::Array<AmmoInfo> &ammos )
 {
     // Basic bomb, not much damage
     AmmoInfo ammo = AmmoInfo( "Pea Shooter");
+    
     ammo.fatalRadius = 500.0f;
     ammo.damageRadius = 500.0f;
     ammo.splashRadius = 800.0f;
     ammo.wackyGravity = false;
     ammo.craterNoise = 0.0f;
+    ammo.ammoScale = 0.5;
     ammos.Add( ammo );
 
     // Large bomb, but does little damage
     ammo = AmmoInfo( "Pumpkin Eater");
+    ammo.meshName = "msh:pumpkin.omsh";
+    ammo.textureName = "tex:pumpkin.dds";
     ammo.fatalRadius = 400.0;
     ammo.damageRadius = 1000.0;
     ammo.splashRadius = 1200.0;
     ammo.craterNoise = 0.5;
     ammo.defaultSupply = 3;
+    ammo.ammoScale = 1.5;
+    ammos.Add( ammo );
+    
+    // Small shot that splits into 3
+    ammo = AmmoInfo( "Grape Shot");
+    ammo.meshName = "msh:grape_shot.omsh";
+    ammo.textureName = "tex:grape_shot.dds";
+    ammo.fatalRadius = 400.0f;
+    ammo.damageRadius = 400.0f;
+    ammo.splashRadius = 300.0f;
+    ammo.wackyGravity = false;
+    ammo.craterNoise = 0.0f;
+    ammo.splitAge = 0.2;
+    ammo.splitNum = 3;
     ammos.Add( ammo );
 
     ammo = AmmoInfo( "Wobblemelon");
@@ -284,9 +308,10 @@ Shot::Shot( SceneObject *shotObj, AmmoInfo *_ammo, glm::vec3 pos, glm::vec3 star
     ammo = _ammo;
     objShot = shotObj;
     objShot->pos = pos;
+    objShot->scale = glm::vec3( ammo->ammoScale );
     vel = startVel;
-    age = 8.0f;
-    
+    age = 0.0f;
+    splitDone = 0.0;
     // TODO: random spin
 }
 
@@ -297,7 +322,7 @@ void Shot::updateBallistic(float dt, glm::vec3 gravity )
     
     objShot->pos += vel * dt;
     
-    age -= dt;
+    age += dt;
 }
 
 

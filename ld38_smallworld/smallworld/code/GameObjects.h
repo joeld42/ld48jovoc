@@ -48,6 +48,9 @@ public:
     AmmoInfo( const char *name );
     const char *name;
     
+    const char *meshName;
+    const char *textureName;
+    
     float damageRadius; // how much dirt to blast, kills anything within this radius outright
     float fatalRadius;  // kills anything within this radius outright
     float splashRadius; // Does damage out here
@@ -56,6 +59,12 @@ public:
     
     int defaultSupply; // -1 = unlimited
     int currentSupply; // -1 = unlimited
+    
+    float ammoScale;
+    
+    float boomAge;  // at what time to explode if we haven't hit something already
+    float splitAge; // at what time to split
+    float splitNum; 
     
     bool wackyGravity;
 };
@@ -116,6 +125,8 @@ public:
     glm::vec3 vel;
     AmmoInfo *ammo;
     SceneObject *objShot;
+    
+    bool splitDone;
     
     void updateBallistic(float dt, glm::vec3 gravity );
 };

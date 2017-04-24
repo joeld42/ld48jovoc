@@ -31,6 +31,8 @@ TEXTURES = {
     'cannon.png' : 'DXT5',
     'cannon_basecolor.png': 'DXT5',
     'pea_shot.png': 'DXT5',
+    'grape_shot.png': 'DXT5',
+    'pumpkin.png': 'DXT5',    
     'explode.png': 'DXT5',
     #'tree_062.png' : 'DXT5',
     #'soupbowl.png' : 'DXT5'

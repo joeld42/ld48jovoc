@@ -311,7 +311,7 @@ TestApp::OnRunning() {
             
             // check if we hit..
             float f = planet.surfBuilder.evalSDF( evalP );
-            if ((f <= 0.0f)||(ss.age <= 0.0)) {
+            if ((f <= 0.0f)||(ss.age >= ss.ammo->boomAge)) {
                 
                 shouldRebuild = true;
                 printf("Hit Planet (%3.2f %3.2f %3.2f)...\n",
@@ -354,6 +354,26 @@ TestApp::OnRunning() {
                 // FIXME: sloppy and might break stuff, removing while iterating
                 shots.EraseSwapBack( i );
             }
+            
+            // Split?
+            if ((!ss.splitDone) && (ss.age > ss.ammo->splitAge)) {
+                
+                printf("SPLIT!!");
+                ss.splitDone = true;
+                
+                // Split!
+                for (int i=0; i < ss.ammo->splitNum; i++) {
+                    
+                    SceneObject *objShot = scene->addObject( ss.ammo->meshName, ss.ammo->textureName );
+                    
+                    Shot shot( objShot, ss.ammo, ss.objShot->pos, ss.vel );
+                    shot.vel += glm::ballRand( 1500.0 );
+                    shot.splitDone = true;
+                    shot.age = ss.age + glm::linearRand( 0.0f, 0.1f );
+                    shots.Add( shot );
+                }
+            }
+            
         }
         
         if (shouldRebuild) {
@@ -858,8 +878,9 @@ TestApp::fireActiveCannon()
     // Make sure there's not already a shot in-flight...
     if (!isFiring)
     {
-        SceneObject *objShot = scene->addObject( "msh:pea_shot.omsh", "tex:pea_shot.dds");
+        
         AmmoInfo &ammo = ammos[selectedAmmo];
+        SceneObject *objShot = scene->addObject( ammo.meshName, ammo.textureName );
         Shot shot( objShot, &ammo, cc._shootyPoint, cc.calcProjectileVel() );
         shots.Add( shot );
         
@@ -1669,7 +1690,9 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
             if (nk_button_symbol_label(ctx,
                                    (i==selectedAmmo)?NK_SYMBOL_CIRCLE:NK_SYMBOL_CIRCLE_FILLED,
                                        buttonLabel, NK_TEXT_RIGHT) ) {
-                selectAmmo( i );
+                if (cc.team->playerType == Player_HUMAN) {
+                    selectAmmo( i );
+                }
             }
             
             if (i==selectedAmmo) {
@@ -1711,7 +1734,7 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         }
         
         int ndx=0;
-        //zzzz nk_color activeColor = nk
+
         struct nk_style_item activeBorder = mkColorStyleItem( "#dfb801" );
         
         nk_color blankColor = ctx->style.progress.normal.data.color;
