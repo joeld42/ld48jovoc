@@ -134,6 +134,7 @@ private:
     int activeCannon;
     Oryol::Array<Cannon> cannons;
     Oryol::Array<Shot> shots;
+    void beginTurn();
     void finishTurn();
     void fireActiveCannon();
     void selectAmmo( int ammoIndex );
@@ -176,6 +177,11 @@ private:
     bool fontValid = false;
     Buffer ttfData;
 
+    // stuff for AI player..
+    float aiTargAngle;
+    float aiTargHeading;
+    float aiChargeTime;
+    bool aiFinished;
 
     GameState gameState;
     GameState nextGameState; // don't change gamestate mid-frame
@@ -594,6 +600,9 @@ TestApp::OnInit() {
     
     // Setup UI
     NKUI::Setup();
+
+    Memory::Clear(&g_uiMedia, sizeof(g_uiMedia));
+
     
     // setup custom fonts
     IO::Load("data:ltromatic.ttf", [this](IO::LoadResult loadResult) {
@@ -713,6 +722,7 @@ TestApp::SpawnCannons()
     activeCannon = 0;
     lookAtCannon( cannons[activeCannon] );
     
+    beginTurn();    
 }
 
 void
@@ -743,6 +753,33 @@ TestApp::RestartGame()
     cannons.Clear();
     BuildPlanet();
     nextGameState = GameState_TITLE;
+}
+
+void
+TestApp::beginTurn()
+{
+    Cannon &cc = cannons[activeCannon];
+    
+    if (cc.team->playerType == Player_CPU) {
+        // pick a random angle and stuff
+        aiTargHeading = glm::linearRand( -180.0f, 180.0f );
+        aiTargAngle = glm::linearRand( 0.0f, 180.0f );
+        aiChargeTime = glm::linearRand( 0.5f, 3.0f );
+        aiFinished = false;
+        
+        // Pick a random weapon
+        int availWeapons[20];
+        availWeapons[0] = 0;
+        int nAvailWeapons = 1;
+        for (int i=1; i < ammos.Size(); i++) {
+            if ( (ammos[i].defaultSupply != -1) && (cc.team->ammoSupply[i]) ) {
+                availWeapons[nAvailWeapons++] = i;
+            }
+        }
+        
+        selectAmmo( availWeapons[ rand() % nAvailWeapons ]);
+    }
+    
 }
 
 void
@@ -796,6 +833,10 @@ TestApp::finishTurn()
     
     // restore ammo selection for team
     selectAmmo( cannons[activeCannon].team->selectedWeapon );
+    
+    if (nextGameState == GameState_GAME) {
+        beginTurn();
+    }
 }
 
 void TestApp::selectAmmo( int ammoIndex )
@@ -908,6 +949,60 @@ TestApp::handle_input( float dt )
         // Out of this ammo, switch to pea shooter
         selectAmmo(0);
     }
+    
+    // Handle AI
+    if (activeCannon < cannons.Size()) {
+        Cannon &cc = cannons[activeCannon];
+        if ((cc.team->playerType == Player_CPU) && (!aiFinished)) {
+            float turnSpeed = 40.0;
+            float diffHead = aiTargHeading - cc.aimHeading;
+            
+            float turnAmount = glm::sign(diffHead) * turnSpeed * dt;
+            if (fabs(turnAmount) > fabs(diffHead)) {
+                turnAmount = diffHead;
+            }
+            
+            
+            cc.aimHeading = cc.aimHeading + turnAmount;
+            
+            float nearVal = fabsf(cc.aimHeading - aiTargHeading);
+            if (nearVal< 1.0f) {
+
+                // heading is aimed...
+                float diffTilt = aiTargAngle - cc.cannonAngle;
+                
+                float tiltAmount = glm::sign(diffTilt) * turnSpeed * dt;
+                if (fabs(tiltAmount) > fabs(diffTilt)) {
+                    tiltAmount = diffTilt;
+                }
+                
+                cc.cannonAngle += tiltAmount;
+                if (fabsf(cc.cannonAngle - aiTargAngle) < 1.0) {
+                    // tilt is aimed..
+                    //printf("Ready to fire...\n");
+                    if (!fireCharging) {
+                        fireCannonDown();
+                    } else {
+                        aiChargeTime -= dt;
+                        if (aiChargeTime < 0.0f) {
+                            fireCannonUp();
+                            aiFinished = true;
+                        }
+                    }
+                }
+//                else {
+//                    printf( "diffTilt %f cc.cannonAngle %f aiTargAngle %f tiltAmount %f\n",
+//                           diffTilt, cc.cannonAngle, aiTargAngle, tiltAmount );
+//                }
+            }
+//            else {
+//                printf( "nearVal %f diffHead %f cc.aimHeading %f aiTargHeading %f float turnAmount %f\n",
+//                       nearVal, diffHead, cc.aimHeading, aiTargHeading, turnAmount );
+//            }
+        }
+        
+        cc.updatePlacement();
+    }
 
     
     glm::vec3 move;
@@ -992,12 +1087,14 @@ TestApp::handle_input( float dt )
             
 
             // FIRE?
-            if (Input::KeyDown(Key::Space) || Input::KeyDown(Key::Z) || Input::KeyDown(Key::X)) {
-                fireCannonDown();
-            }
-            
-            if (Input::KeyUp(Key::Space) || Input::KeyUp(Key::Z) || Input::KeyUp(Key::X)) {
-                fireCannonUp();
+            if (cc.team->playerType == Player_HUMAN) {
+                if (Input::KeyDown(Key::Space) || Input::KeyDown(Key::Z) || Input::KeyDown(Key::X)) {
+                    fireCannonDown();
+                }
+                
+                if (Input::KeyUp(Key::Space) || Input::KeyUp(Key::Z) || Input::KeyUp(Key::X)) {
+                    fireCannonUp();
+                }
             }
             
             
@@ -1054,7 +1151,7 @@ TestApp::handle_input( float dt )
         fireCannonUp();
     }
     
-    if ((!tmpUI) && haveMouse)
+    if (!tmpUI)
     {
         // If debug camera is active, move it with WASD
         if (useDebugCamera)
@@ -1094,7 +1191,7 @@ TestApp::handle_input( float dt )
 //                       arcballVec.x, arcballVec.y, arcballVec.z
 //                       );
                 
-                if (Input::MouseButtonPressed(MouseButton::Left)) {
+                if ((haveMouse) && (Input::MouseButtonPressed(MouseButton::Left)) ) {
                     
                     // DBG:
                     //gameCamera.RotateArcball( glm::vec3(0.0, 1.0, 0.0), glm::radians(1.0f) );
@@ -1476,16 +1573,17 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         nk_label(ctx, "Aim", NK_TEXT_LEFT );
         static nk_size progAim;
         progAim = nk_size(cc.aimHeading + 180.0);
-        nk_progress(ctx, &progAim, 360, true );
-        cc.aimHeading = float(progAim) - 180.0;
+        if (nk_progress(ctx, &progAim, 360, true )) {
+            cc.aimHeading = float(progAim) - 180.0;
+        }
         
         nk_layout_row_dynamic(ctx, 20, 1);
         static nk_size progTilt;
         nk_label(ctx, "Tilt", NK_TEXT_LEFT );
-        //nk_slider_float(ctx, 0.0f, &(cc.cannonAngle), 180.0f, 0.1f);
         progTilt = nk_size( cc.cannonAngle );
-        nk_progress(ctx, &progTilt, 180, true );
-        cc.cannonAngle = progTilt;
+        if (nk_progress(ctx, &progTilt, 180, true )) {
+            cc.cannonAngle = progTilt;
+        }
         
         nk_layout_row_dynamic(ctx, 20, 1);
         static nk_size progPower;
@@ -1493,11 +1591,12 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         progPower = nk_size( cc.power * 1000.0 );
         //nk_slider_float(ctx, 0.0f, &(cc.power), 1.0f, 0.001f);
         nk_progress(ctx, &progPower, 1000, false );
-        cc.power = float(progPower) / 1000.0f;
         
         nk_layout_row_dynamic(ctx, 30, 1);
         
-        bool canFire = shots.Size() == 0;
+        bool canFire = ( (shots.Size() == 0) &&
+                        (!isFiring) &&
+                        (cc.team->playerType == Player_HUMAN) );
     
         if (canFire) {
             ctx->style.button.normal = mkColorStyleItem( "#84db45" );
