@@ -136,11 +136,15 @@ private:
     void finishTurn();
     void fireActiveCannon();
     void lookAtCannon( Cannon &cc );
-    void lookAtPos( glm::vec3 pos );
+    void lookAtPos( glm::vec3 pos, bool update );
     void SpawnCannons();
     void StartGame();
+    float nextTurnTimer;
+    bool isFiring;
     
     Oryol::Array<TeamInfo> teams;
+    Oryol::Array<AmmoInfo> ammos;
+    int selectedAmmo;
     
     struct nk_style_item mkColorStyleItem( const char *hexColor );
     
@@ -194,7 +198,9 @@ TestApp::OnRunning() {
         safeToUpdate = false;
     }
     
-    this->handle_input( dt );
+    if (safeToUpdate) {
+        this->handle_input( dt );
+    }
     
     if ((!paused) && (safeToUpdate))
     {
@@ -232,6 +238,11 @@ TestApp::OnRunning() {
         for (int i=0; i < shots.Size(); i++) {
             Shot &ss = shots[i];
             
+            // track the first pos
+            if (i==0) {
+                lookAtPos( ss.objShot->pos, true );
+            }
+            
             glm::vec3 evalP = ss.objShot->pos / planet.worldSize;
             
             //glm::vec3 grav = planet.surfBuilder.evalNormal( evalP );
@@ -259,13 +270,18 @@ TestApp::OnRunning() {
                 
                 // FIXME: sloppy and might break stuff, removing while iterating
                 shots.EraseSwapBack( i );
-                
-                lookAtPos( ss.objShot->pos );
             }
         }
         
         if (planetNeedsRebuild) {
             planet.Rebuild( scene );
+        }
+        
+        
+        // Is this the end of the turn
+        if (isFiring && (shots.Size() == 0) && (nextTurnTimer < 0.0)) {
+            // Finish turn
+            nextTurnTimer = 2.5;
         }
         
 //        // DEMO, autofire if able
@@ -406,6 +422,7 @@ AppState::Code
 TestApp::OnInit() {
     
     gameState = GameState_TITLE;
+    nextTurnTimer = -1.0;
     
     // Dev hack to ensure we're running from the right place...
     chdir("/Users/joeld/Projects/ld48jovoc/ld38_smallworld/smallworld");
@@ -514,8 +531,9 @@ TestApp::OnInit() {
     
     load_icon( "data:farmageddon_title.png", &(g_uiMedia.farmageddon_title));
     
-    // Initialize teams
+    // Initialize teams and weapons
     MakeDefaultTeams( teams );
+    MakeDefaultAmmos( ammos );
     
     // Build initial planet
     BuildPlanet();
@@ -565,6 +583,9 @@ TestApp::BuildPlanet()
 void
 TestApp::SpawnCannons()
 {
+    // Init stuff
+    nextTurnTimer = -1.0;
+    isFiring = false;
     
     // see how many teams are active
     int numActiveTeams = 0;
@@ -577,21 +598,30 @@ TestApp::SpawnCannons()
             }
         }
     }
+
+    assert( numActiveTeams > 0 );
     
-//    switch (numActiveTeams) {
-//        
-//    }
+    int numCannonsPerTeam = 7 - numActiveTeams;
+    int numTotalCannons = numActiveTeams * numCannonsPerTeam;
     
     // Add cannons
-    while (cannons.Size() < 12) {
+    while (cannons.Size() < numTotalCannons) {
         
         glm::vec3 p = glm::sphericalRand( planet.planetApproxRadius  );
         glm::vec3 upDir = planet.surfBuilder.evalNormal( p );
-        Cannon cc( scene, p, upDir );
+        Cannon cc( scene, &(teams[assignIndex]), p, upDir );
         cc.applyTeamColor();
         cannons.Add(cc);
+        
+        do {
+            assignIndex++;
+            if (assignIndex >= teams.Size()) {
+                assignIndex = 0;
+            }
+        } while (teams[assignIndex].playerType == Player_NONE);
     }
     
+    activeCannon = 0;
     lookAtCannon( cannons[activeCannon] );
     
 }
@@ -600,13 +630,34 @@ void
 TestApp::StartGame()
 {
     gameState = GameState_GAME;
+    selectedAmmo = 0;
     SpawnCannons();
 }
 
 void
 TestApp::finishTurn()
 {
-    // HERE check if there's only one team with cannons remaining
+    
+    isFiring = false;
+    
+    // check if there's only one team with cannons remaining
+    // FIXME: handle single player mode
+    int teamsAlive = 0;
+    for (int tndx=0; tndx < teams.Size(); tndx++) {
+        
+        for (int i=0; i < cannons.Size(); i++ ) {
+            if (cannons[i].health > 0) {
+                // found a cannon on this team
+                teamsAlive++;
+                break;
+            }
+        }
+    }
+    
+    if (teamsAlive == 1) {
+        gameState = GameState_GAME_OVER;
+    }
+    
     
     cannons[activeCannon].applyTeamColor();
     
@@ -630,30 +681,36 @@ TestApp::fireActiveCannon()
     Cannon &cc = cannons[activeCannon];
     
     // Make sure there's not already a shot in-flight...
-    if (shots.Size() == 0)
+    if (!isFiring)
     {
         SceneObject *objShot = scene->addObject( "msh:pea_shot.omsh", "tex:pea_shot.dds");
         Shot shot( objShot, cc._shootyPoint, cc.calcProjectileVel() );
         shots.Add( shot );
+        
+        isFiring = true;
     }
 }
 
 void
 TestApp::lookAtCannon( Cannon &cc )
 {
-    lookAtPos( cc.objBase->pos );
+    lookAtPos( cc.objBase->pos, false );
 }
 
 void
-TestApp::lookAtPos( glm::vec3 pos )
+TestApp::lookAtPos( glm::vec3 pos, bool update )
 {
-    doAnimCam = true;
-    animCamStart = gameCamera.Rotq;
+    
     glm::vec3 front(0.0f,0.0f,1.0f);
     glm::vec3 cannonDir = glm::normalize( pos );
     
     animCamTarg = glm::quat( front, cannonDir );
-    animCamTimer = 0.0;
+    
+    if ((!update) || (!doAnimCam)) {
+        animCamStart = gameCamera.Rotq;
+        animCamTimer = 0.0;
+    }
+    doAnimCam = true;
 }
 
 //------------------------------------------------------------------------------
@@ -667,6 +724,15 @@ TestApp::handle_input( float dt )
     
     if (activeCannon < cannons.Size()) {
         cannons[activeCannon].pulseActive( animT );
+    }
+    
+    // turn timer
+    if (nextTurnTimer >= 0.0) {
+        nextTurnTimer -= dt;
+        if (nextTurnTimer < 0.0 ) {
+            finishTurn();
+            nextTurnTimer = -1.0;
+        }
     }
     
     glm::vec3 move;
@@ -848,14 +914,23 @@ TestApp::handle_input( float dt )
 }
 
 //------------------------------------------------------------------------------
-static void
-//ui_header(struct nk_context *ctx, struct media *media, const char *title)
-ui_header(struct nk_context *ctx, const char *title)
+void UIApplyTeamColorToHeader( nk_context *ctx, TeamInfo *team )
 {
-    //nk_style_set_font(ctx, &media->font_18->handle);
-    nk_layout_row_dynamic(ctx, 20, 1);
-    nk_label(ctx, title, NK_TEXT_CENTERED );
+    struct nk_style_item hc;
+    hc.type = NK_STYLE_ITEM_COLOR;
+    hc.data.color.r = (int)(team->teamColor.r * 255.0);
+    hc.data.color.g = (int)(team->teamColor.g * 255.0);
+    hc.data.color.b = (int)(team->teamColor.b * 255.0);
+    hc.data.color.a = 240;
+    
+    ctx->style.window.header.normal = hc;
+    ctx->style.window.header.hover = hc;
+    ctx->style.window.header.active = hc;
+    
+    ctx->style.window.header.label_normal = { 255, 255, 255, 255 };
 }
+
+
 
 struct nk_style_item TestApp::mkColorStyleItem( const char *hexColor )
 {
@@ -921,21 +996,26 @@ TestApp::DoGameUI_Title( nk_context* ctx )
         
         int col = (fbWidth-220) * (i / 2);
         int row = (fbHeight / 2) * (i%2);
-        struct nk_style_item hc;
-        hc.type = NK_STYLE_ITEM_COLOR;
-        hc.data.color.r = (int)(team.teamColor.r * 255.0);
-        hc.data.color.g = (int)(team.teamColor.g * 255.0);
-        hc.data.color.b = (int)(team.teamColor.b * 255.0);
-        hc.data.color.a = 240;
+//        struct nk_style_item hc;
+//        hc.type = NK_STYLE_ITEM_COLOR;
+//        hc.data.color.r = (int)(team.teamColor.r * 255.0);
+//        hc.data.color.g = (int)(team.teamColor.g * 255.0);
+//        hc.data.color.b = (int)(team.teamColor.b * 255.0);
+//        hc.data.color.a = 240;
+//        
+//        ctx->style.window.header.normal = hc;
+//        ctx->style.window.header.hover = hc;
+//        ctx->style.window.header.active = hc;
+//        
+//        ctx->style.window.header.label_normal = { 255, 255, 255, 255 };
+        UIApplyTeamColorToHeader( ctx, &team );
         
-        ctx->style.window.header.normal = hc;
-        ctx->style.window.header.hover = hc;
-        ctx->style.window.header.active = hc;
         
-        ctx->style.window.header.label_normal = { 255, 255, 255, 255 };
-        
-        
-        if (nk_begin(ctx, &layout, team.teamName, nk_rect(col, row, 220, fbHeight/2),
+        // This is a workaround for a "feature" of nkui, it stores panel sizes (for resizing) so
+        // we can't use the same name as the in-game team panel, this avoids the problem... :_(
+        char buff[45];
+        sprintf(buff, " %s", team.teamName );
+        if (nk_begin(ctx, &layout, buff, nk_rect(col, row, 220, fbHeight/2),
                             NK_WINDOW_BORDER|NK_WINDOW_BORDER_HEADER|NK_WINDOW_TITLE)) {
             
         
@@ -1039,13 +1119,33 @@ TestApp::DoGameUI_Results( nk_context* ctx )
 void
 TestApp::DoGameUI_Gameplay( nk_context* ctx )
 {
+    Cannon &cc = cannons[activeCannon];
+    
     struct nk_panel layout;
-    if (nk_begin(ctx, &layout, "Player 1", nk_rect(0, 0, 220, fbHeight),
+    
+    UIApplyTeamColorToHeader( ctx, cc.team );
+    
+    if (!strcmp(cc.team->teamName, "Dept. of Agriculture")) {
+        // Special case "Dept. of Agriculture" so it fits
+        nk_style_set_font(ctx, &(g_uiMedia.font_14->handle));
+    } else {
+        nk_style_set_font(ctx, &(g_uiMedia.font_20->handle));
+    }
+
+    struct nk_style_button button_style = ctx->style.button;
+    
+    
+    if (nk_begin(ctx, &layout, cc.team->teamName, nk_rect(0, 0, 220, fbHeight),
                 NK_WINDOW_BORDER|NK_WINDOW_BORDER_HEADER|NK_WINDOW_TITLE)) {
         
-        ui_header(ctx,  "Henry");
+        nk_style_set_font(ctx, &(g_uiMedia.font_24->handle));
+        nk_layout_row_dynamic(ctx, 24, 1);
         
-        Cannon &cc = cannons[activeCannon];
+        glm::vec4 tc = cc.team->teamColor;
+        nk_label_colored(ctx, cc.name, NK_TEXT_CENTERED, nk_rgb(int(tc.r*255.0),int(tc.g*255.0),int(tc.b*255.0) ));
+        
+        nk_style_set_font(ctx, &(g_uiMedia.font_18->handle));
+        
         nk_layout_row_dynamic(ctx, 20, 1);
         nk_label(ctx, "Aim", NK_TEXT_LEFT );
         nk_slider_float(ctx, -180.0f, &(cc.aimHeading), 180.0f, 0.1f);
@@ -1061,7 +1161,7 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         nk_layout_row_dynamic(ctx, 30, 1);
         
         bool canFire = shots.Size() == 0;
-        struct nk_style_button button_style = ctx->style.button;
+    
         if (canFire) {
             ctx->style.button.normal = mkColorStyleItem( "#84db45" );
             ctx->style.button.hover = mkColorStyleItem( "#b0e787" );
@@ -1087,28 +1187,53 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         nk_end(ctx);
     }
     
+    
+    // ----- Weapons panel
+    
     if (nk_begin(ctx, &layout, "Weapons", nk_rect(fbWidth-220, 0, 220, fbHeight),
                  NK_WINDOW_BORDER|NK_WINDOW_BORDER_HEADER|NK_WINDOW_TITLE)) {
+    
+        nk_style_set_font(ctx, &(g_uiMedia.font_14->handle));
         
 //        if (nk_group_begin(ctx, &layout, "Group",
 //                           NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR)) {
         
-        const char *weaponNames[] = {
-            "Pea Shooter",
-            "Pumpkin Eater",
-            "Grapeshot",
-            "Emoji Eggplant",
-            "Guided Carrot",
-            "Fertilizer"
-        };
-        
-        char number[2] = "1";
-        for (int i = 0; i < sizeof(weaponNames)/sizeof(weaponNames[0]); i++)
+        char buttonLabel[30];
+        for (int i = 0; i < ammos.Size(); i++)
         {
-            nk_layout_row_dynamic( ctx, 44.0, 2 );
-            number[0] = '1'+i;
-                nk_button_label( ctx, number );
-                nk_label( ctx, weaponNames[i], NK_TEXT_RIGHT );
+            nk_layout_row_dynamic( ctx, 44.0, 1 );
+            
+            
+            //nk_button_label( ctx, number );
+            //nk_label( ctx, weaponNames[i], NK_TEXT_RIGHT );
+            AmmoInfo &ammo = ammos[i];
+            if (ammo.defaultSupply == -1) {
+                strcpy( buttonLabel, ammo.name );
+            } else {
+                // TODO: use real count, not supply
+                sprintf( buttonLabel, "%s (%d)", ammo.name, ammo.defaultSupply );
+            }
+            if (i==selectedAmmo) {
+
+                ctx->style.button.normal = mkColorStyleItem( "#dfb801" );
+                ctx->style.button.hover = mkColorStyleItem( "#ceaa01" );
+                
+                ctx->style.button.text_normal = mkColorStyleItem( "#2d2d2d" ).data.color;
+                ctx->style.button.text_hover = ctx->style.button.text_normal;
+                
+            }
+            if (nk_button_symbol_label(ctx,
+                                   (i==selectedAmmo)?NK_SYMBOL_CIRCLE:NK_SYMBOL_CIRCLE_FILLED,
+                                       buttonLabel, NK_TEXT_RIGHT) ) {
+                
+                selectedAmmo = i;
+            }
+            
+            if (i==selectedAmmo) {
+                ctx->style.button = button_style;
+            }
+            
+            
             nk_layout_row_end(ctx);
         }
 //
@@ -1119,6 +1244,54 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         
         nk_end(ctx);
     }
+    
+    
+    // Cannons panel
+    struct nk_style_window oldWindowStyle = ctx->style.window;
+    struct nk_style_button oldButtonStyle = ctx->style.button;
+    
+    ctx->style.window.fixed_background.data.color = nk_rgba(0,0,0,0);
+    ctx->style.window.footer_padding = nk_vec2(0, 0);
+    ctx->style.window.padding = nk_vec2(0, 0);
+    ctx->style.window.group_padding = nk_vec2(0, 0);
+    
+    ctx->style.button.padding  = nk_vec2(0,0 );
+    ctx->style.button.rounding = 0.0;
+    
+    if (nk_begin(ctx, &layout, "Cannons", nk_rect(224, 0, fbWidth - 444, 110.0), 0)) {
+        
+        int cols = cannons.Size();
+        int rows = 1;
+        if ( cols > 6 ) {
+            cols /= 2;
+            rows += 1;
+        }
+        
+        int ndx=0;
+        //zzzz nk_color activeColor = nk
+        struct nk_style_item activeBorder = mkColorStyleItem( "#dfb801" );
+        for (int j=0; j < rows; j++) {
+            nk_layout_row_dynamic( ctx, 40, cols );
+            for (int i=0; i < cols; i++) {
+                if (ndx < cannons.Size()) {
+                    Cannon &cc = cannons[ndx];
+                    
+                    glm::vec4 tc = cc.team->teamColor;
+                    ctx->style.button.text_normal = nk_rgb(int(tc.r*255.0),int(tc.g*255.0),int(tc.b*255.0));
+                    
+                    ctx->style.button.border_color = (ndx==activeCannon)?activeBorder.data.color:oldButtonStyle.border_color;
+                    
+                    nk_button_label( ctx, cc.name );
+                }
+                ndx++;
+            }
+            nk_layout_row_end(ctx);
+        }
+        
+        nk_end(ctx);
+    }
+    ctx->style.window = oldWindowStyle;
+    ctx->style.button = oldButtonStyle;
 }
 
 //------------------------------------------------------------------------------

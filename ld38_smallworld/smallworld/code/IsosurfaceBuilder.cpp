@@ -148,7 +148,7 @@ IsosurfaceBuilder::IsosurfaceBuilder() :
     color(1.0f, 1.0f, 1.0f, 1.0f),
     fx(1.0), fy(1.0), fz(1.0),
     gridRes(64),
-    damageRes(20),
+    damageRes(50),
     damage(NULL)
 {
     dbgPush = 0.0f;    
@@ -478,6 +478,7 @@ void IsosurfaceBuilder::addDamage( glm::vec3 p, float radius )
 // since it looks pretty good noisy.
 float IsosurfaceBuilder::lookupDamage( glm::vec3 p )
 {
+    //glm::vec3 pp = ((p*0.5f)+glm::vec3(0.5f)) * float(damageRes-1);
     glm::vec3 pp = ((p*0.5f)+glm::vec3(0.5f)) * float(damageRes-1);
     pp = glm::clamp( pp, glm::vec3(0.0f), glm::vec3(float(damageRes-1) - 0.0001) );
     

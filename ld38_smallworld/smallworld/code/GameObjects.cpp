@@ -71,7 +71,7 @@ void MakeDefaultTeams( Oryol::Array<TeamInfo> &teams )
     deptOfAg.names.Add( "Barack" );
     deptOfAg.names.Add( "Joe" );
     deptOfAg.names.Add( "Dubya" );
-    deptOfAg.names.Add( "B. DeVos" );
+    deptOfAg.names.Add( "Betsy" ); // Ross or DeVos, depends whether you hate teaching kids
     deptOfAg.names.Add( "Putin" );
     deptOfAg.names.Add( "Paulryan" );
     deptOfAg.names.Add( "Chuck" );
@@ -117,25 +117,64 @@ void MakeDefaultTeams( Oryol::Array<TeamInfo> &teams )
     
     teams[0].playerType = Player_HUMAN;
 }
+// ========================================================
+//  AmmoInfo
+// ========================================================
+AmmoInfo::AmmoInfo( const char *_name )
+{
+    name = _name;
+    fatalRadius = 100.0f;
+    damageRadius = 120.0f;
+    splashRadius = 150.0f;
+    wackyGravity = false;
+    craterNoise = 0.0f;
+    defaultSupply = -1;
+}
+
+void MakeDefaultAmmos( Oryol::Array<AmmoInfo> &ammos )
+{
+    // Basic bomb, not much damage
+    AmmoInfo ammo = AmmoInfo( "Pea Shooter");
+    ammos.Add( ammo );
+
+    // Large bomb, but does little damage
+    ammo = AmmoInfo( "Pumpkin Eater");
+    ammo.fatalRadius = 10.0;
+    ammo.damageRadius = 200.0;
+    ammo.splashRadius = 300.0;
+    ammo.craterNoise = 0.5;
+    ammo.defaultSupply = 10;
+    ammos.Add( ammo );
+
+    ammo = AmmoInfo( "Eggplant");
+    ammo.defaultSupply = 20;
+    ammos.Add( ammo );
+
+    ammo = AmmoInfo( "Fertilizer");
+    ammo.defaultSupply = 5;
+    ammos.Add( ammo );
+
+
+//    "Pea Shooter",
+//    "Pumpkin Eater",
+//    "Grapeshot",
+//    "Emoji Eggplant",
+//    "Guided Carrot",
+//    "Fertilizer"
+    
+}
 
 // ========================================================
 //   Cannon
 // ========================================================
 
 
-Cannon::Cannon( Scene *scene, glm::vec3 anchorPos, glm::vec3 upDir )
+Cannon::Cannon( Scene *scene, TeamInfo *_team, glm::vec3 anchorPos, glm::vec3 upDir )
 {
+    team = _team;
     
-    int teamNum = rand() % 4;
-    if (teamNum==0) {
-        teamColor = glm::vec4(0.84,0.38,0.29, 1.0);
-    } else if (teamNum==1) {
-        teamColor = glm::vec4(0.16,0.68,0.68, 1.0);
-    } else if (teamNum==2) {
-        teamColor = glm::vec4(0.52,0.67,0.20,1.0);
-    } else if (teamNum==3) {
-        teamColor = glm::vec4(0.68,0.40,0.74, 1.0);
-    }
+    // TODO: don't allow duplication of names
+    name = _team->names[ rand() % _team->names.Size() ];
     
     // Initialize gameplay stuff
     aimHeading = 0.0;
@@ -193,7 +232,7 @@ glm::vec3 Cannon::calcProjectileVel()
 void Cannon::applyTeamColor()
 {
     // TODO: Pulse active color
-    glm::vec4 color = teamColor;
+    glm::vec4 color = team->teamColor;
     objBase->fsParams.TintColor = color;
     objBarrel->fsParams.TintColor = color;
     objBushing->fsParams.TintColor = color;
@@ -203,7 +242,7 @@ void Cannon::applyTeamColor()
 void Cannon::pulseActive( float t )
 {
     glm::vec4 highlightColor = glm::vec4(1.00,0.86,0.48,1.0);
-    glm::vec4 color = glm::mix( teamColor, highlightColor, fabs(sinf( t * 10.0 )) );
+    glm::vec4 color = glm::mix( team->teamColor, highlightColor, fabs(sinf( t * 10.0 )) );
     
     objBase->fsParams.TintColor = color;
     objBarrel->fsParams.TintColor = color;

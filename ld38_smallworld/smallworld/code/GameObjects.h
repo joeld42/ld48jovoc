@@ -41,17 +41,34 @@ public:
 
 void MakeDefaultTeams( Oryol::Array<TeamInfo> &teams );
 
+class AmmoInfo {
+public:
+    AmmoInfo( const char *name );
+    const char *name;
+    
+    float damageRadius; // how much dirt to blast, kills anything within this radius outright
+    float fatalRadius;  // kills anything within this radius outright
+    float splashRadius; // Does damage out here
+    
+    float craterNoise; // How noisy is the crater?
+    
+    int defaultSupply; // -1 = unlimited
+    
+    bool wackyGravity;
+};
+
+void MakeDefaultAmmos( Oryol::Array<AmmoInfo> &ammos );
+
 class Cannon
 {
 public:
 
     Cannon() {}
-    Cannon( Scene *scene, glm::vec3 anchorPos, glm::vec3 upDir );
+    Cannon( Scene *scene, TeamInfo *_team, glm::vec3 anchorPos, glm::vec3 upDir );
     
-    char name[20];
+    const char *name;
     
     TeamInfo *team;
-    glm::vec4 teamColor;
     
     
     // Gameplay fields
