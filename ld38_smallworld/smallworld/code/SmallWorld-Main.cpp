@@ -60,6 +60,7 @@ struct UIMedia {
     struct nk_font *font_20;
     struct nk_font *font_24;
     struct nk_image farmageddon_title;
+    struct nk_image farmageddon_gameover;
 } g_uiMedia;
 
 // derived application class
@@ -412,6 +413,9 @@ TestApp::OnRunning() {
     // Draw UI
     nk_context* ctx = NKUI::NewFrame();
     
+    ctx->style.window.fixed_background.data.color.a = 200;
+    ctx->style.button.normal.data.color.a = 200;
+    
     enum {EASY, HARD};
     static int op = EASY;
     static float value = 0.6f;
@@ -619,6 +623,7 @@ TestApp::OnInit() {
 
     
     load_icon( "data:farmageddon_title.png", &(g_uiMedia.farmageddon_title));
+    load_icon( "data:farmageddon_gameover.png", &(g_uiMedia.farmageddon_gameover));
     
     // Initialize teams and weapons
     MakeDefaultTeams( teams );
@@ -1470,7 +1475,7 @@ TestApp::DoGameUI_Results( nk_context* ctx )
         
         nk_layout_row_dynamic( ctx, 420, 1);
         //nk_label(ctx, "Image Goes Here.", NK_TEXT_CENTERED );
-        nk_image( ctx, g_uiMedia.farmageddon_title ); // TODO: Game Over
+        nk_image( ctx, g_uiMedia.farmageddon_gameover );
         
         nk_layout_row_dynamic( ctx, 20, 1);
         nk_label( ctx, "Winner:", NK_TEXT_CENTERED );
@@ -1754,7 +1759,9 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
                     
                     ctx->style.button.border_color = (ndx==activeCannon)?activeBorder.data.color:oldButtonStyle.border_color;
                     
-                    nk_button_label( ctx, (cc.health > 0)?cc.name:"R.I.P" );
+                    if (nk_button_label( ctx, (cc.health > 0)?cc.name:"R.I.P" )) {
+                        lookAtCannon( cc );
+                    }
                 }
                 ndx++;
             }
