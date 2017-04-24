@@ -186,6 +186,8 @@ Cannon::Cannon( Scene *scene, TeamInfo *_team, glm::vec3 anchorPos, glm::vec3 up
     health = 6;
     maxHealth=6;
     
+    blinker = rand() % 10;
+    
     objBase = scene->addObject( "msh:cannon_base.omsh", "tex:cannon_basecolor.dds");
     objBushing = scene->addObject( "msh:cannon_bushing.omsh", "tex:cannon_basecolor.dds");
     objBarrel = scene->addObject( "msh:cannon_barrel.omsh", "tex:cannon_basecolor.dds");
@@ -201,15 +203,6 @@ void Cannon::place( glm::vec3 anchorPos, glm::vec3 upDir )
     updatePlacement();
 }
 
-void Cannon::makeDead() {
-    
-    health = 0;
-    
-    glm::vec4 color = glm::vec4( 0.2f, 0.2f, 0.2f, 1.0f );
-    objBase->fsParams.TintColor = color;
-    objBarrel->fsParams.TintColor = color;
-    objBushing->fsParams.TintColor = color;
-}
 
 void Cannon::updatePlacement()
 {
@@ -241,24 +234,38 @@ glm::vec3 Cannon::calcProjectileVel()
     return _shootyDir * (power*5000.0f);
 }
 
-void Cannon::applyTeamColor()
-{
-    // TODO: Pulse active color
-    glm::vec4 color = team->teamColor;
-    objBase->fsParams.TintColor = color;
-    objBarrel->fsParams.TintColor = color;
-    objBushing->fsParams.TintColor = color;
-    
-}
 
 void Cannon::pulseActive( float t )
 {
-    glm::vec4 highlightColor = glm::vec4(1.00,0.86,0.48,1.0);
-    glm::vec4 color = glm::mix( team->teamColor, highlightColor, fabs(sinf( t * 10.0 )) );
+    
+}
+
+void Cannon::update( float dt, float animT, bool active )
+{
+    glm::vec4 color = team->teamColor;
+    
+    if (health <=0) {
+        color = glm::vec4( 0.2f, 0.2f, 0.2f, 1.0f );
+    }
+
+    // dead objects can still show damage
+    if (showDamageTimer > 0.0) {
+        glm::vec4 damageColor = glm::vec4(0.98,0.22,0.12,1.0);
+        color = glm::mix( color, damageColor, showDamageTimer / 0.5 );
+        
+        showDamageTimer -= dt;
+    }
+    
+    // Show active highlight
+    if ((active) && (health > 0)) {
+        glm::vec4 highlightColor = glm::vec4(1.00,0.86,0.48,1.0);
+        color = glm::mix( color, highlightColor, fabs(sinf( animT * 10.0 )) );
+    }
     
     objBase->fsParams.TintColor = color;
     objBarrel->fsParams.TintColor = color;
     objBushing->fsParams.TintColor = color;
+
 }
 
 // ========================================================

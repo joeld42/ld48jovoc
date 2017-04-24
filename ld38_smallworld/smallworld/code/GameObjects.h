@@ -88,12 +88,18 @@ public:
     void place( glm::vec3 anchorPos, glm::vec3 upDir );
     void updatePlacement();
     
+    void update( float dt, float animT, bool active );
+    
     void applyTeamColor();
     void pulseActive( float t );
+        
+    int blinker;
     
     void makeDead();
     
     glm::vec3 calcProjectileVel();
+    
+    float showDamageTimer;
     
     SceneObject *objBase;
     SceneObject *objBushing;

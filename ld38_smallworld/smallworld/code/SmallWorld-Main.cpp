@@ -237,15 +237,17 @@ TestApp::OnRunning() {
                 } else {
                     // Cannon is off the ground, make falling
                     glm::vec3 upDir = planet.surfBuilder.evalNormal( evalP );
-                    glm::vec3 upDir2 = glm::normalize( evalP );
+                    //glm::vec3 upDir2 = glm::normalize( evalP );
                     //printf("upDir %3.2f %3.2f %3.2f -- dt %3.2f\n", upDir.x, upDir.y, upDir.z, dt );
                     
                     glm::vec3 newPos = cc.objBase->pos + (upDir*-100.0f*dt);
                     //glm::vec3 newPos = cc.objBase->pos;
                     cc.place( newPos, upDir );
-                
                 }
             }
+            
+            // Update color and status
+            cc.update( dt, animT, (i == activeCannon) && (!isFiring) );
         }
 #endif
         
@@ -295,9 +297,20 @@ TestApp::OnRunning() {
                 for (int j=0; j < cannons.Size(); j++) {
                     Cannon &cc = cannons[j];
                     float hitDist = glm::length(cc.objBase->pos - ss.objShot->pos);
-                    printf("Hit Distance to '%s' %3.2f\n", cc.name, hitDist );
+                    
+                    //printf("Hit Distance to '%s' %3.2f\n", cc.name, hitDist );
+                    int origHealth = cc.health;
                     if ( hitDist < ss.ammo->fatalRadius) {
-                        cc.makeDead();
+                        cc.health = 0;
+                    } else if (hitDist < ss.ammo->splashRadius) {
+                        float splash = glm::smoothstep( ss.ammo->fatalRadius, ss.ammo->splashRadius, hitDist );
+                        int dam = int( glm::round(1.0 + splash*3 ) );
+                        printf("SPLASH Damage: %d\n", dam );
+                        cc.health = glm::max( 0, cc.health - dam );
+                    }
+                    
+                    if (cc.health < origHealth) {
+                        cc.showDamageTimer = 0.5;
                     }
                 }
                 
@@ -648,7 +661,7 @@ TestApp::SpawnCannons()
         glm::vec3 p = glm::sphericalRand( planet.planetApproxRadius  );
         glm::vec3 upDir = planet.surfBuilder.evalNormal( p );
         Cannon cc( scene, &(teams[assignIndex]), p, upDir );
-        cc.applyTeamColor();
+        
         cannons.Add(cc);
         
         do {
@@ -695,9 +708,6 @@ TestApp::finishTurn()
     if (teamsAlive == 1) {
         gameState = GameState_GAME_OVER;
     }
-    
-    
-    cannons[activeCannon].applyTeamColor();
     
     do {
         
@@ -760,10 +770,6 @@ TestApp::handle_input( float dt )
     
     // Update active
     animT += dt;
-    
-    if (activeCannon < cannons.Size()) {
-        cannons[activeCannon].pulseActive( animT );
-    }
     
     // Rebuild planet??
     if (planetNeedsRebuild > 0) {
@@ -1215,6 +1221,24 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         glm::vec4 tc = cc.team->teamColor;
         nk_label_colored(ctx, cc.name, NK_TEXT_CENTERED, nk_rgb(int(tc.r*255.0),int(tc.g*255.0),int(tc.b*255.0) ));
         
+        nk_style_set_font(ctx, &(g_uiMedia.font_14->handle));
+        
+        nk_layout_row_dynamic(ctx, 20, 2);
+        nk_label_colored( ctx, "Health:", NK_TEXT_ALIGN_RIGHT, nk_rgb(int(0.98*255),int(0.51*255),int(255*0.52)) );
+        
+        char buff[10];
+        buff[7]=0;
+        for (int z=0; z < 6; z++) {
+            buff[z] = (z > cc.health)?'-':'*';
+        }
+        // TODO: replace with heart image
+        nk_label_colored( ctx, buff, NK_TEXT_ALIGN_RIGHT, nk_rgb(int(0.98*255),int(0.51*255),int(255*0.52)) );
+        
+        nk_layout_row_dynamic(ctx, 20, 1);
+        if (nk_button_label(ctx, "Locate")) {
+            lookAtCannon(cc);
+        }
+        
         nk_style_set_font(ctx, &(g_uiMedia.font_18->handle));
         
         nk_layout_row_dynamic(ctx, 20, 1);
@@ -1348,11 +1372,16 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
                     Cannon &cc = cannons[ndx];
                     
                     glm::vec4 tc = cc.team->teamColor;
-                    ctx->style.button.text_normal = nk_rgb(int(tc.r*255.0),int(tc.g*255.0),int(tc.b*255.0));
+                    if (cc.health > 0) {
+                        ctx->style.button.text_normal = nk_rgb(int(tc.r*255.0),int(tc.g*255.0),int(tc.b*255.0));
+                    } else {
+                        // Dead
+                        ctx->style.button.text_normal = nk_rgb( 80.0, 80.0, 80.0 );
+                    }
                     
                     ctx->style.button.border_color = (ndx==activeCannon)?activeBorder.data.color:oldButtonStyle.border_color;
                     
-                    nk_button_label( ctx, cc.name );
+                    nk_button_label( ctx, (cc.health > 0)?cc.name:"R.I.P" );
                 }
                 ndx++;
             }
