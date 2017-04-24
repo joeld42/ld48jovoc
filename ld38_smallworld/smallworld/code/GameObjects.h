@@ -89,10 +89,7 @@ public:
     void updatePlacement();
     
     void update( float dt, float animT, bool active );
-    
-    void applyTeamColor();
-    void pulseActive( float t );
-        
+            
     int blinker;
     
     void makeDead();

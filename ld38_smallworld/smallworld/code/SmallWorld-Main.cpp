@@ -45,6 +45,7 @@
 
 using namespace Oryol;
 
+#define CHEATS_ENABLED (1)
 
 enum GameState {
     GameState_TITLE,
@@ -135,18 +136,32 @@ private:
     Oryol::Array<Shot> shots;
     void finishTurn();
     void fireActiveCannon();
+    
+    void fireCannonDown();
+    void fireCannonUp();
+    bool fireCharging;
+    float chargingRawPower;
+    
     void lookAtCannon( Cannon &cc );
     void lookAtPos( glm::vec3 pos, bool update );
     void SpawnCannons();
     void StartGame();
+    void RestartGame();
     float nextTurnTimer;
     bool isFiring;
+    bool quitRequested;
     
     Oryol::Array<TeamInfo> teams;
     Oryol::Array<AmmoInfo> ammos;
     int selectedAmmo;
     
+    // For Results screen
+    int playerCount;
+    TeamInfo *winningTeam;
+    Cannon *winningCannon;
+    
     SceneObject *boom;
+    glm::vec3 boomPos;
     float boomTimer;
     int planetNeedsRebuild;
     
@@ -213,6 +228,8 @@ TestApp::OnRunning() {
         if (boom->enabled) {
             boom->scale = glm::vec3( boom->scale.x + glm::gaussRand(0.0, 1.0) );
             
+            boom->pos = boomPos + glm::ballRand( 100.0f );
+            
             boomTimer -= dt;
             if (boomTimer <= 0.0) {
                 boom->enabled = false;
@@ -270,7 +287,7 @@ TestApp::OnRunning() {
             float gravStr = glm::smoothstep( 0.0f, planet.planetApproxRadius,
                                              glm::length(ss.objShot->pos) );
             
-            grav *= -10000.0 * gravStr;
+            grav *= -5000.0 * gravStr;
             
             ss.updateBallistic( dt, grav );
             evalP = ss.objShot->pos / planet.worldSize;
@@ -289,7 +306,9 @@ TestApp::OnRunning() {
                 // Make boom at the location
                 float boomScale = ss.ammo->damageRadius / 100.0;
                 boom->scale = glm::vec3( boomScale );
-                boom->pos = ss.objShot->pos;
+                
+                boomPos = ss.objShot->pos;
+                boom->pos = boomPos; // this one gets jittered
                 boom->enabled = true;
                 boomTimer = 0.2;
                 
@@ -441,9 +460,10 @@ TestApp::OnRunning() {
     }
     
     // Game Mode UI
-    DoGameUI( ctx );
-    
-    NKUI::Draw();
+    if (fontValid) {
+        DoGameUI( ctx );
+        NKUI::Draw();
+    }
 #endif
     
     Gfx::EndPass();
@@ -451,7 +471,7 @@ TestApp::OnRunning() {
     Gfx::CommitFrame();
     
     // continue running or quit?
-    return Gfx::QuitRequested() ? AppState::Cleanup : AppState::Running;
+    return (Gfx::QuitRequested() || quitRequested) ? AppState::Cleanup : AppState::Running;
 }
 
 glm::vec3 TestApp::arcballVector( glm::vec2 screenPos )
@@ -491,10 +511,6 @@ TestApp::OnInit() {
     
     useDebugCamera = false;
     animT = 0.0f;
-    
-    Oryol::TimePoint tp = Clock::Now();
-    srand( tp.getRaw() );
-    open_simplex_noise( tp.getRaw(), &noiseCtx );
     
     // set up IO system
     IOSetup ioSetup;
@@ -618,6 +634,15 @@ void
 TestApp::BuildPlanet()
 {
     printf("Build planet...\n");
+    if (noiseCtx) {
+        open_simplex_noise_free(noiseCtx);
+    }
+    Oryol::TimePoint tp = Clock::Now();
+    srand( tp.getRaw() );
+    open_simplex_noise( tp.getRaw(), &noiseCtx );
+    planet._noiseCtx = noiseCtx;
+    planet.surfBuilder.noiseCtx = noiseCtx;
+
     
     planet.surfBuilder.clearDamage();
 
@@ -686,6 +711,19 @@ TestApp::StartGame()
 }
 
 void
+TestApp::RestartGame()
+{
+    for (int i=0; i < cannons.Size(); i++) {
+        scene->removeObject( cannons[i].objBase );
+        scene->removeObject( cannons[i].objBarrel );
+        scene->removeObject( cannons[i].objBushing );
+    }
+    cannons.Clear();
+    BuildPlanet();
+    gameState = GameState_TITLE;
+}
+
+void
 TestApp::finishTurn()
 {
     
@@ -694,18 +732,30 @@ TestApp::finishTurn()
     // check if there's only one team with cannons remaining
     // FIXME: handle single player mode
     int teamsAlive = 0;
+    int cannonsAlive = 0;
     for (int tndx=0; tndx < teams.Size(); tndx++) {
         
         for (int i=0; i < cannons.Size(); i++ ) {
-            if (cannons[i].health > 0) {
+            if ((cannons[i].team == &(teams[tndx])) && (cannons[i].health > 0)) {
                 // found a cannon on this team
                 teamsAlive++;
-                break;
+                cannonsAlive++;
+                winningCannon = &(cannons[i]);
+                winningTeam = winningCannon->team;
+                if (playerCount > 1) {
+                    // don't need to count the cannons in multiplayer games
+                    break;
+                }
             }
         }
     }
     
-    if (teamsAlive == 1) {
+    printf("FINISH TURN: PlayerCount %d -- teams Alive: %d cannons Alive %d\n",
+           playerCount, teamsAlive, cannonsAlive );
+    
+    if ( ((playerCount==1) && (cannonsAlive==1)) ||
+        ((playerCount>1) && (teamsAlive==1)) ) {
+    
         gameState = GameState_GAME_OVER;
     }
     
@@ -736,9 +786,31 @@ TestApp::fireActiveCannon()
         Shot shot( objShot, &ammo, cc._shootyPoint, cc.calcProjectileVel() );
         shots.Add( shot );
         
+        cc.power = 0.0;
         isFiring = true;
     }
 }
+
+void TestApp::fireCannonDown()
+{
+    if (!isFiring) {
+        fireCharging = true;
+        Cannon &cc = cannons[activeCannon];
+        cc.power = 0.0;
+        chargingRawPower = 0.0;
+    }
+}
+
+void TestApp::fireCannonUp()
+{
+    if (fireCharging) {
+        
+        fireCharging = false;
+        // BLAM!
+        fireActiveCannon();
+    }
+}
+
 
 void
 TestApp::lookAtCannon( Cannon &cc )
@@ -767,9 +839,17 @@ void
 TestApp::handle_input( float dt )
 {
     
-    
     // Update active
     animT += dt;
+    
+    // Charging to fire??
+    if (fireCharging) {
+        chargingRawPower += dt;
+        if (activeCannon < cannons.Size()) {
+            Cannon &cc = cannons[activeCannon];
+            cc.power = fabs( fmodf(1.0f + chargingRawPower, 2.0) - 1.0f);
+        }
+    }
     
     // Rebuild planet??
     if (planetNeedsRebuild > 0) {
@@ -871,21 +951,41 @@ TestApp::handle_input( float dt )
 
             // FIRE?
             if (Input::KeyDown(Key::Space) || Input::KeyDown(Key::Z) || Input::KeyDown(Key::X)) {
-                
-                fireActiveCannon();
+                fireCannonDown();
             }
             
+            if (Input::KeyUp(Key::Space) || Input::KeyUp(Key::Z) || Input::KeyUp(Key::X)) {
+                fireCannonUp();
+            }
+            
+            
+#if CHEATS_ENABLED
+            // DBG: kill current cannon
+            if (Input::KeyDown( Key::K )) {
+                nextTurnTimer = 1.5;
+                cc.showDamageTimer = 0.5;
+                cc.health = 0;
+            }
+            
+            // DBG: end game
+            if (Input::KeyDown( Key::J )) {
+                gameState = GameState_GAME_OVER;
+            }
+            
+            // DBG
             if (Input::KeyDown(Key::N)) {
                 finishTurn();
             }
             
+            if (Input::KeyDown(Key::B)) {
+                printf("Build ...\n");
+                if (scene->didSetupPipeline) {
+                    BuildPlanet();
+                }
+            }
+#endif
         }
         
-//        if (Input::KeyDown(Key::B)) {
-//            if (scene->didSetupPipeline) {
-//                BuildPlanet();
-//            }
-//        }
         
         
         if (Input::KeyDown(Key::GraveAccent)) {
@@ -897,7 +997,19 @@ TestApp::handle_input( float dt )
         }
     }
     
-    if (!tmpUI)
+    // Not sure how to filter out events when NKUI handles them so this workaround
+    bool haveMouse = true;
+    glm::vec2 mousePos = Input::MousePosition();
+    if ((mousePos.x < 220) || (mousePos.y > fbWidth-220)) {
+        haveMouse = false;
+    }
+    
+    // For mouse button-firing
+    if ((fireCharging) && Input::MouseButtonUp( MouseButton::Left )) {
+        fireCannonUp();
+    }
+    
+    if ((!tmpUI) && haveMouse)
     {
         // If debug camera is active, move it with WASD
         if (useDebugCamera)
@@ -1054,12 +1166,12 @@ void
 TestApp::DoGameUI_Title( nk_context* ctx )
 {
     struct nk_panel layout;
-    
     struct nk_style_window_header oldHeaderStyle = ctx->style.window.header;
     
     bool gameReady = false;
     
     // Only works for 4 teams right now
+    playerCount = 0;
     for (int i=0; i < teams.Size(); i++) {
         
         TeamInfo &team = teams[i];
@@ -1108,6 +1220,7 @@ TestApp::DoGameUI_Title( nk_context* ctx )
             // if at least one player is set, we can start
             if (team.playerType != Player_NONE) {
                 gameReady = true;
+                playerCount++;
             }
             
             nk_end(ctx);
@@ -1132,6 +1245,14 @@ TestApp::DoGameUI_Title( nk_context* ctx )
         nk_image( ctx, g_uiMedia.farmageddon_title );
         
         nk_layout_row_dynamic( ctx, 20, 1);
+        
+        // HACK: there's some crash bug that seems to be related to loading UI
+        // fonts or resources, it seems to happen less if you wait to start the
+        // game so delay the game start a few seconds
+        if (animT < 3.0) {
+            gameReady = false;
+        }
+        
         
         // Start Game button
         nk_layout_row_dynamic( ctx, 50, 3);
@@ -1158,7 +1279,10 @@ TestApp::DoGameUI_Title( nk_context* ctx )
         nk_style_set_font(ctx, &(g_uiMedia.font_14->handle));
         
         nk_layout_row_dynamic( ctx, 15, 1);
-        nk_label(ctx, (gameReady?"":"No Players Enabled"), NK_TEXT_CENTERED );
+        
+        const char *notReadyMessage = (animT < 3.0)?"Get Ready...":"No Players Enabled";
+        
+        nk_label(ctx, (gameReady?"":notReadyMessage), NK_TEXT_CENTERED );
         
         nk_layout_row_dynamic( ctx, 50, 1);
         
@@ -1190,6 +1314,56 @@ TestApp::DoGameUI_Title( nk_context* ctx )
 void
 TestApp::DoGameUI_Results( nk_context* ctx )
 {
+    struct nk_panel layout;
+    struct nk_style_window_header oldHeaderStyle = ctx->style.window.header;
+    
+    // Game Over and winnner
+    nk_color oldWindowBG = ctx->style.window.background;
+    nk_color oldWindowFixedBG = ctx->style.window.fixed_background.data.color;
+    
+    ctx->style.window.background = { 0, 0, 0, 0 };
+    ctx->style.window.fixed_background.data.color = { 0, 0, 0, 0 };
+    
+    if (nk_begin(ctx, &layout, "GameOver", nk_rect((fbWidth/2) - 300, 0,  600, fbHeight), 0)) {
+        
+        nk_layout_row_dynamic( ctx, 420, 1);
+        //nk_label(ctx, "Image Goes Here.", NK_TEXT_CENTERED );
+        nk_image( ctx, g_uiMedia.farmageddon_title ); // TODO: Game Over
+        
+        nk_layout_row_dynamic( ctx, 20, 1);
+        
+        
+        // Start Game button
+        nk_layout_row_dynamic( ctx, 50, 3);
+        struct nk_style_button button_style = ctx->style.button;
+        ctx->style.button.normal = mkColorStyleItem( "#84db45" );
+        ctx->style.button.hover = mkColorStyleItem( "#b0e787" );
+        ctx->style.button.active = mkColorStyleItem( "#6da247" );
+        ctx->style.button.border_color = mkColorStyleItem( "#f5e458" ).data.color;
+        ctx->style.button.text_normal = mkColorStyleItem( "#631e0c" ).data.color;
+        ctx->style.button.text_hover = mkColorStyleItem( "#bb8e36" ).data.color;;
+        ctx->style.button.text_active = mkColorStyleItem( "#ff0000" ).data.color;;
+        
+        nk_spacing(ctx, 1);
+        nk_style_set_font(ctx, &(g_uiMedia.font_24->handle));
+        if (nk_button_label(ctx, "Play Again!")) {
+            RestartGame();
+        }
+        
+        nk_layout_row_dynamic( ctx, 50, 3);
+        nk_spacing(ctx, 1);
+        nk_style_set_font(ctx, &(g_uiMedia.font_18->handle));
+        ctx->style.button = button_style;
+        
+        if (nk_button_label(ctx, "quit")) {
+            quitRequested = true;
+        }
+        
+        nk_end(ctx);
+    }
+    
+    ctx->style.window.background = oldWindowBG;
+    ctx->style.window.fixed_background.data.color = oldWindowFixedBG;
 }
 
 
@@ -1240,18 +1414,31 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         }
         
         nk_style_set_font(ctx, &(g_uiMedia.font_18->handle));
+        ctx->style.progress.cursor_normal = mkColorStyleItem( "#dfb801" );
+        ctx->style.progress.cursor_hover = mkColorStyleItem( "#ceaa01" );
         
         nk_layout_row_dynamic(ctx, 20, 1);
         nk_label(ctx, "Aim", NK_TEXT_LEFT );
-        nk_slider_float(ctx, -180.0f, &(cc.aimHeading), 180.0f, 0.1f);
+        static nk_size progAim;
+        progAim = nk_size(cc.aimHeading + 180.0);
+        nk_progress(ctx, &progAim, 360, true );
+        cc.aimHeading = float(progAim) - 180.0;
         
         nk_layout_row_dynamic(ctx, 20, 1);
+        static nk_size progTilt;
         nk_label(ctx, "Tilt", NK_TEXT_LEFT );
-        nk_slider_float(ctx, 0.0f, &(cc.cannonAngle), 180.0f, 0.1f);
+        //nk_slider_float(ctx, 0.0f, &(cc.cannonAngle), 180.0f, 0.1f);
+        progTilt = nk_size( cc.cannonAngle );
+        nk_progress(ctx, &progTilt, 180, true );
+        cc.cannonAngle = progTilt;
         
         nk_layout_row_dynamic(ctx, 20, 1);
+        static nk_size progPower;
         nk_label(ctx, "Power", NK_TEXT_LEFT );
-        nk_slider_float(ctx, 0.0f, &(cc.power), 1.0f, 0.001f);
+        progPower = nk_size( cc.power * 1000.0 );
+        //nk_slider_float(ctx, 0.0f, &(cc.power), 1.0f, 0.001f);
+        nk_progress(ctx, &progPower, 1000, false );
+        cc.power = float(progPower) / 1000.0f;
         
         nk_layout_row_dynamic(ctx, 30, 1);
         
@@ -1272,7 +1459,9 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         
         nk_style_set_font(ctx, &(g_uiMedia.font_24->handle));
         if (nk_button_label(ctx, "Fire!") && canFire) {
-            fireActiveCannon();
+            
+            // Begin firing sequence
+            fireCannonDown();
         }
         nk_style_set_font(ctx, &(g_uiMedia.font_18->handle));
         

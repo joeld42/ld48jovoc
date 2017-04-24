@@ -181,7 +181,7 @@ Cannon::Cannon( Scene *scene, TeamInfo *_team, glm::vec3 anchorPos, glm::vec3 up
     // Initialize gameplay stuff
     aimHeading = 0.0;
     cannonAngle = glm::linearRand( 0.0f, 180.0f  );
-    power = 1.0f;
+    power = 0.0f;
     
     health = 6;
     maxHealth=6;
@@ -231,14 +231,9 @@ void Cannon::updatePlacement()
 
 glm::vec3 Cannon::calcProjectileVel()
 {
-    return _shootyDir * (power*5000.0f);
+    return _shootyDir * (100.0f + (power*5000.0f));
 }
 
-
-void Cannon::pulseActive( float t )
-{
-    
-}
 
 void Cannon::update( float dt, float animT, bool active )
 {
@@ -249,7 +244,7 @@ void Cannon::update( float dt, float animT, bool active )
     }
 
     // dead objects can still show damage
-    if (showDamageTimer > 0.0) {
+    if ((showDamageTimer > 0.0) && ((blinker/4)%2)) {
         glm::vec4 damageColor = glm::vec4(0.98,0.22,0.12,1.0);
         color = glm::mix( color, damageColor, showDamageTimer / 0.5 );
         
@@ -265,6 +260,8 @@ void Cannon::update( float dt, float animT, bool active )
     objBase->fsParams.TintColor = color;
     objBarrel->fsParams.TintColor = color;
     objBushing->fsParams.TintColor = color;
+    
+    blinker++;
 
 }
 
