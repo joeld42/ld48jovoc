@@ -11,5 +11,5 @@ ld1_zilla/trunk/zilla
 
 xcode/
 
-*.omsh
+ld_templates/**/*.omsh
 xcuserdata/

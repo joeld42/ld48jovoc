@@ -260,7 +260,11 @@ float rimPower RimPower
     vec3 l = lightDir;
     vec3 n = normalize(N);
     vec3 v = normalize(eyePos - P);
-    float n_dot_l = max(dot(n, l), 0.0);
+    
+    float n_dot_l_raw = dot(n, l);
+    float n_dot_l = max( n_dot_l_raw, 0.0);
+    float n_dot_l_back = max( -n_dot_l_raw, 0.0);
+    
     vec3 r = reflect(-l, n);
     float r_dot_v = max(dot(r, v), 0.0);
     
@@ -269,9 +273,14 @@ float rimPower RimPower
     
     float n_dot_v = max(dot(n, v), 0.0);
     float rim = pow(1.0 - n_dot_v, rimPower );
-    
+
+    float amb = smoothstep( 0.25, 1.0, 1.0-n_dot_l_back );
+
     // Color al
-    vec4 col = vec4(lightColor.xyz * (matSpecular.xyz*spec*C.a + C.xyz*diff + ambientColor.xyz + rim*rimColor.xyz), 1.0);
+    vec4 col = vec4(lightColor.xyz * (matSpecular.xyz*spec*C.a +
+                                      C.xyz*diff +
+                                      amb*ambientColor.xyz +
+                                      rim*rimColor.xyz), 1.0);
     
     //col = vec4( C.a, C.a, C.a, 1.0 );
     //col = vec4( n, 1.0 );
@@ -282,7 +291,8 @@ float rimPower RimPower
         _color = gamma(col);
     } else {
         _color = col;
-    }        
+    }
+
 }
 @end
 

@@ -24,6 +24,8 @@
 #include "SceneObject.h"
 #include "Camera.h"
 
+#include "open-simplex-noise.h"
+
 class Planet {
 public:
     Planet();
@@ -42,7 +44,7 @@ public:
     Oryol::PlanetShader::VSParams planetVSParams;
     Oryol::PlanetShader::FSParams planetFSParams;
     
-    void Setup( Oryol::GfxSetup *gfxSetup );
+    void Setup( Oryol::GfxSetup *gfxSetup, struct osn_context *noiseCtx );
     void Rebuild( Scene *scene );    
     void Draw();
     
@@ -54,6 +56,8 @@ public:
     // Info
     const glm::vec3 worldSize;
     float planetApproxRadius;
+    
+    struct osn_context *_noiseCtx;
     
     Oryol::ResourceLabel planetResource;
     

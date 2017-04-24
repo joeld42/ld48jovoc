@@ -23,6 +23,23 @@
 #include "IsosurfaceBuilder.h"
 #include "SceneObject.h"
 
+enum PlayerType {
+    Player_NONE,  // Not playing
+    Player_HUMAN, // Human player
+    Player_CPU    // Computer player
+};
+
+class TeamInfo
+{
+public:
+    PlayerType playerType;
+    const char *teamName;
+    glm::vec4 teamColor;
+    Oryol::Array<const char*> names;
+    
+};
+
+void MakeDefaultTeams( Oryol::Array<TeamInfo> &teams );
 
 class Cannon
 {
@@ -32,6 +49,8 @@ public:
     Cannon( Scene *scene, glm::vec3 anchorPos, glm::vec3 upDir );
     
     char name[20];
+    
+    TeamInfo *team;
     glm::vec4 teamColor;
     
     

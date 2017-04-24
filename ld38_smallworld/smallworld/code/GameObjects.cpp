@@ -1,5 +1,127 @@
 #include "GameObjects.h"
 
+// ========================================================
+//  Team Infos
+// ========================================================
+
+
+void MakeDefaultTeams( Oryol::Array<TeamInfo> &teams )
+{
+    
+    TeamInfo teamVegans;
+    teamVegans.teamName = "Militant Vegans";
+    teamVegans.teamColor = glm::vec4(0.52,0.67,0.20,1.0);
+    teamVegans.playerType = Player_NONE;
+    
+    teamVegans.names.Add( "Locust" );
+    teamVegans.names.Add( "Shaylee" );
+    teamVegans.names.Add( "Orinda" );
+    teamVegans.names.Add( "Trey" );
+    teamVegans.names.Add( "Trent" );
+    teamVegans.names.Add( "Trey" );
+    teamVegans.names.Add( "Blaze" );
+    teamVegans.names.Add( "Mogshade" );
+    teamVegans.names.Add( "Areola" );
+    teamVegans.names.Add( "Azalae" );
+    teamVegans.names.Add( "Aurora" );
+    teamVegans.names.Add( "Loam" );
+    teamVegans.names.Add( "Compostia" );
+    teamVegans.names.Add( "Creche" );
+    teamVegans.names.Add( "Banana" );
+    teamVegans.names.Add( "Winter" );
+    teamVegans.names.Add( "Produce" );
+    teamVegans.names.Add( "Tomilla" );
+    teams.Add( teamVegans );
+    
+    
+    TeamInfo scotsmen;
+    scotsmen.teamName = "True Scotsmen";
+    scotsmen.teamColor = glm::vec4(0.68,0.40,0.74, 1.0);
+    scotsmen.playerType = Player_NONE;
+    scotsmen.names.Add( "Angus" );
+    scotsmen.names.Add( "Calum" );
+    scotsmen.names.Add( "Duff" );
+    scotsmen.names.Add( "Fingal" );
+    scotsmen.names.Add( "Hamish" );
+    scotsmen.names.Add( "Nevin" );
+    scotsmen.names.Add( "Torquil" );
+    scotsmen.names.Add( "Ranald" );
+    scotsmen.names.Add( "Dubh Glas" );
+    scotsmen.names.Add( "Ewan" );
+    scotsmen.names.Add( "Aileen" );
+    scotsmen.names.Add( "Bonnie" );
+    scotsmen.names.Add( "Effie" );
+    scotsmen.names.Add( "Fiona" );
+    scotsmen.names.Add( "Gillian" );
+    scotsmen.names.Add( "Jinty" );
+    scotsmen.names.Add( "Senga" );
+    scotsmen.names.Add( "Shona" );
+    scotsmen.names.Add( "Agnes" );
+    scotsmen.names.Add( "Nessie" );
+    teams.Add( scotsmen );
+    
+    TeamInfo deptOfAg;
+    deptOfAg.teamName = "Dept. of Agriculture";
+    deptOfAg.teamColor = glm::vec4(0.84,0.38,0.29, 1.0);
+    deptOfAg.playerType = Player_NONE;
+    deptOfAg.names.Add( "Donald" );
+    deptOfAg.names.Add( "Jared" );
+    deptOfAg.names.Add( "Hillary" );
+    deptOfAg.names.Add( "Ivanka" );
+    deptOfAg.names.Add( "Barack" );
+    deptOfAg.names.Add( "Joe" );
+    deptOfAg.names.Add( "Dubya" );
+    deptOfAg.names.Add( "B. DeVos" );
+    deptOfAg.names.Add( "Putin" );
+    deptOfAg.names.Add( "Paulryan" );
+    deptOfAg.names.Add( "Chuck" );
+    deptOfAg.names.Add( "Bernie" ); // would've won
+    deptOfAg.names.Add( "Socks" );
+    deptOfAg.names.Add( "Strangelove" );
+    deptOfAg.names.Add( "Mandrake" );
+    deptOfAg.names.Add( "Brexit" ); // i think this is a british politician??? ?
+    deptOfAg.names.Add( "Mike" ); // Mike Young (I had to look it up on wikipedia)
+    deptOfAg.names.Add( "Orville" );
+    teams.Add( deptOfAg );
+    
+    TeamInfo chefs;
+    chefs.teamName = "Epicurian Mafia";
+    chefs.teamColor = glm::vec4(0.16,0.68,0.68, 1.0);
+    chefs.playerType = Player_NONE;
+    chefs.names.Add( "Gordon" );
+    chefs.names.Add( "Boyardee" );
+    chefs.names.Add( "Guy" );
+    chefs.names.Add( "Fieri" ); // so good he has to be in there twice
+    chefs.names.Add( "Emeril" );
+    chefs.names.Add( "Wolfgang" );
+    chefs.names.Add( "Mario" );
+    chefs.names.Add( "Deen" );
+    chefs.names.Add( "Julia" );
+    chefs.names.Add( "Alton" );
+    chefs.names.Add( "Ming" );
+    chefs.names.Add( "Bork" );
+    chefs.names.Add( "Remy" );
+    teams.Add( chefs );
+    
+    // Shuffle teams
+    TeamInfo temp;
+    for (int i=0; i < 10; i++) {
+        int a = rand() % teams.Size();
+        int b = rand() % teams.Size();
+        if (a==b) continue;
+        
+        temp = teams[a];
+        teams[a] = teams[b];
+        teams[b] = temp;
+    }
+    
+    teams[0].playerType = Player_HUMAN;
+}
+
+// ========================================================
+//   Cannon
+// ========================================================
+
 
 Cannon::Cannon( Scene *scene, glm::vec3 anchorPos, glm::vec3 upDir )
 {

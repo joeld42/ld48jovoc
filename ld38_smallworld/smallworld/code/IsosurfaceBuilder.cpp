@@ -7,6 +7,7 @@
 
 #include "IsosurfaceBuilder.h"
 
+#include "open-simplex-noise.h"
 
 // include this directly to keep the clutter down
 #include "IsosurfaceTables.cpp"
@@ -150,7 +151,7 @@ IsosurfaceBuilder::IsosurfaceBuilder() :
     damageRes(20),
     damage(NULL)
 {
-    dbgPush = 0.0f;
+    dbgPush = 0.0f;    
 }
 
 float IsosurfaceBuilder::evalSDF( glm::vec3 p, glm::vec4 *color )
@@ -158,7 +159,9 @@ float IsosurfaceBuilder::evalSDF( glm::vec3 p, glm::vec4 *color )
     glm::vec3 p2 = p;
     p2.y = 0.0;
     
-    float dSphere = glm::length(p)-(0.8 + dbgPush);
+    glm::vec3 np = p * 3.0f;
+    float noiseVal = fabs(open_simplex_noise3(noiseCtx, np.x, np.y, np.z ) * 0.2);
+    float dSphere = glm::length(p)-(0.7 + noiseVal);
     
     float dDamage = lookupDamage( p );
     
@@ -183,11 +186,24 @@ float IsosurfaceBuilder::evalSDF( glm::vec3 p, glm::vec4 *color )
      */
     
     if (color) {
+                
         if (dSphere < -0.001) {
             // inside the ground
-            *color = glm::vec4(0.60,0.35,0.11,0.3);
+            glm::vec4 colorDirt = glm::vec4(0.60,0.35,0.11,0.3);
+            glm::vec4 colorCore = glm::vec4(0.34,0.19,0.12, 0.0);
+            
+            *color = glm::mix( colorDirt, colorCore, glm::smoothstep( 0.0f, 0.3f, -dSphere ));
+                              
         } else {
-            *color = glm::vec4(0.53,0.77,0.15,1.0);
+            
+            // outside
+            glm::vec4 colorGrass1 = glm::vec4(0.53,0.77,0.15,1.0);
+            glm::vec4 colorGrass2 = glm::vec4(0.14,0.44,0.24,0.5);
+            
+            glm::vec3 np = p * 5.0f;
+            float noiseVal = open_simplex_noise3(noiseCtx, np.x, np.y, np.z );
+            
+            *color = glm::mix( colorGrass1, colorGrass2, glm::smoothstep( 0.0f, 0.5f, noiseVal ));
         }
         
         // darken the color if we're near the edge of damage
@@ -196,6 +212,17 @@ float IsosurfaceBuilder::evalSDF( glm::vec3 p, glm::vec4 *color )
                           glm::vec4(0.0, 0.0, 0.0, 0.0),
                           //glm::vec4(0.22,0.19,0.16, 1.0),
                           burnAmount );
+         
+        
+        // DBG
+//
+//        float value = dDamage * 2.0f;
+//        //float value = p.x * 2.0;
+//        
+//        *color = glm::vec4( glm::smoothstep( 0.0f, 1.0f, -value),
+//                            0.0,
+//                            glm::smoothstep( 0.0f, 1.0f, value), 0.0f );
+        
     }
     
     return fmax( dSphere, -dDamage );
@@ -343,6 +370,10 @@ Oryol::SetupAndData<Oryol::MeshSetup> IsosurfaceBuilder::Build( glm::vec3 worldS
         
         // eval color
         glm::vec4 colorA, colorB, colorC;
+//        evalSDF( glm::vec3( vertA.x, vertA.z, vertA.y ), &colorA );
+//        evalSDF( glm::vec3( vertB.x, vertB.z, vertB.y ), &colorB );
+//        evalSDF( glm::vec3( vertC.x, vertC.z, vertC.y ), &colorC );
+//        
         evalSDF( vertA, &colorA );
         evalSDF( vertB, &colorB );
         evalSDF( vertC, &colorC );
@@ -371,7 +402,7 @@ Oryol::SetupAndData<Oryol::MeshSetup> IsosurfaceBuilder::Build( glm::vec3 worldS
             .Vertex( (i*3)+2, VertexAttr::Position, vertC.x, vertC.y, vertC.z )
             .Vertex( (i*3)+2, VertexAttr::TexCoord0, 1.0f, 0.0f )
             .Vertex( (i*3)+2, VertexAttr::Normal, nrmC.x, nrmC.y, nrmC.z )
-            .Vertex( (i*3)+2, VertexAttr::Color0, colorB.x, colorB.y, colorB.z, colorB.a )
+            .Vertex( (i*3)+2, VertexAttr::Color0, colorC.x, colorC.y, colorC.z, colorB.a )
         ;
         
         //meshBuilder.Triangle( i, (i*3)+0, (i*3)+1, (i*3)+2 );
@@ -395,6 +426,25 @@ void IsosurfaceBuilder::clearDamage()
     for (int i=0; i < damageRes*damageRes*damageRes; i++) {
         damage[i] = 9999.0;
     }
+    
+    // DBG
+#if 0
+    for (int k=0; k < damageRes; k++) {
+        float kk = ((float(k) / float(damageRes-1)) - 0.5f) * 2.0;
+        
+        for (int j=0; j < damageRes; j++) {
+            float jj = ((float(j) / float(damageRes-1)) - 0.5f) * 2.0;
+            
+            for (int i=0; i < damageRes; i++) {
+                float ii = ((float(i) / float(damageRes-1)) - 0.5f) * 2.0;
+                
+                glm::vec3 pp(ii,jj,kk);
+                float *v = damage + ((k*damageRes*damageRes) + (j*damageRes) + i);
+                *v = kk;
+            }
+        }
+    }
+#endif
 }
 
 void IsosurfaceBuilder::addDamage( glm::vec3 p, float radius )
@@ -447,12 +497,12 @@ float IsosurfaceBuilder::lookupDamage( glm::vec3 p )
     float p0 = *(damage + ((k+0)*damageRes*damageRes) + ((j+0)*damageRes) + (i+0));
     float p1 = *(damage + ((k+0)*damageRes*damageRes) + ((j+0)*damageRes) + (i+1));
     float p2 = *(damage + ((k+1)*damageRes*damageRes) + ((j+0)*damageRes) + (i+1));
-    float p3 = *(damage + ((k+0)*damageRes*damageRes) + ((j+0)*damageRes) + (i+0));
+    float p3 = *(damage + ((k+1)*damageRes*damageRes) + ((j+0)*damageRes) + (i+0));
 
     float p4 = *(damage + ((k+0)*damageRes*damageRes) + ((j+1)*damageRes) + (i+0));
     float p5 = *(damage + ((k+0)*damageRes*damageRes) + ((j+1)*damageRes) + (i+1));
     float p6 = *(damage + ((k+1)*damageRes*damageRes) + ((j+1)*damageRes) + (i+1));
-    float p7 = *(damage + ((k+0)*damageRes*damageRes) + ((j+1)*damageRes) + (i+0));
+    float p7 = *(damage + ((k+1)*damageRes*damageRes) + ((j+1)*damageRes) + (i+0));
     
     float lerpA = (1.0-ti)*p0 + ti*p1;
     float lerpB = (1.0-ti)*p4 + ti*p5;

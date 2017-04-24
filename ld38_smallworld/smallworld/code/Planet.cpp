@@ -21,8 +21,10 @@ Planet::Planet() : _built(false), worldSize( 3000.0f )
 // ==================================================================
 //   Engine stuff
 // ==================================================================
-void Planet::Setup( GfxSetup *gfxSetup )
+void Planet::Setup( Oryol::GfxSetup *gfxSetup, struct osn_context *noiseCtx )
 {
+    _noiseCtx = noiseCtx;
+    
     planetShader = Gfx::CreateResource( PlanetShader::Setup());
     
     surfLayout = {
@@ -49,6 +51,7 @@ void Planet::Rebuild( Scene *scene )
     
     // Build isosurf
     surfBuilder.Layout = surfLayout;
+    surfBuilder.noiseCtx = _noiseCtx;
     
     Gfx::PushResourceLabel();
     meshIsosurf = Gfx::CreateResource( surfBuilder.Build( worldSize ) );
@@ -67,7 +70,7 @@ void Planet::UpdateCamera( Camera *camera )
     planetFSParams.MatDiffuse = glm::vec4( 0.92,0.41,0.25, 1.0 );
     planetFSParams.MatSpecular = glm::vec4( 1.0, 0.8, 0.5, 1.0 ) * 3.0f;
     //planetFSParams.LightDir = glm::normalize( glm::vec3( -1.0, -0.3, 0.1 ) );
-    planetFSParams.AmbientColor = glm::vec4( 0.25,0.75,0.80,1.0) * 0.1f;
+    planetFSParams.AmbientColor = glm::vec4( 0.42,0.36,0.71, 1.0) * 0.01f;
     planetFSParams.RimColor = glm::vec4( 0.82,0.74,0.95,1.0) * 0.2f;
     planetFSParams.RimPower = 10.0;
     planetFSParams.EyePos = camera->Pos;

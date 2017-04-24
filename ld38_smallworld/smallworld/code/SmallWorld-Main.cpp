@@ -46,6 +46,21 @@
 using namespace Oryol;
 
 
+enum GameState {
+    GameState_TITLE,
+    GameState_GAME,
+    GameState_GAME_OVER,
+};
+
+
+struct UIMedia {
+    struct nk_font *font_14;
+    struct nk_font *font_18;
+    struct nk_font *font_20;
+    struct nk_font *font_24;
+    struct nk_image farmageddon_title;
+} g_uiMedia;
+
 // derived application class
 class TestApp : public App {
 public:
@@ -76,6 +91,7 @@ private:
     DrawState mainDrawState;
     
     Planet planet;
+    osn_context *noiseCtx;
   
     Camera dbgCamera;
     Camera gameCamera;
@@ -121,11 +137,23 @@ private:
     void fireActiveCannon();
     void lookAtCannon( Cannon &cc );
     void lookAtPos( glm::vec3 pos );
+    void SpawnCannons();
+    void StartGame();
     
+    Oryol::Array<TeamInfo> teams;
     
     struct nk_style_item mkColorStyleItem( const char *hexColor );
     
     void DoGameUI( nk_context* ctx );
+    void DoGameUI_Title( nk_context* ctx );
+    void DoGameUI_Gameplay( nk_context* ctx );
+    void DoGameUI_Results( nk_context* ctx );
+
+    bool fontValid = false;
+    Buffer ttfData;
+
+
+    GameState gameState;
     
 };
 OryolMain(TestApp);
@@ -160,11 +188,17 @@ TestApp::OnRunning() {
     Duration frameDuration = Clock::LapTime(tp);
     float dt = frameDuration.AsSeconds();
     
+    // safety check
+    bool safeToUpdate = true;
+    if ((!scene->didSetupPipeline) || (dt > 0.5f)) {
+        safeToUpdate = false;
+    }
+    
     this->handle_input( dt );
     
-    if (!paused)
+    if ((!paused) && (safeToUpdate))
     {
-        
+#if 1
         // Update cannons "falling"
         for (int i=0; i < cannons.Size(); i++ ) {
             
@@ -181,12 +215,17 @@ TestApp::OnRunning() {
                 } else {
                     // Cannon is off the ground, make falling
                     glm::vec3 upDir = planet.surfBuilder.evalNormal( evalP );
+                    glm::vec3 upDir2 = glm::normalize( evalP );
+                    //printf("upDir %3.2f %3.2f %3.2f -- dt %3.2f\n", upDir.x, upDir.y, upDir.z, dt );
                     
                     glm::vec3 newPos = cc.objBase->pos + (upDir*-100.0f*dt);
+                    //glm::vec3 newPos = cc.objBase->pos;
                     cc.place( newPos, upDir );
+                
                 }
             }
         }
+#endif
         
         // Update shots
         bool planetNeedsRebuild = false;
@@ -366,6 +405,8 @@ glm::vec3 TestApp::arcballVector( glm::vec2 screenPos )
 AppState::Code
 TestApp::OnInit() {
     
+    gameState = GameState_TITLE;
+    
     // Dev hack to ensure we're running from the right place...
     chdir("/Users/joeld/Projects/ld48jovoc/ld38_smallworld/smallworld");
     FILE *fp = fopen( "./gamedata/tree_062.omsh", "rt");
@@ -378,12 +419,17 @@ TestApp::OnInit() {
     useDebugCamera = false;
     animT = 0.0f;
     
+    Oryol::TimePoint tp = Clock::Now();
+    srand( tp.getRaw() );
+    open_simplex_noise( tp.getRaw(), &noiseCtx );
+    
     // set up IO system
     IOSetup ioSetup;
     ioSetup.FileSystems.Add( "file", LocalFileSystem::Creator() );
 //    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
     ioSetup.Assigns.Add("msh:", "cwd:gamedata/");
     ioSetup.Assigns.Add("tex:", "cwd:gamedata/");
+    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
     IO::Setup(ioSetup);
     
     scene = new Scene();
@@ -434,9 +480,9 @@ TestApp::OnInit() {
     
     
     // Note: there is a 100x scale from blender units
-//    cannonBase = scene->addObject( "msh:cannon_base.omsh", "tex:cannon_basecolor.dds");
-//    cannonBase->pos = glm::vec3(0.0, 0.0, 0.0 );
-//    
+    cannonBase = scene->addObject( "msh:cannon_base.omsh", "tex:cannon_basecolor.dds");
+    cannonBase->pos = glm::vec3(0.0, 0.0, 0.0 );
+//
 //    cannonBushing = scene->addObject( "msh:cannon_bushing.omsh", "tex:cannon_basecolor.dds");
 //    cannonBushing->pos = glm::vec3(0.0, 0.0, 0.0 );
 //    
@@ -447,17 +493,38 @@ TestApp::OnInit() {
     // Setup planet
     planet.planetTexture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "tex:ground1.dds",
                                                                                           scene->texSetup)));
-    planet.Setup( &(scene->gfxSetup) );
+    planet.Setup( &(scene->gfxSetup), noiseCtx );
     
     // Setup UI
     NKUI::Setup();
+    
+    // setup custom fonts
+    IO::Load("data:ltromatic.ttf", [this](IO::LoadResult loadResult) {
+        // need to make the data static
+        this->ttfData = std::move(loadResult.Data);
+        NKUI::BeginFontAtlas();
+        g_uiMedia.font_14 = NKUI::AddFont(this->ttfData, 14.0f);
+        g_uiMedia.font_18 = NKUI::AddFont(this->ttfData, 18.0f);
+        g_uiMedia.font_20 = NKUI::AddFont(this->ttfData, 20.0f);
+        g_uiMedia.font_24 = NKUI::AddFont(this->ttfData, 24.0f);
+        NKUI::EndFontAtlas();
+        this->fontValid = true;
+    });
+
+    
+    load_icon( "data:farmageddon_title.png", &(g_uiMedia.farmageddon_title));
+    
+    // Initialize teams
+    MakeDefaultTeams( teams );
     
     // Build initial planet
     BuildPlanet();
     
     
+    
     // DEMO
 //    paused = true;
+    
     
     return App::OnInit();
 }
@@ -484,9 +551,6 @@ TestApp::BuildPlanet()
     printf("Build planet...\n");
     
     planet.surfBuilder.clearDamage();
-    
-    Oryol::TimePoint tp = Clock::Now();
-    srand( tp.getRaw() );
 
     // Start with some damage
     for (int i=0; i < 10; i++) {
@@ -495,6 +559,28 @@ TestApp::BuildPlanet()
     }
     
     planet.Rebuild( scene );
+    
+}
+
+void
+TestApp::SpawnCannons()
+{
+    
+    // see how many teams are active
+    int numActiveTeams = 0;
+    int assignIndex = -1;
+    for (int i=0; i < teams.Size(); i++) {
+        if (teams[i].playerType != Player_NONE) {
+            numActiveTeams++;
+            if (assignIndex == -1) {
+                assignIndex = i;
+            }
+        }
+    }
+    
+//    switch (numActiveTeams) {
+//        
+//    }
     
     // Add cannons
     while (cannons.Size() < 12) {
@@ -507,6 +593,14 @@ TestApp::BuildPlanet()
     }
     
     lookAtCannon( cannons[activeCannon] );
+    
+}
+
+void
+TestApp::StartGame()
+{
+    gameState = GameState_GAME;
+    SpawnCannons();
 }
 
 void
@@ -570,8 +664,11 @@ TestApp::handle_input( float dt )
     
     // Update active
     animT += dt;
-    cannons[activeCannon].pulseActive( animT );
-        
+    
+    if (activeCannon < cannons.Size()) {
+        cannons[activeCannon].pulseActive( animT );
+    }
+    
     glm::vec3 move;
     glm::vec2 rot;
     float vel = 3.5f;
@@ -600,7 +697,7 @@ TestApp::handle_input( float dt )
             if (Input::KeyPressed(Key::D) || Input::KeyPressed(Key::Right)) {
                 move.x += vel;
             }
-        } else {
+        } else if (activeCannon < cannons.Size()) {
             Cannon &cc = cannons[activeCannon];
             if (Input::KeyPressed(Key::W) || Input::KeyPressed(Key::Up)) {
                 cc.cannonAngle += angSpeed;
@@ -714,11 +811,12 @@ TestApp::handle_input( float dt )
         }
         
         // AUTO-ORBIT
-//        if (fabs( arcballAngle ) < 0.01) {
-//            arcballAxis = glm::vec3( 0.0, 1.0, 0.0 );
-//            arcballAngle = glm::radians( 0.25 );
-//            
-//        }
+        if (gameState != GameState_GAME) {
+            if (fabs( arcballAngle ) < 0.01) {
+                arcballAxis = glm::normalize( glm::vec3( 0.2, -1.0, 0.0 ));
+                arcballAngle = glm::radians( 0.1 );
+            }
+        }
         
         // Are we animating the camera?
         if (doAnimCam) {
@@ -786,6 +884,161 @@ struct nk_style_item TestApp::mkColorStyleItem( const char *hexColor )
 void
 TestApp::DoGameUI( nk_context* ctx )
 {
+    if (this->fontValid) {
+        
+        nk_style_set_font(ctx, &(g_uiMedia.font_20->handle));
+        
+        if (gameState == GameState_TITLE) {
+            DoGameUI_Title( ctx );
+        } else if (gameState == GameState_GAME) {
+            DoGameUI_Gameplay( ctx );
+        } else if (gameState == GameState_GAME_OVER) {
+            DoGameUI_Results( ctx );
+        }
+    }
+}
+
+void
+TestApp::DoGameUI_Title( nk_context* ctx )
+{
+    struct nk_panel layout;
+    
+    struct nk_style_window_header oldHeaderStyle = ctx->style.window.header;
+    
+    bool gameReady = false;
+    
+    // Only works for 4 teams right now
+    for (int i=0; i < teams.Size(); i++) {
+        
+        TeamInfo &team = teams[i];
+        if (!strcmp(team.teamName, "Dept. of Agriculture")) {
+            // Special case "Dept. of Agriculture" so it fits
+            nk_style_set_font(ctx, &(g_uiMedia.font_14->handle));
+        } else {
+            nk_style_set_font(ctx, &(g_uiMedia.font_20->handle));
+        }
+        
+        
+        int col = (fbWidth-220) * (i / 2);
+        int row = (fbHeight / 2) * (i%2);
+        struct nk_style_item hc;
+        hc.type = NK_STYLE_ITEM_COLOR;
+        hc.data.color.r = (int)(team.teamColor.r * 255.0);
+        hc.data.color.g = (int)(team.teamColor.g * 255.0);
+        hc.data.color.b = (int)(team.teamColor.b * 255.0);
+        hc.data.color.a = 240;
+        
+        ctx->style.window.header.normal = hc;
+        ctx->style.window.header.hover = hc;
+        ctx->style.window.header.active = hc;
+        
+        ctx->style.window.header.label_normal = { 255, 255, 255, 255 };
+        
+        
+        if (nk_begin(ctx, &layout, team.teamName, nk_rect(col, row, 220, fbHeight/2),
+                            NK_WINDOW_BORDER|NK_WINDOW_BORDER_HEADER|NK_WINDOW_TITLE)) {
+            
+        
+            nk_style_set_font(ctx, &(g_uiMedia.font_20->handle));
+            
+            nk_layout_row_dynamic(ctx, 30, 1);
+            team.playerType = nk_option_label(ctx, "None", team.playerType==Player_NONE) ? Player_NONE : team.playerType;
+            nk_layout_row_dynamic(ctx, 30, 1);
+            team.playerType = nk_option_label(ctx, "Human", team.playerType==Player_HUMAN) ? Player_HUMAN : team.playerType;
+            nk_layout_row_dynamic(ctx, 30, 1);
+            team.playerType = nk_option_label(ctx, "CPU", team.playerType==Player_CPU) ? Player_CPU : team.playerType;
+            
+            // if at least one player is set, we can start
+            if (team.playerType != Player_NONE) {
+                gameReady = true;
+            }
+            
+            nk_end(ctx);
+        }
+    }
+    ctx->style.window.header = oldHeaderStyle;
+    
+    // Title Card, About and Start Game
+    
+    nk_color oldWindowBG = ctx->style.window.background;
+    nk_color oldWindowFixedBG = ctx->style.window.fixed_background.data.color;
+    
+    ctx->style.window.background = { 0, 0, 0, 0 };
+    ctx->style.window.fixed_background.data.color = { 0, 0, 0, 0 };
+    
+    if (nk_begin(ctx, &layout, "Farmageddon", nk_rect((fbWidth/2) - 300, 0,  600, fbHeight), 0)) {
+    
+        
+        
+        nk_layout_row_dynamic( ctx, 420, 1);
+        //nk_label(ctx, "Image Goes Here.", NK_TEXT_CENTERED );
+        nk_image( ctx, g_uiMedia.farmageddon_title );
+        
+        nk_layout_row_dynamic( ctx, 20, 1);
+        
+        // Start Game button
+        nk_layout_row_dynamic( ctx, 50, 3);
+        struct nk_style_button button_style = ctx->style.button;
+        if (gameReady) {
+            ctx->style.button.normal = mkColorStyleItem( "#84db45" );
+            ctx->style.button.hover = mkColorStyleItem( "#b0e787" );
+            ctx->style.button.active = mkColorStyleItem( "#6da247" );
+            ctx->style.button.border_color = mkColorStyleItem( "#f5e458" ).data.color;
+            
+            ctx->style.button.text_normal = mkColorStyleItem( "#631e0c" ).data.color;
+            ctx->style.button.text_hover = mkColorStyleItem( "#bb8e36" ).data.color;;
+            ctx->style.button.text_active = mkColorStyleItem( "#ff0000" ).data.color;;
+        } else {
+            ctx->style.button.hover = ctx->style.button.normal;
+        }
+        
+        nk_spacing(ctx, 1);
+        nk_style_set_font(ctx, &(g_uiMedia.font_24->handle));
+        if (nk_button_label(ctx, "Start Game!")) {
+            StartGame();
+        }
+        
+        nk_style_set_font(ctx, &(g_uiMedia.font_14->handle));
+        
+        nk_layout_row_dynamic( ctx, 15, 1);
+        nk_label(ctx, (gameReady?"":"No Players Enabled"), NK_TEXT_CENTERED );
+        
+        nk_layout_row_dynamic( ctx, 50, 1);
+        
+        nk_layout_row_dynamic( ctx, 15, 1);
+        nk_label(ctx, "A game for LudumDare 38", NK_TEXT_CENTERED );
+        nk_layout_row_dynamic( ctx, 15, 1);
+        nk_label(ctx, "by Joel Davis / @joeld42 / joeld42@gmail.com", NK_TEXT_CENTERED );
+        
+        nk_layout_row_dynamic( ctx, 12, 1);
+        
+        nk_layout_row_dynamic( ctx, 12, 1);
+        nk_label(ctx, "Special Thanks:", NK_TEXT_LEFT );
+        
+        nk_layout_row_dynamic( ctx, 12, 1);
+        nk_label(ctx, "Oryol Engine bt Andre Weissflog (@FlohOfWoe)", NK_TEXT_CENTERED );
+        
+        nk_layout_row_dynamic( ctx, 12, 1);
+        nk_label(ctx, "NuklearUI by Micha Mettke (@vurtun)", NK_TEXT_CENTERED );
+        
+        ctx->style.button = button_style;
+        
+        nk_end(ctx);
+    }
+    
+    ctx->style.window.background = oldWindowBG;
+    ctx->style.window.fixed_background.data.color = oldWindowFixedBG;
+}
+
+void
+TestApp::DoGameUI_Results( nk_context* ctx )
+{
+}
+
+
+void
+TestApp::DoGameUI_Gameplay( nk_context* ctx )
+{
     struct nk_panel layout;
     if (nk_begin(ctx, &layout, "Player 1", nk_rect(0, 0, 220, fbHeight),
                 NK_WINDOW_BORDER|NK_WINDOW_BORDER_HEADER|NK_WINDOW_TITLE)) {
@@ -805,7 +1058,7 @@ TestApp::DoGameUI( nk_context* ctx )
         nk_label(ctx, "Power", NK_TEXT_LEFT );
         nk_slider_float(ctx, 0.0f, &(cc.power), 1.0f, 0.001f);
         
-        nk_layout_row_dynamic(ctx, 20, 1);
+        nk_layout_row_dynamic(ctx, 30, 1);
         
         bool canFire = shots.Size() == 0;
         struct nk_style_button button_style = ctx->style.button;
@@ -821,9 +1074,13 @@ TestApp::DoGameUI( nk_context* ctx )
         } else {
             ctx->style.button.hover = ctx->style.button.normal;
         }
+        
+        nk_style_set_font(ctx, &(g_uiMedia.font_24->handle));
         if (nk_button_label(ctx, "Fire!") && canFire) {
             fireActiveCannon();
         }
+        nk_style_set_font(ctx, &(g_uiMedia.font_18->handle));
+        
         ctx->style.button = button_style;
         
         

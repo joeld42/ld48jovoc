@@ -14,6 +14,7 @@
 #include "glm/mat4x4.hpp"
 #include "glm/vec4.hpp"
 
+#include "open-simplex-noise.h"
 
 class IsosurfaceBuilder {
 public:
@@ -44,10 +45,12 @@ public:
     float *damage;
     void clearDamage();
     void addDamage( glm::vec3 p, float radius );
-    float lookupDamage( glm::vec3 p );
+    float lookupDamage( glm::vec3 p );    
+    struct osn_context *noiseCtx;
     
     float evalSDF( glm::vec3 p, glm::vec4 *color=NULL );
     glm::vec3 evalNormal( glm::vec3 p );
+    
     
     Oryol::MeshBuilder meshBuilder;
 };

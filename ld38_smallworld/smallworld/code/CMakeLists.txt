@@ -6,6 +6,7 @@ fips_begin_app(smallworld windowed)
     		   Planet.cpp Planet.h
     		   IsosurfaceBuilder.h IsosurfaceBuilder.cpp IsosurfaceTables.cpp
                 par_easings.h
+                open-simplex-noise.h open-simplex-noise.c
     		   )
     oryol_shader(shaders.shd)
     fips_deps(Core IO LocalFS Gfx Assets Input NKUI)
