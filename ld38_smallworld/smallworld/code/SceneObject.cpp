@@ -22,7 +22,8 @@ SceneObject *makeObject( SceneObjectInfo *info )
     
     object->fsParams.TintColor = glm::vec4(1.0f);
     object->info = info;
-    
+    object->enabled = true;
+    object->scale = glm::vec3( 1.0 );
     return object;
 }
 
@@ -108,9 +109,11 @@ void Scene::drawScene()
     
     for (int i=0; i < sceneObjs.Size(); i++) {
         
+        
         SceneObject *obj = sceneObjs[i];
         SceneObjectInfo *info = obj->info;
         
+        if (!obj->enabled) continue;        
         if (!info->ready) continue;
         
         const auto resStateTex = Gfx::QueryResourceInfo( info->texture ).State;

@@ -28,7 +28,10 @@ public:
     Oryol::MainShader::FSParams fsParams;
     
     glm::vec3 pos;
+    glm::vec3 scale;
     glm::quat rot;
+    
+    bool enabled;
 };
 
 class Scene

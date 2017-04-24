@@ -22,6 +22,7 @@ MESHES = [
     'cannon_bushing.fbx',
     'cannon_barrel.fbx',
     'pea_shot.fbx',
+    'boom.fbx'
 ]
 
 
@@ -30,6 +31,7 @@ TEXTURES = {
     'cannon.png' : 'DXT5',
     'cannon_basecolor.png': 'DXT5',
     'pea_shot.png': 'DXT5',
+    'explode.png': 'DXT5',
     #'tree_062.png' : 'DXT5',
     #'soupbowl.png' : 'DXT5'
 }

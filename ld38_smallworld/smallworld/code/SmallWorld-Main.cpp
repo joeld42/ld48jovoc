@@ -146,6 +146,10 @@ private:
     Oryol::Array<AmmoInfo> ammos;
     int selectedAmmo;
     
+    SceneObject *boom;
+    float boomTimer;
+    int planetNeedsRebuild;
+    
     struct nk_style_item mkColorStyleItem( const char *hexColor );
     
     void DoGameUI( nk_context* ctx );
@@ -204,6 +208,18 @@ TestApp::OnRunning() {
     
     if ((!paused) && (safeToUpdate))
     {
+        
+        // Update boom
+        if (boom->enabled) {
+            boom->scale = glm::vec3( boom->scale.x + glm::gaussRand(0.0, 1.0) );
+            
+            boomTimer -= dt;
+            if (boomTimer <= 0.0) {
+                boom->enabled = false;
+            }
+        }
+        
+        
 #if 1
         // Update cannons "falling"
         for (int i=0; i < cannons.Size(); i++ ) {
@@ -234,7 +250,7 @@ TestApp::OnRunning() {
 #endif
         
         // Update shots
-        bool planetNeedsRebuild = false;
+        bool shouldRebuild = false;
         for (int i=0; i < shots.Size(); i++) {
             Shot &ss = shots[i];
             
@@ -261,27 +277,51 @@ TestApp::OnRunning() {
             float f = planet.surfBuilder.evalSDF( evalP );
             if ((f <= 0.0f)||(ss.age <= 0.0)) {
                 
-                planetNeedsRebuild = true;
+                shouldRebuild = true;
                 printf("Hit Planet (%3.2f %3.2f %3.2f)...\n",
                        evalP.x, evalP.y, evalP.z );
                 
-                planet.surfBuilder.addDamage( evalP, 1000.0/planet.worldSize.x );
+                planet.surfBuilder.addDamage( evalP, ss.ammo->damageRadius/planet.worldSize.x );
                 scene->removeObject( ss.objShot );
+                
+                // Make boom at the location
+                float boomScale = ss.ammo->damageRadius / 100.0;
+                boom->scale = glm::vec3( boomScale );
+                boom->pos = ss.objShot->pos;
+                boom->enabled = true;
+                boomTimer = 0.2;
+                
+                // Check if any cannons are within the fatal range
+                for (int j=0; j < cannons.Size(); j++) {
+                    Cannon &cc = cannons[j];
+                    float hitDist = glm::length(cc.objBase->pos - ss.objShot->pos);
+                    printf("Hit Distance to '%s' %3.2f\n", cc.name, hitDist );
+                    if ( hitDist < ss.ammo->fatalRadius) {
+                        cc.makeDead();
+                    }
+                }
+                
                 
                 // FIXME: sloppy and might break stuff, removing while iterating
                 shots.EraseSwapBack( i );
             }
         }
         
-        if (planetNeedsRebuild) {
-            planet.Rebuild( scene );
+        if (shouldRebuild) {
+            if (planetNeedsRebuild==0) {
+                
+                // Frames until rebuild. Give a few frames in case other shots hit nearby, and so
+                // we can draw the explosion a few times
+                planetNeedsRebuild = 5;
+            }
+            //planet.Rebuild( scene );
         }
         
         
         // Is this the end of the turn
         if (isFiring && (shots.Size() == 0) && (nextTurnTimer < 0.0)) {
             // Finish turn
-            nextTurnTimer = 2.5;
+            nextTurnTimer = 1.5;
         }
         
 //        // DEMO, autofire if able
@@ -296,9 +336,12 @@ TestApp::OnRunning() {
     for (int i=0; i < scene->sceneObjs.Size(); i++) {
         SceneObject *obj = scene->sceneObjs[i];
         
+        
+        glm::mat4 modelScale = glm::scale(glm::mat4(), obj->scale );
         glm::mat4 modelTform = glm::translate(glm::mat4(), obj->pos);
-        modelTform = modelTform * glm::mat4_cast( obj->rot );
-//        return proj * this->view * modelTform;
+        modelTform = modelTform * glm::mat4_cast( obj->rot ) * modelScale;
+
+        
         
         glm::mat4 mvp = currentCamera()->ViewProj * modelTform;
         obj->vsParams.ModelViewProjection = mvp;
@@ -497,15 +540,10 @@ TestApp::OnInit() {
     
     
     // Note: there is a 100x scale from blender units
-    cannonBase = scene->addObject( "msh:cannon_base.omsh", "tex:cannon_basecolor.dds");
-    cannonBase->pos = glm::vec3(0.0, 0.0, 0.0 );
-//
-//    cannonBushing = scene->addObject( "msh:cannon_bushing.omsh", "tex:cannon_basecolor.dds");
-//    cannonBushing->pos = glm::vec3(0.0, 0.0, 0.0 );
-//    
-//    cannonBarrel = scene->addObject( "msh:cannon_barrel.omsh", "tex:cannon_basecolor.dds");
-//    cannonBarrel->pos = glm::vec3(0.0, 191.6, 0.0 );
-    
+    boom = scene->addObject( "msh:boom.omsh", "tex:explode.dds");
+    //boom->pos = glm::vec3(500.0, 0.0, 0.0 );
+    //boom->scale = glm::vec3( 12.0 );
+    boom->enabled = false;
     
     // Setup planet
     planet.planetTexture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "tex:ground1.dds",
@@ -684,7 +722,8 @@ TestApp::fireActiveCannon()
     if (!isFiring)
     {
         SceneObject *objShot = scene->addObject( "msh:pea_shot.omsh", "tex:pea_shot.dds");
-        Shot shot( objShot, cc._shootyPoint, cc.calcProjectileVel() );
+        AmmoInfo &ammo = ammos[selectedAmmo];
+        Shot shot( objShot, &ammo, cc._shootyPoint, cc.calcProjectileVel() );
         shots.Add( shot );
         
         isFiring = true;
@@ -726,6 +765,14 @@ TestApp::handle_input( float dt )
         cannons[activeCannon].pulseActive( animT );
     }
     
+    // Rebuild planet??
+    if (planetNeedsRebuild > 0) {
+        planetNeedsRebuild--;
+        if (planetNeedsRebuild==0) {
+            planet.Rebuild( scene );
+        }
+    }
+    
     // turn timer
     if (nextTurnTimer >= 0.0) {
         nextTurnTimer -= dt;
@@ -739,11 +786,15 @@ TestApp::handle_input( float dt )
     glm::vec2 rot;
     float vel = 3.5f;
     float angSpeed = 1.0f;
+    
+    float powSpeed = 0.01f;
+    
     if (Input::KeyboardAttached() ) {
         
         if (Input::KeyPressed( Key::LeftShift)) {
             vel *= 10.0;
             angSpeed *= 10.0f;
+            powSpeed *= 2.0f;
         }
         
         if (Input::KeyDown(Key::P)) {
@@ -765,6 +816,8 @@ TestApp::handle_input( float dt )
             }
         } else if (activeCannon < cannons.Size()) {
             Cannon &cc = cannons[activeCannon];
+            
+            // Heading
             if (Input::KeyPressed(Key::W) || Input::KeyPressed(Key::Up)) {
                 cc.cannonAngle += angSpeed;
                 if (cc.cannonAngle > 180.0) {
@@ -777,6 +830,8 @@ TestApp::handle_input( float dt )
                     cc.cannonAngle = 0.0;
                 }
             }
+            
+            // Tilt
             if (Input::KeyPressed(Key::A) || Input::KeyPressed(Key::Left)) {
                 cc.aimHeading -= angSpeed;
                 if (cc.aimHeading < -180.0){
@@ -789,7 +844,23 @@ TestApp::handle_input( float dt )
                     cc.aimHeading = -180.0;
                 }
             }
+            
+            if (Input::KeyPressed(Key::E) || Input::KeyPressed(Key::Period)) {
+                cc.power += powSpeed;
+                if (cc.power > 1.0) {
+                    cc.power = 1.0;
+                }
+            }
+            if (Input::KeyPressed(Key::Q) || Input::KeyPressed(Key::Comma)) {
+                cc.power -= powSpeed;
+                if (cc.power < 0.0) {
+                    cc.power = 0.0;
+                }
+            }
+            
+            
             cc.updatePlacement();
+            
             
 
             // FIRE?

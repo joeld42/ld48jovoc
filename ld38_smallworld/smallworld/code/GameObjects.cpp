@@ -115,7 +115,9 @@ void MakeDefaultTeams( Oryol::Array<TeamInfo> &teams )
         teams[b] = temp;
     }
     
+    // Default is player vs cpu
     teams[0].playerType = Player_HUMAN;
+    teams[2].playerType = Player_CPU;
 }
 // ========================================================
 //  AmmoInfo
@@ -123,9 +125,9 @@ void MakeDefaultTeams( Oryol::Array<TeamInfo> &teams )
 AmmoInfo::AmmoInfo( const char *_name )
 {
     name = _name;
-    fatalRadius = 100.0f;
-    damageRadius = 120.0f;
-    splashRadius = 150.0f;
+    fatalRadius = 500.0f;
+    damageRadius = 500.0f;
+    splashRadius = 800.0f;
     wackyGravity = false;
     craterNoise = 0.0f;
     defaultSupply = -1;
@@ -139,9 +141,9 @@ void MakeDefaultAmmos( Oryol::Array<AmmoInfo> &ammos )
 
     // Large bomb, but does little damage
     ammo = AmmoInfo( "Pumpkin Eater");
-    ammo.fatalRadius = 10.0;
-    ammo.damageRadius = 200.0;
-    ammo.splashRadius = 300.0;
+    ammo.fatalRadius = 350.0;
+    ammo.damageRadius = 1000.0;
+    ammo.splashRadius = 200.0;
     ammo.craterNoise = 0.5;
     ammo.defaultSupply = 10;
     ammos.Add( ammo );
@@ -199,6 +201,16 @@ void Cannon::place( glm::vec3 anchorPos, glm::vec3 upDir )
     updatePlacement();
 }
 
+void Cannon::makeDead() {
+    
+    health = 0;
+    
+    glm::vec4 color = glm::vec4( 0.2f, 0.2f, 0.2f, 1.0f );
+    objBase->fsParams.TintColor = color;
+    objBarrel->fsParams.TintColor = color;
+    objBushing->fsParams.TintColor = color;
+}
+
 void Cannon::updatePlacement()
 {
     glm::vec3 modelUpDir ( 0.0, 1.0, 0.0 );
@@ -253,8 +265,9 @@ void Cannon::pulseActive( float t )
 //   Shot
 // ========================================================
 
-Shot::Shot( SceneObject *shotObj, glm::vec3 pos, glm::vec3 startVel )
+Shot::Shot( SceneObject *shotObj, AmmoInfo *_ammo, glm::vec3 pos, glm::vec3 startVel )
 {
+    ammo = _ammo;
     objShot = shotObj;
     objShot->pos = pos;
     vel = startVel;

@@ -91,6 +91,8 @@ public:
     void applyTeamColor();
     void pulseActive( float t );
     
+    void makeDead();
+    
     glm::vec3 calcProjectileVel();
     
     SceneObject *objBase;
@@ -102,10 +104,11 @@ public:
 class Shot
 {
 public:
-    Shot( SceneObject *shotObj, glm::vec3 pos, glm::vec3 startVel );
+    Shot( SceneObject *shotObj, AmmoInfo *_ammo, glm::vec3 pos, glm::vec3 startVel );
     
     float age;
     glm::vec3 vel;
+    AmmoInfo *ammo;
     SceneObject *objShot;
     
     void updateBallistic(float dt, glm::vec3 gravity );
