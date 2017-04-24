@@ -128,5 +128,7 @@ public:
     
     bool splitDone;
     
+    glm::vec3 spinAxis;
+    
     void updateBallistic(float dt, glm::vec3 gravity );
 };

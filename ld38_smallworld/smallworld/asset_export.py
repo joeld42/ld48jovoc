@@ -22,6 +22,8 @@ MESHES = [
     'cannon_bushing.fbx',
     'cannon_barrel.fbx',
     'pea_shot.fbx',
+    'pumpkin.fbx',
+    'melon.fbx',
     'boom.fbx'
 ]
 
@@ -34,6 +36,7 @@ TEXTURES = {
     'grape_shot.png': 'DXT5',
     'pumpkin.png': 'DXT5',    
     'explode.png': 'DXT5',
+    'melon.png': 'DXT5',
     #'tree_062.png' : 'DXT5',
     #'soupbowl.png' : 'DXT5'
 }

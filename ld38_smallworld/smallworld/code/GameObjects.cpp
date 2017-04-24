@@ -161,7 +161,7 @@ void MakeDefaultAmmos( Oryol::Array<AmmoInfo> &ammos )
     ammo.splashRadius = 1200.0;
     ammo.craterNoise = 0.5;
     ammo.defaultSupply = 3;
-    ammo.ammoScale = 1.5;
+    ammo.ammoScale = 3.5;
     ammos.Add( ammo );
     
     // Small shot that splits into 3
@@ -178,13 +178,29 @@ void MakeDefaultAmmos( Oryol::Array<AmmoInfo> &ammos )
     ammos.Add( ammo );
 
     ammo = AmmoInfo( "Wobblemelon");
+    ammo.meshName = "msh:melon.omsh";
+    ammo.textureName = "tex:melon.dds";
     ammo.fatalRadius = 500.0f;
     ammo.damageRadius = 600.0f;
     ammo.splashRadius = 1000.0f;
     ammo.wackyGravity = true;
+    ammo.ammoScale = 2.0;
     ammo.craterNoise = 0.0f;
     ammo.defaultSupply = 8;
     ammos.Add( ammo );
+    
+    // Stupidly large
+    ammo = AmmoInfo( "Great Pumpkin");
+    ammo.meshName = "msh:pumpkin.omsh";
+    ammo.textureName = "tex:pumpkin.dds";
+    ammo.fatalRadius = 100.0;
+    ammo.damageRadius = 1800.0;
+    ammo.splashRadius = 200.0;
+    ammo.craterNoise = 0.5;
+    ammo.defaultSupply = 1;
+    ammo.ammoScale = 6.0;
+    ammos.Add( ammo );
+
 
     ammo = AmmoInfo( "Fertilizer");
     ammo.defaultSupply = 5;
@@ -312,7 +328,9 @@ Shot::Shot( SceneObject *shotObj, AmmoInfo *_ammo, glm::vec3 pos, glm::vec3 star
     vel = startVel;
     age = 0.0f;
     splitDone = 0.0;
-    // TODO: random spin
+    
+    spinAxis = glm::normalize( glm::ballRand(1.0) );
+    
 }
 
 void Shot::updateBallistic(float dt, glm::vec3 gravity )
@@ -321,6 +339,8 @@ void Shot::updateBallistic(float dt, glm::vec3 gravity )
     vel *= 0.99;  // space drag from cosmic dust
     
     objShot->pos += vel * dt;
+    
+    objShot->rot = glm::rotate( objShot->rot, 10.0f * dt, spinAxis );
     
     age += dt;
 }
