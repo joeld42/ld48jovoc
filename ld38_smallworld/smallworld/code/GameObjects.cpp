@@ -137,19 +137,29 @@ void MakeDefaultAmmos( Oryol::Array<AmmoInfo> &ammos )
 {
     // Basic bomb, not much damage
     AmmoInfo ammo = AmmoInfo( "Pea Shooter");
+    ammo.fatalRadius = 500.0f;
+    ammo.damageRadius = 500.0f;
+    ammo.splashRadius = 800.0f;
+    ammo.wackyGravity = false;
+    ammo.craterNoise = 0.0f;
     ammos.Add( ammo );
 
     // Large bomb, but does little damage
     ammo = AmmoInfo( "Pumpkin Eater");
-    ammo.fatalRadius = 350.0;
+    ammo.fatalRadius = 400.0;
     ammo.damageRadius = 1000.0;
-    ammo.splashRadius = 200.0;
+    ammo.splashRadius = 1200.0;
     ammo.craterNoise = 0.5;
-    ammo.defaultSupply = 10;
+    ammo.defaultSupply = 3;
     ammos.Add( ammo );
 
-    ammo = AmmoInfo( "Eggplant");
-    ammo.defaultSupply = 20;
+    ammo = AmmoInfo( "Wobblemelon");
+    ammo.fatalRadius = 500.0f;
+    ammo.damageRadius = 600.0f;
+    ammo.splashRadius = 1000.0f;
+    ammo.wackyGravity = true;
+    ammo.craterNoise = 0.0f;
+    ammo.defaultSupply = 8;
     ammos.Add( ammo );
 
     ammo = AmmoInfo( "Fertilizer");

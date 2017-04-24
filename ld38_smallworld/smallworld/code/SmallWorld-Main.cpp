@@ -136,6 +136,7 @@ private:
     Oryol::Array<Shot> shots;
     void finishTurn();
     void fireActiveCannon();
+    void selectAmmo( int ammoIndex );
     
     void fireCannonDown();
     void fireCannonUp();
@@ -177,6 +178,7 @@ private:
 
 
     GameState gameState;
+    GameState nextGameState; // don't change gamestate mid-frame
     
 };
 OryolMain(TestApp);
@@ -220,6 +222,9 @@ TestApp::OnRunning() {
     if (safeToUpdate) {
         this->handle_input( dt );
     }
+    
+
+    
     
     if ((!paused) && (safeToUpdate))
     {
@@ -280,8 +285,13 @@ TestApp::OnRunning() {
             
             glm::vec3 evalP = ss.objShot->pos / planet.worldSize;
             
-            //glm::vec3 grav = planet.surfBuilder.evalNormal( evalP );
             glm::vec3 grav = glm::normalize( evalP );
+            if (ss.ammo->wackyGravity) {
+                
+                // Use distance field for gravity for weird physics
+                grav = planet.surfBuilder.evalNormal( evalP );
+            }
+            
             
             // Less gravity as you get near the center
             float gravStr = glm::smoothstep( 0.0f, planet.planetApproxRadius,
@@ -470,6 +480,8 @@ TestApp::OnRunning() {
     
     Gfx::CommitFrame();
     
+    gameState = nextGameState;
+    
     // continue running or quit?
     return (Gfx::QuitRequested() || quitRequested) ? AppState::Cleanup : AppState::Running;
 }
@@ -498,6 +510,7 @@ AppState::Code
 TestApp::OnInit() {
     
     gameState = GameState_TITLE;
+    nextGameState = gameState;
     nextTurnTimer = -1.0;
     
     // Dev hack to ensure we're running from the right place...
@@ -705,9 +718,18 @@ TestApp::SpawnCannons()
 void
 TestApp::StartGame()
 {
-    gameState = GameState_GAME;
+    nextGameState = GameState_GAME;
     selectedAmmo = 0;
     SpawnCannons();
+    
+    for (int i=0; i < teams.Size(); i++) {
+        teams[i].selectedWeapon = 0;
+        
+        for (int j=0; j < ammos.Size(); j++) {
+            teams[i].ammoSupply[j] = ammos[j].defaultSupply;
+        }
+    }
+    
 }
 
 void
@@ -720,7 +742,7 @@ TestApp::RestartGame()
     }
     cannons.Clear();
     BuildPlanet();
-    gameState = GameState_TITLE;
+    nextGameState = GameState_TITLE;
 }
 
 void
@@ -756,7 +778,7 @@ TestApp::finishTurn()
     if ( ((playerCount==1) && (cannonsAlive==1)) ||
         ((playerCount>1) && (teamsAlive==1)) ) {
     
-        gameState = GameState_GAME_OVER;
+        nextGameState = GameState_GAME_OVER;
     }
     
     do {
@@ -771,13 +793,22 @@ TestApp::finishTurn()
     
     // Move camera to active cannon
     lookAtCannon( cannons[activeCannon] );
+    
+    // restore ammo selection for team
+    selectAmmo( cannons[activeCannon].team->selectedWeapon );
+}
+
+void TestApp::selectAmmo( int ammoIndex )
+{
+    Cannon &cc = cannons[activeCannon];
+    cc.team->selectedWeapon = ammoIndex;
+    selectedAmmo = ammoIndex;
 }
 
 void
 TestApp::fireActiveCannon()
 {
     Cannon &cc = cannons[activeCannon];
-    
     // Make sure there's not already a shot in-flight...
     if (!isFiring)
     {
@@ -785,6 +816,10 @@ TestApp::fireActiveCannon()
         AmmoInfo &ammo = ammos[selectedAmmo];
         Shot shot( objShot, &ammo, cc._shootyPoint, cc.calcProjectileVel() );
         shots.Add( shot );
+        
+        if (ammo.defaultSupply != -1) {
+            cc.team->ammoSupply[ selectedAmmo ]--;
+        }
         
         cc.power = 0.0;
         isFiring = true;
@@ -867,6 +902,13 @@ TestApp::handle_input( float dt )
             nextTurnTimer = -1.0;
         }
     }
+    
+    
+    if ((activeCannon < cannons.Size()) && (cannons[activeCannon].team->ammoSupply[selectedAmmo]==0)) {
+        // Out of this ammo, switch to pea shooter
+        selectAmmo(0);
+    }
+
     
     glm::vec3 move;
     glm::vec2 rot;
@@ -969,7 +1011,10 @@ TestApp::handle_input( float dt )
             
             // DBG: end game
             if (Input::KeyDown( Key::J )) {
-                gameState = GameState_GAME_OVER;
+                winningCannon = &(cannons[activeCannon]);
+                winningTeam = winningCannon->team;
+
+                nextGameState = GameState_GAME_OVER;
             }
             
             // DBG
@@ -1249,9 +1294,9 @@ TestApp::DoGameUI_Title( nk_context* ctx )
         // HACK: there's some crash bug that seems to be related to loading UI
         // fonts or resources, it seems to happen less if you wait to start the
         // game so delay the game start a few seconds
-        if (animT < 3.0) {
-            gameReady = false;
-        }
+//        if (animT < 3.0) {
+//            gameReady = false;
+//        }
         
         
         // Start Game button
@@ -1280,8 +1325,8 @@ TestApp::DoGameUI_Title( nk_context* ctx )
         
         nk_layout_row_dynamic( ctx, 15, 1);
         
-        const char *notReadyMessage = (animT < 3.0)?"Get Ready...":"No Players Enabled";
-        
+        //const char *notReadyMessage = (animT < 3.0)?"Get Ready...":"No Players Enabled";
+        const char *notReadyMessage = "No Players Enabled";
         nk_label(ctx, (gameReady?"":notReadyMessage), NK_TEXT_CENTERED );
         
         nk_layout_row_dynamic( ctx, 50, 1);
@@ -1331,6 +1376,17 @@ TestApp::DoGameUI_Results( nk_context* ctx )
         nk_image( ctx, g_uiMedia.farmageddon_title ); // TODO: Game Over
         
         nk_layout_row_dynamic( ctx, 20, 1);
+        nk_label( ctx, "Winner:", NK_TEXT_CENTERED );
+        
+        nk_style_set_font(ctx, &(g_uiMedia.font_24->handle));
+        nk_layout_row_dynamic( ctx, 30, 1);
+
+        glm::vec4 tc = winningTeam->teamColor;
+        nk_label_colored(ctx, (playerCount==1)?winningCannon->name:winningTeam->teamName,
+                         NK_TEXT_CENTERED, nk_rgb(int(tc.r*255.0),int(tc.g*255.0),int(tc.b*255.0) ));
+
+        
+        nk_layout_row_dynamic( ctx, 20, 1);
         
         
         // Start Game button
@@ -1345,7 +1401,6 @@ TestApp::DoGameUI_Results( nk_context* ctx )
         ctx->style.button.text_active = mkColorStyleItem( "#ff0000" ).data.color;;
         
         nk_spacing(ctx, 1);
-        nk_style_set_font(ctx, &(g_uiMedia.font_24->handle));
         if (nk_button_label(ctx, "Play Again!")) {
             RestartGame();
         }
@@ -1481,6 +1536,8 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         
 //        if (nk_group_begin(ctx, &layout, "Group",
 //                           NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR)) {
+
+        
         
         char buttonLabel[30];
         for (int i = 0; i < ammos.Size(); i++)
@@ -1494,8 +1551,7 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
             if (ammo.defaultSupply == -1) {
                 strcpy( buttonLabel, ammo.name );
             } else {
-                // TODO: use real count, not supply
-                sprintf( buttonLabel, "%s (%d)", ammo.name, ammo.defaultSupply );
+                sprintf( buttonLabel, "%s (%d)", ammo.name, cc.team->ammoSupply[i] );
             }
             if (i==selectedAmmo) {
 
@@ -1509,8 +1565,7 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
             if (nk_button_symbol_label(ctx,
                                    (i==selectedAmmo)?NK_SYMBOL_CIRCLE:NK_SYMBOL_CIRCLE_FILLED,
                                        buttonLabel, NK_TEXT_RIGHT) ) {
-                
-                selectedAmmo = i;
+                selectAmmo( i );
             }
             
             if (i==selectedAmmo) {
@@ -1554,8 +1609,38 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
         int ndx=0;
         //zzzz nk_color activeColor = nk
         struct nk_style_item activeBorder = mkColorStyleItem( "#dfb801" );
+        
+        nk_color blankColor = ctx->style.progress.normal.data.color;
+        nk_color healthColor = nk_rgb(int(0.98*255),int(0.51*255),int(255*0.52));
+        ctx->style.progress.padding = {0, 0};
+        
         for (int j=0; j < rows; j++) {
-            nk_layout_row_dynamic( ctx, 40, cols );
+            
+            nk_layout_row_dynamic( ctx, 5, cols );
+            nk_layout_row_end(ctx);
+            
+            int ndx2 = ndx;
+            for (int i=0; i < cols; i++) {
+                if (ndx2 < cannons.Size()) {
+                    Cannon &cc = cannons[ndx2];
+                    //nk_progress( ctx, &cc.health, 6, false );
+                    if (cc.health > 0) {
+                        ctx->style.progress.cursor_normal.data.color = healthColor;
+                        ctx->style.progress.cursor_hover.data.color = healthColor;
+                    } else {
+                        ctx->style.progress.cursor_normal.data.color = blankColor;
+                        ctx->style.progress.cursor_hover.data.color = blankColor;
+
+                    }
+                    nk_size sz = nk_size(cc.health);
+                    nk_progress(ctx, &sz, nk_size(6), true );
+
+                }
+                ndx2++;
+            }
+            
+            
+            nk_layout_row_dynamic( ctx, 35, cols );
             for (int i=0; i < cols; i++) {
                 if (ndx < cannons.Size()) {
                     Cannon &cc = cannons[ndx];

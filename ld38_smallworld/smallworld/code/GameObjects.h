@@ -35,6 +35,8 @@ public:
     PlayerType playerType;
     const char *teamName;
     glm::vec4 teamColor;
+    int selectedWeapon;
+    int ammoSupply[20]; // current ammo
     Oryol::Array<const char*> names;
     
 };
@@ -53,6 +55,7 @@ public:
     float craterNoise; // How noisy is the crater?
     
     int defaultSupply; // -1 = unlimited
+    int currentSupply; // -1 = unlimited
     
     bool wackyGravity;
 };
