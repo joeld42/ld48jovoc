@@ -549,51 +549,23 @@ TestApp::OnInit() {
     nextGameState = gameState;
     nextTurnTimer = -1.0;
     
-    
-    char cwd[1024];
-    getcwd(cwd, sizeof(cwd));
-    printf("CWD is: %s\n", cwd );
-    
-    // Dev hack to ensure we're running from the right place...
-#if 0
-    chdir("/Users/joeld/Projects/ld48jovoc/ld38_smallworld/smallworld");
-    FILE *fp = fopen( "./gamedata/tree_062.omsh", "rt");
-    if (!fp) {
-        printf("Error! Not running from the right path...??\n");
-        exit(1);
-    }
-    fclose(fp);
-#endif
-    
-    CFBundleRef mainBundle;
-    
-    // Get the main bundle for the app
-    mainBundle = CFBundleGetMainBundle();
-    
-    
-    CFURLRef mainBundleURL = CFBundleCopyBundleURL(mainBundle);
-    CFStringRef pathStr = CFURLGetString ( mainBundleURL );
-    CFStringEncoding encodingMethod = CFStringGetSystemEncoding();
-    const char *path = CFStringGetCStringPtr(pathStr, encodingMethod);
-    
-    printf("PATH is : %s\n", path);
-    
     useDebugCamera = false;
     animT = 0.0f;
-    
-    char resPath[1024];
-    sprintf( resPath, "%sContents/Resources/", path+7 );
-    
-    printf("RESPATH is : %s\n", resPath);
-    chdir(resPath);
     
     // set up IO system
     IOSetup ioSetup;
     ioSetup.FileSystems.Add( "file", LocalFileSystem::Creator() );
-    ioSetup.Assigns.Add("msh:", "cwd:gamedata/");
-    ioSetup.Assigns.Add("tex:", "cwd:gamedata/");
-    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
-//        ioSetup.Assigns.Add("msh:", resPath );
+    
+#if ORYOL_MACOS
+    ioSetup.Assigns.Add("msh:", "root:../Resources/gamedata/");
+    ioSetup.Assigns.Add("tex:", "root:../Resources/gamedata/");
+    ioSetup.Assigns.Add("data:", "root:../Resources/gamedata/");
+#else
+    ioSetup.Assigns.Add("msh:", "root:gamedata/");
+    ioSetup.Assigns.Add("tex:", "root:gamedata/");
+    ioSetup.Assigns.Add("data:", "root:gamedata/");
+#endif
+    //        ioSetup.Assigns.Add("msh:", resPath );
 //        ioSetup.Assigns.Add("tex:", resPath );
 //        ioSetup.Assigns.Add("data:", resPath );
     
