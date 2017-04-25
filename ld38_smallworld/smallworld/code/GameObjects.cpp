@@ -135,6 +135,7 @@ AmmoInfo::AmmoInfo( const char *_name )
     wackyGravity = false;
     craterNoise = 0.0f;
     defaultSupply = -1;
+    isDirt = false;
     meshName = "msh:pea_shot.omsh";
     textureName = "tex:pea_shot.dds";
 }
@@ -186,7 +187,7 @@ void MakeDefaultAmmos( Oryol::Array<AmmoInfo> &ammos )
     ammo.wackyGravity = true;
     ammo.ammoScale = 2.0;
     ammo.craterNoise = 0.0f;
-    ammo.defaultSupply = 8;
+    ammo.defaultSupply = 5;
     ammos.Add( ammo );
     
     // Stupidly large
@@ -203,7 +204,12 @@ void MakeDefaultAmmos( Oryol::Array<AmmoInfo> &ammos )
 
 
     ammo = AmmoInfo( "Fertilizer");
+    ammo.meshName = "msh:dirtball.omsh";
+    ammo.textureName = "tex:dirt.dds";
+    ammo.damageRadius = 600.0f;
     ammo.defaultSupply = 5;
+    ammo.craterNoise = 0.3;
+    ammo.isDirt = true;
     ammos.Add( ammo );
 
 

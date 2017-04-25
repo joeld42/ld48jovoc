@@ -45,6 +45,7 @@ public:
     float *damage;
     void clearDamage();
     void addDamage( glm::vec3 p, float radius );
+    void addDirt( glm::vec3 p, float radius );
     float lookupDamage( glm::vec3 p );    
     struct osn_context *noiseCtx;
     

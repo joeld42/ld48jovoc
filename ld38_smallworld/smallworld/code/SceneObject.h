@@ -34,6 +34,7 @@ public:
     bool enabled;
 };
 
+
 class Scene
 {
 public:

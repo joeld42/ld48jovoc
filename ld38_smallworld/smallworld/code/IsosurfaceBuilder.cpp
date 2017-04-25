@@ -473,6 +473,39 @@ void IsosurfaceBuilder::addDamage( glm::vec3 p, float radius )
     }
 }
 
+// FIXME: This should be a separate buffer than for damage, so the dirt
+// can grow beyond the planet's original surface..
+void IsosurfaceBuilder::addDirt( glm::vec3 p, float radius )
+{
+    // TODO: maybe add a half-cell offset to p to line up?
+    
+    for (int k=0; k < damageRes; k++) {
+        float kk = ((float(k) / float(damageRes-1)) - 0.5f) * 2.0;
+        
+        for (int j=0; j < damageRes; j++) {
+            float jj = ((float(j) / float(damageRes-1)) - 0.5f) * 2.0;
+            
+            for (int i=0; i < damageRes; i++) {
+                float ii = ((float(i) / float(damageRes-1)) - 0.5f) * 2.0;
+                
+                glm::vec3 pp(ii,jj,kk);
+                float d = glm::length(pp - p) - radius;
+                float *v = damage + ((k*damageRes*damageRes) + (j*damageRes) + i);
+                //*v = fmin( *v, d );
+                if (d < 0) {
+                    *v = 9999.0;
+                }
+                
+                //                printf("AddDamage %d %d %d pp %3.2f %3.2f %3.2f result %f\n",
+                //                       i,j,k,
+                //                       ii,jj,kk,
+                //                       *v );
+            }
+        }
+    }
+}
+
+
 
 // This interpolation is buggy but I don't really care right now
 // since it looks pretty good noisy.

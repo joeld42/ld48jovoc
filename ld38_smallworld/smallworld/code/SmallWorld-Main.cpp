@@ -43,6 +43,9 @@
 #include <unistd.h>
 #include <stdio.h>
 
+// for bundle path
+#include <CoreFoundation/CoreFoundation.h>
+
 using namespace Oryol;
 
 #define CHEATS_ENABLED (1)
@@ -217,7 +220,7 @@ AppState::Code
 TestApp::OnRunning() {
     
     static TimePoint tp;
-    Duration frameDuration = Clock::LapTime(tp);
+    Oryol::Duration frameDuration = Clock::LapTime(tp);
     float dt = frameDuration.AsSeconds();
     
     // safety check
@@ -317,39 +320,42 @@ TestApp::OnRunning() {
                 printf("Hit Planet (%3.2f %3.2f %3.2f)...\n",
                        evalP.x, evalP.y, evalP.z );
                 
-                planet.surfBuilder.addDamage( evalP, ss.ammo->damageRadius/planet.worldSize.x );
                 scene->removeObject( ss.objShot );
-                
-                // Make boom at the location
-                float boomScale = ss.ammo->damageRadius / 100.0;
-                boom->scale = glm::vec3( boomScale );
-                
-                boomPos = ss.objShot->pos;
-                boom->pos = boomPos; // this one gets jittered
-                boom->enabled = true;
-                boomTimer = 0.2;
-                
-                // Check if any cannons are within the fatal range
-                for (int j=0; j < cannons.Size(); j++) {
-                    Cannon &cc = cannons[j];
-                    float hitDist = glm::length(cc.objBase->pos - ss.objShot->pos);
+                if (ss.ammo->isDirt) {
+                    planet.surfBuilder.addDirt( evalP, ss.ammo->damageRadius/planet.worldSize.x );
+                } else {
+                    planet.surfBuilder.addDamage( evalP, ss.ammo->damageRadius/planet.worldSize.x );
                     
-                    //printf("Hit Distance to '%s' %3.2f\n", cc.name, hitDist );
-                    int origHealth = cc.health;
-                    if ( hitDist < ss.ammo->fatalRadius) {
-                        cc.health = 0;
-                    } else if (hitDist < ss.ammo->splashRadius) {
-                        float splash = glm::smoothstep( ss.ammo->fatalRadius, ss.ammo->splashRadius, hitDist );
-                        int dam = int( glm::round(1.0 + splash*3 ) );
-                        printf("SPLASH Damage: %d\n", dam );
-                        cc.health = glm::max( 0, cc.health - dam );
-                    }
+                    // Make boom at the location
+                    float boomScale = ss.ammo->damageRadius / 100.0;
+                    boom->scale = glm::vec3( boomScale );
                     
-                    if (cc.health < origHealth) {
-                        cc.showDamageTimer = 0.5;
+                    boomPos = ss.objShot->pos;
+                    boom->pos = boomPos; // this one gets jittered
+                    boom->enabled = true;
+                    boomTimer = 0.2;
+                    
+                    // Check if any cannons are within the fatal range
+                    for (int j=0; j < cannons.Size(); j++) {
+                        Cannon &cc = cannons[j];
+                        float hitDist = glm::length(cc.objBase->pos - ss.objShot->pos);
+                        
+                        //printf("Hit Distance to '%s' %3.2f\n", cc.name, hitDist );
+                        int origHealth = cc.health;
+                        if ( hitDist < ss.ammo->fatalRadius) {
+                            cc.health = 0;
+                        } else if (hitDist < ss.ammo->splashRadius) {
+                            float splash = glm::smoothstep( ss.ammo->fatalRadius, ss.ammo->splashRadius, hitDist );
+                            int dam = int( glm::round(1.0 + splash*3 ) );
+                            printf("SPLASH Damage: %d\n", dam );
+                            cc.health = glm::max( 0, cc.health - dam );
+                        }
+                        
+                        if (cc.health < origHealth) {
+                            cc.showDamageTimer = 0.5;
+                        }
                     }
                 }
-                
                 
                 // FIXME: sloppy and might break stuff, removing while iterating
                 shots.EraseSwapBack( i );
@@ -543,7 +549,13 @@ TestApp::OnInit() {
     nextGameState = gameState;
     nextTurnTimer = -1.0;
     
+    
+    char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
+    printf("CWD is: %s\n", cwd );
+    
     // Dev hack to ensure we're running from the right place...
+#if 0
     chdir("/Users/joeld/Projects/ld48jovoc/ld38_smallworld/smallworld");
     FILE *fp = fopen( "./gamedata/tree_062.omsh", "rt");
     if (!fp) {
@@ -551,17 +563,42 @@ TestApp::OnInit() {
         exit(1);
     }
     fclose(fp);
+#endif
+    
+    CFBundleRef mainBundle;
+    
+    // Get the main bundle for the app
+    mainBundle = CFBundleGetMainBundle();
+    
+    
+    CFURLRef mainBundleURL = CFBundleCopyBundleURL(mainBundle);
+    CFStringRef pathStr = CFURLGetString ( mainBundleURL );
+    CFStringEncoding encodingMethod = CFStringGetSystemEncoding();
+    const char *path = CFStringGetCStringPtr(pathStr, encodingMethod);
+    
+    printf("PATH is : %s\n", path);
     
     useDebugCamera = false;
     animT = 0.0f;
     
+    char resPath[1024];
+    sprintf( resPath, "%sContents/Resources/", path+7 );
+    
+    printf("RESPATH is : %s\n", resPath);
+    chdir(resPath);
+    
     // set up IO system
     IOSetup ioSetup;
     ioSetup.FileSystems.Add( "file", LocalFileSystem::Creator() );
-//    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
     ioSetup.Assigns.Add("msh:", "cwd:gamedata/");
     ioSetup.Assigns.Add("tex:", "cwd:gamedata/");
     ioSetup.Assigns.Add("data:", "cwd:gamedata/");
+//        ioSetup.Assigns.Add("msh:", resPath );
+//        ioSetup.Assigns.Add("tex:", resPath );
+//        ioSetup.Assigns.Add("data:", resPath );
+    
+    
+    
     IO::Setup(ioSetup);
     
     scene = new Scene();
@@ -1643,10 +1680,23 @@ TestApp::DoGameUI_Gameplay( nk_context* ctx )
             // Begin firing sequence
             fireCannonDown();
         }
-        nk_style_set_font(ctx, &(g_uiMedia.font_18->handle));
+        
+        nk_style_set_font(ctx, &(g_uiMedia.font_14->handle));
         
         ctx->style.button = button_style;
         
+        nk_layout_row_dynamic(ctx, 14, 1);
+        nk_label(ctx, "Drag AIM and TILT", NK_TEXT_ALIGN_LEFT  );
+        
+        nk_layout_row_dynamic(ctx, 30, 1);
+        nk_label(ctx, "Hold FIRE to shoot.", NK_TEXT_ALIGN_LEFT  );
+        
+        nk_layout_row_dynamic(ctx, 14, 1);
+        nk_label(ctx, "WASD - Aim & Tilt", NK_TEXT_ALIGN_LEFT );
+        nk_layout_row_dynamic(ctx, 14, 1);
+        nk_label(ctx, "SPACE,Z - Hold to shoot", NK_TEXT_ALIGN_LEFT );
+        
+        nk_style_set_font(ctx, &(g_uiMedia.font_18->handle));
         
         nk_end(ctx);
     }

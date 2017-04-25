@@ -66,6 +66,7 @@ public:
     float splitAge; // at what time to split
     float splitNum; 
     
+    bool isDirt;
     bool wackyGravity;
 };
 

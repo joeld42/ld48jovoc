@@ -24,7 +24,7 @@ MESHES = [
     'pea_shot.fbx',
     'pumpkin.fbx',
     'melon.fbx',
-    'boom.fbx'
+    'boom.fbx',
 ]
 
 
@@ -37,6 +37,7 @@ TEXTURES = {
     'pumpkin.png': 'DXT5',    
     'explode.png': 'DXT5',
     'melon.png': 'DXT5',
+    'dirt.png': 'DXT5',
     #'tree_062.png' : 'DXT5',
     #'soupbowl.png' : 'DXT5'
 }
