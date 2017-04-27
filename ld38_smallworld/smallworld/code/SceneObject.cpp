@@ -4,7 +4,7 @@
 #include "Gfx/Gfx.h"
 
 #include "shaders.h"
-#import "SceneObject.h"
+#include "SceneObject.h"
 
 #include "glm/gtc/random.hpp"
 #include "glm/gtc/constants.hpp"
@@ -19,11 +19,12 @@ using namespace Oryol;
 SceneObject *makeObject( SceneObjectInfo *info )
 {
     SceneObject *object = new SceneObject();
-    
+	
     object->fsParams.TintColor = glm::vec4(1.0f);
     object->info = info;
     object->enabled = true;
     object->scale = glm::vec3( 1.0 );
+	object->rot = glm::quat();
     return object;
 }
 
@@ -61,7 +62,7 @@ SceneObject *Scene::addObject( const char *meshName, const char *textureName )
         sceneInfos.Add( info );
         info->mesh = Gfx::LoadResource(MeshLoader::Create(MeshSetup::FromFile( meshName ), [this,info](MeshSetup &setup) {
             
-            printf("LOADMESH  '%s' finish block setup (%ld)\n", info->meshName, sizeof(setup) );
+            printf("LOADMESH  '%s' finish block setup (%zd)\n", info->meshName, sizeof(setup) );
             if (!didSetupPipeline) {
                 didSetupPipeline = true;
                 auto ps = PipelineSetup::FromLayoutAndShader(setup.Layout, dispShader );
@@ -111,13 +112,13 @@ void Scene::drawScene()
         
         
         SceneObject *obj = sceneObjs[i];
-        SceneObjectInfo *info = obj->info;
-        
+        SceneObjectInfo *info = obj->info;        
+
         if (!obj->enabled) continue;        
         if (!info->ready) continue;
         
         const auto resStateTex = Gfx::QueryResourceInfo( info->texture ).State;
-        const auto resStateMesh = Gfx::QueryResourceInfo( info->mesh).State;
+        const auto resStateMesh = Gfx::QueryResourceInfo( info->mesh).State;		
         
         if ((resStateTex == ResourceState::Valid) && (resStateMesh == ResourceState::Valid)) {
             this->mainDrawState.FSTexture[Textures::Texture] = info->texture;

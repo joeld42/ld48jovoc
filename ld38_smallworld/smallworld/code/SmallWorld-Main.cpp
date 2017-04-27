@@ -40,15 +40,13 @@
 #include "stb_image.h"
 
 // FIXME: Not really used...
-#include <unistd.h>
 #include <stdio.h>
 
-// for bundle path
-#include <CoreFoundation/CoreFoundation.h>
+//#include <windows.h>
 
 using namespace Oryol;
 
-#define CHEATS_ENABLED (1)
+#define CHEATS_ENABLED (0)
 
 enum GameState {
     GameState_TITLE,
@@ -241,8 +239,7 @@ TestApp::OnRunning() {
         
         // Update boom
         if (boom->enabled) {
-            boom->scale = glm::vec3( boom->scale.x + glm::gaussRand(0.0, 1.0) );
-            
+            boom->scale = glm::vec3( boom->scale.x + glm::gaussRand(0.0, 1.0) );            
             boom->pos = boomPos + glm::ballRand( 100.0f );
             
             boomTimer -= dt;
@@ -319,26 +316,30 @@ TestApp::OnRunning() {
                 shouldRebuild = true;
                 printf("Hit Planet (%3.2f %3.2f %3.2f)...\n",
                        evalP.x, evalP.y, evalP.z );
-                
-                scene->removeObject( ss.objShot );
+				glm::vec3 shotPos = ss.objShot->pos;
+                              
                 if (ss.ammo->isDirt) {
                     planet.surfBuilder.addDirt( evalP, ss.ammo->damageRadius/planet.worldSize.x );
+					ss.splitDone = true; // cant split if we blew up
+					scene->removeObject(ss.objShot); // deletes obShot..
                 } else {
                     planet.surfBuilder.addDamage( evalP, ss.ammo->damageRadius/planet.worldSize.x );
                     
                     // Make boom at the location
                     float boomScale = ss.ammo->damageRadius / 100.0;
                     boom->scale = glm::vec3( boomScale );
-                    
+					ss.splitDone = true; // cant split if we blew up
                     boomPos = ss.objShot->pos;
                     boom->pos = boomPos; // this one gets jittered
                     boom->enabled = true;
                     boomTimer = 0.2;
+
+					scene->removeObject(ss.objShot); // deletes obShot..
                     
                     // Check if any cannons are within the fatal range
                     for (int j=0; j < cannons.Size(); j++) {
                         Cannon &cc = cannons[j];
-                        float hitDist = glm::length(cc.objBase->pos - ss.objShot->pos);
+                        float hitDist = glm::length(cc.objBase->pos - shotPos);
                         
                         //printf("Hit Distance to '%s' %3.2f\n", cc.name, hitDist );
                         int origHealth = cc.health;
@@ -358,7 +359,7 @@ TestApp::OnRunning() {
                 }
                 
                 // FIXME: sloppy and might break stuff, removing while iterating
-                shots.EraseSwapBack( i );
+                shots.EraseSwapBack( i );				
             }
             
             // Split?
@@ -380,6 +381,7 @@ TestApp::OnRunning() {
                 }
             }
             
+
         }
         
         if (shouldRebuild) {
@@ -552,6 +554,14 @@ TestApp::OnInit() {
     useDebugCamera = false;
     animT = 0.0f;
     
+#if ORYOL_WINDOWS
+#ifndef NDEBUG
+//	AllocConsole();
+//	SetConsoleTitle("LD38 Smallworld DBG");
+//	freopen("CONOUT$", "w", stdout);
+#endif
+#endif
+
     // set up IO system
     IOSetup ioSetup;
     ioSetup.FileSystems.Add( "file", LocalFileSystem::Creator() );
@@ -561,9 +571,9 @@ TestApp::OnInit() {
     ioSetup.Assigns.Add("tex:", "root:../Resources/gamedata/");
     ioSetup.Assigns.Add("data:", "root:../Resources/gamedata/");
 #else
-    ioSetup.Assigns.Add("msh:", "root:gamedata/");
-    ioSetup.Assigns.Add("tex:", "root:gamedata/");
-    ioSetup.Assigns.Add("data:", "root:gamedata/");
+    ioSetup.Assigns.Add("msh:", "cwd:gamedata/");
+    ioSetup.Assigns.Add("tex:", "cwd:gamedata/");
+    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
 #endif
     //        ioSetup.Assigns.Add("msh:", resPath );
 //        ioSetup.Assigns.Add("tex:", resPath );
@@ -622,6 +632,8 @@ TestApp::OnInit() {
     
     // Note: there is a 100x scale from blender units
     boom = scene->addObject( "msh:boom.omsh", "tex:explode.dds");
+
+	//boom = scene->addObject("msh:pea_shot.omsh", "tex:pea_shot.dds");
     //boom->pos = glm::vec3(500.0, 0.0, 0.0 );
     //boom->scale = glm::vec3( 12.0 );
     boom->enabled = false;
