@@ -566,15 +566,10 @@ TestApp::OnInit() {
     IOSetup ioSetup;
     ioSetup.FileSystems.Add( "file", LocalFileSystem::Creator() );
     
-#if ORYOL_MACOS
-    ioSetup.Assigns.Add("msh:", "root:../Resources/gamedata/");
-    ioSetup.Assigns.Add("tex:", "root:../Resources/gamedata/");
-    ioSetup.Assigns.Add("data:", "root:../Resources/gamedata/");
-#else
-    ioSetup.Assigns.Add("msh:", "cwd:gamedata/");
-    ioSetup.Assigns.Add("tex:", "cwd:gamedata/");
-    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
-#endif
+    ioSetup.Assigns.Add("msh:", "root:gamedata/");
+    ioSetup.Assigns.Add("tex:", "root:gamedata/");
+    ioSetup.Assigns.Add("data:", "root:gamedata/");
+
     //        ioSetup.Assigns.Add("msh:", resPath );
 //        ioSetup.Assigns.Add("tex:", resPath );
 //        ioSetup.Assigns.Add("data:", resPath );
@@ -586,6 +581,7 @@ TestApp::OnInit() {
     scene = new Scene();
 
     scene->gfxSetup = GfxSetup::WindowMSAA4(1280, 720, "LD32 Small World");
+    scene->gfxSetup.HighDPI = true;
     scene->gfxSetup.DefaultPassAction = PassAction::Clear(glm::vec4(0.12,0.11,0.24, 1.0f) );
     Gfx::Setup(scene->gfxSetup);
     
@@ -631,15 +627,15 @@ TestApp::OnInit() {
     
     
     // Note: there is a 100x scale from blender units
-    boom = scene->addObject( "msh:boom.omsh", "tex:explode.dds");
+    boom = scene->addObject( "msh:boom.omsh", "tex:explodeZZ.dds");
 
-	//boom = scene->addObject("msh:pea_shot.omsh", "tex:pea_shot.dds");
+	//boom = scene->addObject("msh:pea_shot.omsh", "tex:pea_shot.pvr");
     //boom->pos = glm::vec3(500.0, 0.0, 0.0 );
     //boom->scale = glm::vec3( 12.0 );
     boom->enabled = false;
     
     // Setup planet
-    planet.planetTexture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "tex:ground1.dds",
+    planet.planetTexture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "tex:dirt.dds",
                                                                                           scene->texSetup)));
     planet.Setup( &(scene->gfxSetup), noiseCtx );
     
