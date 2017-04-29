@@ -7,8 +7,8 @@ policies:
 
 imports: 
     oryol:
-        git: https://github.com/floooh/oryol.git
-        #git: https://github.com/joeld42/oryol
+        #git: https://github.com/floooh/oryol.git
+        git: https://github.com/joeld42/oryol.git
     #oryol-tbui:
     #    git: https://github.com/floooh/oryol-tbui.git
     #oryol-imgui:

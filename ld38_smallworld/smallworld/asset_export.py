@@ -3,12 +3,15 @@ import string
 import subprocess
 import shutil
 
+# FIXME NOW: Make one gamedata directory per target platform
+
 PROJECT_DIR = '/Users/joeld/Projects/ld48jovoc/ld38_smallworld/smallworld'
 
 ORYOL_EXPORT_TOOL = '/Users/joeld/Projects/ld48jovoc/ld38_smallworld/fips-deploy/oryol-tools/osx-xcode-debug/oryol-export'
 ORYOL_EXPORT_CFG = 'test_config.toml'
 
 CRUNCH_TOOL = '/Users/joeld/Toolkits/crunch-osx/bin_osx/crunch'
+TEXTURETOOL_TOOL = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/texturetool'
 
 BLENDER_TOOL = '/Applications/Blender/blender.app/Contents/MacOS/blender'
 BLENDER_EXPORT_SCRIPT = 'export_scene.py'
@@ -95,4 +98,21 @@ if __name__=='__main__':
 
             print string.join(cmd, ' ' )
             subprocess.call( cmd )
+
+        # Also make pvr version for ios
+        destFilePVR = os.path.join( PROJECT_DIR, RUNTIME_DATA_DIR, os.path.splitext( tex )[0] + ".pvr"  )
+
+        # TODO: better params
+        cmd2 = [TEXTURETOOL_TOOL,
+                '-m',  # Generate mipmap chain
+                '-e', 'PVRTC',
+                '-f', 'PVR',
+                '--bits-per-pixel-4',
+                '-o', destFilePVR,
+                srcFile
+                ]
+
+        if fileNeedsUpdate(srcFile, destFilePVR ):
+            print string.join(cmd2, ' ' )
+            subprocess.call( cmd2 )
 
