@@ -60,6 +60,8 @@ void Planet::Rebuild( Scene *scene )
     planetApproxRadius = 3000.0f * 0.8f;
     
     _built = true;
+    
+    
 }
 
 void Planet::UpdateCamera( Camera *camera )

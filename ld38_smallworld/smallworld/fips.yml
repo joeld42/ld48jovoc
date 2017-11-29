@@ -9,6 +9,7 @@ imports:
     oryol:
         #git: https://github.com/floooh/oryol.git
         git: https://github.com/joeld42/oryol.git
+        branch: resource-path-fix
     #oryol-tbui:
     #    git: https://github.com/floooh/oryol-tbui.git
     #oryol-imgui:

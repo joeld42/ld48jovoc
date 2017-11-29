@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  TestApp.cc
+//  DarkStar-Main.cc
 //------------------------------------------------------------------------------
 #include "Pre.h"
 #include "Core/Main.h"
@@ -12,7 +12,7 @@
 #include "Assets/Gfx/ShapeBuilder.h"
 #include "Assets/Gfx/MeshBuilder.h"
 #include "Assets/Gfx/MeshLoader.h"
-#include "Gfx/Setup/MeshSetup.h"
+//#include "Gfx/Setup/MeshSetup.h"
 #include "Assets/Gfx/TextureLoader.h"
 
 #include "glm/gtc/random.hpp"
@@ -61,7 +61,9 @@ private:
     Id dispShader;
     Id texture;
     DrawState mainDrawState;
-    ClearState mainClearState;
+    TestShader::vsParams shaderVSParams;
+    
+    PassAction passAction;
   
     Camera camera;
     Scene *scene;
@@ -95,13 +97,25 @@ TestApp::OnRunning() {
 //        return proj * this->view * modelTform;
         
         glm::mat4 mvp = this->camera.ViewProj * modelTform;
-        obj->vsParams.ModelViewProjection = mvp;
+        obj->vsParams.mvp = mvp;
     }
     
-    Gfx::ApplyDefaultRenderTarget(this->mainClearState);
+    //Gfx::ApplyDefaultRenderTarget(this->mainClearState);
     
-    scene->drawScene();
+    // render one frame
+    Gfx::BeginPass(this->passAction);
+
+    //scene->drawScene();
+    Gfx::ApplyDrawState(this->mainDrawState);
+
+    shaderVSParams.mvp =  this->camera.ViewProj;
+    Gfx::ApplyUniformBlock(this->shaderVSParams);
+    //Gfx::ApplyUniformBlock(this->offscreenParams);
     
+    
+    Gfx::Draw();
+    
+    Gfx::EndPass();
     Gfx::CommitFrame();
     
     // continue running or quit?
@@ -118,7 +132,7 @@ TestApp::OnInit() {
     ioSetup.FileSystems.Add( "file", LocalFileSystem::Creator() );
 //    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
     ioSetup.Assigns.Add("msh:", "cwd:gamedata/");
-    ioSetup.Assigns.Add("tex:", "cwd:gamedata/");
+    //ioSetup.Assigns.Add("tex:", "cwd:gamedata/");
     IO::Setup(ioSetup);
     
     scene = new Scene();
@@ -129,6 +143,7 @@ TestApp::OnInit() {
     scene->init();
     
     Input::Setup();
+    /*
     Input::SetMousePointerLockHandler([](const Mouse::Event& event) -> Mouse::PointerLockMode {
         // switch pointer-lock on/off on left-mouse-button
         if ((event.Button == Mouse::LMB) || (event.Button == Mouse::RMB)) {
@@ -141,31 +156,54 @@ TestApp::OnInit() {
         }
         return Mouse::PointerLockModeDontCare;
     });
-    
-    
+     */
     
     // setup clear states
-    this->mainClearState.Color = glm::vec4(0.25f, 0.5f, 1.0f, 1.0f);
-
+    this->passAction.Color[0] = glm::vec4( 0.2, 0.2, 0.2, 1.0 );
+    
     // setup static transform matrices
     float32 fbWidth = Gfx::DisplayAttrs().FramebufferWidth;
     float32 fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
 
-    this->camera.Setup(glm::vec3(-2531.f, 1959.f, 3241.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 25000.0f);
+    //this->camera.Setup(glm::vec3(-2531.f, 1959.f, 3241.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 25000.0f);
     
-    SceneObject *ground = scene->addObject( "msh:ground1_big.omsh", "tex:ground1.dds");
-    ground->pos = glm::vec3( 0.0, 0.0, 0.0);
-
-    const glm::vec3 minRand(-5500.0f, 0.0, -5500.0f );
-    const glm::vec3 maxRand(5500.0f, 0.0, 5500.0f );
-
+    this->camera.Setup(glm::vec3(0.0, 0.0, 5.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 100.0f);
     
-    for (int i=0; i < 40000; i++) {
-        
-        SceneObject *obj1 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
-        obj1->rot = glm::quat( glm::vec3( 0.0, glm::linearRand( 0.0f, 360.0f), 0.0 ) );
-        obj1->pos = glm::linearRand(minRand, maxRand);
-    }
+    // create a donut mesh, shader and pipeline object
+    // (this will be rendered into the offscreen render target)
+    ShapeBuilder shapeBuilder;
+    shapeBuilder.Layout = {
+        { VertexAttr::Position, VertexFormat::Float3 },
+        { VertexAttr::Normal, VertexFormat::Byte4N }
+    };
+    shapeBuilder.Torus(0.3f, 0.5f, 20, 36);
+    SetupAndData<MeshSetup> meshSetup = shapeBuilder.Build();
+    this->mainDrawState.Mesh[0] = Gfx::CreateResource( meshSetup );
+
+    Id shd = Gfx::CreateResource(TestShader::Setup());
+    
+    auto ps = PipelineSetup::FromLayoutAndShader( shapeBuilder.Layout, shd);
+    ps.RasterizerState.CullFaceEnabled = false;
+    ps.RasterizerState.CullFace = Face::Code::Front;
+    ps.RasterizerState.SampleCount = scene->gfxSetup.SampleCount;
+    ps.DepthStencilState.DepthWriteEnabled = true;
+    ps.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
+    this->mainDrawState.Pipeline = Gfx::CreateResource(ps);
+    
+    
+//    SceneObject *ground = scene->addObject( "msh:ground1_big.omsh", "tex:ground1.dds");
+//    ground->pos = glm::vec3( 0.0, 0.0, 0.0);
+//
+//    const glm::vec3 minRand(-5500.0f, 0.0, -5500.0f );
+//    const glm::vec3 maxRand(5500.0f, 0.0, 5500.0f );
+//
+//
+//    for (int i=0; i < 40000; i++) {
+//
+//        SceneObject *obj1 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
+//        obj1->rot = glm::quat( glm::vec3( 0.0, glm::linearRand( 0.0f, 360.0f), 0.0 ) );
+//        obj1->pos = glm::linearRand(minRand, maxRand);
+//    }
     
     return App::OnInit();
 }
@@ -189,6 +227,8 @@ TestApp::OnCleanup() {
 //------------------------------------------------------------------------------
 void
 TestApp::handle_input() {
+    
+#if 0
     glm::vec3 move;
     glm::vec2 rot;
     float vel = 3.5f;
@@ -233,5 +273,7 @@ TestApp::handle_input() {
         }
     }
     this->camera.MoveRotate(move, rot);
+#endif
+    
 }
 

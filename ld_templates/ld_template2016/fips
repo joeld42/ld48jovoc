@@ -6,11 +6,7 @@ import subprocess
 
 # TODO put this in env or something
 proj_path = os.path.dirname(os.path.abspath(__file__))
-# fips_path = os.path.dirname(proj_path) + '/fips'
-fips_path = "/Users/joeld/Stuff/oryol-test/fips"
-
-print "FIPS PATH ", fips_path
-os.environ['FIPS_ROOT_DIR'] = fips_path
+fips_path = os.path.dirname(proj_path) + '/fips'
 
 if not os.path.isdir(fips_path) :
     print("\033[93m=== cloning fips build system to '{}':\033[0m".format(fips_path))

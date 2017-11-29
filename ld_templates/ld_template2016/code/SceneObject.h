@@ -1,7 +1,7 @@
 #ifndef SCENE_OBJECT_H
 #define SCENE_OBJECT_H
 
-#include "Gfx/Setup/MeshSetup.h"
+//#include "Gfx/Setup/MeshSetup.h"
 #include "Core/Containers/Array.h"
 
 #include "glm/gtc/quaternion.hpp"
@@ -25,7 +25,7 @@ class SceneObject
 {
 public:
     SceneObjectInfo *info;
-    Oryol::MainShader::VSParams vsParams;
+    TestShader::vsParams vsParams;
     
     glm::vec3 pos;
     glm::quat rot;

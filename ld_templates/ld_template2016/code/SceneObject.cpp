@@ -30,7 +30,7 @@ Scene::Scene()
 
 void Scene::init()
 {
-    dispShader = Gfx::CreateResource(MainShader::Setup());
+    dispShader = Gfx::CreateResource(TestShader::Setup());
         
     texBluePrint.Sampler.MinFilter = TextureFilterMode::LinearMipmapLinear;
     texBluePrint.Sampler.MagFilter = TextureFilterMode::Linear;
@@ -103,7 +103,7 @@ void Scene::drawScene()
         const auto resStateMesh = Gfx::QueryResourceInfo( info->mesh).State;
         
         if ((resStateTex == ResourceState::Valid) && (resStateMesh == ResourceState::Valid)) {
-            this->mainDrawState.FSTexture[Textures::Texture] = info->texture;
+            this->mainDrawState.FSTexture[TestShader::tex] = info->texture;
             this->mainDrawState.Mesh[0] = info->mesh;
             
             Gfx::ApplyDrawState(this->mainDrawState);            

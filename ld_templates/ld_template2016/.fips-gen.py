@@ -9,8 +9,8 @@ import imp
 
 # template variable will be replaced with 
 # imported generator paths
-gen_paths = [ "/Users/joeld/Stuff/oryol-test/fips","/Users/joeld/Stuff/oryol-test/fips/generators",
-"/Users/joeld/Stuff/oryol-test/oryol/fips-generators",
+gen_paths = [ "/Users/joeld/oprojects/fips","/Users/joeld/oprojects/fips/generators",
+"/Users/joeld/oprojects/oryol/fips-generators",
  ]
 
 # make imported generator modules visible to python module system
