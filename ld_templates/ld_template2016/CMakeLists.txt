@@ -23,12 +23,12 @@ fips_project(darkstar)
 include_directories(code)
 
 # FIXME: only add tools directory to tools build
-#fips_include_directories(tools/OpenDDL/Code)
-#fips_include_directories(tools/OpenGEX/Code)
-#fips_include_directories(tools/chunkfile)
+fips_include_directories(tools/OpenDDL/Code)
+fips_include_directories(tools/OpenGEX/Code)
+fips_include_directories(tools/ldjamfile)
 
 fips_add_subdirectory(code)
-#fips_add_subdirectory(tools)
+fips_add_subdirectory(tools)
 
 # Don't need these because auto_import is on in fips.yml
 # fips_ide_group("Oryol")
