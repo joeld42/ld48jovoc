@@ -143,6 +143,20 @@ TestApp::OnInit() {
     scene->init();
     
     Input::Setup();
+    Input::SetPointerLockHandler([this](const InputEvent& event) -> PointerLockMode::Code {
+        if (event.Button == MouseButton::Left) {
+            if (event.Type == InputEvent::MouseButtonDown) {
+                //this->pointerLock = true;
+                return PointerLockMode::Enable;
+            }
+            else if (event.Type == InputEvent::MouseButtonUp) {
+                //this->pointerLock = false;
+                return PointerLockMode::Disable;
+            }
+        }
+        return PointerLockMode::DontCare;
+    });
+    
     /*
     Input::SetMousePointerLockHandler([](const Mouse::Event& event) -> Mouse::PointerLockMode {
         // switch pointer-lock on/off on left-mouse-button
@@ -167,7 +181,7 @@ TestApp::OnInit() {
 
     //this->camera.Setup(glm::vec3(-2531.f, 1959.f, 3241.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 25000.0f);
     
-    this->camera.Setup(glm::vec3(0.0, 0.0, 5.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 100.0f);
+    this->camera.Setup(glm::vec3(0.0, 0.0, 12.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 100.0f);
     
     // create a donut mesh, shader and pipeline object
     // (this will be rendered into the offscreen render target)
@@ -176,7 +190,7 @@ TestApp::OnInit() {
         { VertexAttr::Position, VertexFormat::Float3 },
         { VertexAttr::Normal, VertexFormat::Byte4N }
     };
-    shapeBuilder.Torus(0.3f, 0.5f, 20, 36);
+    shapeBuilder.Torus(0.8f, 1.5f, 20, 36);
     SetupAndData<MeshSetup> meshSetup = shapeBuilder.Build();
     this->mainDrawState.Mesh[0] = Gfx::CreateResource( meshSetup );
 
@@ -228,52 +242,50 @@ TestApp::OnCleanup() {
 void
 TestApp::handle_input() {
     
-#if 0
     glm::vec3 move;
     glm::vec2 rot;
     float vel = 3.5f;
-    const Keyboard& kbd = Input::Keyboard();
-    if (kbd.Attached) {
+    if (Input::KeyboardAttached() ) {
         
-        if (kbd.KeyPressed( Key::LeftShift)) {
+        if (Input::KeyPressed( Key::LeftShift)) {
             vel *= 10.0;
         }
         
-        if (kbd.KeyPressed(Key::W) || kbd.KeyPressed(Key::Up)) {
+        if (Input::KeyPressed(Key::W) || Input::KeyPressed(Key::Up)) {
             move.z -= vel;
         }
-        if (kbd.KeyPressed(Key::S) || kbd.KeyPressed(Key::Down)) {
+        if (Input::KeyPressed(Key::S) || Input::KeyPressed(Key::Down)) {
             move.z += vel;
         }
-        if (kbd.KeyPressed(Key::A) || kbd.KeyPressed(Key::Left)) {
+        if (Input::KeyPressed(Key::A) || Input::KeyPressed(Key::Left)) {
             move.x -= vel;
         }
-        if (kbd.KeyPressed(Key::D) || kbd.KeyPressed(Key::Right)) {
+        if (Input::KeyPressed(Key::D) || Input::KeyPressed(Key::Right)) {
             move.x += vel;
         }
     }
-    const Mouse& mouse = Input::Mouse();
-    if (mouse.Attached) {
-        if (mouse.ButtonPressed(Mouse::Button::LMB)) {
+    
+    if (Input::MouseAttached() ) {
+        if (Input::MouseButtonDown(MouseButton::Left)) {
             
             move.z -= vel;
             printf("move %3.2f %3.2f %3.2f\n",
                    camera.Pos.x, camera.Pos.y, camera.Pos.z );
 
         }
-        if (mouse.ButtonPressed(Mouse::Button::LMB) || mouse.ButtonPressed(Mouse::Button::RMB)) {
-            rot = mouse.Movement * glm::vec2(-0.01f, -0.007f);
+        if (Input::MouseButtonPressed(MouseButton::Left) ||
+            Input::MouseButtonPressed(MouseButton::Right)) {
+            
+            rot = Input::MouseMovement() * glm::vec2(-0.01f, -0.007f);
         }
     }
-    const Touchpad& touch = Input::Touchpad();
-    if (touch.Attached) {
-        if (touch.Panning) {
+
+    if (Input::TouchpadAttached()) {
+        if (Input::TouchPanning() ) {
             move.z -= vel;
-            rot = touch.Movement[0] * glm::vec2(-0.01f, 0.01f);
+            rot = Input::TouchMovement(0) * glm::vec2(-0.01f, 0.01f);
         }
     }
     this->camera.MoveRotate(move, rot);
-#endif
-    
 }
 
