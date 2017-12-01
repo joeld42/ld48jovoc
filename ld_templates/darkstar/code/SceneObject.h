@@ -7,15 +7,18 @@
 #include "glm/gtc/quaternion.hpp"
 #include "shaders.h"
 
-class SceneObjectInfo
+class SceneMesh
 {
 public:
-    const char *meshName; // tmp
+    Oryol::String meshName;
     
     int numPrims = 1;
 	Oryol::Id mesh;
 	Oryol::Id shader;
 	Oryol::Id texture;
+    
+    glm::vec3 bboxMin;
+    glm::vec3 bboxMax;
     
     bool ready = false;
 };
@@ -24,7 +27,7 @@ public:
 class SceneObject
 {
 public:
-    SceneObjectInfo *info;
+    SceneMesh *mesh;
     TestShader::vsParams vsParams;
     
     glm::vec3 pos;
@@ -35,17 +38,23 @@ class Scene
 {
 public:
     Scene();
-    void init();
+    void Setup();
     
     void drawScene();
     
-    Oryol::Array<SceneObjectInfo*> sceneInfos;
+    Oryol::Array<SceneMesh> sceneMeshes;
     Oryol::Array<SceneObject*> sceneObjs;
     
-    SceneObject *addObject( const char *meshName, const char *textureName );
+    
+    //SceneObject *addObject( const char *meshName, const char *textureName );
 
+    void LoadScene( Oryol::StringAtom sceneName );
+    
     Oryol::GfxSetup gfxSetup;
-    Oryol::DrawState mainDrawState;
+    
+    Oryol::DrawState sceneDrawState;
+    Oryol::VertexLayout meshLayout;
+    TestShader::vsParams sceneVSParams;
     
     // for now, share a shader
     Oryol::Id dispShader;

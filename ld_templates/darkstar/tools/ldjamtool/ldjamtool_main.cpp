@@ -1,6 +1,6 @@
 /* Example:
 
-  /Users/joeld/oprojects/fips-deploy/tunnel/osx-xcode-debug/chunktool assets/CAVE_testAssets.ogex gamedata/CAVE.chunks
+  /Users/joeld/oprojects/fips-deploy/darkstar/osx-xcode-debug/ldjamtool assets/CAVE_testAssets.ogex gamedata/CAVE_testAssets.ldjam
 */
 
 

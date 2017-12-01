@@ -8,6 +8,7 @@
 
 #include "IO/IO.h"
 #include "LocalFS/LocalFileSystem.h"
+#include "HttpFS/HTTPFileSystem.h"
 
 #include "Assets/Gfx/ShapeBuilder.h"
 #include "Assets/Gfx/MeshBuilder.h"
@@ -60,16 +61,20 @@ private:
     Id meshTree;
     Id dispShader;
     Id texture;
+    
     DrawState mainDrawState;
     TestShader::vsParams shaderVSParams;
-    
     PassAction passAction;
+    
+    bool doTestThing = false;
+    int testObjIndex = 0;
   
     Camera camera;
     Scene *scene;
 };
 OryolMain(TestApp);
 
+#if 0
 void dbgPrintMatrix( const char *label, glm::mat4 m )
 {
     printf("mat4 %10s| %3.2f %3.2f %3.2f %3.2f\n"
@@ -82,6 +87,7 @@ void dbgPrintMatrix( const char *label, glm::mat4 m )
            m[2][0], m[2][1], m[2][2], m[2][3],
            m[3][0], m[3][1], m[3][2], m[3][3] );
 }
+#endif
 
 //------------------------------------------------------------------------------
 AppState::Code
@@ -105,15 +111,23 @@ TestApp::OnRunning() {
     // render one frame
     Gfx::BeginPass(this->passAction);
 
+    if (doTestThing) {
+        SceneMesh mesh = scene->sceneMeshes[testObjIndex];
+        scene->sceneDrawState.Mesh[0] = mesh.mesh;
+        Gfx::ApplyDrawState( scene->sceneDrawState );
+        //shaderVSParams.mvp =  this->camera.ViewProj;
+        scene->sceneVSParams.mvp =  this->camera.ViewProj;
+        Gfx::ApplyUniformBlock(scene->sceneVSParams);
+        Gfx::Draw();
+        
+    } else {
+        Gfx::ApplyDrawState(this->mainDrawState);
+        shaderVSParams.mvp =  this->camera.ViewProj;
+        Gfx::ApplyUniformBlock(this->shaderVSParams);
+        //Gfx::ApplyUniformBlock(this->offscreenParams);
+        Gfx::Draw();
+    }
     //scene->drawScene();
-    Gfx::ApplyDrawState(this->mainDrawState);
-
-    shaderVSParams.mvp =  this->camera.ViewProj;
-    Gfx::ApplyUniformBlock(this->shaderVSParams);
-    //Gfx::ApplyUniformBlock(this->offscreenParams);
-    
-    
-    Gfx::Draw();
     
     Gfx::EndPass();
     Gfx::CommitFrame();
@@ -129,10 +143,16 @@ TestApp::OnInit() {
     // set up IO system
 
     IOSetup ioSetup;
+#if 0
     ioSetup.FileSystems.Add( "file", LocalFileSystem::Creator() );
-//    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
-    ioSetup.Assigns.Add("msh:", "cwd:gamedata/");
+    ioSetup.Assigns.Add("gamedata:", "cwd:gamedata/");
     //ioSetup.Assigns.Add("tex:", "cwd:gamedata/");
+#else
+    ioSetup.FileSystems.Add("http", HTTPFileSystem::Creator());
+    ioSetup.Assigns.Add("gamedata:", "http://localhost:8000/gamedata/");
+//    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
+#endif
+    
     IO::Setup(ioSetup);
     
     scene = new Scene();
@@ -140,7 +160,7 @@ TestApp::OnInit() {
     scene->gfxSetup = GfxSetup::WindowMSAA4(800, 600, "Oryol Test App");
     Gfx::Setup(scene->gfxSetup);
     
-    scene->init();
+    scene->Setup();
     
     Input::Setup();
     Input::SetPointerLockHandler([this](const InputEvent& event) -> PointerLockMode::Code {
@@ -183,8 +203,10 @@ TestApp::OnInit() {
     
     this->camera.Setup(glm::vec3(0.0, 0.0, 12.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 100.0f);
     
+    
+    scene->LoadScene( "TEST_Stuff" );
+    
     // create a donut mesh, shader and pipeline object
-    // (this will be rendered into the offscreen render target)
     ShapeBuilder shapeBuilder;
     shapeBuilder.Layout = {
         { VertexAttr::Position, VertexFormat::Float3 },
@@ -203,7 +225,6 @@ TestApp::OnInit() {
     ps.DepthStencilState.DepthWriteEnabled = true;
     ps.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
     this->mainDrawState.Pipeline = Gfx::CreateResource(ps);
-    
     
 //    SceneObject *ground = scene->addObject( "msh:ground1_big.omsh", "tex:ground1.dds");
 //    ground->pos = glm::vec3( 0.0, 0.0, 0.0);
@@ -263,14 +284,24 @@ TestApp::handle_input() {
         if (Input::KeyPressed(Key::D) || Input::KeyPressed(Key::Right)) {
             move.x += vel;
         }
+        
+        if (Input::KeyDown(Key::Z)) {
+            doTestThing = !doTestThing;
+        }
+        if (Input::KeyDown(Key::X)) {
+            testObjIndex++;
+            if (testObjIndex >= scene->sceneMeshes.Size()) {
+                testObjIndex = 0;
+            }
+        }
     }
     
     if (Input::MouseAttached() ) {
         if (Input::MouseButtonDown(MouseButton::Left)) {
             
             move.z -= vel;
-            printf("move %3.2f %3.2f %3.2f\n",
-                   camera.Pos.x, camera.Pos.y, camera.Pos.z );
+            //printf("move %3.2f %3.2f %3.2f\n",
+                       //camera.Pos.x, camera.Pos.y, camera.Pos.z );
 
         }
         if (Input::MouseButtonPressed(MouseButton::Left) ||
