@@ -13,7 +13,14 @@ quite fun.
 List of Games
 -----
 (bolded entries are the ones in this package)
-  
+  * LD39: Running out of Power -- No Entry
+  * LD38: *Small World* -- [Farmageddon](https://joeld42.itch.io/farmageddon)
+  * LD37: *One Room* -- [Time Crunch](http://ludumdare.com/compo/ludum-dare-37/?action=preview&uid=34)
+  * LD36: *Ancient Technology* -- [Alien Construction Skills VR](https://joeld42.itch.io/alien-construction-skills)
+  * LD35: ShapeShift -- No Entry
+  * LD34: Two Button Controls / Growing -- No Entry
+  * LD33: *You Are the Monster* -- [Hugzilla](http://www.tapnik.com/ld33/)
+  * LD32: *Unconventional Weapon* -- [Food Fight](http://tapnik.com/ld32/compover/)
   * LD31: *One Screen* -- [Leviathan](https://www.youtube.com/watch?v=iGt-Aj_CzvI)
   * LD30: *Connected Worlds -- Untitled World Game*
   * LD26: *Minimalism -- Minimum RPG*
