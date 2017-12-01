@@ -19,10 +19,10 @@ List of Games
   * LD36: **Ancient Technology** -- [Alien Construction Skills VR](https://joeld42.itch.io/alien-construction-skills)
   * LD35: ShapeShift -- No Entry
   * LD34: Two Button Controls / Growing -- No Entry
-  * LD33: ***You Are the Monster** -- [Hugzilla](http://www.tapnik.com/ld33/)
+  * LD33: **You Are the Monster** -- [Hugzilla](http://www.tapnik.com/ld33/)
   * LD32: **Unconventional Weapon** -- [Food Fight](http://tapnik.com/ld32/compover/)
   * LD31: **One Screen** -- [Leviathan](https://www.youtube.com/watch?v=iGt-Aj_CzvI)
-  * LD30: **Connected Worlds -- Untitled World Game*
+  * LD30: **Connected Worlds** -- Untitled World Game
   * LD26: **Minimalism** -- Minimum RPG
   * LD25: **You Are the Villian** -- [Evil Lair](http://www.vickijoel.org/ld25/ld25_villian.html)
   * LD24: **Evolution** -- [EvoWord](http://www.youtube.com/watch?v=Wr5etU6131M)
