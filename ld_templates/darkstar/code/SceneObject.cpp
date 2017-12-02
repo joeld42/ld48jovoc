@@ -73,8 +73,11 @@ void Scene::LoadScene( Oryol::StringAtom sceneName )
 
     StringBuilder strBuilder;
     strBuilder.Format( 4096, "gamedata:%s.ldjam", sceneName.AsCStr() );
+    Log::Info("fetch scene %s", strBuilder.GetString().AsCStr() );
     IO::Load(strBuilder.GetString(), [this](IO::LoadResult loadResult) {
         
+        Log::Info("Loadresult size is %d\n", loadResult.Data.Size() );
+#if 1
         Oryol::Buffer chunkBuff = std::move(loadResult.Data);
         
         LDJamFileHeader *fileHeader = (LDJamFileHeader*)chunkBuff.Data();
@@ -132,9 +135,10 @@ void Scene::LoadScene( Oryol::StringAtom sceneName )
             
             sceneMeshes.Add( mesh );
         }
-        
         // Now add the SceneObjs
         LDJamFileSceneObject *sceneObjBase = (LDJamFileSceneObject*)(chunkBuff.Data() + fileHeader->m_sceneObjOffs);
+        Log::Info("%d scene objs...",  fileHeader->m_numSceneObjs );
+        
         for (uint32_t i=0; i < fileHeader->m_numSceneObjs; i++) {
             LDJamFileSceneObject *sceneObjInfo = sceneObjBase + i;
             //printf("SceneObj[%d] is %s\n", i, sceneObjInfo->m_name );
@@ -145,7 +149,9 @@ void Scene::LoadScene( Oryol::StringAtom sceneName )
             //dbgPrintMatrix( "sceneObj xform",sceneObj->xform );
             sceneObjs.Add( sceneObj );
             
+            //if ( i > 5) break;
         }
+#endif
     });
 
 }

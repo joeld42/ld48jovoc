@@ -113,23 +113,19 @@ TestApp::OnRunning() {
     Gfx::BeginPass(this->passAction);
 
     if (doTestThing) {
-        SceneMesh mesh = scene->sceneMeshes[testObjIndex];
-        scene->sceneDrawState.Mesh[0] = mesh.mesh;
-        Gfx::ApplyDrawState( scene->sceneDrawState );
+        //SceneMesh mesh = scene->sceneMeshes[testObjIndex];
+        //scene->sceneDrawState.Mesh[0] = mesh.mesh;
+        Gfx::ApplyDrawState( this->mainDrawState );
         //shaderVSParams.mvp =  this->camera.ViewProj;
-        scene->sceneVSParams.mvp =  this->camera.ViewProj;
-        Gfx::ApplyUniformBlock(scene->sceneVSParams);
+        shaderVSParams.mvp =  this->camera.ViewProj;
+        Gfx::ApplyUniformBlock(shaderVSParams);
         Gfx::Draw();
         
     } else {
-        //Gfx::ApplyDrawState(this->mainDrawState);
-        //shaderVSParams.mvp =  this->camera.ViewProj;
-        //Gfx::ApplyUniformBlock(this->shaderVSParams);
-        //Gfx::ApplyUniformBlock(this->offscreenParams);
         
         scene->drawScene();
         
-        Gfx::Draw();
+        //Gfx::Draw();
     }
     
     
@@ -208,7 +204,7 @@ TestApp::OnInit() {
     
     this->camera.Setup(glm::vec3(0.0, 0.0, 15.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
     
-    
+    Log::Info("Hello...\n");
     scene->LoadScene( "TEST_Stuff" );
     
     // create a donut mesh, shader and pipeline object
