@@ -3,7 +3,7 @@ import string
 import subprocess
 import shutil
 
-PROJECT_DIR = '/Users/joeld/Projects/ld48jovoc/ld_templates/ld_template2016/'
+PROJECT_DIR = '/Users/joeld/oprojects/ld40_moreworse/'
 
 ORYOL_EXPORT_TOOL = '/Users/joeld/Stuff/oryol-test/fips-deploy/oryol-tools/osx-xcode-debug/oryol-export'
 ORYOL_EXPORT_CFG = 'test_config.toml'
@@ -14,17 +14,22 @@ ASSET_DIR = "assets"
 RUNTIME_DATA_DIR = "gamedata"
 
 MESHES = [
-	'ground1.fbx',
-	'ground1_big.fbx',
-	'tree_062.fbx',
-	'tree_062_onemtl.fbx',
+	#'ground1.fbx',
+	#'ground1_big.fbx',
+	#'tree_062.fbx',
+	#'tree_062_onemtl.fbx',
 ]
 
 TEXTURES = {
 	# 'wood.png' : 'A8R8G8B8'
-	'ground1.png' : 'DXT5',
-	'tree_062.png' : 'DXT5',
+	#'ground1.png' : 'DXT5',
+	#'tree_062.png' : 'DXT5',
 	#'soupbowl.png' : 'DXT5'
+	'crate_DIF.png' : 'DXT5',
+	'ext_ground_DIF.png' : 'DXT5',
+	'floor_DIF.png' : 'DXT5',
+	'robot_DIF.png' : 'DXT5',
+	'AxisThing_DIF.png' : 'DXT5',
 }
 
 def fileNeedsUpdate( srcFile, destFile ):

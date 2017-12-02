@@ -62,10 +62,12 @@ void Scene::Setup()
     
     this->sceneDrawState.Pipeline = Gfx::CreateResource(ps);
     
-    // Add all the chunkset identifiers
-    //AddNamedChunkset( StringAtom("TESTCUBE") );
-    //AddNamedChunkset( StringAtom("CAVE") );
-    
+    // Load test texture
+    texBluePrint.Sampler.MinFilter = TextureFilterMode::LinearMipmapLinear;
+    texBluePrint.Sampler.MagFilter = TextureFilterMode::Linear;
+    texBluePrint.Sampler.WrapU = TextureWrapMode::Repeat;
+    texBluePrint.Sampler.WrapV = TextureWrapMode::Repeat;
+    testTexture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:TestTile_basecolor.dds", texBluePrint)));
 }
 
 void Scene::LoadScene( Oryol::StringAtom sceneName )
@@ -132,6 +134,18 @@ void Scene::LoadScene( Oryol::StringAtom sceneName )
             mesh.mesh = Gfx::CreateResource(meshSetup, meshVertData, meshDataSize );
             
             mesh.meshName = String( meshInfo->m_name );
+            
+            // Assign texture if there is one
+            Log::Info("Texture is '%s'\n", meshInfo->m_texture );
+            if (*(meshInfo->m_texture)) {
+                StringBuilder texLocBuilder;
+                texLocBuilder.Format( 4096, "gamedata:%s.dds", meshInfo->m_texture );
+                Log::Info("Locator is %s\n", texLocBuilder.GetString().AsCStr() );
+                mesh.texture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( Locator(texLocBuilder.GetString()), texBluePrint)));
+            } else {
+                Log::Info("Using default texture");
+                mesh.texture = testTexture;
+            }
             
             sceneMeshes.Add( mesh );
         }
@@ -212,12 +226,13 @@ void Scene::drawScene()
         
         //if (!mesh->ready) continue;
         
-        //const auto resStateTex = Gfx::QueryResourceInfo( mesh->texture ).State;
-        const auto resStateMesh = Gfx::QueryResourceInfo( mesh->mesh).State;
+        const auto resStateTex = Gfx::QueryResourceInfo( mesh->texture ).State;
+        const auto resStateMesh = Gfx::QueryResourceInfo( mesh->mesh ).State;
         
-        //if ((resStateTex == ResourceState::Valid) && (resStateMesh == ResourceState::Valid)) {
         if (resStateMesh == ResourceState::Valid) {
-            //this->sceneDrawState.FSTexture[TestShader::tex] = mesh->texture;
+            if (resStateTex == ResourceState::Valid) {
+                this->sceneDrawState.FSTexture[TestShader::tex] = mesh->texture;
+            }
             this->sceneDrawState.Mesh[0] = mesh->mesh;
             
             Gfx::ApplyDrawState(this->sceneDrawState);            

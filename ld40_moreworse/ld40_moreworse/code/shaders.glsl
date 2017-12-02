@@ -29,8 +29,8 @@ in vec4 world_nrm;
 in vec4 ldir;
 out vec4 fragColor;
 void main() {
-    //vec4 c = texture(tex, uv * vec2(20.0, 10.0));
-    vec4 c = vec4(1.0) - vec4( uv.x, uv.y, 0.0, 1.0 );
+    vec4 c = texture(tex, uv );
+    //vec4 c = vec4(1.0) - vec4( uv.x, uv.y, 0.0, 1.0 );
     vec3 ldir = vec3( -1.0, 0.0, 0.3 );
     vec3 ldir2 = vec3( 1.0, 0.5, 0.4 );
     float lite1 = clamp(dot(nrm.xyz, normalize(ldir.xyz)), 0.0, 1.0) * 2.0;
@@ -41,6 +41,7 @@ void main() {
     
     //fragColor = vec4( abs(world_nrm.xyz), 1.0 );
     fragColor = vec4(c.xyz * liteColor, 1.0);
+    fragColor = vec4(c.xyz, 1.0);
     //fragColor = vec4(lite, lite, lite, 1.0 );
 }
 @end

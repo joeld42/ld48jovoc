@@ -27,7 +27,8 @@ struct LDJamFileHeader
 // db header.
 struct LDJamFileMeshInfo
 {
-	char m_name[32];	
+	char m_name[32];
+    char m_texture[32];
 	glm::vec4 m_tintColor;
 
 	glm::vec3 m_bboxMin;

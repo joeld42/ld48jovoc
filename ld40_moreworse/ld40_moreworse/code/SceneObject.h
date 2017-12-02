@@ -47,7 +47,6 @@ public:
     Oryol::Array<SceneMesh> sceneMeshes;
     Oryol::Array<SceneObject*> sceneObjs;
     
-    
     //SceneObject *addObject( const char *meshName, const char *textureName );
 
     void LoadScene( Oryol::StringAtom sceneName );
@@ -61,6 +60,7 @@ public:
     // for now, share a shader
     Oryol::Id dispShader;
     
+    Oryol::Id testTexture;
     Oryol::TextureSetup texBluePrint;
     bool didSetupPipeline = false;
 };

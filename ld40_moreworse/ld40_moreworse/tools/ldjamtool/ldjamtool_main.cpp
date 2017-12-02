@@ -108,13 +108,48 @@ const Structure *FindSubStructureOfType( Structure *structure, StructureType tar
 }
 
 bool WriteGeom( LDJamFileMeshInfo *meshInfo, 
-                OGEX::GeometryObjectStructure *geom, 
+                OGEX::GeometryObjectStructure *geom,
+                const OGEX::MaterialStructure *mtl,
                 FILE *ldjamFP, void *contentBuff )
 {
     // Use the gex name (usually geometry2 or something) but this should be 
     // replaced with the tkchunk.chunkname extension
     strncpy( meshInfo->m_name, geom->GetStructureName(), 32 );
     meshInfo->m_name[31] = 0;
+    
+    if (mtl) {
+         const Structure *curr = mtl->GetFirstSubnode();
+        while (curr) {
+            uint32_t structType = curr->GetStructureType();
+            
+            if (structType == kStructureTexture) {
+                TextureStructure *tex = (OGEX::TextureStructure*)curr;
+                
+                
+                if (tex->GetAttribString()=="diffuse") {
+                    const String& stringTexName = tex->GetTextureName();
+                    strncpy( meshInfo->m_texture, (const char *)stringTexName+2, 32 );
+                    meshInfo->m_texture[31] = 0;
+                    
+                    char *ext = strstr( meshInfo->m_texture, ".png");
+                    if (ext) {
+                        *ext = '\0';
+                    }
+                
+                }
+                
+                printf("geom %s, mtl %s tex %s -- \"%s\"\n",
+                       (const char *)geom->GetStructureName(),
+                       (const char *)mtl->GetStructureName(),
+                       (const char *)tex->GetAttribString(),
+                       meshInfo->m_texture
+                       );
+                
+            }
+            
+            curr = curr->Next();
+        }
+    }
 
     // Get the points and figure the bounding box
     OGEX::MeshStructure *mesh = (OGEX::MeshStructure *)FindSubStructureOfType( geom, kStructureMesh );
@@ -212,7 +247,7 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
             if (stData != NULL) {
                 
                 glm::vec2 st( stData->GetDataElement(i*2+0),
-                              stData->GetDataElement(i*2+1));
+                              1.0f - stData->GetDataElement(i*2+1));
                 //printf("STData %d -- %f %f\n", i, st.x, st.y );
                 meshVert->m_st0 = st;
                 meshVert->m_st1 = st;  // TMP just duplicate into ST1 for now
@@ -293,6 +328,30 @@ struct MeshInfoTable {
     LDJamFileMeshInfo *jamfileMesh;
 };
 
+// This is slow and bad but it's for a game jam sooo...
+// Find the first GeomNode that uses geomObj and return the material from that
+const OGEX::MaterialStructure *FindMaterialForGeom( const Structure *structure, OGEX::GeometryObjectStructure *geomTarget )
+{
+    while (structure)
+    {
+        uint32_t structType = structure->GetStructureType();
+        if (structType == OGEX::kStructureGeometryNode) {
+            const OGEX::GeometryNodeStructure *geomNode = (OGEX::GeometryNodeStructure*)structure;
+            const OGEX::GeometryObjectStructure *geomObj = (OGEX::GeometryObjectStructure*)geomNode->GetObjectStructure();
+            
+            if (geomObj == geomTarget) {
+                // found it, get the material
+                const OGEX::MaterialStructure *mtl = geomNode->GetMaterial(0);
+                if (mtl) {
+                    return mtl;
+                }
+            }
+        }
+        structure = structure->Next();
+    }
+    return NULL;
+}
+
 
 // ======================================================================
 // LDJAM Scene Tool main
@@ -364,11 +423,18 @@ int main( int argc, char *argv[] )
 //                    const OGEX::MetricStructure *metric = (OGEX::MetricStructure*)structure;
 //                    printf("Metric: %s\n", (const char *)metric->GetMetricKey() );
 //                }
+                
+                OGEX::GeometryObjectStructure *geomObj = (OGEX::GeometryObjectStructure*)structure;
 
                 // Add all the geometries to the chunk file buffer
                 if (structType == OGEX::kStructureGeometryObject) {                    
                     assert( header->m_numChunks < (MAX_MESHES-1) );
-                    if (WriteGeom( nextMeshInfo, (OGEX::GeometryObjectStructure*)structure, ldjamFP, ldjamContentBuff )) {
+                    
+                    // Get the material for this Geom
+                    const OGEX::MaterialStructure *mtl =  FindMaterialForGeom( openGexDataDescription.GetRootStructure()->GetFirstSubnode(),
+                                                                        geomObj );
+                    
+                    if (WriteGeom( nextMeshInfo, geomObj, mtl, ldjamFP, ldjamContentBuff )) {
                         
                         // Add to the mesh table so we can find it again
                         MeshInfoTable &meshAssoc = meshTable[meshTableSize++];

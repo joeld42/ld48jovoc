@@ -461,6 +461,8 @@ namespace OGEX
         
 			const ObjectStructure *GetObjectStructure(void) const;
 
+            const MaterialStructure *GetMaterial( int index ) const;
+        
 			GeometryNodeStructure();
 			~GeometryNodeStructure();
 
