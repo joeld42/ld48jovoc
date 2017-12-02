@@ -27,11 +27,13 @@ public:
 class SceneObject
 {
 public:
+    Oryol::String objectName;
     SceneMesh *mesh;
     TestShader::vsParams vsParams;
     
-    glm::vec3 pos;
-    glm::quat rot;
+    glm::mat4x4 xform;
+    //glm::vec3 pos;
+    //glm::quat rot;
 };
 
 class Scene

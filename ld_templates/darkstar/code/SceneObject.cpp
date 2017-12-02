@@ -21,6 +21,8 @@
 
 using namespace Oryol;
 
+extern void dbgPrintMatrix( const char *label, glm::mat4 m );
+
 SceneObject *makeObject( SceneMesh *mesh )
 {
     SceneObject *object = new SceneObject();
@@ -76,8 +78,7 @@ void Scene::LoadScene( Oryol::StringAtom sceneName )
         Oryol::Buffer chunkBuff = std::move(loadResult.Data);
         
         LDJamFileHeader *fileHeader = (LDJamFileHeader*)chunkBuff.Data();
-        //printf("Loaded chunks, loadresult sz %d, numChunks is %d\n",
-        //       loadResult.Data.Size(), fileHeader->m_numChunks );
+        Log::Info("Loaded chunks, loadresult sz %d, numChunks is %d\n", loadResult.Data.Size(), fileHeader->m_numChunks );
         
         LDJamFileMeshInfo *meshInfos = (LDJamFileMeshInfo *)(chunkBuff.Data() + sizeof(LDJamFileHeader));
         
@@ -130,6 +131,20 @@ void Scene::LoadScene( Oryol::StringAtom sceneName )
             mesh.meshName = String( meshInfo->m_name );
             
             sceneMeshes.Add( mesh );
+        }
+        
+        // Now add the SceneObjs
+        LDJamFileSceneObject *sceneObjBase = (LDJamFileSceneObject*)(chunkBuff.Data() + fileHeader->m_sceneObjOffs);
+        for (uint32_t i=0; i < fileHeader->m_numSceneObjs; i++) {
+            LDJamFileSceneObject *sceneObjInfo = sceneObjBase + i;
+            //printf("SceneObj[%d] is %s\n", i, sceneObjInfo->m_name );
+            SceneObject *sceneObj = makeObject( &sceneMeshes[sceneObjInfo->m_meshIndex] );
+            sceneObj->objectName = String( sceneObjInfo->m_name );
+            sceneObj->xform = sceneObjInfo->m_transform;
+
+            //dbgPrintMatrix( "sceneObj xform",sceneObj->xform );
+            sceneObjs.Add( sceneObj );
+            
         }
     });
 
@@ -184,23 +199,19 @@ SceneObject *Scene::addObject( const char *meshName, const char *textureName )
 void Scene::drawScene()
 {
     
-    if (!didSetupPipeline) {
-        //printf("Pipeline not setup...\n");
-        return;
-    }
-    
     for (int i=0; i < sceneObjs.Size(); i++) {
         
         SceneObject *obj = sceneObjs[i];
         SceneMesh *mesh = obj->mesh;
         
-        if (!mesh->ready) continue;
+        //if (!mesh->ready) continue;
         
-        const auto resStateTex = Gfx::QueryResourceInfo( mesh->texture ).State;
+        //const auto resStateTex = Gfx::QueryResourceInfo( mesh->texture ).State;
         const auto resStateMesh = Gfx::QueryResourceInfo( mesh->mesh).State;
         
-        if ((resStateTex == ResourceState::Valid) && (resStateMesh == ResourceState::Valid)) {
-            this->sceneDrawState.FSTexture[TestShader::tex] = mesh->texture;
+        //if ((resStateTex == ResourceState::Valid) && (resStateMesh == ResourceState::Valid)) {
+        if (resStateMesh == ResourceState::Valid) {
+            //this->sceneDrawState.FSTexture[TestShader::tex] = mesh->texture;
             this->sceneDrawState.Mesh[0] = mesh->mesh;
             
             Gfx::ApplyDrawState(this->sceneDrawState);            

@@ -10,6 +10,9 @@
 #include "OpenGEX.h"
 
 #include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 #include "glm-aabb.h"
 #include "ldjamfile.h"
 
@@ -35,6 +38,24 @@ using namespace CPM_GLM_AABB_NS;
 // extra descrption for errorCode
 const char *DescribeError( ODDL::DataResult errorCode );
 
+void dbgPrintMatrix( const char *label, glm::mat4 m )
+{
+    printf("mat4 %10s| %3.2f %3.2f %3.2f %3.2f\n"
+           "               | %3.2f %3.2f %3.2f %3.2f\n"
+           "               | %3.2f %3.2f %3.2f %3.2f\n"
+           "               | %3.2f %3.2f %3.2f %3.2f\n",
+           label,
+           m[0][0], m[0][1], m[0][2], m[0][3],
+           m[1][0], m[1][1], m[1][2], m[1][3],
+           m[2][0], m[2][1], m[2][2], m[2][3],
+           m[3][0], m[3][1], m[3][2], m[3][3] );
+}
+
+glm::mat4x4 g_fixCoordsMatrix2 = glm::mat4x4( 1, 0, 0, 0,
+                                              0, 0, 1, 0,
+                                              0, 1, 0, 0,
+                                              0, 0, 0, 1 );
+glm::mat4x4 g_fixCoordsMatrix = glm::rotate( glm::mat4x4(), 90.0f, glm::vec3( 0, 0, 1 ));
 
 // ======================================================================
 // ReadEntireFile
@@ -225,6 +246,53 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
     return true;
 }
 
+bool WriteSceneObj( LDJamFileSceneObject *sceneObj,
+                   const OGEX::GeometryNodeStructure *geomNode,
+                   FILE *ldjamFP  )
+{
+    // The sceneObj meshIndex should already be filled in here...
+    strncpy( sceneObj->m_name, (const char *)(geomNode->GetNodeName()), 32 );
+    sceneObj->m_name[31] = 0;
+    
+    // Find the vertex arrays and metadata in mesh
+    const Structure *curr = geomNode->GetFirstSubnode();
+    TransformStructure *transformStruct = NULL;
+    while (curr) {
+        uint32_t structType = curr->GetStructureType();
+        
+        if (structType == kStructureTransform) {
+            transformStruct = (OGEX::TransformStructure*)curr;
+            
+            if (transformStruct->GetTransformCount() != 1) {
+                printf("WARNING: Expected 1 transform for node %s, got %d?\n", (const char *)(geomNode->GetNodeName()), transformStruct->GetTransformCount() );
+            }
+        }
+        
+        curr = curr->Next();
+    }
+    
+    glm::mat4x4 transform = glm::mat4x4(); // identity
+    if (transformStruct != NULL) {
+        transform = glm::make_mat4( transformStruct->GetTransform() );
+        transform = g_fixCoordsMatrix * transform;
+        
+        dbgPrintMatrix( "transform", transform );
+    } else {
+        printf("WARNING: Didn't find transform for '%s'\n", (const char *)(geomNode->GetNodeName()) );
+    }
+    sceneObj->m_transform = transform;
+    
+    // Write the content for this object
+    fwrite( sceneObj, sizeof(LDJamFileSceneObject), 1, ldjamFP );
+    
+    return true;
+}
+
+struct MeshInfoTable {
+    OGEX::GeometryObjectStructure *ogexGeom;
+    LDJamFileMeshInfo *jamfileMesh;
+};
+
 
 // ======================================================================
 // LDJAM Scene Tool main
@@ -234,11 +302,16 @@ int main( int argc, char *argv[] )
     FILE *ldjamFP = NULL;
     size_t fileHeaderSize = sizeof(LDJamFileHeader) + sizeof(LDJamFileMeshInfo) * MAX_MESHES;
     uint8_t *fileHeader = (uint8_t*)malloc( fileHeaderSize );
+    
+    // To associate mesh info with geom
+    MeshInfoTable meshTable[MAX_MESHES];
+    int meshTableSize = 0;
 
     void *ldjamContentBuff = malloc( SCENEFILE_CONTENT_BUFF_SIZE );
 
     LDJamFileHeader *header = (LDJamFileHeader*)fileHeader;
     header->m_fourCC = 'LD48';
+    header->m_fileVersion = 1;
     
     LDJamFileMeshInfo *firstMeshInfo = (LDJamFileMeshInfo*)(fileHeader + sizeof(LDJamFileHeader));
     LDJamFileMeshInfo *nextMeshInfo = firstMeshInfo;
@@ -260,7 +333,6 @@ int main( int argc, char *argv[] )
     }
     buffer[fileSize] = 0;
     printf("Read %ld bytes\n", fileSize );
-
 
     // Parse the OGEX structure and extact the geometry
     OpenGexDataDescription  openGexDataDescription;
@@ -285,23 +357,24 @@ int main( int argc, char *argv[] )
             const Structure *structure = openGexDataDescription.GetRootStructure()->GetFirstSubnode();
 
             // Build up scene db
-            printf("Struct %p\n", structure );
             while (structure) 
             {
                 uint32_t structType = structure->GetStructureType();
-                printf(" struct... %s type '%s'\n", 
-                    structure->GetStructureName(), 
-                    FourCC2Str( structType ) );
-                
-                if (structType == OGEX::kStructureMetric) {
-                    const OGEX::MetricStructure *metric = (OGEX::MetricStructure*)structure;
-                    printf("Metric: %s\n", (const char *)metric->GetMetricKey() );
-                }
+//                if (structType == OGEX::kStructureMetric) {
+//                    const OGEX::MetricStructure *metric = (OGEX::MetricStructure*)structure;
+//                    printf("Metric: %s\n", (const char *)metric->GetMetricKey() );
+//                }
 
                 // Add all the geometries to the chunk file buffer
                 if (structType == OGEX::kStructureGeometryObject) {                    
                     assert( header->m_numChunks < (MAX_MESHES-1) );
                     if (WriteGeom( nextMeshInfo, (OGEX::GeometryObjectStructure*)structure, ldjamFP, ldjamContentBuff )) {
+                        
+                        // Add to the mesh table so we can find it again
+                        MeshInfoTable &meshAssoc = meshTable[meshTableSize++];
+                        meshAssoc.ogexGeom = (OGEX::GeometryObjectStructure*)structure;
+                        meshAssoc.jamfileMesh = nextMeshInfo;
+                        
                         header->m_numChunks++;
                         nextMeshInfo++;
                     }
@@ -324,6 +397,49 @@ int main( int argc, char *argv[] )
                     printf("Material: %s\n", material->GetMaterialName() );
                 }
                 */
+                structure = structure->Next();
+            }
+            
+            // Now encode all the scene nodes
+            printf("Dumping scene objects...\n");
+            header->m_sceneObjOffs = ftell( ldjamFP );
+            
+            structure = openGexDataDescription.GetRootStructure()->GetFirstSubnode();
+            while (structure)
+            {
+                uint32_t structType = structure->GetStructureType();
+                //printf(" struct... %s type '%s'\n",
+                //       structure->GetStructureName(),
+                //       FourCC2Str( structType ) );
+
+                  if (structType == OGEX::kStructureGeometryNode) {
+                      const OGEX::GeometryNodeStructure *geomNode = (OGEX::GeometryNodeStructure*)structure;
+                      const OGEX::GeometryObjectStructure *geomObj = (OGEX::GeometryObjectStructure*)geomNode->GetObjectStructure();
+                      
+                      // Find it in the mesh table
+                      int meshIndex = -1;
+                      for (int i=0; i<meshTableSize; i++) {
+                          if (meshTable[i].ogexGeom == geomObj) {
+                              meshIndex = i;
+                              break;
+                          }
+                      }
+                      
+                      if (meshIndex == -1) {
+                          printf("Geometry Node: %s GEOM NOT FOUND\n", (const char *)geomNode->GetNodeName() );
+                      } else {
+                          printf("Geometry Node: %s GEOM %d [%s]\n",
+                                 (const char *)geomNode->GetNodeName(), meshIndex,
+                                 meshTable[meshIndex].jamfileMesh->m_name );
+                          
+                          LDJamFileSceneObject sceneObj;
+                          sceneObj.m_meshIndex = meshIndex;
+                          WriteSceneObj(&sceneObj, geomNode, ldjamFP );
+                          
+                          header->m_numSceneObjs++;
+                      }
+                  }
+                
                 structure = structure->Next();
             }
         }

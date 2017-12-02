@@ -74,7 +74,7 @@ private:
 };
 OryolMain(TestApp);
 
-#if 0
+#if !ORYOL_EMSCRIPTEN
 void dbgPrintMatrix( const char *label, glm::mat4 m )
 {
     printf("mat4 %10s| %3.2f %3.2f %3.2f %3.2f\n"
@@ -98,11 +98,12 @@ TestApp::OnRunning() {
     for (int i=0; i < scene->sceneObjs.Size(); i++) {
         SceneObject *obj = scene->sceneObjs[i];
         
-        glm::mat4 modelTform = glm::translate(glm::mat4(), obj->pos);
-        modelTform = modelTform * glm::mat4_cast( obj->rot );
+        //glm::mat4 modelTform = glm::translate(glm::mat4(), obj->pos);
+        //modelTform = modelTform * glm::mat4_cast( obj->rot );
+        
 //        return proj * this->view * modelTform;
         
-        glm::mat4 mvp = this->camera.ViewProj * modelTform;
+        glm::mat4 mvp = this->camera.ViewProj * obj->xform;
         obj->vsParams.mvp = mvp;
     }
     
@@ -121,13 +122,16 @@ TestApp::OnRunning() {
         Gfx::Draw();
         
     } else {
-        Gfx::ApplyDrawState(this->mainDrawState);
-        shaderVSParams.mvp =  this->camera.ViewProj;
-        Gfx::ApplyUniformBlock(this->shaderVSParams);
+        //Gfx::ApplyDrawState(this->mainDrawState);
+        //shaderVSParams.mvp =  this->camera.ViewProj;
+        //Gfx::ApplyUniformBlock(this->shaderVSParams);
         //Gfx::ApplyUniformBlock(this->offscreenParams);
+        
+        scene->drawScene();
+        
         Gfx::Draw();
     }
-    //scene->drawScene();
+    
     
     Gfx::EndPass();
     Gfx::CommitFrame();
@@ -143,14 +147,15 @@ TestApp::OnInit() {
     // set up IO system
 
     IOSetup ioSetup;
-#if 0
+#if ORYOL_EMSCRIPTEN
+    ioSetup.FileSystems.Add("http", HTTPFileSystem::Creator());
+    ioSetup.Assigns.Add("gamedata:", "http://localhost:8000/gamedata/");
+    //    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
+#else
     ioSetup.FileSystems.Add( "file", LocalFileSystem::Creator() );
     ioSetup.Assigns.Add("gamedata:", "cwd:gamedata/");
     //ioSetup.Assigns.Add("tex:", "cwd:gamedata/");
-#else
-    ioSetup.FileSystems.Add("http", HTTPFileSystem::Creator());
-    ioSetup.Assigns.Add("gamedata:", "http://localhost:8000/gamedata/");
-//    ioSetup.Assigns.Add("data:", "cwd:gamedata/");
+
 #endif
     
     IO::Setup(ioSetup);
@@ -201,7 +206,7 @@ TestApp::OnInit() {
 
     //this->camera.Setup(glm::vec3(-2531.f, 1959.f, 3241.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 25000.0f);
     
-    this->camera.Setup(glm::vec3(0.0, 0.0, 12.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 100.0f);
+    this->camera.Setup(glm::vec3(0.0, 0.0, 15.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
     
     
     scene->LoadScene( "TEST_Stuff" );
@@ -265,7 +270,7 @@ TestApp::handle_input() {
     
     glm::vec3 move;
     glm::vec2 rot;
-    float vel = 3.5f;
+    float vel = 0.5f;
     if (Input::KeyboardAttached() ) {
         
         if (Input::KeyPressed( Key::LeftShift)) {
@@ -293,6 +298,12 @@ TestApp::handle_input() {
             if (testObjIndex >= scene->sceneMeshes.Size()) {
                 testObjIndex = 0;
             }
+        }
+        if (Input::KeyDown(Key::C)) {
+            float32 fbWidth = Gfx::DisplayAttrs().FramebufferWidth;
+            float32 fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
+
+            this->camera.Setup(glm::vec3(0.0, 0.0, 15.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
         }
     }
     

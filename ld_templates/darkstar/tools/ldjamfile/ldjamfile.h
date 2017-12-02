@@ -14,7 +14,12 @@
 struct LDJamFileHeader 
 {
 	uint32_t m_fourCC;    // Expects 'LD48'
-	uint32_t m_numChunks;
+    uint32_t m_fileVersion;
+	
+    uint32_t m_numChunks;
+    
+    uint32_t m_numSceneObjs;
+    uint32_t m_sceneObjOffs;  // After chunks? need to clean this up
 };
 
 
@@ -37,6 +42,15 @@ struct LDJamFileMeshContent
 	uint32_t m_numVerts;
 	uint32_t m_numTris;
 	uint16_t m_triIndices;
+};
+
+struct LDJamFileSceneObject
+{
+    char m_name[32];
+    uint32_t m_meshIndex; // Mesh index in the ordering it is in this file
+    glm::mat4x4 m_transform;
+    
+    // TODO: Material
 };
 
 struct LDJamFileVertex

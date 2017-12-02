@@ -457,9 +457,9 @@ namespace OGEX
 			GeometryObjectStructure					*geometryObjectStructure;
 			Array<const MaterialStructure *, 4>		materialStructureArray;
 
+        public:
+        
 			const ObjectStructure *GetObjectStructure(void) const;
-
-		public:
 
 			GeometryNodeStructure();
 			~GeometryNodeStructure();
