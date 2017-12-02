@@ -115,7 +115,9 @@ TestApp::OnRunning() {
     if (doTestThing) {
         //SceneMesh mesh = scene->sceneMeshes[testObjIndex];
         //scene->sceneDrawState.Mesh[0] = mesh.mesh;
+        this->mainDrawState.FSTexture[TestShader::tex] = scene->testTexture;
         Gfx::ApplyDrawState( this->mainDrawState );
+        
         //shaderVSParams.mvp =  this->camera.ViewProj;
         shaderVSParams.mvp =  this->camera.ViewProj;
         Gfx::ApplyUniformBlock(shaderVSParams);
@@ -301,6 +303,7 @@ TestApp::handle_input() {
             float32 fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
 
             this->camera.Setup(glm::vec3(0.0, 0.0, 15.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
+//            this->
         }
     }
     

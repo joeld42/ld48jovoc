@@ -14,8 +14,7 @@ void
 Camera::Setup(const glm::vec3 pos, float fov, int dispWidth, int dispHeight, float near, float far) {
     this->Pos = pos;
     this->Model = glm::translate(glm::mat4(), pos);
-    this->UpdateProj(fov, dispWidth, dispHeight, near, far);
-}
+    this->UpdateProj(fov, dispWidth, dispHeight, near, far);}
 
 //------------------------------------------------------------------------------
 void
@@ -35,7 +34,7 @@ Camera::UpdateModel(const glm::mat4& model) {
 //------------------------------------------------------------------------------
 void
 Camera::MoveRotate(const glm::vec3& move, const glm::vec2& rot) {
-    const glm::vec3 up(0.0f, 1.0f, 0.0f);
+    const glm::vec3 up(0.0f, 0.0f, 1.0f);
     const glm::vec3 hori(1.0f, 0.0f, 0.0f);
     this->Rot += rot;
     glm::mat4 m = glm::translate(glm::mat4(), this->Pos);

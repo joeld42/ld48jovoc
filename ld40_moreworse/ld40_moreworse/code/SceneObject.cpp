@@ -163,7 +163,7 @@ void Scene::LoadScene( Oryol::StringAtom sceneName )
             //dbgPrintMatrix( "sceneObj xform",sceneObj->xform );
             sceneObjs.Add( sceneObj );
             
-            //if ( i > 5) break;
+            if ( i > 2) break;
         }
 #endif
     });
@@ -218,7 +218,6 @@ SceneObject *Scene::addObject( const char *meshName, const char *textureName )
 
 void Scene::drawScene()
 {
-    
     for (int i=0; i < sceneObjs.Size(); i++) {
         
         SceneObject *obj = sceneObjs[i];
@@ -242,6 +241,6 @@ void Scene::drawScene()
                 Gfx::Draw(j);
             }
         }
-        
     }
+    
 }

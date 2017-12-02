@@ -30,6 +30,7 @@ TEXTURES = {
 	'floor_DIF.png' : 'DXT5',
 	'robot_DIF.png' : 'DXT5',
 	'AxisThing_DIF.png' : 'DXT5',
+	'walls_DIF.png' : 'DXT5',
 }
 
 def fileNeedsUpdate( srcFile, destFile ):
