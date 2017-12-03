@@ -28,6 +28,7 @@ class SceneObject
 {
 public:
     bool hidden;
+    bool collider;
     glm::mat4x4 xform;
     
     Oryol::String objectName;

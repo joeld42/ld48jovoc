@@ -22,16 +22,29 @@ DebugDrawRenderer::~DebugDrawRenderer()
 
 void DebugDrawRenderer::beginDraw()
 {
-    
+    drawLineCount = 0;
+    drawPointCount = 0;
+    drawGlyphCount = 0;
 }
 
 void DebugDrawRenderer::endDraw()
 {
-    
+    if (drawLineCount > 1) {
+        Log::Warn( "Tried to draw %d line lists..\n", drawLineCount);
+    }
+    if (drawPointCount > 1) {
+        Log::Warn( "Tried to draw %d point lists..\n", drawPointCount);
+    }
+    if (drawGlyphCount > 1) {
+        Log::Warn( "Tried to draw %d line lists..\n", drawGlyphCount);
+    }
 }
 
 void DebugDrawRenderer::drawPointList(const dd::DrawVertex * points, int count, bool depthEnabled)
 {
+    drawPointCount++;
+    if (drawPointCount > 1) return;
+    
     this->drawState.Pipeline = pipelinePoints;
     this->drawState.FSTexture[GlyphShader::tex] = Id::InvalidId();
     this->drawState.Mesh[0] = meshPoints;
@@ -48,6 +61,9 @@ void DebugDrawRenderer::drawPointList(const dd::DrawVertex * points, int count, 
 
 void DebugDrawRenderer::drawLineList(const dd::DrawVertex * lines, int count, bool depthEnabled)
 {
+    drawLineCount++;
+    if (drawLineCount > 1) return;
+    
     this->drawState.Pipeline = pipelineLines;
     this->drawState.FSTexture[GlyphShader::tex] = Id::InvalidId();
     this->drawState.Mesh[0] = meshLines;
@@ -62,6 +78,9 @@ void DebugDrawRenderer::drawLineList(const dd::DrawVertex * lines, int count, bo
 
 void DebugDrawRenderer::drawGlyphList(const DrawVertex * glyphs, int count, GlyphTextureHandle dummyGlyphTex)
 {
+    drawGlyphCount++;
+    if (drawGlyphCount > 1) return;
+    
     this->drawState.Pipeline = pipelineGlyphs;
     this->drawState.Mesh[0] = meshGlyphs;
     this->drawState.FSTexture[GlyphShader::tex] = this->glyphTex;

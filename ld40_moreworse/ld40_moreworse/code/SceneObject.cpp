@@ -30,6 +30,8 @@ SceneObject *makeObject( SceneMesh *mesh )
     SceneObject *object = Memory::New<SceneObject>();
     object->mesh = mesh;
     object->hidden = false;
+    object->collider = false;
+    object->vsParams.tintColor = glm::vec4(1);
     
     return object;
 }
@@ -200,6 +202,14 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
             //dbgPrintMatrix( "scene xform", sceneObj->xform );
 
             //dbgPrintMatrix( "sceneObj xform",sceneObj->xform );
+            
+            // Semi-HACK, if an object name starts with _, it's a collider
+            if (sceneObjInfo->m_name[0]=='_') {
+                sceneObj->hidden = true;
+                sceneObj->collider = true;
+            }
+            
+            
             sceneObjs.Add( sceneObj );        
         }
       

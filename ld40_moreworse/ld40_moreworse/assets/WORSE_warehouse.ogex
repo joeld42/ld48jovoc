@@ -5,8 +5,81 @@ Metric (key = "up") {string {"z"}}
 
 GeometryNode $node1
 {
+	Name {string {"_WallNorth"}}
+	ObjectRef {ref {$geometry1}}
+	MaterialRef (index = 0) {ref {$material1}}
+
+	Transform
+	{
+		float[16]
+		{
+			{38.0655517578125, 0.0, 0.0, 0.0,
+			 0.0, 2.0, 0.0, 0.0,
+			 0.0, 0.0, 12.114699363708496, 0.0,
+			 -0.47559595108032227, 35.35452651977539, 11.402491569519043, 1.0}
+		}
+	}
+}
+
+GeometryNode $node2
+{
+	Name {string {"_WallSouth"}}
+	ObjectRef {ref {$geometry1}}
+	MaterialRef (index = 0) {ref {$material1}}
+
+	Transform
+	{
+		float[16]
+		{
+			{38.0655517578125, 0.0, 0.0, 0.0,
+			 0.0, 2.0, 0.0, 0.0,
+			 0.0, 0.0, 12.114699363708496, 0.0,
+			 -0.47559595108032227, -35.3354377746582, 11.402491569519043, 1.0}
+		}
+	}
+}
+
+GeometryNode $node3
+{
+	Name {string {"_WallWest"}}
+	ObjectRef {ref {$geometry1}}
+	MaterialRef (index = 0) {ref {$material1}}
+
+	Transform
+	{
+		float[16]
+		{
+			{1.9597033262252808, 0.0, 0.0, 0.0,
+			 0.0, 36.30268859863281, 0.0, 0.0,
+			 0.0, 0.0, 12.114730834960938, 0.0,
+			 -35.29619216918945, 0.7612829208374023, 11.402491569519043, 1.0}
+		}
+	}
+}
+
+GeometryNode $node4
+{
+	Name {string {"_WallEast"}}
+	ObjectRef {ref {$geometry1}}
+	MaterialRef (index = 0) {ref {$material1}}
+
+	Transform
+	{
+		float[16]
+		{
+			{1.9597033262252808, 0.0, 0.0, 0.0,
+			 0.0, 36.30268859863281, 0.0, 0.0,
+			 0.0, 0.0, 12.114730834960938, 0.0,
+			 35.29408645629883, 0.7612829208374023, 11.402491569519043, 1.0}
+		}
+	}
+}
+
+GeometryNode $node5
+{
 	Name {string {"_Cube.002"}}
 	ObjectRef {ref {$geometry1}}
+	MaterialRef (index = 0) {ref {$material1}}
 
 	Transform
 	{
@@ -15,15 +88,16 @@ GeometryNode $node1
 			{1.490462064743042, 1.3336126804351807, 0.0, 0.0,
 			 -1.3336126804351807, 1.490462064743042, 0.0, 0.0,
 			 0.0, 0.0, 2.0, 0.0,
-			 11.233135223388672, 5.341527462005615, 1.9829219579696655, 1.0}
+			 21.461936950683594, 5.341527462005615, 1.9829219579696655, 1.0}
 		}
 	}
 }
 
-GeometryNode $node2
+GeometryNode $node6
 {
 	Name {string {"_Cube.001"}}
 	ObjectRef {ref {$geometry1}}
+	MaterialRef (index = 0) {ref {$material1}}
 
 	Transform
 	{
@@ -32,15 +106,16 @@ GeometryNode $node2
 			{2.0, 0.0, 0.0, 0.0,
 			 0.0, 2.0, 0.0, 0.0,
 			 0.0, 0.0, 2.0, 0.0,
-			 5.910815238952637, 12.745346069335938, 1.9829219579696655, 1.0}
+			 21.164127349853516, 12.745346069335938, 1.9829219579696655, 1.0}
 		}
 	}
 }
 
-GeometryNode $node3
+GeometryNode $node7
 {
 	Name {string {"_Cube"}}
 	ObjectRef {ref {$geometry1}}
+	MaterialRef (index = 0) {ref {$material1}}
 
 	Transform
 	{
@@ -49,16 +124,16 @@ GeometryNode $node3
 			{1.0, 0.0, 0.0, 0.0,
 			 0.0, 1.0, 0.0, 0.0,
 			 0.0, 0.0, 1.0, 0.0,
-			 0.0, 12.745346069335938, 0.0, 1.0}
+			 19.363937377929688, 8.859119415283203, 0.0, 1.0}
 		}
 	}
 }
 
-GeometryNode $node4
+GeometryNode $node8
 {
 	Name {string {"Crate"}}
 	ObjectRef {ref {$geometry2}}
-	MaterialRef (index = 0) {ref {$material1}}
+	MaterialRef (index = 0) {ref {$material2}}
 
 	Transform
 	{
@@ -72,28 +147,10 @@ GeometryNode $node4
 	}
 }
 
-GeometryNode $node5
+GeometryNode $node9
 {
 	Name {string {"robot"}}
 	ObjectRef {ref {$geometry3}}
-	MaterialRef (index = 0) {ref {$material2}}
-
-	Transform
-	{
-		float[16]
-		{
-			{1.0, 0.0, 0.0, 0.0,
-			 0.0, 1.0, 0.0, 0.0,
-			 0.0, 0.0, 1.0, 0.0,
-			 0.0, 0.0, 0.0, 1.0}
-		}
-	}
-}
-
-GeometryNode $node6
-{
-	Name {string {"WH_Walls"}}
-	ObjectRef {ref {$geometry4}}
 	MaterialRef (index = 0) {ref {$material3}}
 
 	Transform
@@ -108,10 +165,10 @@ GeometryNode $node6
 	}
 }
 
-GeometryNode $node7
+GeometryNode $node10
 {
-	Name {string {"WH_FloorCounter"}}
-	ObjectRef {ref {$geometry5}}
+	Name {string {"WH_Walls"}}
+	ObjectRef {ref {$geometry4}}
 	MaterialRef (index = 0) {ref {$material4}}
 
 	Transform
@@ -126,10 +183,10 @@ GeometryNode $node7
 	}
 }
 
-GeometryNode $node8
+GeometryNode $node11
 {
-	Name {string {"ExtGround"}}
-	ObjectRef {ref {$geometry6}}
+	Name {string {"WH_FloorCounter"}}
+	ObjectRef {ref {$geometry5}}
 	MaterialRef (index = 0) {ref {$material5}}
 
 	Transform
@@ -144,7 +201,25 @@ GeometryNode $node8
 	}
 }
 
-LightNode $node9
+GeometryNode $node12
+{
+	Name {string {"ExtGround"}}
+	ObjectRef {ref {$geometry6}}
+	MaterialRef (index = 0) {ref {$material6}}
+
+	Transform
+	{
+		float[16]
+		{
+			{1.0, 0.0, 0.0, 0.0,
+			 0.0, 1.0, 0.0, 0.0,
+			 0.0, 0.0, 1.0, 0.0,
+			 0.0, 0.0, 0.0, 1.0}
+		}
+	}
+}
+
+LightNode $node13
 {
 	Name {string {"Lamp"}}
 	ObjectRef {ref {$light1}}
@@ -161,7 +236,7 @@ LightNode $node9
 	}
 }
 
-CameraNode $node10
+CameraNode $node14
 {
 	Name {string {"Camera"}}
 	ObjectRef {ref {$camera1}}
@@ -178,7 +253,7 @@ CameraNode $node10
 	}
 }
 
-GeometryObject $geometry1		// _Cube.002, _Cube.001, _Cube
+GeometryObject $geometry1		// _WallNorth, _WallSouth, _WallWest, _WallEast, _Cube.002, _Cube.001, _Cube
 {
 	Mesh (primitive = "triangles")
 	{
@@ -1462,6 +1537,16 @@ CameraObject $camera1		// Camera
 
 Material $material1
 {
+	Name {string {"Material.001"}}
+
+	Color (attrib = "diffuse") {float[3] {{0.640000066757203, 0.35110316799734775, 0.13672033752084278}}}
+	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
+	Param (attrib = "specular_power") {float {50}}
+	Color (attrib = "emission") {float[3] {{0.7099999785423279, 0.7099999785423279, 0.7099999785423279}}}
+}
+
+Material $material2
+{
 	Name {string {"mtl.Crate"}}
 
 	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
@@ -1474,21 +1559,7 @@ Material $material1
 	}
 }
 
-Material $material2
-{
-	Name {string {"mtl.robot"}}
-
-	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
-	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
-	Param (attrib = "specular_power") {float {50}}
-
-	Texture (attrib = "diffuse")
-	{
-		string {"//robot_DIF.png"}
-	}
-}
-
-Material $material5
+Material $material6
 {
 	Name {string {"mtl.ground"}}
 
@@ -1504,6 +1575,20 @@ Material $material5
 
 Material $material4
 {
+	Name {string {"mtl.Walls"}}
+
+	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
+	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
+	Param (attrib = "specular_power") {float {50}}
+
+	Texture (attrib = "diffuse")
+	{
+		string {"//walls_DIF.png"}
+	}
+}
+
+Material $material5
+{
 	Name {string {"mtl.floor"}}
 
 	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
@@ -1518,7 +1603,7 @@ Material $material4
 
 Material $material3
 {
-	Name {string {"mtl.Walls"}}
+	Name {string {"mtl.robot"}}
 
 	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
 	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
@@ -1526,6 +1611,6 @@ Material $material3
 
 	Texture (attrib = "diffuse")
 	{
-		string {"//walls_DIF.png"}
+		string {"//robot_DIF.png"}
 	}
 }

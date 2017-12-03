@@ -21,6 +21,7 @@
 #include "glm/gtc/constants.hpp"
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/matrix_inverse.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -34,8 +35,30 @@
 #define PAR_EASINGS_IMPLEMENTATION
 #include "par_easings.h"
 
+// NKUI and stb-image for UI stuff
+#include "NKUI/NKUI.h"
+
+//#define STB_IMAGE_IMPLEMENTATION
+//#define STBI_NO_STDIO
+//#define STBI_ONLY_PNG
+//#define STBI_NO_SIMD
+//#include "stb_image.h"
+
+
+// For sprintf, get rid of this..
+#include <string.h>
+
+
 using namespace Oryol;
 
+struct UIMedia {
+    struct nk_font *font_14;
+    struct nk_font *font_18;
+    struct nk_font *font_20;
+    struct nk_font *font_24;
+    struct nk_image farmageddon_title;
+    struct nk_image farmageddon_gameover;
+} g_uiMedia;
 
 
 // Item Notes:
@@ -71,6 +94,8 @@ struct PlayerBot {
     glm::vec3 targetVel;
     glm::vec3 vel;
     glm::vec3 facingDir;
+    
+    CrateItem *hoverItem;
     
     Oryol::Array<CrateItem> items; // Items player is holding
 };
@@ -129,17 +154,21 @@ private:
     float32 fbWidth, fbHeight;
     DebugDrawRenderer *dbgDraw;
     
+    const int kPlayerItemCapacity = 5;
     const float32 kPlayerFrontDist = 7.0;
+    const float32 kPlayerRadius = 3.5f;
     const float32 kPlayerHeight = 3.87031;
     const float32 kCamBorderDist = 10.0f;
     const float32 kCamHeightLow = 60.0;
     const float32 kCamHeightHigh = 100.0;
+    
     bool showCameraBorder;
     float32 targetHeightNorm;
     float32 targetHeight;
     float32 currHeight;
     
     // Gameplay stuff
+    Oryol::TimePoint startTimePoint;
     Oryol::TimePoint lastTimePoint;
     Oryol::Duration frameDt;
     
@@ -147,11 +176,17 @@ private:
     glm::vec3 gameCameraTarget;
     float32 time;
     
+    // player stats
+    uint32_t money;
+    uint32_t gameTime; // not sure what units this should be in yet
+    
     // Items not carried by the player or in storage
     Oryol::Array<CrateItem> looseItems;
     
     // Master copies of objects for spawning
     SceneObject *masterCrate;
+    
+    glm::vec4 testCrateColors[5];
 };
 OryolMain(TestApp);
 
@@ -241,7 +276,29 @@ TestApp::OnRunning() {
     }
     
     // Flush debug draws
-    dd::flush();
+    Oryol::Duration appTime = lastTimePoint.Since( startTimePoint );
+    dd::flush( appTime.AsMilliSeconds() );
+    //dd::flush();
+    
+    // Draw UI Layer
+    nk_context* ctx = NKUI::NewFrame();
+    struct nk_panel layout;
+    static nk_flags window_flags = 0;
+    window_flags |= NK_WINDOW_BORDER;
+    if (nk_begin(ctx, &layout, "Overview", nk_rect( fbWidth - 150, 0, 150, 100), window_flags))
+    {
+        nk_layout_row_dynamic(ctx, 20, 1);
+        char buff[256];
+        
+        sprintf( buff, "Game Time: %d", gameTime / 100 );
+        nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(255,255,255));
+        
+        sprintf( buff, "Money: $%d", money );
+        nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(100,255,100));
+    }
+    nk_end(ctx);
+    
+    NKUI::Draw();
     
     Gfx::EndPass();
     Gfx::CommitFrame();
@@ -306,6 +363,29 @@ TestApp::OnInit() {
         return Mouse::PointerLockModeDontCare;
     });
      */
+    
+    // Setup UI
+    NKUI::Setup();
+    Memory::Clear(&g_uiMedia, sizeof(g_uiMedia));
+    Log::Info("---- setup NKUI ---\n");
+
+//    // setup custom fonts
+//    IO::Load("data:ltromatic.ttf", [this](IO::LoadResult loadResult) {
+//        // need to make the data static
+//        this->ttfData = std::move(loadResult.Data);
+//        NKUI::BeginFontAtlas();
+//        g_uiMedia.font_14 = NKUI::AddFont(this->ttfData, 14.0f);
+//        g_uiMedia.font_18 = NKUI::AddFont(this->ttfData, 18.0f);
+//        g_uiMedia.font_20 = NKUI::AddFont(this->ttfData, 20.0f);
+//        g_uiMedia.font_24 = NKUI::AddFont(this->ttfData, 24.0f);
+//        NKUI::EndFontAtlas();
+//        this->fontValid = true;
+//    });
+//
+//
+//    load_icon( "data:farmageddon_title.png", &(g_uiMedia.farmageddon_title));
+//    load_icon( "data:farmageddon_gameover.png", &(g_uiMedia.farmageddon_gameover));
+//
     
     // setup clear states
     this->passAction.Color[0] = glm::vec4( 0.2, 0.2, 0.2, 1.0 );
@@ -377,6 +457,7 @@ TestApp::OnInit() {
     player = {};
     
     this->lastTimePoint = Clock::Now();
+    this->startTimePoint = this->lastTimePoint;
     
     return App::OnInit();
 }
@@ -404,6 +485,12 @@ TestApp::startGame() {
     
     showCameraBorder = false;
     
+    testCrateColors[0] = glm::vec4(0.23f,0.81f,0.98f,1.0f); // Blue
+    testCrateColors[1] = glm::vec4(0.97f,0.20f,0.12f,1.0f); // Red
+    testCrateColors[2] = glm::vec4(0.96f,0.59f,0.18f,1.0f); // Orange
+    testCrateColors[3] = glm::vec4(0.39f,0.73f,0.30f,1.0f); // Green
+    testCrateColors[4] = glm::vec4(0.92f,0.88f,0.46f,1.0f); // Yellow
+    
     // Init player
     player.sceneObj = scene->FindNamedObject( "robot" );
     if (player.sceneObj == NULL) {
@@ -416,6 +503,10 @@ TestApp::startGame() {
     
     targetHeight = kCamHeightLow;
     currHeight = targetHeight;
+    
+    // reset stats
+    gameTime = 0;
+    money = 0;
     
 }
 
@@ -492,16 +583,79 @@ TestApp::updateGameCamera()
 void
 TestApp::updatePlayer()
 {
+    // update stats
+    gameTime += frameDt.AsMilliSeconds();
+
+    glm::vec3 playerOldPos = glm::vec3( player.pos );
+    
     // update player's pos
     float t = 0.1;
     player.vel = (player.vel * (1.0f-t)) + (player.targetVel * t);
     player.pos += player.vel;
     
     if (glm::length( player.vel) > 0.01f) {
-        player.facingDir = glm::normalize( player.vel );
+        
+        // if we're not "backing up"
+        glm::vec3 velDir = glm::normalize( player.vel );
+        float dot = glm::dot( player.facingDir, velDir );
+        if (dot >= -0.8)
+        {
+            player.facingDir = glm::normalize( player.vel );
+        }
     }
     
-    // Check collision (TODO)
+    // Check collision
+    glm::vec4 playerVec4 = glm::vec4( player.pos, 1.0f );
+    glm::vec4 playerTestPoints[4];
+    
+    playerTestPoints[0] = playerVec4 + glm::vec4( playerVec4.x + player.facingDir.x * 3.5, playerVec4.y + player.facingDir.y * 3.5, 0.0f, 1.0f );
+    playerTestPoints[1] = playerVec4 + glm::vec4( playerVec4.x - player.facingDir.x * 3.5, playerVec4.y - player.facingDir.y * 3.5, 0.0f, 1.0f );
+    playerTestPoints[2] = playerVec4 + glm::vec4( playerVec4.x + player.facingDir.y * 3.5, playerVec4.y + player.facingDir.x * 3.5, 0.0f, 1.0f );
+    playerTestPoints[3] = playerVec4 + glm::vec4( playerVec4.x - player.facingDir.x * 3.5, playerVec4.y - player.facingDir.x * 3.5, 0.0f, 1.0f );
+    
+    //const float *playerBoundsCol = dd::colors::SeaGreen;
+    bool didCollideWalls = false;
+    for (int i=0; i < scene->sceneObjs.Size() && !didCollideWalls; i++) {
+        SceneObject *obj = scene->sceneObjs[i];
+        if (obj->collider) {
+            // TODO: store this on sceneObj and only updated when moved
+            glm::mat4 objInv = glm::inverse( obj->xform );
+            
+            //const char *hitStr = "No Hit";
+            for (int j=0; j < 4; j++) {
+                //dd::cross( glm::value_ptr(playerTestPoints[j]), 1.0f );
+                
+                glm::vec4 playerInBBoxSpace = objInv * playerTestPoints[j];
+                if ((playerInBBoxSpace.x >= -kPlayerRadius) &&
+                    (playerInBBoxSpace.x <= kPlayerRadius) &&
+                    (playerInBBoxSpace.y >= -kPlayerRadius) &&
+                    (playerInBBoxSpace.y <= kPlayerRadius) ) {
+                    
+                    //playerBoundsCol = dd::colors::DarkRed;
+                    //hitStr = "HIT";
+                    
+                    // just for debug
+                    //playerVec4 = playerInBBoxSpace;
+                    didCollideWalls = true;
+                    break;
+                }
+            }
+//            Log::Info("Collider %s player %3.2f %3.2f %3.2f -- %s\na",
+//                      obj->objectName.AsCStr(),
+//                      playerVec4.x,
+//                      playerVec4.y,
+//                      playerVec4.z,
+//                      hitStr );
+        }
+    }
+    //dd::sphere( glm::value_ptr(player.pos), playerBoundsCol, kPlayerRadius );
+    //Log::Info("---\n");
+    
+    // If collision, just undo the movement (but not the facing rotation)
+    if (didCollideWalls) {
+        player.pos = playerOldPos;
+    }
+    
     
     // Check on what's in front of player
     glm::mat4 mSensor = glm::translate( player.sceneObj->xform,
@@ -509,7 +663,26 @@ TestApp::updatePlayer()
     glm::vec4 frontPos = mSensor * glm::vec4(0,0,0,1);
     
     
-    dd::sphere( glm::value_ptr(frontPos) , dd::colors::Red, 3.0 );
+    const float *cursorCol = dd::colors::Red;
+    player.hoverItem = NULL;
+    for (int i=0; i < looseItems.Size(); i++) {
+        // TODO: cache this inverse somewhere
+        CrateItem &item = looseItems[i];
+        glm::mat4 crateInv = glm::affineInverse( item.sceneObj->xform );
+        
+        glm::vec4 sensorPos = crateInv * frontPos;
+        if ((sensorPos.x >= item.sceneObj->mesh->bboxMin.x) &&
+            (sensorPos.x <= item.sceneObj->mesh->bboxMax.x) &&
+            (sensorPos.y >= item.sceneObj->mesh->bboxMin.y) &&
+            (sensorPos.y <= item.sceneObj->mesh->bboxMax.y) ) {
+            // TODO: highlight crate
+            cursorCol = dd::colors::YellowGreen;
+            player.hoverItem = &item;
+            break;
+        }
+    }
+    
+    dd::sphere( glm::value_ptr(frontPos), cursorCol, 3.0 );
     
     // Update player's scene obj from pos
     glm::mat4 mpos = glm::translate( glm::mat4(), player.pos );
@@ -585,30 +758,59 @@ TestApp::handleInputGame()
         
         
         if (Input::KeyDown(Key::Z)) {
-            // Spawn a crate and give it to the player
-            SceneObject *newCrate = scene->spawnObject( masterCrate->mesh );
-            newCrate->xform = glm::mat4( player.sceneObj->xform );
             
-            CrateItem crate;
-            crate.sceneObj = newCrate;
-            crate.itemName = "Crate";
-            if (player.items.Empty()) {
-                crate.wobAxis = glm::vec3( 0,1,0);
-            } else {
-                crate.wobAxis = player.items[player.items.Size()-1].wobAxis;
-                crate.wobAxis += (glm::sphericalRand(0.3f)  );
-                crate.wobAxis = glm::normalize( crate.wobAxis );
+            if (player.items.Size() < kPlayerItemCapacity) {
+                // Spawn a crate and give it to the player
+                SceneObject *newCrate = scene->spawnObject( masterCrate->mesh );
+                newCrate->xform = glm::mat4( player.sceneObj->xform );
+                
+                glm::vec4 randCrateColor = testCrateColors[ rand() % 5 ];
+                newCrate->vsParams.tintColor = randCrateColor;
+                
+                CrateItem crate;
+                crate.sceneObj = newCrate;
+                crate.itemName = "Crate";
+                if (player.items.Empty()) {
+                    crate.wobAxis = glm::vec3( 0,1,0);
+                } else {
+                    crate.wobAxis = player.items[player.items.Size()-1].wobAxis;
+                    crate.wobAxis += (glm::sphericalRand(0.3f)  );
+                    crate.wobAxis = glm::normalize( crate.wobAxis );
+                }
+                player.items.Add(crate);
+                Log::Info("Added crate...\n");
             }
-            player.items.Add(crate);
-            Log::Info("Added crate...\n");
         }
         if (Input::KeyDown(Key::Space)) {
-            // Drop top crate in front
-            if (!player.items.Empty()) {
-                CrateItem crate = player.items.PopBack();
-                crate.sceneObj->xform = glm::translate( player.sceneObj->xform,
-                                                       glm::vec3(0.0, kPlayerFrontDist, 0.0) );
-                looseItems.Add( crate );
+            
+            // Is there something in our sensor range?
+            if (player.hoverItem) {
+                
+                if (player.items.Size() >= kPlayerItemCapacity) {
+                    
+                    ddVec3 textPos2D = { 0.0f, 20.0f, 0.0f };
+                    textPos2D[0] = fbWidth / 2.0;
+                    textPos2D[1] = fbHeight - 20.0;
+                    dd::screenText("Carry Limit", textPos2D, dd::colors::Orange, 1.0, 500 );
+                } else {
+                    CrateItem pickupItem = *(player.hoverItem);
+                    for (int i=0; i < looseItems.Size(); i++ ) {
+                        if (player.hoverItem == &(looseItems[i])) {
+                            looseItems.EraseSwapBack(i);
+                            break;
+                        }
+                    }
+                    player.items.Add( pickupItem );
+                }
+                
+            } else {
+                // Drop top crate in front
+                if (!player.items.Empty()) {
+                    CrateItem crate = player.items.PopBack();
+                    crate.sceneObj->xform = glm::translate( player.sceneObj->xform,
+                                                           glm::vec3(0.0, kPlayerFrontDist, 0.0) );
+                    looseItems.Add( crate );
+                }
             }
         }
     }

@@ -67,6 +67,11 @@ public:
     
     Oryol::Id glyphTex;
     
+    // draw calls for this frame
+    int drawLineCount;
+    int drawPointCount;
+    int drawGlyphCount;
+    
     Oryol::DrawState drawState;
     Oryol::ResourceLabel label;
     Oryol::ResourceLabel labelGlyphTex;

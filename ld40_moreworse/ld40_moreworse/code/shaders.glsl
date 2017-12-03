@@ -4,6 +4,7 @@
 @vs displayVS
 uniform vsParams {
     mat4 mvp;
+    vec4 tintColor;
 };
 
 in vec4 position;
@@ -11,6 +12,7 @@ in vec4 normal;
 in vec2 texcoord0;
 out vec2 uv;
 out vec4 nrm;
+out vec4 color;
 out vec4 world_nrm;
 
 void main() {
@@ -18,6 +20,8 @@ void main() {
     uv = texcoord0;
     world_nrm = normal;
     nrm = normalize(mvp * normal);
+    
+    color = tintColor;
 }
 @end
 
@@ -27,6 +31,7 @@ in vec2 uv;
 in vec4 nrm;
 in vec4 world_nrm;
 in vec4 ldir;
+in vec4 color;
 out vec4 fragColor;
 void main() {
     vec4 c = texture(tex, uv );
@@ -40,8 +45,8 @@ void main() {
                        vec3(0.65,0.23,0.84)*lite2);
     
     //fragColor = vec4( abs(world_nrm.xyz), 1.0 );
-    fragColor = vec4(c.xyz * liteColor, 1.0);
-    fragColor = vec4(c.xyz, 1.0);
+    //fragColor = vec4(c.xyz * liteColor, 1.0);
+    fragColor = vec4(c.xyz, 1.0) * color;
     //fragColor = vec4(lite, lite, lite, 1.0 );
 }
 @end
