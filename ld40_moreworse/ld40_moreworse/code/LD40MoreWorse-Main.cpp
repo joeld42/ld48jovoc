@@ -22,6 +22,9 @@
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 #include "shaders.h"
 
 #include "SceneObject.h"
@@ -43,7 +46,7 @@ using namespace Oryol;
 // substituteable (e.g. any "red barrel" is interchangabe, but "family keepsake" not)
 // Gift Wrapped
 
-struct Item {
+struct CrateItem {
     SceneObject *sceneObj;
     
     Oryol::String itemName;
@@ -69,7 +72,7 @@ struct PlayerBot {
     glm::vec3 vel;
     glm::vec3 facingDir;
     
-    Oryol::Array<Item> items; // Items player is holding
+    Oryol::Array<CrateItem> items; // Items player is holding
 };
 
 
@@ -126,6 +129,7 @@ private:
     float32 fbWidth, fbHeight;
     DebugDrawRenderer *dbgDraw;
     
+    const float32 kPlayerFrontDist = 7.0;
     const float32 kPlayerHeight = 3.87031;
     const float32 kCamBorderDist = 10.0f;
     const float32 kCamHeightLow = 60.0;
@@ -142,6 +146,9 @@ private:
     PlayerBot player;
     glm::vec3 gameCameraTarget;
     float32 time;
+    
+    // Items not carried by the player or in storage
+    Oryol::Array<CrateItem> looseItems;
     
     // Master copies of objects for spawning
     SceneObject *masterCrate;
@@ -494,6 +501,16 @@ TestApp::updatePlayer()
         player.facingDir = glm::normalize( player.vel );
     }
     
+    // Check collision (TODO)
+    
+    // Check on what's in front of player
+    glm::mat4 mSensor = glm::translate( player.sceneObj->xform,
+                               glm::vec3(0.0, kPlayerFrontDist, 0.0) );
+    glm::vec4 frontPos = mSensor * glm::vec4(0,0,0,1);
+    
+    
+    dd::sphere( glm::value_ptr(frontPos) , dd::colors::Red, 3.0 );
+    
     // Update player's scene obj from pos
     glm::mat4 mpos = glm::translate( glm::mat4(), player.pos );
     player.sceneObj->xform = glm::rotate( mpos, atan2(-player.facingDir.x, player.facingDir.y),
@@ -572,7 +589,7 @@ TestApp::handleInputGame()
             SceneObject *newCrate = scene->spawnObject( masterCrate->mesh );
             newCrate->xform = glm::mat4( player.sceneObj->xform );
             
-            Item crate;
+            CrateItem crate;
             crate.sceneObj = newCrate;
             crate.itemName = "Crate";
             if (player.items.Empty()) {
@@ -586,7 +603,13 @@ TestApp::handleInputGame()
             Log::Info("Added crate...\n");
         }
         if (Input::KeyDown(Key::Space)) {
-            
+            // Drop top crate in front
+            if (!player.items.Empty()) {
+                CrateItem crate = player.items.PopBack();
+                crate.sceneObj->xform = glm::translate( player.sceneObj->xform,
+                                                       glm::vec3(0.0, kPlayerFrontDist, 0.0) );
+                looseItems.Add( crate );
+            }
         }
     }
 }
