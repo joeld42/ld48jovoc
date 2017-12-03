@@ -5,6 +5,7 @@
 #include "Core/Main.h"
 #include "Gfx/Gfx.h"
 #include "Input/Input.h"
+#include "Core/Time/Clock.h"
 
 #include "IO/IO.h"
 #include "LocalFS/LocalFileSystem.h"
@@ -25,8 +26,52 @@
 
 #include "SceneObject.h"
 #include "Camera.h"
+#include "DebugDraw.h"
+
+#define PAR_EASINGS_IMPLEMENTATION
+#include "par_easings.h"
 
 using namespace Oryol;
+
+
+
+// Item Notes:
+// owner
+// retreival date (owner gives hints)
+// color
+// category: toys, electronics, industrial, etc..
+// substituteable (e.g. any "red barrel" is interchangabe, but "family keepsake" not)
+// Gift Wrapped
+
+struct Item {
+    SceneObject *sceneObj;
+    
+    Oryol::String itemName;
+    
+    // Silly stuff
+    glm::vec3 wobAxis;
+};
+
+
+// Storage notes:
+// -- Item loose on the floor
+// -- Pallet: Stack up to 3 items, griddable
+// -- Metal Pallet: Stack up to 3 items, griddable
+// -- Small Shelf: Random access 3 items
+// -- Shelf: Random access 3 items
+// -- Container: Storage that fits into an item slot, can store 5 items...
+// -- Offsite Storage: Truck that comes once a day to bring/return packages
+
+struct PlayerBot {
+    SceneObject *sceneObj;
+    glm::vec3 pos;
+    glm::vec3 targetVel;
+    glm::vec3 vel;
+    glm::vec3 facingDir;
+    
+    Oryol::Array<Item> items; // Items player is holding
+};
+
 
 // derived application class
 class TestApp : public App {
@@ -36,7 +81,14 @@ public:
     AppState::Code OnCleanup();
 
 private:
-    void handle_input();
+    void startGame();
+    
+    void handleInput();
+    void handleInputDebug();
+    void handleInputGame();
+    
+    void updatePlayer();
+    void updateGameCamera();
     
     glm::mat4 computeMVP(const glm::mat4& proj, float32 rotX, float32 rotY, const glm::vec3& pos);
 
@@ -45,22 +97,16 @@ private:
     
     void drawMeshAndTextureIfLoaded( Id mesh, Id texture );
     
+    Camera *getActiveCamera() {
+        
+        Camera *activeCamera = debugMode?&dbgCamera:&gameCamera;
+        return activeCamera;
+    }
+    
     ResourceLabel curMeshLabel;
 //    MeshSetup curMeshSetup;
     ResourceLabel curMaterialLabel;
     int numMaterials = 0;
-
-    static const int numShaders = 3;
-    static const char *shaderNames[numShaders];
-    enum {
-        Normals,
-        Lambert,
-        Phong
-    };
-    
-    Id meshTree;
-    Id dispShader;
-    Id texture;
     
     DrawState mainDrawState;
     TestShader::vsParams shaderVSParams;
@@ -69,15 +115,43 @@ private:
     bool doTestThing = false;
     int testObjIndex = 0;
   
-    Camera camera;
+    bool debugMode = false;
+    
+    Camera gameCamera;
+    Camera dbgCamera;
+    //Camera cinematicCamera; // TODO
+    
     Scene *scene;
+    
+    float32 fbWidth, fbHeight;
+    DebugDrawRenderer *dbgDraw;
+    
+    const float32 kPlayerHeight = 3.87031;
+    const float32 kCamBorderDist = 10.0f;
+    const float32 kCamHeightLow = 60.0;
+    const float32 kCamHeightHigh = 100.0;
+    bool showCameraBorder;
+    float32 targetHeightNorm;
+    float32 targetHeight;
+    float32 currHeight;
+    
+    // Gameplay stuff
+    Oryol::TimePoint lastTimePoint;
+    Oryol::Duration frameDt;
+    
+    PlayerBot player;
+    glm::vec3 gameCameraTarget;
+    float32 time;
+    
+    // Master copies of objects for spawning
+    SceneObject *masterCrate;
 };
 OryolMain(TestApp);
 
-#if !ORYOL_EMSCRIPTEN
+//#if !ORYOL_EMSCRIPTEN
 void dbgPrintMatrix( const char *label, glm::mat4 m )
 {
-    printf("mat4 %10s| %3.2f %3.2f %3.2f %3.2f\n"
+    Log::Info("mat4 %10s| %3.2f %3.2f %3.2f %3.2f\n"
            "               | %3.2f %3.2f %3.2f %3.2f\n"
            "               | %3.2f %3.2f %3.2f %3.2f\n"
            "               | %3.2f %3.2f %3.2f %3.2f\n",
@@ -87,26 +161,39 @@ void dbgPrintMatrix( const char *label, glm::mat4 m )
            m[2][0], m[2][1], m[2][2], m[2][3],
            m[3][0], m[3][1], m[3][2], m[3][3] );
 }
-#endif
+//#endif
 
 //------------------------------------------------------------------------------
 AppState::Code
 TestApp::OnRunning() {
+
+    frameDt = Clock::LapTime(this->lastTimePoint);
+    time += frameDt.AsSeconds();
     
-    this->handle_input();
+    this->handleInput();
     
+    Camera *activeCamera = getActiveCamera();
+    
+    // Update the player's transform, make this better
+    if (player.sceneObj) {
+        updatePlayer();
+        updateGameCamera();
+    }
+    
+    // Update scene transforms. TODO this should go into scene
     for (int i=0; i < scene->sceneObjs.Size(); i++) {
         SceneObject *obj = scene->sceneObjs[i];
         
         //glm::mat4 modelTform = glm::translate(glm::mat4(), obj->pos);
         //modelTform = modelTform * glm::mat4_cast( obj->rot );
-        
-//        return proj * this->view * modelTform;
-        
-        glm::mat4 mvp = this->camera.ViewProj * obj->xform;
+
+        glm::mat4 mvp = activeCamera->ViewProj * obj->xform;
+        //glm::mat4 mvp = this->camera.ViewProj;
         obj->vsParams.mvp = mvp;
     }
     
+    dbgDraw->debugDrawMVP = activeCamera->ViewProj;
+    dbgDraw->debugDrawOrthoMVP = glm::ortho(0.0f, fbWidth, fbHeight, 0.0f );
     //Gfx::ApplyDefaultRenderTarget(this->mainClearState);
     
     // render one frame
@@ -119,7 +206,7 @@ TestApp::OnRunning() {
         Gfx::ApplyDrawState( this->mainDrawState );
         
         //shaderVSParams.mvp =  this->camera.ViewProj;
-        shaderVSParams.mvp =  this->camera.ViewProj;
+        shaderVSParams.mvp =  activeCamera->ViewProj;
         Gfx::ApplyUniformBlock(shaderVSParams);
         Gfx::Draw();
         
@@ -130,6 +217,24 @@ TestApp::OnRunning() {
         //Gfx::Draw();
     }
     
+//    const ddVec3 boxColor  = { 0.0f, 0.8f, 0.8f };
+//    const ddVec3 boxCenter = { 0.0f, 0.0f, 0.0f };
+//    float boxSize = 1.0f;
+//    dd::box(boxCenter, boxColor, boxSize, boxSize, boxSize );
+//    dd::cross(boxCenter, 1.0f);
+    
+    if (debugMode) {
+        ddVec3 textPos2D = { 0.0f, 20.0f, 0.0f };
+        textPos2D[0] = fbWidth / 2.0;
+        dd::screenText("Debug Mode", textPos2D, dd::colors::Orange );
+    } else {
+        
+        dd::screenText("TAB - Debug Camera\nZ - Spawn Crate",
+                       (ddVec3){ 10.0, 10.0}, dd::colors::Blue );
+    }
+    
+    // Flush debug draws
+    dd::flush();
     
     Gfx::EndPass();
     Gfx::CommitFrame();
@@ -199,16 +304,29 @@ TestApp::OnInit() {
     this->passAction.Color[0] = glm::vec4( 0.2, 0.2, 0.2, 1.0 );
     
     // setup static transform matrices
-    float32 fbWidth = Gfx::DisplayAttrs().FramebufferWidth;
-    float32 fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
+    fbWidth = Gfx::DisplayAttrs().FramebufferWidth;
+    fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
 
     //this->camera.Setup(glm::vec3(-2531.f, 1959.f, 3241.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 25000.0f);
+    gameCamera = {};
+    //gameCamera.Setup(glm::vec3(0.0, 0.0, 25.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
+    gameCamera.Pos = glm::vec3(0.0, 0.0, 35.0);
+    //glm::mat4 lookat = glm::lookAt( glm::vec3( 0.0, -5.0f, 25.0f), glm::vec3(0.0), glm::vec3( 0.0f, 0.0f, 1.0f) );
     
-    this->camera.Setup(glm::vec3(0.0, 0.0, 15.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
+    gameCamera.Model = glm::translate(glm::mat4(), gameCamera.Pos );
+    gameCamera.UpdateProj(glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
+
+
+    dbgCamera = {};
+    dbgCamera.Setup(glm::vec3(0.0, 0.0, 25.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
+
     
     Log::Info("Hello...\n");
     //scene->LoadScene( "TEST_Stuff" );
-    scene->LoadScene( "WORSE_warehouse" );
+    scene->LoadScene( "WORSE_warehouse", [this](bool success) {
+        Log::Info("Load complete...");
+        this->startGame();
+    } );
     
     // create a donut mesh, shader and pipeline object
     ShapeBuilder shapeBuilder;
@@ -242,7 +360,16 @@ TestApp::OnInit() {
 //        SceneObject *obj1 = scene->addObject( "msh:tree_062.omsh", "tex:tree_062.dds");
 //        obj1->rot = glm::quat( glm::vec3( 0.0, glm::linearRand( 0.0f, 360.0f), 0.0 ) );
 //        obj1->pos = glm::linearRand(minRand, maxRand);
+    
 //    }
+    
+    dbgDraw = new DebugDrawRenderer();
+    dbgDraw->Setup( scene->gfxSetup );
+    dd::initialize( dbgDraw );
+    
+    player = {};
+    
+    this->lastTimePoint = Clock::Now();
     
     return App::OnInit();
 }
@@ -263,9 +390,209 @@ TestApp::OnCleanup() {
 //    return proj * this->view * modelTform;
 //}
 
+void
+TestApp::startGame() {
+    
+    Log::Info("Hello from startGame..." );
+    
+    showCameraBorder = false;
+    
+    // Init player
+    player.sceneObj = scene->FindNamedObject( "robot" );
+    if (player.sceneObj == NULL) {
+        Log::Warn("Couldn't find player object.");
+    }
+    player.pos = glm::vec3( 0.0 );
+    
+    masterCrate =  scene->FindNamedObject( "Crate" );
+    masterCrate->hidden = true;
+    
+    targetHeight = kCamHeightLow;
+    currHeight = targetHeight;
+    
+}
+
+float fsgn( float v) {
+    if (v < 0) {
+        return -1.0;
+    } else {
+        return 1.0;
+    }
+}
+
+void
+TestApp::updateGameCamera()
+{
+    float heightMove = 0.02;
+    const float fudge = 0.001;
+    bool isMoving = false;
+    glm::vec3 lastTarget = glm::vec3( gameCameraTarget );
+    glm::vec3 offs = gameCameraTarget - player.pos;
+    if (fabs(offs.x) >= kCamBorderDist + fudge ) {
+        gameCameraTarget -= glm::vec3( offs.x - fsgn(offs.x) * kCamBorderDist, 0.0f, 0.0f );
+        isMoving = true;
+    }
+    
+    if (fabs(gameCameraTarget.y - player.pos.y) >= kCamBorderDist + fudge ) {
+        gameCameraTarget -= glm::vec3( 0.0f, offs.y - fsgn(offs.y) * kCamBorderDist, 0.0f );
+        isMoving = true;
+    }
+    
+    float velScale = glm::length( gameCameraTarget - lastTarget );
+    if (isMoving) {
+        if (showCameraBorder) dd::screenText( "MOVING", (ddVec3){ 10.0f, 10.0f }, dd::colors::Orange );
+        targetHeightNorm += heightMove * velScale;
+    } else {
+        if (showCameraBorder) dd::screenText( "still", (ddVec3){ 10.0f, 10.0f }, dd::colors::Orange );
+        targetHeightNorm -= heightMove;
+    }
+    targetHeightNorm = PAR_CLAMP(targetHeightNorm, 0.0f, 1.0f);
+    
+    // Ugh so bad
+    //Log::Info("Vel is %3.2f\n", velScale );
+    
+    float hite = par_easings_in_out_cubic( targetHeightNorm );
+    float maxHite = (kCamHeightHigh-kCamHeightLow);
+    currHeight = kCamHeightLow + hite * maxHite;
+
+    
+    gameCamera.Pos = gameCameraTarget + glm::vec3( 0.0f, 0.0f, currHeight );
+    gameCamera.Model = glm::translate(glm::mat4(), gameCamera.Pos );
+    gameCamera.UpdateProj(glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
+    
+    
+    //Log::Info("TARG: %3.2f CURR: %3.2f\n", targetHeightNorm, currHeight  );
+    
+    if (showCameraBorder) {
+        ddVec3 marker;
+        marker[0] = gameCameraTarget.x;
+        marker[1] = gameCameraTarget.y;
+        marker[2] = gameCameraTarget.z + 2.0;
+        dd::cross(marker, 1.0f);
+        
+        ddVec3 cameraBox;
+        cameraBox[0] = player.pos.x;
+        cameraBox[1] = player.pos.y;
+        cameraBox[2] = player.pos.z + 2.0;
+        dd::box(cameraBox, dd::colors::AliceBlue, 2.0f*kCamBorderDist, 2.0f*kCamBorderDist,
+                4.0f * targetHeightNorm );
+    }
+}
+
+// ===============================================================================
+//   Game Updates
+// ===============================================================================
+void
+TestApp::updatePlayer()
+{
+    // update player's pos
+    float t = 0.1;
+    player.vel = (player.vel * (1.0f-t)) + (player.targetVel * t);
+    player.pos += player.vel;
+    
+    if (glm::length( player.vel) > 0.01f) {
+        player.facingDir = glm::normalize( player.vel );
+    }
+    
+    // Update player's scene obj from pos
+    glm::mat4 mpos = glm::translate( glm::mat4(), player.pos );
+    player.sceneObj->xform = glm::rotate( mpos, atan2(-player.facingDir.x, player.facingDir.y),
+                                glm::vec3( 0,0,1) );
+//    player.sceneObj->xform = glm::translate( glm::mat4(), player.pos );
+    
+    // Update carried items
+    float wobble = sin( time ) * cos(time*1.5) * 0.05f;
+    
+    //Log::Info("updatePlayer %d items\n", player.items.Size() );
+    float32 currHeight = kPlayerHeight;
+    for (int i =0; i < player.items.Size(); i++) {
+        glm::mat4 mwob = glm::rotate( player.sceneObj->xform, wobble*(i+1), player.items[i].wobAxis );
+        
+        player.items[i].sceneObj->xform = glm::translate( mwob,
+                                                         glm::vec3( 0.0f, 0.0f, currHeight ) );
+        
+        currHeight += (player.sceneObj->mesh->bboxMax.y * 1.2); // HACK
+    }
+}
+
+// ===============================================================================
+//   Handle Input
+// ===============================================================================
+void
+TestApp::handleInput()
+{
+    // Common input
+    if (Input::KeyDown(Key::Tab)) {
+        debugMode = !debugMode;
+        Log::Info( "Debug Mode: %s\n", debugMode?"ON":"OFF" );
+    }
+    if (Input::KeyDown(Key::N9)) {
+        showCameraBorder = !showCameraBorder;
+    }
+    
+    // Mode-specific input
+    if (debugMode) {
+        this->handleInputDebug();
+    } else {
+        this->handleInputGame();
+    }
+}
+
+void
+TestApp::handleInputGame()
+{
+    glm::vec3 move;
+    glm::vec2 rot;
+    float vel = 0.5f;
+    if (Input::KeyboardAttached() ) {
+        
+//        if (Input::KeyPressed( Key::LeftShift)) {
+//            vel *= 5.0;
+//        }
+        
+        if (Input::KeyPressed(Key::W) || Input::KeyPressed(Key::Up)) {
+            move.y += vel;
+        }
+        if (Input::KeyPressed(Key::S) || Input::KeyPressed(Key::Down)) {
+            move.y -= vel;
+        }
+        if (Input::KeyPressed(Key::A) || Input::KeyPressed(Key::Left)) {
+            move.x -= vel;
+        }
+        if (Input::KeyPressed(Key::D) || Input::KeyPressed(Key::Right)) {
+            move.x += vel;
+        }
+        
+        //gameCamera.MoveCrappy( move );
+        player.targetVel = move;
+        
+        
+        if (Input::KeyDown(Key::Z)) {
+            // Spawn a crate and give it to the player
+            SceneObject *newCrate = scene->spawnObject( masterCrate->mesh );
+            newCrate->xform = glm::mat4( player.sceneObj->xform );
+            
+            Item crate;
+            crate.sceneObj = newCrate;
+            crate.itemName = "Crate";
+            if (player.items.Empty()) {
+                crate.wobAxis = glm::vec3( 0,1,0);
+            } else {
+                crate.wobAxis = player.items[player.items.Size()-1].wobAxis;
+                crate.wobAxis += (glm::sphericalRand(0.3f)  );
+                crate.wobAxis = glm::normalize( crate.wobAxis );
+            }
+            player.items.Add(crate);
+            Log::Info("Added crate...\n");
+        }
+        if (Input::KeyDown(Key::Space)) {
+            
+        }
+    }
+}
 //------------------------------------------------------------------------------
 void
-TestApp::handle_input() {
+TestApp::handleInputDebug() {
     
     glm::vec3 move;
     glm::vec2 rot;
@@ -289,6 +616,7 @@ TestApp::handle_input() {
             move.x += vel;
         }
         
+        
         if (Input::KeyDown(Key::Z)) {
             doTestThing = !doTestThing;
         }
@@ -302,7 +630,7 @@ TestApp::handle_input() {
             float32 fbWidth = Gfx::DisplayAttrs().FramebufferWidth;
             float32 fbHeight = Gfx::DisplayAttrs().FramebufferHeight;
 
-            this->camera.Setup(glm::vec3(0.0, 0.0, 15.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
+            dbgCamera.Setup(glm::vec3(0.0, 0.0, 15.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
 //            this->
         }
     }
@@ -328,6 +656,6 @@ TestApp::handle_input() {
             rot = Input::TouchMovement(0) * glm::vec2(-0.01f, 0.01f);
         }
     }
-    this->camera.MoveRotate(move, rot);
+    dbgCamera.MoveRotate(move, rot);
 }
 

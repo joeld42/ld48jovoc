@@ -14,7 +14,10 @@ void
 Camera::Setup(const glm::vec3 pos, float fov, int dispWidth, int dispHeight, float near, float far) {
     this->Pos = pos;
     this->Model = glm::translate(glm::mat4(), pos);
-    this->UpdateProj(fov, dispWidth, dispHeight, near, far);}
+    this->UpdateProj(fov, dispWidth, dispHeight, near, far);
+    
+}
+
 
 //------------------------------------------------------------------------------
 void
@@ -40,6 +43,15 @@ Camera::MoveRotate(const glm::vec3& move, const glm::vec2& rot) {
     glm::mat4 m = glm::translate(glm::mat4(), this->Pos);
     m = glm::rotate(m, this->Rot.x, up);
     m = glm::rotate(m, this->Rot.y, hori);
+    m = glm::translate(m, move);
+    this->Model = m;
+    this->Pos = glm::vec3(this->Model[3].x, this->Model[3].y, this->Model[3].z);
+    this->updateViewProjFrustum();
+}
+
+void
+Camera::MoveCrappy( const glm::vec3& move ) {
+    glm::mat4 m = glm::translate(glm::mat4(), this->Pos);
     m = glm::translate(m, move);
     this->Model = m;
     this->Pos = glm::vec3(this->Model[3].x, this->Model[3].y, this->Model[3].z);

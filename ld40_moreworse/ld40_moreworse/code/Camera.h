@@ -19,6 +19,8 @@ public:
     void UpdateModel(const glm::mat4& model);
     /// move and rotate relative to current view
     void MoveRotate(const glm::vec3& move, const glm::vec2& rot);
+    // move only, not relative to view
+    void MoveCrappy( const glm::vec3& move );
     /// return true if box is visible
     bool BoxVisible(int x0, int x1, int y0, int y1, int z0, int z1) const;
     /// the camera's world-space matrix

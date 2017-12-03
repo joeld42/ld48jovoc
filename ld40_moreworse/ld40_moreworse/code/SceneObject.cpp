@@ -8,6 +8,7 @@
 
 #include "IO/IO.h"
 #include "Core/String/StringBuilder.h"
+#include "Core/Memory/Memory.h"
 
 #include "glm/gtc/random.hpp"
 #include "glm/gtc/constants.hpp"
@@ -25,10 +26,31 @@ extern void dbgPrintMatrix( const char *label, glm::mat4 m );
 
 SceneObject *makeObject( SceneMesh *mesh )
 {
-    SceneObject *object = new SceneObject();
+    //SceneObject *object = new SceneObject();
+    SceneObject *object = Memory::New<SceneObject>();
     object->mesh = mesh;
+    object->hidden = false;
     
     return object;
+}
+
+// Spawns a new object from the mesh and adds it to scene
+SceneObject *Scene::spawnObject( SceneMesh *mesh )
+{
+    SceneObject *object = makeObject( mesh );
+    sceneObjs.Add( object );
+    return object;
+}
+
+SceneObject *Scene::spawnObjectByName( Oryol::String name )
+{
+    SceneObject *srcObject = FindNamedObject( name );
+    if (srcObject) {
+        return spawnObject( srcObject->mesh );
+    } else {
+        Log::Warn( "spawnObjectByName: Didn't find object '%s'\n", name.AsCStr() );
+        return NULL;
+    }
 }
 
 Scene::Scene()
@@ -70,22 +92,26 @@ void Scene::Setup()
     testTexture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:TestTile_basecolor.dds", texBluePrint)));
 }
 
-void Scene::LoadScene( Oryol::StringAtom sceneName )
+void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc loadComplete )
 {
 
     StringBuilder strBuilder;
     strBuilder.Format( 4096, "gamedata:%s.ldjam", sceneName.AsCStr() );
     Log::Info("fetch scene %s", strBuilder.GetString().AsCStr() );
-    IO::Load(strBuilder.GetString(), [this](IO::LoadResult loadResult) {
+    IO::Load(strBuilder.GetString(), [this,loadComplete](IO::LoadResult loadResult) {
         
         Log::Info("Loadresult size is %d\n", loadResult.Data.Size() );
-#if 1
-        Oryol::Buffer chunkBuff = std::move(loadResult.Data);
+        sceneBuff = std::move(loadResult.Data);
         
-        LDJamFileHeader *fileHeader = (LDJamFileHeader*)chunkBuff.Data();
-        Log::Info("Loaded chunks, loadresult sz %d, numChunks is %d\n", loadResult.Data.Size(), fileHeader->m_numChunks );
+        LDJamFileHeader *fileHeader = (LDJamFileHeader*)sceneBuff.Data();
+        Log::Info("Loaded chunks, loadresult sz %d, fileVer %d numChunks is %d \n", loadResult.Data.Size(), fileHeader->m_fileVersion, fileHeader->m_numChunks );
         
-        LDJamFileMeshInfo *meshInfos = (LDJamFileMeshInfo *)(chunkBuff.Data() + sizeof(LDJamFileHeader));
+        if (fileHeader->m_fileVersion != LDJAMFILE_VERSION) {
+            Log::Error("ldjam file version is stale! expected version %d, got %d!\n",
+                       LDJAMFILE_VERSION, fileHeader->m_fileVersion );
+        }
+        
+        LDJamFileMeshInfo *meshInfos = (LDJamFileMeshInfo *)(sceneBuff.Data() + sizeof(LDJamFileHeader));
         
         
         for (size_t i=0; i < fileHeader->m_numChunks; i++) {
@@ -98,8 +124,8 @@ void Scene::LoadScene( Oryol::StringAtom sceneName )
             
             // For now, everything is loaded, TODO load the contents part
             // when needed
-            LDJamFileMeshContent *meshContent = (LDJamFileMeshContent*)( chunkBuff.Data() + meshInfo->m_contentOffset );
-            LDJamFileVertex *meshVertData = (LDJamFileVertex *)(chunkBuff.Data() + meshInfo->m_contentOffset + sizeof(LDJamFileMeshContent) );
+            LDJamFileMeshContent *meshContent = (LDJamFileMeshContent*)( sceneBuff.Data() + meshInfo->m_contentOffset );
+            LDJamFileVertex *meshVertData = (LDJamFileVertex *)(sceneBuff.Data() + meshInfo->m_contentOffset + sizeof(LDJamFileMeshContent) );
             
 //            printf("Chunk %zu -- %s sz %f %f %f -- %f numtris %d\n", i, chunkInfo->m_name,
 //                   chunkInfo->m_bboxMin.x, chunkInfo->m_bboxMin.y, chunkInfo->m_bboxMin.z,
@@ -146,26 +172,38 @@ void Scene::LoadScene( Oryol::StringAtom sceneName )
                 Log::Info("Using default texture");
                 mesh.texture = testTexture;
             }
-            
+            mesh.numPrims = 1;
             sceneMeshes.Add( mesh );
         }
         // Now add the SceneObjs
-        LDJamFileSceneObject *sceneObjBase = (LDJamFileSceneObject*)(chunkBuff.Data() + fileHeader->m_sceneObjOffs);
+        LDJamFileSceneObject *sceneObjBase = (LDJamFileSceneObject*)(sceneBuff.Data() + fileHeader->m_sceneObjOffs);
         Log::Info("%d scene objs...",  fileHeader->m_numSceneObjs );
         
         for (uint32_t i=0; i < fileHeader->m_numSceneObjs; i++) {
             LDJamFileSceneObject *sceneObjInfo = sceneObjBase + i;
-            //printf("SceneObj[%d] is %s\n", i, sceneObjInfo->m_name );
+            Log::Info("SceneObj[%d] is %s\n", i, sceneObjInfo->m_name );
             SceneObject *sceneObj = makeObject( &sceneMeshes[sceneObjInfo->m_meshIndex] );
             sceneObj->objectName = String( sceneObjInfo->m_name );
-            sceneObj->xform = sceneObjInfo->m_transform;
+            
+            // NOTE: for some reason sceneObj->xform = sceneObjInfo->m_transform doesn't work in emscripten
+            // TODO: investigate why
+            
+            //sceneObj->xform = sceneObjInfo->m_transform; // Doesn't work in emscripten
+//            Log::Info("alignment of lhs SceneObj %lu\n", ((unsigned long)(sceneObj) & 31) );
+//            Log::Info("alignment of lhs xform %lu\n", ((unsigned long)(&sceneObj->xform) & 31) );
+//            dbgPrintMatrix( "scene xform", sceneObj->xform );
+//            dbgPrintMatrix( "file xform", sceneObjInfo->m_transform );
+            
+            sceneObj->xform = glm::mat4x4( sceneObjInfo->m_transform ); // works in emscripten
+            
+            //dbgPrintMatrix( "file xform", sceneObjInfo->m_transform );
+            //dbgPrintMatrix( "scene xform", sceneObj->xform );
 
             //dbgPrintMatrix( "sceneObj xform",sceneObj->xform );
-            sceneObjs.Add( sceneObj );
-            
-            if ( i > 2) break;
+            sceneObjs.Add( sceneObj );        
         }
-#endif
+      
+        loadComplete( true );
     });
 
 }
@@ -216,6 +254,16 @@ SceneObject *Scene::addObject( const char *meshName, const char *textureName )
 }
 */
 
+SceneObject *Scene::FindNamedObject( Oryol::String name )
+{
+    for (int i=0; i < sceneObjs.Size(); i++) {
+        if (sceneObjs[i]->objectName == name) {
+            return sceneObjs[i];
+        }
+    }
+    return NULL;
+}
+
 void Scene::drawScene()
 {
     for (int i=0; i < sceneObjs.Size(); i++) {
@@ -223,7 +271,7 @@ void Scene::drawScene()
         SceneObject *obj = sceneObjs[i];
         SceneMesh *mesh = obj->mesh;
         
-        //if (!mesh->ready) continue;
+        if (obj->hidden) continue;
         
         const auto resStateTex = Gfx::QueryResourceInfo( mesh->texture ).State;
         const auto resStateMesh = Gfx::QueryResourceInfo( mesh->mesh ).State;

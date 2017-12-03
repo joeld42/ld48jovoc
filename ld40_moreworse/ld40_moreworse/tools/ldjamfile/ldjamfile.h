@@ -8,13 +8,14 @@
 
 #include "glm/glm.hpp"
 
+#define LDJAMFILE_VERSION (2)
 
 #pragma pack(push, 1)
 
 struct LDJamFileHeader 
 {
 	uint32_t m_fourCC;    // Expects 'LD48'
-    uint32_t m_fileVersion;
+    uint32_t m_fileVersion; // LDJAMFILE_VERSION
 	
     uint32_t m_numChunks;
     

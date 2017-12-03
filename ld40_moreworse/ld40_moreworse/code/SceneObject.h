@@ -27,14 +27,18 @@ public:
 class SceneObject
 {
 public:
+    bool hidden;
+    glm::mat4x4 xform;
+    
     Oryol::String objectName;
     SceneMesh *mesh;
     TestShader::vsParams vsParams;
     
-    glm::mat4x4 xform;
+    
     //glm::vec3 pos;
     //glm::quat rot;
 };
+
 
 class Scene
 {
@@ -48,8 +52,12 @@ public:
     Oryol::Array<SceneObject*> sceneObjs;
     
     //SceneObject *addObject( const char *meshName, const char *textureName );
-
-    void LoadScene( Oryol::StringAtom sceneName );
+    typedef std::function<void(bool success)> LoadCompleteFunc;
+    void LoadScene( Oryol::StringAtom sceneName, LoadCompleteFunc loadComplete );
+    
+    SceneObject *spawnObject( SceneMesh *mesh );
+    SceneObject *spawnObjectByName( Oryol::String name );
+    SceneObject *FindNamedObject( Oryol::String name );
     
     Oryol::GfxSetup gfxSetup;
     
@@ -63,6 +71,10 @@ public:
     Oryol::Id testTexture;
     Oryol::TextureSetup texBluePrint;
     bool didSetupPipeline = false;
+    
+    Oryol::Buffer sceneBuff;
+    
+    
 };
 
 #endif

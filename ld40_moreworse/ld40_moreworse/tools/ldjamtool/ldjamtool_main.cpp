@@ -55,7 +55,8 @@ glm::mat4x4 g_fixCoordsMatrix2 = glm::mat4x4( 1, 0, 0, 0,
                                               0, 0, 1, 0,
                                               0, 1, 0, 0,
                                               0, 0, 0, 1 );
-glm::mat4x4 g_fixCoordsMatrix = glm::rotate( glm::mat4x4(), 90.0f, glm::vec3( 0, 0, 1 ));
+//glm::mat4x4 g_fixCoordsMatrix = glm::rotate( glm::mat4x4(), 90.0f, glm::vec3( 0, 0, 1 ));
+glm::mat4x4 g_fixCoordsMatrix = glm::mat4();
 
 // ======================================================================
 // ReadEntireFile
@@ -369,14 +370,16 @@ int main( int argc, char *argv[] )
     void *ldjamContentBuff = malloc( SCENEFILE_CONTENT_BUFF_SIZE );
 
     LDJamFileHeader *header = (LDJamFileHeader*)fileHeader;
-    header->m_fourCC = 'LD48';
-    header->m_fileVersion = 1;
     
     LDJamFileMeshInfo *firstMeshInfo = (LDJamFileMeshInfo*)(fileHeader + sizeof(LDJamFileHeader));
     LDJamFileMeshInfo *nextMeshInfo = firstMeshInfo;
 
     // write out a blank header, fill it in after gathering all the chunks
     memset( fileHeader, 0, fileHeaderSize );
+
+    header->m_fourCC = 'LD48';
+    header->m_fileVersion = LDJAMFILE_VERSION;
+
 
     if (argc < 3) {
         printf("Usage: ldjamtool <filename.ogex> <outfile.ldjam>\n");
