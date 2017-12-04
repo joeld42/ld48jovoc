@@ -30,6 +30,7 @@ public:
     bool hidden;
     bool collider;
     glm::mat4x4 xform;
+    glm::mat4x4 invXform;
     
     Oryol::String objectName;
     SceneMesh *mesh;

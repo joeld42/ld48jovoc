@@ -69,13 +69,86 @@ struct UIMedia {
 // substituteable (e.g. any "red barrel" is interchangabe, but "family keepsake" not)
 // Gift Wrapped
 
-struct CrateItem {
-    SceneObject *sceneObj;
-    
+enum ItemState {
+    ItemState_OFFLINE,
+    ItemState_WAITING,
+    ItemState_DROPOFF,
+    ItemState_STORAGE,
+    ItemState_PICKUP
+};
+
+struct CrateItemInfo {
     Oryol::String itemName;
+
+    int points;
+    double pickupTimeMin;
+    double pickupTimeMax;
+
+    Oryol::String dropoffChatter;
+    Oryol::String pickupChatter;
+    Oryol::String pickupChatterGood;
+    Oryol::String pickupChatterOkay;
+    Oryol::String pickupChatterBad;
+
+    double retreivalTime; // How long the player has to get the item
+    
+    CrateItemInfo( Oryol::String _itemName,
+              int _points,
+              double _pickupTimeMin,
+              double _pickupTimeMax,
+              Oryol::String _dropoffChatter,
+              Oryol::String _pickupChatter,
+              Oryol::String _pickupChatterGood,
+              Oryol::String _pickupChatterOkay,
+              Oryol::String _pickupChatterBad ) :
+                itemName(_itemName),
+                points(_points),
+                pickupTimeMin(_pickupTimeMin),
+                pickupTimeMax(_pickupTimeMax),
+                dropoffChatter( _dropoffChatter),
+                pickupChatter( _pickupChatter ),
+                pickupChatterGood( _pickupChatterGood ),
+                pickupChatterOkay( _pickupChatterOkay ),
+                pickupChatterBad( _pickupChatterBad )
+    {
+        retreivalTime = 30.0; // Should this be variable?
+    }
+};
+
+// An item instantiated into the scene
+struct CrateItemFoo {
+    CrateItemInfo *info;
+    
+    SceneObject *sceneObj;
+    SceneObject *ownerObj;  // Might be empty
+    double pickupTime; // When she will come back for the item
+    ItemState state;
     
     // Silly stuff
     glm::vec3 wobAxis;
+
+    CrateItemFoo( CrateItemInfo *_info=NULL ) : info(_info) {
+        sceneObj = NULL;
+        ownerObj = NULL;
+        if (info != NULL) {
+            pickupTime = glm::linearRand( info->pickupTimeMin, info->pickupTimeMax );
+        } else {
+            pickupTime = 60.0;
+        }
+        state = ItemState_OFFLINE;
+        wobAxis = glm::vec3(0.0f,1.0f, 0.0f);
+    }
+
+    
+};
+
+struct CustomerSlot {
+    SceneObject *loadingZoneObj;
+    CrateItemFoo item;
+    bool hasItem;
+    CustomerSlot() : loadingZoneObj(NULL), hasItem(false)
+    {
+    }
 };
 
 
@@ -95,9 +168,10 @@ struct PlayerBot {
     glm::vec3 vel;
     glm::vec3 facingDir;
     
-    CrateItem *hoverItem;
+    CrateItemFoo *hoverItem; // NOTE: Must be in looseItems
+    CustomerSlot *hoverSlot;
     
-    Oryol::Array<CrateItem> items; // Items player is holding
+    Oryol::Array<CrateItemFoo> items; // Items player is holding
 };
 
 
@@ -116,7 +190,12 @@ private:
     void handleInputGame();
     
     void updatePlayer();
+    void updateCustomers();
     void updateGameCamera();
+    
+    void populateCustomers( Oryol::Array<CrateItemInfo> &allItems );
+    
+    CrateItemFoo spawnItem( glm::mat4 &xform );
     
     glm::mat4 computeMVP(const glm::mat4& proj, float32 rotX, float32 rotY, const glm::vec3& pos);
 
@@ -178,13 +257,22 @@ private:
     
     // player stats
     uint32_t money;
-    uint32_t gameTime; // not sure what units this should be in yet
+    uint32_t gameTime; // not sure what units this should be displayed in yet
+    
+    double nextCustomerTime;
+    
+    // Master copy of all items
+    Oryol::Array<CrateItemInfo> allItems;
     
     // Items not carried by the player or in storage
-    Oryol::Array<CrateItem> looseItems;
+    Oryol::Array<CrateItemFoo> looseItems;
+    
+    // Spaces where the player can trigger a customer
+    Oryol::Array<CustomerSlot> custSlots;
     
     // Master copies of objects for spawning
     SceneObject *masterCrate;
+    SceneObject *masterPerson;
     
     glm::vec4 testCrateColors[5];
 };
@@ -218,6 +306,9 @@ TestApp::OnRunning() {
     
     // Update the player's transform, make this better
     if (player.sceneObj) {
+        
+        
+        updateCustomers();
         updatePlayer();
         updateGameCamera();
     }
@@ -287,10 +378,13 @@ TestApp::OnRunning() {
     window_flags |= NK_WINDOW_BORDER;
     if (nk_begin(ctx, &layout, "Overview", nk_rect( fbWidth - 150, 0, 150, 100), window_flags))
     {
-        nk_layout_row_dynamic(ctx, 20, 1);
+        nk_layout_row_dynamic(ctx, 15, 1);
         char buff[256];
         
         sprintf( buff, "Game Time: %d", gameTime / 100 );
+        nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(255,255,255));
+        
+        sprintf( buff, "Next Cust: %3.2f", nextCustomerTime );
         nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(255,255,255));
         
         sprintf( buff, "Money: $%d", money );
@@ -407,8 +501,9 @@ TestApp::OnInit() {
     dbgCamera = {};
     dbgCamera.Setup(glm::vec3(0.0, 0.0, 25.0), glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
 
+    populateCustomers( allItems );
     
-    Log::Info("Hello...\n");
+    //Log::Info("Hello...\n");
     //scene->LoadScene( "TEST_Stuff" );
     scene->LoadScene( "WORSE_warehouse", [this](bool success) {
         Log::Info("Load complete...");
@@ -478,6 +573,25 @@ TestApp::OnCleanup() {
 //    return proj * this->view * modelTform;
 //}
 
+// TODO: Move this to another file because its going to get big...
+void
+TestApp::populateCustomers( Oryol::Array<CrateItemInfo> &allItems )
+{
+    allItems.Add( CrateItemInfo( "Barrel", 10, 60, 300,
+                            "Got a barrel for you. It's just a regular barrel.",
+                            "I'll be needing a barrel, thanks.",
+                            "That was fast, thanks. I've got time to grab a sandwich.",
+                            "Yep, that's a barrel.",
+                            "Jeez, how long does it take to find a stinkin barrel?" ) );
+    
+    allItems.Add( CrateItemInfo( "Wooden Crate", 10, 60, 300,
+                            "Boss said to drop off some crates here.",
+                            "I need a crate, just a wooden one is fine.",
+                            "Nice work, you're pretty efficient around here.",
+                            "This crate will do nicely.",
+                            "Man, took you that long to find a crate in a video game?" ) );
+}
+
 void
 TestApp::startGame() {
     
@@ -501,12 +615,35 @@ TestApp::startGame() {
     masterCrate =  scene->FindNamedObject( "Crate" );
     masterCrate->hidden = true;
     
+    masterPerson =  scene->FindNamedObject( "Person" );
+    masterPerson->hidden = true;
+    
     targetHeight = kCamHeightLow;
     currHeight = targetHeight;
+    targetHeightNorm = 1.0f;
+    
+    // Find customer crate slots
+    custSlots.Clear();
+    for (int i=0; i < scene->sceneObjs.Size(); i++) {
+        SceneObject *sceneObj = scene->sceneObjs[i];
+        
+        if (sceneObj->objectName.Length() >= 8) {
+            Oryol::String prefix( sceneObj->objectName, 0, 8 );
+            //Log::Info("Prefix is >%s<\n", prefix.AsCStr() );
+            if (prefix == "Customer") {
+                CustomerSlot slot;
+                slot.loadingZoneObj = sceneObj;
+                sceneObj->invXform = glm::inverse( sceneObj->xform );
+                
+                custSlots.Add( slot );
+            }
+        }
+    }
     
     // reset stats
     gameTime = 0;
     money = 0;
+    nextCustomerTime = 5.0;
     
 }
 
@@ -526,23 +663,37 @@ TestApp::updateGameCamera()
     bool isMoving = false;
     glm::vec3 lastTarget = glm::vec3( gameCameraTarget );
     glm::vec3 offs = gameCameraTarget - player.pos;
-    if (fabs(offs.x) >= kCamBorderDist + fudge ) {
-        gameCameraTarget -= glm::vec3( offs.x - fsgn(offs.x) * kCamBorderDist, 0.0f, 0.0f );
-        isMoving = true;
-    }
     
-    if (fabs(gameCameraTarget.y - player.pos.y) >= kCamBorderDist + fudge ) {
-        gameCameraTarget -= glm::vec3( 0.0f, offs.y - fsgn(offs.y) * kCamBorderDist, 0.0f );
-        isMoving = true;
-    }
     
-    float velScale = glm::length( gameCameraTarget - lastTarget );
-    if (isMoving) {
-        if (showCameraBorder) dd::screenText( "MOVING", (ddVec3){ 10.0f, 10.0f }, dd::colors::Orange );
-        targetHeightNorm += heightMove * velScale;
-    } else {
-        if (showCameraBorder) dd::screenText( "still", (ddVec3){ 10.0f, 10.0f }, dd::colors::Orange );
+    // Zoom to customer service if player is hovering a customer
+    if (player.hoverSlot != NULL) {
         targetHeightNorm -= heightMove;
+        
+        glm::mat4 &zoneXform = player.hoverSlot->loadingZoneObj->xform;
+        glm::vec3 zonePos = glm::vec3(zoneXform[3].x, zoneXform[3].y + 15.0f, zoneXform[3].z);
+        
+        // Fast zoom to zonePos
+        float t = 0.02;
+        gameCameraTarget = gameCameraTarget*(1.0f-t) + zonePos*t;
+    } else {
+        if (fabs(offs.x) >= kCamBorderDist + fudge ) {
+            gameCameraTarget -= glm::vec3( offs.x - fsgn(offs.x) * kCamBorderDist, 0.0f, 0.0f );
+            isMoving = true;
+        }
+        
+        if (fabs(gameCameraTarget.y - player.pos.y) >= kCamBorderDist + fudge ) {
+            gameCameraTarget -= glm::vec3( 0.0f, offs.y - fsgn(offs.y) * kCamBorderDist, 0.0f );
+            isMoving = true;
+        }
+        
+        float velScale = glm::length( gameCameraTarget - lastTarget );
+        if (isMoving) {
+            if (showCameraBorder) dd::screenText( "MOVING", (ddVec3){ 10.0f, 10.0f }, dd::colors::Orange );
+            targetHeightNorm += heightMove * velScale;
+        } else {
+            if (showCameraBorder) dd::screenText( "still", (ddVec3){ 10.0f, 10.0f }, dd::colors::Orange );
+            targetHeightNorm -= heightMove;
+        }
     }
     targetHeightNorm = PAR_CLAMP(targetHeightNorm, 0.0f, 1.0f);
     
@@ -552,7 +703,6 @@ TestApp::updateGameCamera()
     float hite = par_easings_in_out_cubic( targetHeightNorm );
     float maxHite = (kCamHeightHigh-kCamHeightLow);
     currHeight = kCamHeightLow + hite * maxHite;
-
     
     gameCamera.Pos = gameCameraTarget + glm::vec3( 0.0f, 0.0f, currHeight );
     gameCamera.Model = glm::translate(glm::mat4(), gameCamera.Pos );
@@ -580,6 +730,65 @@ TestApp::updateGameCamera()
 // ===============================================================================
 //   Game Updates
 // ===============================================================================
+
+CrateItemFoo TestApp::spawnItem( glm::mat4 &xform )
+{
+    SceneObject *newCrate = scene->spawnObject( masterCrate->mesh );
+    newCrate->xform = glm::mat4( xform );
+    
+    glm::vec4 randCrateColor = testCrateColors[ rand() % 5 ];
+    newCrate->vsParams.tintColor = randCrateColor;
+    
+    int index = rand() % allItems.Size();
+    CrateItemFoo crate = CrateItemFoo( &(allItems[index]) );
+    
+    // FIXME: Destory old sceneObj if it's already been created
+    
+    crate.sceneObj = newCrate;
+    return crate;
+}
+
+void
+TestApp::updateCustomers()
+{
+    // Spawn a new customer?
+    double frameTimeSec = frameDt.AsSeconds();
+    if (nextCustomerTime > frameTimeSec ) {
+        nextCustomerTime -= frameTimeSec;
+        
+    } else {
+        
+        // Find a slot for this customer to go to
+        CustomerSlot *slot = NULL;
+        for (int i=0; i < custSlots.Size(); i++) {
+            // It's available! (TODO: randomize)
+            if (!custSlots[i].hasItem) {
+                slot = &(custSlots[i]);
+                Log::Info("Spawn Customer in slot %d\n", i );
+                break;
+            }
+        }
+        
+        // Spawn a new customer
+        if (slot==NULL) {
+            Log::Warn("All Slots are full! can't spawn");
+        } else {
+            // Spawn on the counter in front of player
+            glm::mat4 itemLoc = glm::translate( slot->loadingZoneObj->xform, glm::vec3( 0.0f, 5.0f, 2.0f ));
+            
+            slot->hasItem = true;
+            slot->item = spawnItem( itemLoc );
+            slot->item.state = ItemState_DROPOFF;
+            
+            Log::Info("Customer Says: %s\n", slot->item.info->dropoffChatter.AsCStr() );
+        }
+        
+        // Another customer in 10s
+        nextCustomerTime = 10.0;
+    }
+}
+
+
 void
 TestApp::updatePlayer()
 {
@@ -667,7 +876,7 @@ TestApp::updatePlayer()
     player.hoverItem = NULL;
     for (int i=0; i < looseItems.Size(); i++) {
         // TODO: cache this inverse somewhere
-        CrateItem &item = looseItems[i];
+        CrateItemFoo &item = looseItems[i];
         glm::mat4 crateInv = glm::affineInverse( item.sceneObj->xform );
         
         glm::vec4 sensorPos = crateInv * frontPos;
@@ -682,7 +891,27 @@ TestApp::updatePlayer()
         }
     }
     
+    player.hoverSlot = NULL;
+    for (int i=0; i < custSlots.Size(); i++) {
+        CustomerSlot *slot = &(custSlots[i]);
+        slot->loadingZoneObj->hidden = true; // DBG
+        
+        glm::vec4 custPos = slot->loadingZoneObj->invXform * frontPos;
+        if ((custPos.x >= slot->loadingZoneObj->mesh->bboxMin.x) &&
+            (custPos.x <= slot->loadingZoneObj->mesh->bboxMax.x) &&
+            (custPos.y >= slot->loadingZoneObj->mesh->bboxMin.y) &&
+            (custPos.y <= slot->loadingZoneObj->mesh->bboxMax.y) ) {
+            
+            cursorCol = dd::colors::Purple;
+            player.hoverSlot = slot;
+            break;
+        }
+    }
+    
     dd::sphere( glm::value_ptr(frontPos), cursorCol, 3.0 );
+    if (player.hoverSlot) {
+        player.hoverSlot->loadingZoneObj->hidden = false;
+    }
     
     // Update player's scene obj from pos
     glm::mat4 mpos = glm::translate( glm::mat4(), player.pos );
@@ -757,30 +986,31 @@ TestApp::handleInputGame()
         player.targetVel = move;
         
         
-        if (Input::KeyDown(Key::Z)) {
-            
-            if (player.items.Size() < kPlayerItemCapacity) {
-                // Spawn a crate and give it to the player
-                SceneObject *newCrate = scene->spawnObject( masterCrate->mesh );
-                newCrate->xform = glm::mat4( player.sceneObj->xform );
-                
-                glm::vec4 randCrateColor = testCrateColors[ rand() % 5 ];
-                newCrate->vsParams.tintColor = randCrateColor;
-                
-                CrateItem crate;
-                crate.sceneObj = newCrate;
-                crate.itemName = "Crate";
-                if (player.items.Empty()) {
-                    crate.wobAxis = glm::vec3( 0,1,0);
-                } else {
-                    crate.wobAxis = player.items[player.items.Size()-1].wobAxis;
-                    crate.wobAxis += (glm::sphericalRand(0.3f)  );
-                    crate.wobAxis = glm::normalize( crate.wobAxis );
-                }
-                player.items.Add(crate);
-                Log::Info("Added crate...\n");
-            }
-        }
+//        if (Input::KeyDown(Key::Z)) {
+//
+//            if (player.items.Size() < kPlayerItemCapacity) {
+//                // Spawn a crate and give it to the player
+//                SceneObject *newCrate = scene->spawnObject( masterCrate->mesh );
+//                newCrate->xform = glm::mat4( player.sceneObj->xform );
+//
+//                glm::vec4 randCrateColor = testCrateColors[ rand() % 5 ];
+//                newCrate->vsParams.tintColor = randCrateColor;
+//
+//                CrateItem crate;
+//                crate.sceneObj = newCrate;
+//                crate.itemName = "Crate";
+//                if (player.items.Empty()) {
+//                    crate.wobAxis = glm::vec3( 0,1,0);
+//                } else {
+//                    crate.wobAxis = player.items[player.items.Size()-1].wobAxis;
+//                    crate.wobAxis += (glm::sphericalRand(0.3f)  );
+//                    crate.wobAxis = glm::normalize( crate.wobAxis );
+//                }
+//                player.items.Add(crate);
+//                Log::Info("Added crate...\n");
+//            }
+//        }
+        
         if (Input::KeyDown(Key::Space)) {
             
             // Is there something in our sensor range?
@@ -793,20 +1023,30 @@ TestApp::handleInputGame()
                     textPos2D[1] = fbHeight - 20.0;
                     dd::screenText("Carry Limit", textPos2D, dd::colors::Orange, 1.0, 500 );
                 } else {
-                    CrateItem pickupItem = *(player.hoverItem);
+                    CrateItemFoo pickupItem = *(player.hoverItem);
                     for (int i=0; i < looseItems.Size(); i++ ) {
-                        if (player.hoverItem == &(looseItems[i])) {
+                        if (player.hoverItem == &(looseItems[i]) ) {
                             looseItems.EraseSwapBack(i);
                             break;
                         }
                     }
+                    
+                    if (player.items.Empty()) {
+                        pickupItem.wobAxis = glm::vec3( 0,1,0);
+                    } else {
+                        pickupItem.wobAxis = player.items[player.items.Size()-1].wobAxis;
+                        pickupItem.wobAxis += (glm::sphericalRand(0.3f)  );
+                        pickupItem.wobAxis = glm::normalize( pickupItem.wobAxis );
+                    }
+                    
+                    
                     player.items.Add( pickupItem );
                 }
                 
             } else {
                 // Drop top crate in front
                 if (!player.items.Empty()) {
-                    CrateItem crate = player.items.PopBack();
+                    CrateItemFoo crate = player.items.PopBack();
                     crate.sceneObj->xform = glm::translate( player.sceneObj->xform,
                                                            glm::vec3(0.0, kPlayerFrontDist, 0.0) );
                     looseItems.Add( crate );
