@@ -34,8 +34,8 @@ public:
     
     Oryol::String objectName;
     SceneMesh *mesh;
-    TestShader::vsParams vsParams;
-    
+    CrateShader::vsParams vsParams;
+    CrateShader::fsParams fsParams;
     
     //glm::vec3 pos;
     //glm::quat rot;
@@ -59,19 +59,23 @@ public:
     
     SceneObject *spawnObject( SceneMesh *mesh );
     SceneObject *spawnObjectByName( Oryol::String name );
+    void destroyObject( SceneObject *obj );
+    
     SceneObject *FindNamedObject( Oryol::String name );
     
     Oryol::GfxSetup gfxSetup;
     
     Oryol::DrawState sceneDrawState;
     Oryol::VertexLayout meshLayout;
-    TestShader::vsParams sceneVSParams;
+    CrateShader::vsParams sceneVSParams;
+    Oryol::Id decalTexture;
     
     // for now, share a shader
     Oryol::Id dispShader;
     
-    Oryol::Id testTexture;
+    Oryol::Id defaultTexture;
     Oryol::TextureSetup texBluePrint;
+    Oryol::TextureSetup decalBluePrint;
     bool didSetupPipeline = false;
     
     Oryol::Buffer sceneBuff;

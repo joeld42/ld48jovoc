@@ -32,6 +32,7 @@ SceneObject *makeObject( SceneMesh *mesh )
     object->hidden = false;
     object->collider = false;
     object->vsParams.tintColor = glm::vec4(1);
+    object->vsParams.decalTint = glm::vec4(0);
     
     return object;
 }
@@ -69,7 +70,7 @@ void Scene::Setup()
         { VertexAttr::TexCoord0, VertexFormat::Float2 },
         { VertexAttr::TexCoord1, VertexFormat::Float2 },
     };
-    Id shd = Gfx::CreateResource(TestShader::Setup());
+    Id shd = Gfx::CreateResource(CrateShader::Setup());
     
     // Setup our texture blueprint
     texBluePrint.Sampler.MinFilter = TextureFilterMode::LinearMipmapLinear;
@@ -87,11 +88,13 @@ void Scene::Setup()
     this->sceneDrawState.Pipeline = Gfx::CreateResource(ps);
     
     // Load test texture
-    texBluePrint.Sampler.MinFilter = TextureFilterMode::LinearMipmapLinear;
-    texBluePrint.Sampler.MagFilter = TextureFilterMode::Linear;
-    texBluePrint.Sampler.WrapU = TextureWrapMode::Repeat;
-    texBluePrint.Sampler.WrapV = TextureWrapMode::Repeat;
-    testTexture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:TestTile_basecolor.dds", texBluePrint)));
+    decalBluePrint.Sampler.MinFilter = TextureFilterMode::LinearMipmapLinear;
+    decalBluePrint.Sampler.MagFilter = TextureFilterMode::Linear;
+    decalBluePrint.Sampler.WrapU = TextureWrapMode::ClampToEdge;
+    decalBluePrint.Sampler.WrapV = TextureWrapMode::ClampToEdge;
+    decalTexture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:decals.dds", decalBluePrint)));
+    
+    defaultTexture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:default.dds", texBluePrint)));
 }
 
 void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc loadComplete )
@@ -171,8 +174,8 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
                 Log::Info("Locator is %s\n", texLocBuilder.GetString().AsCStr() );
                 mesh.texture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( Locator(texLocBuilder.GetString()), texBluePrint)));
             } else {
-                Log::Info("Using default texture");
-                mesh.texture = testTexture;
+                Log::Info("Using default texture\n");
+                mesh.texture = defaultTexture;
             }
             mesh.numPrims = 1;
             sceneMeshes.Add( mesh );
@@ -283,22 +286,41 @@ void Scene::drawScene()
         
         if (obj->hidden) continue;
         
+        const auto decalStateTex = Gfx::QueryResourceInfo( decalTexture ).State;
         const auto resStateTex = Gfx::QueryResourceInfo( mesh->texture ).State;
         const auto resStateMesh = Gfx::QueryResourceInfo( mesh->mesh ).State;
         
         if (resStateMesh == ResourceState::Valid) {
             if (resStateTex == ResourceState::Valid) {
-                this->sceneDrawState.FSTexture[TestShader::tex] = mesh->texture;
+                this->sceneDrawState.FSTexture[CrateShader::tex] = mesh->texture;
             }
+            
+            if (decalStateTex == ResourceState::Valid) {                
+                this->sceneDrawState.FSTexture[CrateShader::texDecal] = decalTexture;
+            }
+            
             this->sceneDrawState.Mesh[0] = mesh->mesh;
             
             Gfx::ApplyDrawState(this->sceneDrawState);            
             Gfx::ApplyUniformBlock( obj->vsParams);
+            Gfx::ApplyUniformBlock( obj->fsParams);
             
             for (int j=0; j < mesh->numPrims; j++) {
                 Gfx::Draw(j);
             }
         }
     }
+}
+
+void Scene::destroyObject( SceneObject *obj )
+{
+    for (int i=0; i < sceneObjs.Size(); i++) {
+        if (sceneObjs[i] == obj) {
+            sceneObjs.EraseSwap( i );
+            break;
+        }
+    }
+    
+    Memory::Delete<SceneObject>( obj );
     
 }

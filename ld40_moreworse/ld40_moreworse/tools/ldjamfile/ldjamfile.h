@@ -8,7 +8,7 @@
 
 #include "glm/glm.hpp"
 
-#define LDJAMFILE_VERSION (2)
+#define LDJAMFILE_VERSION (3)
 
 #pragma pack(push, 1)
 

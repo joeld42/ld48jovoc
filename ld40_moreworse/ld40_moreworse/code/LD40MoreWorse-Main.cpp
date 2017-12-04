@@ -69,6 +69,31 @@ struct UIMedia {
 // substituteable (e.g. any "red barrel" is interchangabe, but "family keepsake" not)
 // Gift Wrapped
 
+enum DecalIndex {
+    Decal_LD48,
+    Decal_CRATE,
+    Decal_FLAMMABLE,
+    Decal_FLAMMABLE2,
+    Decal_RESERVED_5,
+    Decal_RESERVED_6,
+    Decal_RESERVED_7,
+    Decal_RESERVED_8,
+    Decal_RESERVED_9,
+    Decal_RESERVED_10,
+    Decal_RESERVED_11,
+    Decal_RESERVED_12,
+    Decal_RESERVED_13,
+    Decal_RESERVED_14,
+    Decal_RESERVED_15
+};
+
+enum ItemShape {
+    ItemShape_CRATE,
+    ItemShape_BARREL,
+    
+    NUM_ITEM_SHAPES
+};
+
 enum ItemState {
     ItemState_OFFLINE,
     ItemState_WAITING,
@@ -80,8 +105,12 @@ enum ItemState {
 struct CrateItemInfo {
     Oryol::String itemName;
 
+    int shapeNum;
     int points;
     int payment;
+    int decalIndex;
+    glm::vec4 tintColor;
+    glm::vec4 decalColor;
     double pickupTimeMin;
     double pickupTimeMax;
 
@@ -93,9 +122,12 @@ struct CrateItemInfo {
 
     double retreivalTime; // How long the player has to get the item
     
-    CrateItemInfo( Oryol::String _itemName,
+    CrateItemInfo( Oryol::String _itemName, int _shapeNum,
               int _points,
               int _payment,
+              int _decalIndex,
+              glm::vec4 _tintColor,
+              glm::vec4 _decalColor,
               double _pickupTimeMin,
               double _pickupTimeMax,
               Oryol::String _dropoffChatter,
@@ -104,8 +136,12 @@ struct CrateItemInfo {
               Oryol::String _pickupChatterOkay,
               Oryol::String _pickupChatterBad ) :
                 itemName(_itemName),
+                shapeNum(_shapeNum),
                 points(_points),
                 payment(_payment),
+                decalIndex(_decalIndex),
+                tintColor(_tintColor),
+                decalColor(_decalColor),
                 pickupTimeMin(_pickupTimeMin),
                 pickupTimeMax(_pickupTimeMax),
                 dropoffChatter( _dropoffChatter),
@@ -144,7 +180,7 @@ struct CrateItemFoo {
 struct _CratePickupHelper {
     bool needsPickup = false;
     double soonestPickupTime = 99999.0;
-    CrateItemFoo pickupItem;
+    CrateItemFoo *pickupItem;
 };
 
 struct CustomerSlot {
@@ -152,6 +188,7 @@ struct CustomerSlot {
     SceneObject *personObj;
     
     CrateItemFoo item;
+    glm::vec3 zonePos;
     
     bool hasItem;
     int index;
@@ -180,6 +217,7 @@ struct PlayerBot {
     CrateItemFoo *hoverItem; // NOTE: Must be in looseItems
     CustomerSlot *hoverSlot;
     
+    
     Oryol::Array<CrateItemFoo> items; // Items player is holding
 };
 
@@ -203,6 +241,7 @@ private:
     void updateGameCamera();
     
     void scanForPickupItems( Oryol::Array<CrateItemFoo> &items, _CratePickupHelper &helper );
+    bool markStorageItem( Oryol::Array<CrateItemFoo> &items, CrateItemInfo *info);
     
     //void titleScreenUI();
     void gameUI();
@@ -211,6 +250,8 @@ private:
     void populateCustomers( Oryol::Array<CrateItemInfo> &allItems );
     
     bool tryPickupItem( CrateItemFoo pickupItem );
+    
+    double calcNextCustomerTime();
     
     CrateItemFoo spawnItem( glm::mat4 &xform );
     
@@ -273,10 +314,12 @@ private:
     glm::vec3 gameCameraTarget;
     float32 time;
     
+    Oryol::Array<SceneObject*> queuePeeps;
+    
     // player stats
     uint32_t gamePoints;
     uint32_t money;
-    uint32_t gameTime; // not sure what units this should be displayed in yet
+
     double gameTimeSeconds = 0;
     
     double nextCustomerTime;
@@ -298,7 +341,7 @@ private:
     
     
     // Master copies of objects for spawning
-    SceneObject *masterCrate;
+    SceneObject *masterCrate[NUM_ITEM_SHAPES];
     SceneObject *masterPerson;
     
     glm::vec4 testCrateColors[5];
@@ -382,7 +425,7 @@ TestApp::OnRunning() {
     if (doTestThing) {
         //SceneMesh mesh = scene->sceneMeshes[testObjIndex];
         //scene->sceneDrawState.Mesh[0] = mesh.mesh;
-        this->mainDrawState.FSTexture[TestShader::tex] = scene->testTexture;
+        this->mainDrawState.FSTexture[TestShader::tex] = scene->defaultTexture;
         Gfx::ApplyDrawState( this->mainDrawState );
         
         //shaderVSParams.mvp =  this->camera.ViewProj;
@@ -407,10 +450,6 @@ TestApp::OnRunning() {
         ddVec3 textPos2D = { 0.0f, 20.0f, 0.0f };
         textPos2D[0] = fbWidth / 2.0;
         dd::screenText("Debug Mode", textPos2D, dd::colors::Orange );
-    } else {
-        
-        dd::screenText("TAB - Debug Camera\nZ - Spawn Crate",
-                       (ddVec3){ 10.0, 10.0}, dd::colors::Blue );
     }
     
     // Flush debug draws
@@ -449,7 +488,7 @@ TestApp::OnInit() {
     
     scene = new Scene();
 
-    scene->gfxSetup = GfxSetup::WindowMSAA4(800, 600, "Oryol Test App");
+    scene->gfxSetup = GfxSetup::WindowMSAA4(800, 600, "Crate Expectations (LD40)");
     Gfx::Setup(scene->gfxSetup);
     
     scene->Setup();
@@ -600,23 +639,9 @@ TestApp::OnCleanup() {
 //}
 
 // TODO: Move this to another file because its going to get big...
-void
-TestApp::populateCustomers( Oryol::Array<CrateItemInfo> &allItems )
-{
-    allItems.Add( CrateItemInfo( "Barrel", 10, 5, 60, 300,
-                            "Got a barrel for you. It's just a regular barrel.",
-                            "I'll be needing a barrel, thanks.",
-                            "That was fast, thanks. I've got time to grab a sandwich.",
-                            "Yep, that's a barrel.",
-                            "Jeez, how long does it take to find a stinkin barrel?" ) );
-    
-    allItems.Add( CrateItemInfo( "Wooden Crate", 10, 8, 60, 300,
-                            "Boss said to drop off some crates here.",
-                            "I need a crate, just a wooden one is fine.",
-                            "Nice work, you're pretty efficient around here.",
-                            "This crate will do nicely.",
-                            "Man, took you that long to find a crate in a video game?" ) );
-}
+#include "ItemDefs.cpp"
+
+
 
 void
 TestApp::startGame() {
@@ -638,8 +663,13 @@ TestApp::startGame() {
     }
     player.pos = glm::vec3( 0.0 );
     
-    masterCrate =  scene->FindNamedObject( "Crate" );
-    masterCrate->hidden = true;
+    
+    masterCrate[ItemShape_CRATE] =  scene->FindNamedObject( "CRATE_Crate" );
+    masterCrate[ItemShape_BARREL] =  scene->FindNamedObject( "CRATE_Barrel" );
+    for (int i=0; i < NUM_ITEM_SHAPES; i++) {
+        masterCrate[i]->hidden = true;
+        masterCrate[i]->vsParams.decalTint = glm::vec4(1);
+    }
     
     masterPerson =  scene->FindNamedObject( "Person" );
     masterPerson->hidden = true;
@@ -667,7 +697,8 @@ TestApp::startGame() {
                 glm::vec3 zonePos = glm::vec3(zoneXform[3].x,
                                               zoneXform[3].y + glm::linearRand(9.0f, 11.0f),
                                               zoneXform[3].z - glm::linearRand(0.0f, 1.5f) );
-                slot.personObj->xform = glm::translate( glm::mat4(), zonePos );
+                slot.zonePos = zonePos;
+                slot.personObj->xform = glm::translate( glm::mat4(), glm::vec3( 33.0, 58.0, 0.0 ) );
                 slot.personObj->hidden = true;
                 
                 slot.index = custSlots.Size();
@@ -677,7 +708,7 @@ TestApp::startGame() {
     }
     
     // reset stats
-    gameTime = 0;
+    gameTimeSeconds = 0;
     money = 0;
     gamePoints = 0;
     nextCustomerTime = 5.0;
@@ -690,6 +721,15 @@ float fsgn( float v) {
     } else {
         return 1.0;
     }
+}
+
+double
+TestApp::calcNextCustomerTime()
+{
+    // DBG
+    return 2.0;
+    
+    //return 10.0;
 }
 
 void
@@ -771,37 +811,68 @@ TestApp::updateGameCamera()
 
 CrateItemFoo TestApp::spawnItem( glm::mat4 &xform )
 {
-    SceneObject *newCrate = scene->spawnObject( masterCrate->mesh );
-    newCrate->xform = glm::mat4( xform );
-    
-    glm::vec4 randCrateColor = testCrateColors[ rand() % 5 ];
-    newCrate->vsParams.tintColor = randCrateColor;
-    
     int index = rand() % allItems.Size();
     CrateItemFoo crate = CrateItemFoo( &(allItems[index]) );
+
+    SceneObject *newCrateObj = scene->spawnObject( masterCrate[crate.info->shapeNum]->mesh );
+    newCrateObj->xform = glm::mat4( xform );
+    
+    //glm::vec4 randCrateColor = testCrateColors[ rand() % 5 ];
+    newCrateObj->vsParams.tintColor = crate.info->tintColor;
+    newCrateObj->vsParams.decalTint = crate.info->decalColor;
+    newCrateObj->fsParams.decalUVOffs = glm::vec2( (crate.info->decalIndex % 4) * 0.25,
+                                                  (crate.info->decalIndex / 4) * 0.25 );
     
     // FIXME: Destory old sceneObj if it's already been created
-    
-    crate.sceneObj = newCrate;
+    crate.sceneObj = newCrateObj;
     return crate;
 }
 
 void TestApp::scanForPickupItems( Oryol::Array<CrateItemFoo> &items, _CratePickupHelper &helper )
 {
     for (int i=0; i < items.Size(); i++ ) {
-        if (gameTimeSeconds > looseItems[i].pickupTime ) {
-            if (looseItems[i].pickupTime < helper.soonestPickupTime) {
-                helper.pickupItem = looseItems[i];
+        if (gameTimeSeconds > items[i].pickupTime ) {
+            
+            if ((items[i].pickupTime < helper.soonestPickupTime) &&
+                (items[i].state == ItemState_STORAGE)) {
+                helper.pickupItem = &(items[i]);
                 helper.needsPickup = true;
-                helper.soonestPickupTime = helper.pickupItem.pickupTime;
+                helper.soonestPickupTime = helper.pickupItem->pickupTime;
             }
         }
     }
 }
 
+bool TestApp::markStorageItem( Oryol::Array<CrateItemFoo> &items, CrateItemInfo *info)
+{
+    for (int i=0; i < items.Size(); i++ ) {
+        // Demote a matching item to storage
+        if ((items[i].state == ItemState_PICKUP) && (items[i].info == info)) {
+            items[i].state = ItemState_STORAGE;
+            return true;
+        }
+    }
+    return false;
+}
+
+
 void
 TestApp::updateCustomers()
 {
+    
+    // Move customers in line and to slot
+    for (int i=0; i < custSlots.Size(); i++) {
+        CustomerSlot &slot = custSlots[i];
+        if (slot.personObj) {
+            float t = 0.08;
+            glm::vec3 pos = glm::vec3( slot.personObj->xform[3] );
+            glm::vec3 newPos = (pos * (1.0f-t)) + (slot.zonePos * t);
+            slot.personObj->xform[3].x = newPos.x;
+            slot.personObj->xform[3].y = newPos.y;
+            slot.personObj->xform[3].z = newPos.z;
+        }
+    }
+    
     // Spawn a new customer?
     double frameTimeSec = frameDt.AsSeconds();
     if (nextCustomerTime > frameTimeSec ) {
@@ -833,7 +904,7 @@ TestApp::updateCustomers()
         
         // Spawn a new customer
         if (slot==NULL) {
-            Log::Warn("All Slots are full! can't spawn");
+            Log::Warn("All Slots are full! can't spawn\n");
         } else {
             
             // See if there are any items that need to be retreived
@@ -845,9 +916,11 @@ TestApp::updateCustomers()
             if (pickup.needsPickup) {
                 Log::Info("Item needs pickup!" );
                 
+                // Mark pickup on the "carried"
                 slot->hasItem = true;
-                slot->item = pickup.pickupItem;
-                slot->item.state = ItemState_PICKUP;
+                pickup.pickupItem->state = ItemState_PICKUP;
+                
+                slot->item = *(pickup.pickupItem);
                 slot->item.sceneObj = NULL;
                 slot->personObj->hidden = false;
                 
@@ -866,10 +939,14 @@ TestApp::updateCustomers()
                 
                 //Log::Info("Customer Says: %s\n", slot->item.info->dropoffChatter.AsCStr() );
             }
+            
+            // Reset to door
+            slot->personObj->xform = glm::translate( glm::mat4(), glm::vec3( 33.0, 58.0, 0.0 ) );
+
         }
         
         // Another customer in 10s
-        nextCustomerTime = 10.0;
+        nextCustomerTime = calcNextCustomerTime();
     }
 }
 
@@ -889,8 +966,6 @@ void
 TestApp::updatePlayer()
 {
     // update stats
-    gameTime += frameDt.AsMilliSeconds();
-
     glm::vec3 playerOldPos = glm::vec3( player.pos );
     
     // update player's pos
@@ -1081,14 +1156,39 @@ TestApp::handleInputGame()
                         // Does item match?
                         if (player.hoverSlot->item.info == topItemInfo) {
                             // Yay.. cash it in
-                            //CrateItemFoo topItem = player.items.PopBack();
+                            CrateItemFoo topItem = player.items.PopBack();
+                            scene->destroyObject( topItem.sceneObj );
+                            
+                            // TODO base this on only long it took to get the item. For
+                            // now just pick one at random
+                            int pickupRating = rand() % 4;
+                            if (pickupRating == 0) {
+                                displayMessage( topItemInfo->pickupChatterGood.AsCStr() );
+                            } else if (pickupRating == 1) {
+                               displayMessage( topItemInfo->pickupChatterBad.AsCStr() );
+                            } else {
+                                displayMessage( topItemInfo->pickupChatterOkay.AsCStr() );
+                            }
                             
                             gamePoints += topItemInfo->points;
                             money += topItemInfo->payment;
                             
                             player.hoverSlot->hasItem = false;
                             player.hoverSlot->personObj->hidden = true;
-      
+                            
+                            // Somewhat of a hack, if this isn't the exact same item as requested
+                            // but it matches, just mark some other PICKUP item as STORAGE
+                            if (topItem.state != ItemState_PICKUP) {
+                                bool foundOne = markStorageItem( player.items, topItemInfo );
+                                if (!foundOne) {
+                                    foundOne = markStorageItem( looseItems, topItemInfo );
+                                    if (!foundOne) {
+                                        Log::Warn("Expected a matching PICKUP item for '%s', didn't find one",
+                                                  topItemInfo->itemName.AsCStr());
+                                    }
+                                }
+                            }
+                            
                         } else {
                             char buff[500];
                             sprintf( buff, "That's not what I'm looking for. %s.",
@@ -1109,14 +1209,15 @@ TestApp::handleInputGame()
                         
                         displayMessage( player.hoverSlot->item.info->dropoffChatter );
                         
-                        player.hoverSlot->item.state = ItemState_STORAGE;
-                        
-                        player.hoverSlot->item.pickupTime = gameTimeSeconds +
+                        CrateItemFoo &item = player.items.Back();
+                        item.state = ItemState_STORAGE;
+                        item.pickupTime = gameTimeSeconds +
                                 glm::linearRand( player.hoverSlot->item.info->pickupTimeMin,
                                                  player.hoverSlot->item.info->pickupTimeMax );
 
                         // DBG
-                        player.hoverSlot->item.pickupTime = glm::linearRand( 3.0f, 10.0f );
+                        item.pickupTime = gameTimeSeconds + glm::linearRand( 3.0f, 10.0f );
+                        //Log::Info("Pickup will be at %f\n", player.hoverSlot->item.pickupTime );
                         
                         player.hoverSlot->hasItem = false;
                         player.hoverSlot->personObj->hidden = true; // TODO: walk out the door
@@ -1234,7 +1335,6 @@ bool TestApp::tryPickupItem( CrateItemFoo pickupItem )
         ddVec3 textPos2D = { 0.0f, 20.0f, 0.0f };
         textPos2D[0] = fbWidth / 2.0;
         textPos2D[1] = fbHeight - 20.0;
-        dd::screenText("Carry Limit", textPos2D, dd::colors::Orange, 1.0, 500 );
         return false;
     } else {
         
@@ -1257,8 +1357,8 @@ TestApp::gameUI()
     // Draw UI Layer
     nk_context* ctx = NKUI::NewFrame();
     
-    //ctx->style.window.fixed_background.data.color.a = 100;
-    //ctx->style.button.normal.data.color.a = 100;
+    ctx->style.window.fixed_background.data.color.a = 200;
+    ctx->style.button.normal.data.color.a = 200;
     
     struct nk_color origBorder = nk_rgb(65, 65, 65); //ctx->style.window.border_color;
     
@@ -1326,7 +1426,7 @@ TestApp::gameUI()
     
     if (nk_begin(ctx, &layout, "StatsWin", nk_rect( fbWidth-infoThinggyWidth, 0, infoThinggyWidth, 120), window_flags))
     {
-        sprintf( buff, "Game Time: %d", gameTime / 100 );
+        sprintf( buff, "Game Time: %f", gameTimeSeconds );
         nk_layout_row_begin( ctx, NK_DYNAMIC, 20, 1 );
         nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(255,255,255));
         nk_layout_row_end(ctx);

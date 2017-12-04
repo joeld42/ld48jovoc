@@ -164,6 +164,7 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
     DataStructure<FloatDataType> *posData = NULL;
     DataStructure<FloatDataType> *nrmData = NULL;
     DataStructure<FloatDataType> *stData = NULL;
+    DataStructure<FloatDataType> *stDecalData = NULL;
     DataStructure<UnsignedInt32DataType> *indexData = NULL;
     while (curr) {
         uint32_t structType = curr->GetStructureType();
@@ -178,6 +179,8 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
                 nrmData = (DataStructure<FloatDataType>*)vdata->GetFirstSubnode();
             } else if (arrayAttrib == "texcoord") {
                 stData = (DataStructure<FloatDataType>*)vdata->GetFirstSubnode();
+            } else if (arrayAttrib == "texcoord[1]") {
+                stDecalData = (DataStructure<FloatDataType>*)vdata->GetFirstSubnode();
             }
         } else if (structType == kStructureIndexArray) {
             OGEX::IndexArrayStructure *indexArray = (OGEX::IndexArrayStructure*)curr;
@@ -251,7 +254,17 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
                               1.0f - stData->GetDataElement(i*2+1));
                 //printf("STData %d -- %f %f\n", i, st.x, st.y );
                 meshVert->m_st0 = st;
-                meshVert->m_st1 = st;  // TMP just duplicate into ST1 for now
+                
+                // Do we have decal STs?
+                if ((stDecalData != NULL) && (stDecalData->GetDataElementCount() >= i*2+1 )) {
+                    glm::vec2 st1( stDecalData->GetDataElement(i*2+0),
+                                 1.0f - stDecalData->GetDataElement(i*2+1));
+                    //printf("ST1Data %d -- %f %f\n", i, st1.x, st1.y );
+                    meshVert->m_st1 = st1;
+                } else {
+                    meshVert->m_st1 = st;  // No decal UVs, just duplicate into ST1 now
+                }
+                
             }
 
             meshVert++;
