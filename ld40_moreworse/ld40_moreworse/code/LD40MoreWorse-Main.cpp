@@ -81,6 +81,7 @@ struct CrateItemInfo {
     Oryol::String itemName;
 
     int points;
+    int payment;
     double pickupTimeMin;
     double pickupTimeMax;
 
@@ -94,6 +95,7 @@ struct CrateItemInfo {
     
     CrateItemInfo( Oryol::String _itemName,
               int _points,
+              int _payment,
               double _pickupTimeMin,
               double _pickupTimeMax,
               Oryol::String _dropoffChatter,
@@ -103,6 +105,7 @@ struct CrateItemInfo {
               Oryol::String _pickupChatterBad ) :
                 itemName(_itemName),
                 points(_points),
+                payment(_payment),
                 pickupTimeMin(_pickupTimeMin),
                 pickupTimeMax(_pickupTimeMax),
                 dropoffChatter( _dropoffChatter),
@@ -144,8 +147,10 @@ struct CrateItemFoo {
 
 struct CustomerSlot {
     SceneObject *loadingZoneObj;
+    SceneObject *personObj;
     CrateItemFoo item;
     bool hasItem;
+    int index;
     CustomerSlot() : loadingZoneObj(NULL), hasItem(false)
     {
     }
@@ -193,7 +198,12 @@ private:
     void updateCustomers();
     void updateGameCamera();
     
+    //void titleScreenUI();
+    void gameUI();
+    
     void populateCustomers( Oryol::Array<CrateItemInfo> &allItems );
+    
+    bool tryPickupItem( CrateItemFoo pickupItem );
     
     CrateItemFoo spawnItem( glm::mat4 &xform );
     
@@ -256,6 +266,7 @@ private:
     float32 time;
     
     // player stats
+    uint32_t gamePoints;
     uint32_t money;
     uint32_t gameTime; // not sure what units this should be displayed in yet
     
@@ -369,30 +380,9 @@ TestApp::OnRunning() {
     // Flush debug draws
     Oryol::Duration appTime = lastTimePoint.Since( startTimePoint );
     dd::flush( appTime.AsMilliSeconds() );
-    //dd::flush();
-    
-    // Draw UI Layer
-    nk_context* ctx = NKUI::NewFrame();
-    struct nk_panel layout;
-    static nk_flags window_flags = 0;
-    window_flags |= NK_WINDOW_BORDER;
-    if (nk_begin(ctx, &layout, "Overview", nk_rect( fbWidth - 150, 0, 150, 100), window_flags))
-    {
-        nk_layout_row_dynamic(ctx, 15, 1);
-        char buff[256];
-        
-        sprintf( buff, "Game Time: %d", gameTime / 100 );
-        nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(255,255,255));
-        
-        sprintf( buff, "Next Cust: %3.2f", nextCustomerTime );
-        nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(255,255,255));
-        
-        sprintf( buff, "Money: $%d", money );
-        nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(100,255,100));
-    }
-    nk_end(ctx);
-    
-    NKUI::Draw();
+
+    // Do game UI
+    gameUI();
     
     Gfx::EndPass();
     Gfx::CommitFrame();
@@ -577,14 +567,14 @@ TestApp::OnCleanup() {
 void
 TestApp::populateCustomers( Oryol::Array<CrateItemInfo> &allItems )
 {
-    allItems.Add( CrateItemInfo( "Barrel", 10, 60, 300,
+    allItems.Add( CrateItemInfo( "Barrel", 10, 5, 60, 300,
                             "Got a barrel for you. It's just a regular barrel.",
                             "I'll be needing a barrel, thanks.",
                             "That was fast, thanks. I've got time to grab a sandwich.",
                             "Yep, that's a barrel.",
                             "Jeez, how long does it take to find a stinkin barrel?" ) );
     
-    allItems.Add( CrateItemInfo( "Wooden Crate", 10, 60, 300,
+    allItems.Add( CrateItemInfo( "Wooden Crate", 10, 8, 60, 300,
                             "Boss said to drop off some crates here.",
                             "I need a crate, just a wooden one is fine.",
                             "Nice work, you're pretty efficient around here.",
@@ -635,6 +625,15 @@ TestApp::startGame() {
                 slot.loadingZoneObj = sceneObj;
                 sceneObj->invXform = glm::inverse( sceneObj->xform );
                 
+                slot.personObj = scene->spawnObject( masterPerson->mesh );
+                glm::mat4 &zoneXform = slot.loadingZoneObj->xform;
+                glm::vec3 zonePos = glm::vec3(zoneXform[3].x,
+                                              zoneXform[3].y + glm::linearRand(9.0f, 11.0f),
+                                              zoneXform[3].z - glm::linearRand(0.0f, 1.5f) );
+                slot.personObj->xform = glm::translate( glm::mat4(), zonePos );
+                slot.personObj->hidden = true;
+                
+                slot.index = custSlots.Size();
                 custSlots.Add( slot );
             }
         }
@@ -643,6 +642,7 @@ TestApp::startGame() {
     // reset stats
     gameTime = 0;
     money = 0;
+    gamePoints = 0;
     nextCustomerTime = 5.0;
     
 }
@@ -705,7 +705,8 @@ TestApp::updateGameCamera()
     currHeight = kCamHeightLow + hite * maxHite;
     
     gameCamera.Pos = gameCameraTarget + glm::vec3( 0.0f, 0.0f, currHeight );
-    gameCamera.Model = glm::translate(glm::mat4(), gameCamera.Pos );
+    glm::mat4 tilt = glm::rotate( glm::mat4(), glm::radians( 20.0f ), glm::vec3(1,0,0) );
+    gameCamera.Model = glm::translate( tilt, gameCamera.Pos );
     gameCamera.UpdateProj(glm::radians(45.0f), fbWidth, fbHeight, 1.0f, 1000.0f);
     
     
@@ -760,10 +761,21 @@ TestApp::updateCustomers()
         
         // Find a slot for this customer to go to
         CustomerSlot *slot = NULL;
+        
+        // Pick in a random order for variety
+        int custSlotIndex[5] = { 0, 1, 2, 3, 4};
+        for (int i=4; i >= 2; i--) {
+            int j = rand() % i;
+            int t = custSlotIndex[j];
+            custSlotIndex[j] = custSlotIndex[i];
+            custSlotIndex[i] = t;
+        }
+        
         for (int i=0; i < custSlots.Size(); i++) {
-            // It's available! (TODO: randomize)
-            if (!custSlots[i].hasItem) {
-                slot = &(custSlots[i]);
+            // It's available!
+            int ndx = custSlotIndex[i];
+            if (!custSlots[ndx].hasItem) {
+                slot = &(custSlots[ndx]);
                 Log::Info("Spawn Customer in slot %d\n", i );
                 break;
             }
@@ -774,9 +786,13 @@ TestApp::updateCustomers()
             Log::Warn("All Slots are full! can't spawn");
         } else {
             // Spawn on the counter in front of player
-            glm::mat4 itemLoc = glm::translate( slot->loadingZoneObj->xform, glm::vec3( 0.0f, 5.0f, 2.0f ));
+            glm::mat4 &zoneXform = slot->loadingZoneObj->xform;
+            glm::vec3 spawnPos = glm::vec3(zoneXform[3].x, zoneXform[3].y + 5.0f, zoneXform[3].z + 1.5f);
+            
+            glm::mat4 itemLoc = glm::translate( glm::mat4(), spawnPos );
             
             slot->hasItem = true;
+            slot->personObj->hidden = false;
             slot->item = spawnItem( itemLoc );
             slot->item.state = ItemState_DROPOFF;
             
@@ -1013,34 +1029,26 @@ TestApp::handleInputGame()
         
         if (Input::KeyDown(Key::Space)) {
             
-            // Is there something in our sensor range?
-            if (player.hoverItem) {
-                
-                if (player.items.Size() >= kPlayerItemCapacity) {
+            // Are we selecting an item?
+            if ((player.hoverSlot) && (player.hoverSlot->hasItem)) {
+                // Show UI for item TODO
+                if (tryPickupItem( player.hoverSlot->item)) {
                     
-                    ddVec3 textPos2D = { 0.0f, 20.0f, 0.0f };
-                    textPos2D[0] = fbWidth / 2.0;
-                    textPos2D[1] = fbHeight - 20.0;
-                    dd::screenText("Carry Limit", textPos2D, dd::colors::Orange, 1.0, 500 );
-                } else {
-                    CrateItemFoo pickupItem = *(player.hoverItem);
+                    player.hoverSlot->hasItem = false;
+                    player.hoverSlot->personObj->hidden = true; // TODO: walk out the door
+                }
+            }
+            // Is there something in our sensor range?
+            else if (player.hoverItem) {
+                
+                if (tryPickupItem( *player.hoverItem) ) {
+                    // Remove it from loose items
                     for (int i=0; i < looseItems.Size(); i++ ) {
                         if (player.hoverItem == &(looseItems[i]) ) {
                             looseItems.EraseSwapBack(i);
                             break;
                         }
                     }
-                    
-                    if (player.items.Empty()) {
-                        pickupItem.wobAxis = glm::vec3( 0,1,0);
-                    } else {
-                        pickupItem.wobAxis = player.items[player.items.Size()-1].wobAxis;
-                        pickupItem.wobAxis += (glm::sphericalRand(0.3f)  );
-                        pickupItem.wobAxis = glm::normalize( pickupItem.wobAxis );
-                    }
-                    
-                    
-                    player.items.Add( pickupItem );
                 }
                 
             } else {
@@ -1122,5 +1130,125 @@ TestApp::handleInputDebug() {
         }
     }
     dbgCamera.MoveRotate(move, rot);
+}
+
+bool TestApp::tryPickupItem( CrateItemFoo pickupItem )
+{
+    if (player.items.Size() >= kPlayerItemCapacity) {
+        
+        ddVec3 textPos2D = { 0.0f, 20.0f, 0.0f };
+        textPos2D[0] = fbWidth / 2.0;
+        textPos2D[1] = fbHeight - 20.0;
+        dd::screenText("Carry Limit", textPos2D, dd::colors::Orange, 1.0, 500 );
+        return false;
+    } else {
+        
+        if (player.items.Empty()) {
+            pickupItem.wobAxis = glm::vec3( 0,1,0);
+        } else {
+            pickupItem.wobAxis = player.items[player.items.Size()-1].wobAxis;
+            pickupItem.wobAxis += (glm::sphericalRand(0.3f)  );
+            pickupItem.wobAxis = glm::normalize( pickupItem.wobAxis );
+        }
+        
+        player.items.Add( pickupItem );
+        return true;
+    }
+}
+
+void
+TestApp::gameUI()
+{
+    // Draw UI Layer
+    nk_context* ctx = NKUI::NewFrame();
+    
+    //ctx->style.window.fixed_background.data.color.a = 100;
+    //ctx->style.button.normal.data.color.a = 100;
+    
+    struct nk_color origBorder = nk_rgb(65, 65, 65); //ctx->style.window.border_color;
+    
+    // Can't figure out how to nest NKUI rows, so doing this
+    // the clunky way for now
+    float infoThinggyWidth = fbWidth * 0.2;
+    float custStatusWidth = fbWidth * 0.6;
+    float itemSlotWidth = custStatusWidth / 5.0;
+    
+    char buff[256];
+    struct nk_panel layout;
+    static nk_flags window_flags = 0;
+    window_flags |= NK_WINDOW_BORDER;
+    if (nk_begin(ctx, &layout, "StatusWin", nk_rect( 0, 0, infoThinggyWidth, 100), window_flags))
+    {
+        nk_layout_row_dynamic( ctx, 20, 1);
+        sprintf( buff, "POINTS: %d", gamePoints );
+        nk_label_colored(ctx, buff, NK_TEXT_LEFT, nk_rgb(255,255,0));
+    }
+    nk_end(ctx);
+    
+
+    
+    for (int i=0; i < 5; i++) {
+        
+        int ndx = 4-i; // Items are accidentally placed right to left
+        
+        // Highlight border if a slot is active
+        if ((custSlots.Size() > ndx) && (player.hoverSlot) && (player.hoverSlot->index == ndx)) {
+            ctx->style.window.border_color = nk_rgb( 220, 200, 30);
+        } else {
+            ctx->style.window.border_color = origBorder;
+        }
+    
+        
+        
+        float tilex = infoThinggyWidth + itemSlotWidth*i;
+        sprintf( buff, "tile%d", i ); // Window name must be unique
+        if (nk_begin(ctx, &layout, buff, nk_rect( tilex, 0, itemSlotWidth, 100), window_flags))
+        {
+            nk_layout_row_begin( ctx, NK_DYNAMIC, 12, 1 );
+            if ((custSlots.Size() > ndx) && (custSlots[ndx].hasItem)) {
+                CrateItemInfo *info = custSlots[ndx].item.info;
+                nk_label_colored(ctx, info->itemName.AsCStr(), NK_TEXT_CENTERED, nk_rgb(255,255,255) );
+
+                sprintf(buff, "Pnts: %d", info->points );
+                nk_label_colored(ctx, "Pnts:", NK_TEXT_CENTERED, nk_rgb(255,0,255) );
+
+                sprintf(buff, "Pays: $%d", info->payment );
+                nk_label_colored(ctx, buff, NK_TEXT_CENTERED, nk_rgb(100,255,100) );
+                
+                if (custSlots[ndx].item.state == ItemState_DROPOFF) {
+                    nk_label_colored(ctx, "DROPOFF", NK_TEXT_CENTERED, nk_rgb(255,255,255) );
+                } else {
+                    nk_label_colored(ctx, "PICKUP", NK_TEXT_CENTERED, nk_rgb(255,255,255) );
+                }
+            } else {
+                nk_label_colored(ctx, "No Customer", NK_TEXT_CENTERED, nk_rgb(100,100,100) );
+            }
+            nk_layout_row_end(ctx);
+        }
+        nk_end(ctx);
+    }
+    ctx->style.window.border_color = origBorder;
+    
+    if (nk_begin(ctx, &layout, "StatsWin", nk_rect( fbWidth-infoThinggyWidth, 0, infoThinggyWidth, 120), window_flags))
+    {
+        sprintf( buff, "Game Time: %d", gameTime / 100 );
+        nk_layout_row_begin( ctx, NK_DYNAMIC, 20, 1 );
+        nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(255,255,255));
+        nk_layout_row_end(ctx);
+        
+        sprintf( buff, "Next Cust: %3.2f", nextCustomerTime );
+        nk_layout_row_begin( ctx, NK_DYNAMIC, 20, 1 );
+        nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(255,255,255));
+        nk_layout_row_end(ctx);
+        
+        sprintf( buff, "Money: $%d", money );
+        nk_layout_row_begin( ctx, NK_DYNAMIC, 20, 1 );
+        nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(100,255,100));
+        nk_layout_row_end(ctx);
+    }
+    nk_end(ctx);
+    
+    NKUI::Draw();
+
 }
 
