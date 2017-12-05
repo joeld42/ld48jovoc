@@ -51,14 +51,14 @@
 
 using namespace Oryol;
 
-struct UIMedia {
-    struct nk_font *font_14;
-    struct nk_font *font_18;
-    struct nk_font *font_20;
-    struct nk_font *font_24;
-    struct nk_image farmageddon_title;
-    struct nk_image farmageddon_gameover;
-} g_uiMedia;
+//struct UIMedia {
+//    struct nk_font *font_14;
+//    struct nk_font *font_18;
+//    struct nk_font *font_20;
+//    struct nk_font *font_24;
+//    struct nk_image farmageddon_title;
+//    struct nk_image farmageddon_gameover;
+//} g_uiMedia;
 
 
 // Item Notes:
@@ -245,6 +245,7 @@ private:
     
     //void titleScreenUI();
     void gameUI();
+    void gameOverUI();
     void displayMessage( const Oryol::String &message );
     
     void populateCustomers( Oryol::Array<CrateItemInfo> &allItems );
@@ -297,8 +298,13 @@ private:
     const float32 kPlayerRadius = 3.5f;
     const float32 kPlayerHeight = 3.87031;
     const float32 kCamBorderDist = 10.0f;
-    const float32 kCamHeightLow = 60.0;
-    const float32 kCamHeightHigh = 100.0;
+    const float32 kCamHeightLow = 90.0;
+    const float32 kCamHeightHigh = 120.0;
+    
+    // How long they have to fix the queue?
+    const double kFullQueueTime = 10.0f;
+    bool isQueueFull;
+    double fullQueueTime;
     
     bool showCameraBorder;
     float32 targetHeightNorm;
@@ -313,6 +319,9 @@ private:
     PlayerBot player;
     glm::vec3 gameCameraTarget;
     float32 time;
+    
+    bool gameOver;
+    bool shouldRestart;
     
     Oryol::Array<SceneObject*> queuePeeps;
     
@@ -344,6 +353,8 @@ private:
     SceneObject *masterCrate[NUM_ITEM_SHAPES];
     SceneObject *masterPerson;
     
+    SceneObject *slotCursor;
+    
     glm::vec4 testCrateColors[5];
 };
 OryolMain(TestApp);
@@ -371,7 +382,27 @@ TestApp::OnRunning() {
     double frameDtSecs = frameDt.AsSeconds();
     time += frameDtSecs;
     
-    this->handleInput();
+    if (shouldRestart) {
+        shouldRestart = false;
+        startGame();
+    }
+    
+    // update Queue
+    if (isQueueFull) {
+        fullQueueTime += frameDtSecs;
+        if (fullQueueTime > kFullQueueTime) {
+            gameOver = true;
+            isQueueFull = false;
+            fullQueueTime = 0;
+            shouldRestart = false;
+        }
+    }
+
+    if (!gameOver) {
+        this->handleInput();
+    } else {
+        player.vel = glm::vec3(0);
+    }
     
     Camera *activeCamera = getActiveCamera();
     
@@ -457,7 +488,11 @@ TestApp::OnRunning() {
     dd::flush( appTime.AsMilliSeconds() );
 
     // Do game UI
-    gameUI();
+    if (!gameOver) {
+        gameUI();
+    } else {
+        gameOverUI();
+    }
     
     Gfx::EndPass();
     Gfx::CommitFrame();
@@ -525,7 +560,8 @@ TestApp::OnInit() {
     
     // Setup UI
     NKUI::Setup();
-    Memory::Clear(&g_uiMedia, sizeof(g_uiMedia));
+    //Memory::Clear(&g_uiMedia, sizeof(g_uiMedia));
+    
     Log::Info("---- setup NKUI ---\n");
 
 //    // setup custom fonts
@@ -649,6 +685,7 @@ TestApp::startGame() {
     Log::Info("Hello from startGame..." );
     
     showCameraBorder = false;
+    gameOver = false;
     
     testCrateColors[0] = glm::vec4(0.23f,0.81f,0.98f,1.0f); // Blue
     testCrateColors[1] = glm::vec4(0.97f,0.20f,0.12f,1.0f); // Red
@@ -673,6 +710,9 @@ TestApp::startGame() {
     
     masterPerson =  scene->FindNamedObject( "Person" );
     masterPerson->hidden = true;
+    
+    slotCursor =  scene->FindNamedObject( "Cursor" );
+    slotCursor->hidden = true;
     
     targetHeight = kCamHeightLow;
     currHeight = targetHeight;
@@ -712,6 +752,8 @@ TestApp::startGame() {
     money = 0;
     gamePoints = 0;
     nextCustomerTime = 5.0;
+    isQueueFull = false;
+    
     
 }
 
@@ -727,9 +769,17 @@ double
 TestApp::calcNextCustomerTime()
 {
     // DBG
-    return 2.0;
+    //return 1.0;
     
-    //return 10.0;
+    if (gameTimeSeconds > 60 * 5) {
+        return 4.0;
+    } else if (gameTimeSeconds > 60 ) {
+        return 5.0;
+    } else {
+        return 8.0;
+    }
+    
+    return 5.0;
 }
 
 void
@@ -905,6 +955,10 @@ TestApp::updateCustomers()
         // Spawn a new customer
         if (slot==NULL) {
             Log::Warn("All Slots are full! can't spawn\n");
+            if (!isQueueFull) {
+                isQueueFull = true;
+                fullQueueTime = 0.0;
+            }
         } else {
             
             // See if there are any items that need to be retreived
@@ -967,6 +1021,7 @@ TestApp::updatePlayer()
 {
     // update stats
     glm::vec3 playerOldPos = glm::vec3( player.pos );
+    
     
     // update player's pos
     float t = 0.1;
@@ -1043,18 +1098,29 @@ TestApp::updatePlayer()
     player.hoverSlot = NULL;
     for (int i=0; i < custSlots.Size(); i++) {
         CustomerSlot *slot = &(custSlots[i]);
-        slot->loadingZoneObj->hidden = true; // DBG
+        slot->loadingZoneObj->hidden = true;
         
         if (collidePointBBox( frontPos, slot->loadingZoneObj->invXform, slot->loadingZoneObj, 0.5)) {
             cursorCol = dd::colors::PaleTurquoise;
             player.hoverSlot = slot;
+            glm::vec3 slotPos = glm::vec3( slot->loadingZoneObj->xform[3].x,
+                                          slot->loadingZoneObj->xform[3].y, 0 );
+            slotCursor->xform = glm::translate( glm::mat4(), slotPos );
             break;
         }
     }
     
+    if (player.hoverSlot) {
+        slotCursor->hidden = false;
+    } else {
+        slotCursor->hidden = true;
+        
+    }
+    
     dd::sphere( glm::value_ptr(frontPos), cursorCol, 3.0 );
     if (player.hoverSlot) {
-        player.hoverSlot->loadingZoneObj->hidden = false;
+        // DBG
+        //player.hoverSlot->loadingZoneObj->hidden = false;
     }
     
     // Update player's scene obj from pos
@@ -1173,6 +1239,11 @@ TestApp::handleInputGame()
                             gamePoints += topItemInfo->points;
                             money += topItemInfo->payment;
                             
+                            if (isQueueFull) {
+                                isQueueFull = false;
+                                fullQueueTime = 0.0;
+                            }
+                            
                             player.hoverSlot->hasItem = false;
                             player.hoverSlot->personObj->hidden = true;
                             
@@ -1207,6 +1278,12 @@ TestApp::handleInputGame()
                     // Show Message for customer TODO
                     if (tryPickupItem( player.hoverSlot->item)) {
                         
+                        if (isQueueFull) {
+                            isQueueFull = false;
+                            fullQueueTime = 0.0;
+                        }
+
+                        
                         displayMessage( player.hoverSlot->item.info->dropoffChatter );
                         
                         CrateItemFoo &item = player.items.Back();
@@ -1216,7 +1293,7 @@ TestApp::handleInputGame()
                                                  player.hoverSlot->item.info->pickupTimeMax );
 
                         // DBG
-                        item.pickupTime = gameTimeSeconds + glm::linearRand( 3.0f, 10.0f );
+                        //item.pickupTime = gameTimeSeconds + glm::linearRand( 3.0f, 10.0f );
                         //Log::Info("Pickup will be at %f\n", player.hoverSlot->item.pickupTime );
                         
                         player.hoverSlot->hasItem = false;
@@ -1352,6 +1429,41 @@ bool TestApp::tryPickupItem( CrateItemFoo pickupItem )
 }
 
 void
+TestApp::gameOverUI()
+{
+    // Draw UI Layer
+    nk_context* ctx = NKUI::NewFrame();
+
+    ctx->style.button.normal.data.color = nk_rgb( 20, 80, 20 );
+    ctx->style.button.hover.data.color = nk_rgb( 100, 150, 100 );
+    
+    struct nk_panel layout;
+    static nk_flags window_flags = 0;
+    window_flags = NK_WINDOW_BORDER;
+
+    float ctr = fbHeight / 2;
+    if (nk_begin(ctx, &layout, "GameOver", nk_rect( 200, ctr - 200, fbWidth - 400, 200), window_flags))
+    {
+        char buff[256];
+        nk_layout_row_dynamic( ctx, 30, 1);
+        nk_label_colored(ctx, "GAME OVER", NK_TEXT_LEFT, nk_rgb(255,255,255));
+        
+        nk_layout_row_dynamic( ctx, 80, 1);
+        sprintf( buff, "POINTS: %d", gamePoints );
+        nk_label_colored(ctx, buff, NK_TEXT_LEFT, nk_rgb(255,100,255));
+        
+        nk_layout_row_dynamic( ctx, 30, 1);
+        if (nk_button_label(ctx, "Play Again...")) {
+            // Restart is a lie
+            //shouldRestart = true;
+        }
+    }
+    nk_end(ctx);
+    
+    NKUI::Draw();
+}
+
+void
 TestApp::gameUI()
 {
     // Draw UI Layer
@@ -1372,11 +1484,32 @@ TestApp::gameUI()
     struct nk_panel layout;
     static nk_flags window_flags = 0;
     window_flags |= NK_WINDOW_BORDER;
-    if (nk_begin(ctx, &layout, "StatusWin", nk_rect( 0, 0, infoThinggyWidth, 100), window_flags))
+    if (nk_begin(ctx, &layout, "StatusWin", nk_rect( 0, 0, infoThinggyWidth, 120), window_flags))
     {
         nk_layout_row_dynamic( ctx, 20, 1);
         sprintf( buff, "POINTS: %d", gamePoints );
-        nk_label_colored(ctx, buff, NK_TEXT_LEFT, nk_rgb(255,255,0));
+        nk_label_colored(ctx, buff, NK_TEXT_LEFT, nk_rgb(255,100,255));
+        
+        if (isQueueFull) {
+        float pulse = fabs(sin( gameTimeSeconds * 2.0f ));
+            
+            float timeLeft = (kFullQueueTime - fullQueueTime) / kFullQueueTime;
+            
+            nk_label_colored(ctx, "HURRY UP", NK_TEXT_LEFT, nk_rgb(255,255*pulse,255*pulse*pulse));
+            
+            if (timeLeft > 0.6) {
+                ctx->style.progress.cursor_normal.data.color = nk_rgb( 0, 255, 0 );
+            } else if (timeLeft > 0.3) {
+                float v = (timeLeft - 0.3) / 0.3;
+                ctx->style.progress.cursor_normal.data.color = nk_rgb( 255, 255*v, 0 );
+            } else {
+                ctx->style.progress.cursor_normal.data.color = nk_rgb( 255, 0, 0 );
+            }
+            
+            nk_size val = 100 * timeLeft;
+            nk_progress(ctx, &val, 100, 0 );
+        }
+        
     }
     nk_end(ctx);
     
@@ -1388,7 +1521,7 @@ TestApp::gameUI()
         
         // Highlight border if a slot is active
         if ((custSlots.Size() > ndx) && (player.hoverSlot) && (player.hoverSlot->index == ndx)) {
-            ctx->style.window.border_color = nk_rgb( 220, 200, 30);
+            ctx->style.window.border_color = nk_rgb( 30, 250, 250);
         } else {
             ctx->style.window.border_color = origBorder;
         }
@@ -1397,7 +1530,7 @@ TestApp::gameUI()
         
         float tilex = infoThinggyWidth + itemSlotWidth*i;
         sprintf( buff, "tile%d", i ); // Window name must be unique
-        if (nk_begin(ctx, &layout, buff, nk_rect( tilex, 0, itemSlotWidth, 100), window_flags))
+        if (nk_begin(ctx, &layout, buff, nk_rect( tilex, 0, itemSlotWidth, 120), window_flags))
         {
             nk_layout_row_begin( ctx, NK_DYNAMIC, 12, 1 );
             if ((custSlots.Size() > ndx) && (custSlots[ndx].hasItem)) {
@@ -1405,7 +1538,7 @@ TestApp::gameUI()
                 nk_label_colored(ctx, info->itemName.AsCStr(), NK_TEXT_CENTERED, nk_rgb(255,255,255) );
 
                 sprintf(buff, "Pnts: %d", info->points );
-                nk_label_colored(ctx, "Pnts:", NK_TEXT_CENTERED, nk_rgb(255,0,255) );
+                nk_label_colored(ctx, buff, NK_TEXT_CENTERED, nk_rgb(255,0,255) );
 
                 sprintf(buff, "Pays: $%d", info->payment );
                 nk_label_colored(ctx, buff, NK_TEXT_CENTERED, nk_rgb(100,255,100) );
@@ -1416,7 +1549,7 @@ TestApp::gameUI()
                     nk_label_colored(ctx, "PICKUP", NK_TEXT_CENTERED, nk_rgb(255,255,255) );
                 }
             } else {
-                nk_label_colored(ctx, "No Customer", NK_TEXT_CENTERED, nk_rgb(100,100,100) );
+                nk_label_colored(ctx, "Open", NK_TEXT_CENTERED, nk_rgb(100,100,100) );
             }
             nk_layout_row_end(ctx);
         }
@@ -1426,12 +1559,12 @@ TestApp::gameUI()
     
     if (nk_begin(ctx, &layout, "StatsWin", nk_rect( fbWidth-infoThinggyWidth, 0, infoThinggyWidth, 120), window_flags))
     {
-        sprintf( buff, "Game Time: %f", gameTimeSeconds );
+        sprintf( buff, "Game Time: %3.0f", gameTimeSeconds );
         nk_layout_row_begin( ctx, NK_DYNAMIC, 20, 1 );
         nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(255,255,255));
         nk_layout_row_end(ctx);
         
-        sprintf( buff, "Next Cust: %3.2f", nextCustomerTime );
+        sprintf( buff, "Next Cust: %3.0f", nextCustomerTime );
         nk_layout_row_begin( ctx, NK_DYNAMIC, 20, 1 );
         nk_label_colored(ctx, buff, NK_TEXT_RIGHT, nk_rgb(255,255,255));
         nk_layout_row_end(ctx);
@@ -1442,6 +1575,8 @@ TestApp::gameUI()
         nk_layout_row_end(ctx);
     }
     nk_end(ctx);
+    
+    
     
     // Text message
     if (!message.Empty()) {

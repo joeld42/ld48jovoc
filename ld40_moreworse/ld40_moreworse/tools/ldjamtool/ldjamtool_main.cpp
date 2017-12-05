@@ -132,6 +132,12 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
                     strncpy( meshInfo->m_texture, (const char *)stringTexName+2, 32 );
                     meshInfo->m_texture[31] = 0;
                     
+                    // HACK for LD
+                    printf("MESHNAME: %s\n", meshInfo->m_name );
+                    if (!strcmp(meshInfo->m_name,"Crate")) {
+                        strcpy(meshInfo->m_texture, "crate_DIF");
+                    }
+                    
                     char *ext = strstr( meshInfo->m_texture, ".png");
                     if (ext) {
                         *ext = '\0';

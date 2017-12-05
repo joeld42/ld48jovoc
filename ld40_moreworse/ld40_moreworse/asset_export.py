@@ -25,13 +25,16 @@ TEXTURES = {
 	#'ground1.png' : 'DXT5',
 	#'tree_062.png' : 'DXT5',
 	#'soupbowl.png' : 'DXT5'
+	'cursor_DIF.png' : 'DXT5',
 	'crate_DIF.png' : 'DXT5',
+	'barrel_DIF.png' : 'DXT5',
 	'default.png' : 'DXT5',
 	'floor_DIF.png' : 'DXT5',
 	'robot_DIF.png' : 'DXT5',
 	'AxisThing_DIF.png' : 'DXT5',
 	'walls_DIF.png' : 'DXT5',
 	'person_DIF.png' : 'DXT5',
+	'ext_ground_DIF.png' : 'DXT5',
 	'decals.png' : 'DXT5', # TODO: Try A8L8
 }
 

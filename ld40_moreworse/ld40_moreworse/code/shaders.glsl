@@ -85,7 +85,7 @@ void main() {
     uv = texcoord0;
     uvDecal = texcoord1;
     world_nrm = normal;
-    nrm = normalize(mvp * normal);
+    nrm = normalize(mvp * vec4(normal.xyz,0) );
     
     color = tintColor;
     decalTintColor = decalTint;
@@ -116,7 +116,10 @@ void main() {
     vec3 cDecalColor = cDecal.xyz * decalTintColor.xyz;    
     vec3 cResult = mix( cBaseColor, cDecalColor, cDecal.a * decalTintColor.a );
 
-    fragColor = vec4( cResult, 1.0);
+    vec3 ldir = vec3( -1.0, 0.3, 0.0 );
+    float lite1 = clamp(dot(nrm.xyz, normalize(ldir.xyz)) , 0.6, 1.0) * 1.5;
+
+    fragColor = vec4( cResult * lite1, 1.0);
 }
 @end
 

@@ -16,7 +16,7 @@ if __name__=='__main__':
 
 	if ("-publish" in sys.argv):
 		doCommand("Upload to site",
-				"rsync -avz -L -e ssh /Users/joeld/oprojects/fips-deploy/ld40_moreworse/emsc-make-release/ vczdj@clockwatching.net:/home/vczdj/tapnik.com/ld40/wip/")
+				"rsync -avz -L -e ssh /Users/joeld/oprojects/fips-deploy/ld40_moreworse/emsc-make-release/ vczdj@clockwatching.net:/home/vczdj/tapnik.com/ld40/final/")
 	else:
 		print "Not uploading..."
 
