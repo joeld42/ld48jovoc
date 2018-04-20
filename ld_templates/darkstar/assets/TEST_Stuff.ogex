@@ -3,10 +3,44 @@ Metric (key = "angle") {float {1.0}}
 Metric (key = "time") {float {1.0}}
 Metric (key = "up") {string {"z"}}
 
-GeometryNode $node1
+CameraNode $node1
+{
+	Name {string {"OverheadCam"}}
+	ObjectRef {ref {$camera1}}
+
+	Transform
+	{
+		float[16]
+		{
+			{1.0, 0.0, 0.0, 0.0,
+			 0.0, 0.8745376467704773, 0.48495766520500183, 0.0,
+			 0.0, -0.48495766520500183, 0.8745376467704773, 0.0,
+			 0.0, -22.86668586730957, 43.84465026855469, 1.0}
+		}
+	}
+}
+
+CameraNode $node2
+{
+	Name {string {"MonkeyCam"}}
+	ObjectRef {ref {$camera2}}
+
+	Transform
+	{
+		float[16]
+		{
+			{-0.49220922589302063, -0.8673382997512817, -0.07385342568159103, 0.0,
+			 0.25797155499458313, -0.22637461125850677, 0.939257800579071, 0.0,
+			 -0.8313727974891663, 0.44325926899909973, 0.33517229557037354, 0.0,
+			 -12.254049301147461, 3.5623459815979004, 4.1738810539245605, 1.0}
+		}
+	}
+}
+
+GeometryNode $node3
 {
 	Name {string {"Suzanne.001"}}
-	ObjectRef {ref {$geometry1}}
+	ObjectRef {ref {$suzanne}}
 	MaterialRef (index = 0) {ref {$material1}}
 
 	Transform
@@ -21,10 +55,10 @@ GeometryNode $node1
 	}
 }
 
-GeometryNode $node2
+GeometryNode $node4
 {
 	Name {string {"Suzanne"}}
-	ObjectRef {ref {$geometry1}}
+	ObjectRef {ref {$suzanne}}
 	MaterialRef (index = 0) {ref {$material1}}
 
 	Transform
@@ -39,10 +73,10 @@ GeometryNode $node2
 	}
 }
 
-GeometryNode $node3
+GeometryNode $node5
 {
 	Name {string {"Cube.001"}}
-	ObjectRef {ref {$geometry2}}
+	ObjectRef {ref {$cube_001}}
 	MaterialRef (index = 0) {ref {$material2}}
 
 	Transform
@@ -57,10 +91,10 @@ GeometryNode $node3
 	}
 }
 
-GeometryNode $node4
+GeometryNode $node6
 {
 	Name {string {"Cube"}}
-	ObjectRef {ref {$geometry2}}
+	ObjectRef {ref {$cube_001}}
 	MaterialRef (index = 0) {ref {$material2}}
 
 	Transform
@@ -75,10 +109,10 @@ GeometryNode $node4
 	}
 }
 
-GeometryNode $node5
+GeometryNode $node7
 {
 	Name {string {"Icosphere.002"}}
-	ObjectRef {ref {$geometry3}}
+	ObjectRef {ref {$icosphere}}
 	MaterialRef (index = 0) {ref {$material1}}
 
 	Transform
@@ -93,10 +127,10 @@ GeometryNode $node5
 	}
 }
 
-GeometryNode $node6
+GeometryNode $node8
 {
 	Name {string {"Icosphere.001"}}
-	ObjectRef {ref {$geometry3}}
+	ObjectRef {ref {$icosphere}}
 	MaterialRef (index = 0) {ref {$material1}}
 
 	Transform
@@ -111,10 +145,10 @@ GeometryNode $node6
 	}
 }
 
-GeometryNode $node7
+GeometryNode $node9
 {
 	Name {string {"Icosphere"}}
-	ObjectRef {ref {$geometry3}}
+	ObjectRef {ref {$icosphere}}
 	MaterialRef (index = 0) {ref {$material1}}
 
 	Transform
@@ -129,7 +163,7 @@ GeometryNode $node7
 	}
 }
 
-Node $node8
+Node $node10
 {
 	Name {string {"Area"}}
 
@@ -145,10 +179,10 @@ Node $node8
 	}
 }
 
-GeometryNode $node9
+GeometryNode $node11
 {
 	Name {string {"Ground1"}}
-	ObjectRef {ref {$geometry4}}
+	ObjectRef {ref {$grid}}
 	MaterialRef (index = 0) {ref {$material1}}
 
 	Transform
@@ -163,7 +197,7 @@ GeometryNode $node9
 	}
 }
 
-LightNode $node10
+LightNode $node12
 {
 	Name {string {"Lamp"}}
 	ObjectRef {ref {$light1}}
@@ -180,10 +214,10 @@ LightNode $node10
 	}
 }
 
-CameraNode $node11
+CameraNode $node13
 {
 	Name {string {"Camera"}}
-	ObjectRef {ref {$camera1}}
+	ObjectRef {ref {$camera3}}
 
 	Transform
 	{
@@ -197,16 +231,10 @@ CameraNode $node11
 	}
 }
 
-GeometryObject $geometry1		// Suzanne.001, Suzanne
+GeometryObject $suzanne		// Suzanne.001, Suzanne
 {
 	Mesh (primitive = "triangles")
 	{
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.chunk_name") {string {"Suzanne.001"}}
-
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.collider") { bool { true } }
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.dbg_color") { float[3] { {0.5, 0.5, 0.5}}}
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.test_string") {string {"I am a string"}}
-
 		VertexArray (attrib = "position")
 		{
 			float[3]		// 1998
@@ -792,16 +820,10 @@ GeometryObject $geometry1		// Suzanne.001, Suzanne
 	}
 }
 
-GeometryObject $geometry2		// Cube.001, Cube
+GeometryObject $cube_001		// Cube.001, Cube
 {
 	Mesh (primitive = "triangles")
 	{
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.chunk_name") {string {"Cube.000"}}
-
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.collider") { bool { true } }
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.dbg_color") { float[3] { {0.5, 0.5, 0.5}}}
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.test_string") {string {"I am a string"}}
-
 		VertexArray (attrib = "position")
 		{
 			float[3]		// 202
@@ -917,16 +939,10 @@ GeometryObject $geometry2		// Cube.001, Cube
 	}
 }
 
-GeometryObject $geometry4		// Ground1
+GeometryObject $grid		// Ground1
 {
 	Mesh (primitive = "triangles")
 	{
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.chunk_name") {string {"Grid.001"}}
-
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.collider") { bool { true } }
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.dbg_color") { float[3] { {0.5, 0.5, 0.5}}}
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.test_string") {string {"I am a string"}}
-
 		VertexArray (attrib = "position")
 		{
 			float[3]		// 184
@@ -1037,16 +1053,10 @@ GeometryObject $geometry4		// Ground1
 	}
 }
 
-GeometryObject $geometry3		// Icosphere.002, Icosphere.001, Icosphere
+GeometryObject $icosphere		// Icosphere.002, Icosphere.001, Icosphere
 {
 	Mesh (primitive = "triangles")
 	{
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.chunk_name") {string {"Icosphere.001"}}
-
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.collider") { bool { true } }
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.dbg_color") { float[3] { {0.5, 0.5, 0.5}}}
-		Extension (applic="com.tapnik.tunnel", type="tkchunk.test_string") {string {"I am a string"}}
-
 		VertexArray (attrib = "position")
 		{
 			float[3]		// 55
@@ -1114,7 +1124,21 @@ LightObject $light1 (type = "point")		// Lamp
 	}
 }
 
-CameraObject $camera1		// Camera
+CameraObject $camera1		// OverheadCam
+{
+	Param (attrib = "fov") {float {0.8575560450553894}}
+	Param (attrib = "near") {float {0.10000000149011612}}
+	Param (attrib = "far") {float {100.0}}
+}
+
+CameraObject $camera2		// MonkeyCam
+{
+	Param (attrib = "fov") {float {0.8575560450553894}}
+	Param (attrib = "near") {float {0.10000000149011612}}
+	Param (attrib = "far") {float {100.0}}
+}
+
+CameraObject $camera3		// Camera
 {
 	Param (attrib = "fov") {float {0.8575560450553894}}
 	Param (attrib = "near") {float {0.10000000149011612}}
@@ -1128,21 +1152,6 @@ Material $material1
 	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
 	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
 	Param (attrib = "specular_power") {float {50}}
-
-	Texture (attrib = "diffuse")
-	{
-		string {"TestTile_basecolor.png"}
-	}
-
-	Texture (attrib = "normal")
-	{
-		string {"TestTile_normal.png"}
-	}
-
-	Texture (attrib = "metallic")
-	{
-		string {"TestTile_metallic.png"}
-	}
 }
 
 Material $material2
@@ -1152,9 +1161,4 @@ Material $material2
 	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
 	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
 	Param (attrib = "specular_power") {float {50}}
-
-	Texture (attrib = "diffuse")
-	{
-		string {"wood.png"}
-	}
 }

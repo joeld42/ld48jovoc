@@ -1,6 +1,7 @@
 /* Example:
 
-  /Users/joeld/oprojects/fips-deploy/darkstar/osx-xcode-debug/ldjamtool assets/CAVE_testAssets.ogex gamedata/CAVE_testAssets.ldjam
+
+/Users/joeld/oprojects/fips-deploy/crossroads/osx-xcode-debug/ldjamtool ./assets/TestLevelSF.ogex ./gamedata/TestLevelSF.ldjam
 */
 
 
@@ -55,7 +56,8 @@ glm::mat4x4 g_fixCoordsMatrix2 = glm::mat4x4( 1, 0, 0, 0,
                                               0, 0, 1, 0,
                                               0, 1, 0, 0,
                                               0, 0, 0, 1 );
-glm::mat4x4 g_fixCoordsMatrix = glm::rotate( glm::mat4x4(), 90.0f, glm::vec3( 0, 0, 1 ));
+//glm::mat4x4 g_fixCoordsMatrix = glm::rotate( glm::mat4x4(), 90.0f, glm::vec3( 0, 0, 1 ));
+glm::mat4x4 g_fixCoordsMatrix = glm::mat4();
 
 // ======================================================================
 // ReadEntireFile
@@ -108,13 +110,70 @@ const Structure *FindSubStructureOfType( Structure *structure, StructureType tar
 }
 
 bool WriteGeom( LDJamFileMeshInfo *meshInfo, 
-                OGEX::GeometryObjectStructure *geom, 
+                OGEX::GeometryObjectStructure *geom,
+                const OGEX::MaterialStructure *mtl,
                 FILE *ldjamFP, void *contentBuff )
 {
     // Use the gex name (usually geometry2 or something) but this should be 
     // replaced with the tkchunk.chunkname extension
     strncpy( meshInfo->m_name, geom->GetStructureName(), 32 );
     meshInfo->m_name[31] = 0;
+    
+    // HACK, we're not handling decal UVs consitantly
+    bool flipDecalUVs = true;
+    if (!strcmp( meshInfo->m_name, "gameboard")) {
+        printf ("*** Not flipping decal UVs\n");
+        flipDecalUVs = false;
+    }
+    
+    if (mtl) {
+         const Structure *curr = mtl->GetFirstSubnode();
+        while (curr) {
+            uint32_t structType = curr->GetStructureType();
+            
+            if (structType == kStructureTexture) {
+                TextureStructure *tex = (OGEX::TextureStructure*)curr;
+                
+                
+                if (tex->GetAttribString()=="diffuse") {
+                    const String& stringTexName = tex->GetTextureName();
+                    
+                    const char *texPath = (const char *)stringTexName+2;
+                    
+                    // If the texture has a leading path, drop it
+                    const char *ch = strrchr(texPath, '/');
+                    if (ch) {
+                        texPath = ch+1;
+                    }
+                    
+                    strncpy( meshInfo->m_texture, texPath, 32 );
+                    meshInfo->m_texture[31] = 0;
+                    
+                    // HACK for LD
+                    printf("MESHNAME: %s\n", meshInfo->m_name );
+                    if (!strcmp(meshInfo->m_name,"Crate")) {
+                        strcpy(meshInfo->m_texture, "crate_DIF");
+                    }
+                    
+                    char *ext = strstr( meshInfo->m_texture, ".png");
+                    if (ext) {
+                        *ext = '\0';
+                    }
+                
+                }
+                
+                printf("geom %s, mtl %s tex %s -- \"%s\"\n",
+                       (const char *)geom->GetStructureName(),
+                       (const char *)mtl->GetStructureName(),
+                       (const char *)tex->GetAttribString(),
+                       meshInfo->m_texture
+                       );
+                
+            }
+            
+            curr = curr->Next();
+        }
+    }
 
     // Get the points and figure the bounding box
     OGEX::MeshStructure *mesh = (OGEX::MeshStructure *)FindSubStructureOfType( geom, kStructureMesh );
@@ -128,6 +187,7 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
     DataStructure<FloatDataType> *posData = NULL;
     DataStructure<FloatDataType> *nrmData = NULL;
     DataStructure<FloatDataType> *stData = NULL;
+    DataStructure<FloatDataType> *stDecalData = NULL;
     DataStructure<UnsignedInt32DataType> *indexData = NULL;
     while (curr) {
         uint32_t structType = curr->GetStructureType();
@@ -142,6 +202,8 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
                 nrmData = (DataStructure<FloatDataType>*)vdata->GetFirstSubnode();
             } else if (arrayAttrib == "texcoord") {
                 stData = (DataStructure<FloatDataType>*)vdata->GetFirstSubnode();
+            } else if (arrayAttrib == "texcoord[1]") {
+                stDecalData = (DataStructure<FloatDataType>*)vdata->GetFirstSubnode();
             }
         } else if (structType == kStructureIndexArray) {
             OGEX::IndexArrayStructure *indexArray = (OGEX::IndexArrayStructure*)curr;
@@ -212,10 +274,26 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
             if (stData != NULL) {
                 
                 glm::vec2 st( stData->GetDataElement(i*2+0),
-                              stData->GetDataElement(i*2+1));
+                              1.0f - stData->GetDataElement(i*2+1));
                 //printf("STData %d -- %f %f\n", i, st.x, st.y );
                 meshVert->m_st0 = st;
-                meshVert->m_st1 = st;  // TMP just duplicate into ST1 for now
+                
+                // Do we have decal STs?
+                if ((stDecalData != NULL) && (stDecalData->GetDataElementCount() >= (int32_t)(i*2+1) )) {
+                    glm::vec2 st1;
+                    if (flipDecalUVs) {
+                        st1 = glm::vec2( stDecalData->GetDataElement(i*2+0),
+                                 1.0f - stDecalData->GetDataElement(i*2+1));
+                    } else {
+                        st1 = glm::vec2( stDecalData->GetDataElement(i*2+0),
+                                         stDecalData->GetDataElement(i*2+1));
+                    }
+                    //printf("ST1Data %d -- %f %f\n", i, st1.x, st1.y );
+                    meshVert->m_st1 = st1;
+                } else {
+                    meshVert->m_st1 = st;  // No decal UVs, just duplicate into ST1 now
+                }
+                
             }
 
             meshVert++;
@@ -288,11 +366,79 @@ bool WriteSceneObj( LDJamFileSceneObject *sceneObj,
     return true;
 }
 
+bool WriteSceneCamera( LDJamFileSceneCamera *camera,
+                      const OGEX::CameraNodeStructure *cameraNode,
+                      const OGEX::CameraObjectStructure *cameraObject,
+                      FILE *ldjamFP  )
+{
+    strncpy( camera->m_name, (const char *)(cameraNode->GetNodeName()), 32 );
+    camera->m_name[31] = 0;
+    
+    const Structure *curr = cameraNode->GetFirstSubnode();
+    TransformStructure *transformStruct = NULL;
+    while (curr) {
+        uint32_t structType = curr->GetStructureType();
+        
+        if (structType == kStructureTransform) {
+            transformStruct = (OGEX::TransformStructure*)curr;
+            
+            if (transformStruct->GetTransformCount() != 1) {
+                printf("WARNING: Expected 1 transform for camera %s, got %d?\n",
+                       (const char *)(cameraNode->GetNodeName()),
+                       transformStruct->GetTransformCount() );
+            }
+        }
+        
+        curr = curr->Next();
+    }
+    
+    glm::mat4x4 transform = glm::mat4x4(); // identity
+    if (transformStruct != NULL) {
+        transform = glm::make_mat4( transformStruct->GetTransform() );
+        transform = g_fixCoordsMatrix * transform;
+        
+        dbgPrintMatrix( "transform", transform );
+    } else {
+        printf("WARNING: Didn't find transform for '%s'\n", (const char *)(cameraNode->GetNodeName()) );
+    }
+    camera->m_transform = transform;
+    
+    // Write the content for this object
+    fwrite( camera, sizeof(LDJamFileSceneCamera), 1, ldjamFP );
+    
+    return true;
+}
+
+
+
 struct MeshInfoTable {
     OGEX::GeometryObjectStructure *ogexGeom;
     LDJamFileMeshInfo *jamfileMesh;
 };
 
+// This is slow and bad but it's for a game jam sooo...
+// Find the first GeomNode that uses geomObj and return the material from that
+const OGEX::MaterialStructure *FindMaterialForGeom( const Structure *structure, OGEX::GeometryObjectStructure *geomTarget )
+{
+    while (structure)
+    {
+        uint32_t structType = structure->GetStructureType();
+        if (structType == OGEX::kStructureGeometryNode) {
+            const OGEX::GeometryNodeStructure *geomNode = (OGEX::GeometryNodeStructure*)structure;
+            const OGEX::GeometryObjectStructure *geomObj = (OGEX::GeometryObjectStructure*)geomNode->GetObjectStructure();
+            
+            if (geomObj == geomTarget) {
+                // found it, get the material
+                const OGEX::MaterialStructure *mtl = geomNode->GetMaterial(0);
+                if (mtl) {
+                    return mtl;
+                }
+            }
+        }
+        structure = structure->Next();
+    }
+    return NULL;
+}
 
 // ======================================================================
 // LDJAM Scene Tool main
@@ -310,14 +456,17 @@ int main( int argc, char *argv[] )
     void *ldjamContentBuff = malloc( SCENEFILE_CONTENT_BUFF_SIZE );
 
     LDJamFileHeader *header = (LDJamFileHeader*)fileHeader;
-    header->m_fourCC = 'LD48';
-    header->m_fileVersion = 1;
     
     LDJamFileMeshInfo *firstMeshInfo = (LDJamFileMeshInfo*)(fileHeader + sizeof(LDJamFileHeader));
     LDJamFileMeshInfo *nextMeshInfo = firstMeshInfo;
 
     // write out a blank header, fill it in after gathering all the chunks
     memset( fileHeader, 0, fileHeaderSize );
+
+    header->m_fourCC = 'LD48';
+    header->m_fileVersion = LDJAMFILE_VERSION;
+
+    printf("%s\n", argv[0] );
 
     if (argc < 3) {
         printf("Usage: ldjamtool <filename.ogex> <outfile.ldjam>\n");
@@ -343,107 +492,147 @@ int main( int argc, char *argv[] )
             FourCC2Str(result), openGexDataDescription.GetErrorLine(),
             DescribeError( result ) );
 
-    } else {
+        exit(1);
+    }
 
-        // Make the output file
-        ldjamFP = fopen( argv[2], "wb");
-        if (!ldjamFP) {
-            printf("Failed to open ldjam output file '%s'\n", argv[2] );            
-        } else {
+    // Make the output file
+    ldjamFP = fopen( argv[2], "wb");
+    if (!ldjamFP) {
+        printf("Failed to open ldjam output file '%s'\n", argv[2] );
+        exit(1);
+    }
 
-            // Write out a placeholder header
-            fwrite( fileHeader, fileHeaderSize, 1, ldjamFP );
+    // Write out a placeholder header
+    fwrite( fileHeader, fileHeaderSize, 1, ldjamFP );
 
-            const Structure *structure = openGexDataDescription.GetRootStructure()->GetFirstSubnode();
+    const Structure *structure = openGexDataDescription.GetRootStructure()->GetFirstSubnode();
 
-            // Build up scene db
-            while (structure) 
-            {
-                uint32_t structType = structure->GetStructureType();
+    // Build up scene db
+    while (structure)
+    {
+        uint32_t structType = structure->GetStructureType();
 //                if (structType == OGEX::kStructureMetric) {
 //                    const OGEX::MetricStructure *metric = (OGEX::MetricStructure*)structure;
 //                    printf("Metric: %s\n", (const char *)metric->GetMetricKey() );
 //                }
+        
+        OGEX::GeometryObjectStructure *geomObj = (OGEX::GeometryObjectStructure*)structure;
 
-                // Add all the geometries to the chunk file buffer
-                if (structType == OGEX::kStructureGeometryObject) {                    
-                    assert( header->m_numChunks < (MAX_MESHES-1) );
-                    if (WriteGeom( nextMeshInfo, (OGEX::GeometryObjectStructure*)structure, ldjamFP, ldjamContentBuff )) {
-                        
-                        // Add to the mesh table so we can find it again
-                        MeshInfoTable &meshAssoc = meshTable[meshTableSize++];
-                        meshAssoc.ogexGeom = (OGEX::GeometryObjectStructure*)structure;
-                        meshAssoc.jamfileMesh = nextMeshInfo;
-                        
-                        header->m_numChunks++;
-                        nextMeshInfo++;
-                    }
-                }
-
-                /*
-                const OGEX::MetricStructure *metric = dynamic_cast<const OGEX::MetricStructure *>(structure);
-                if (metric) {
-                        printf("Metric: %s\n", (const char *)metric->GetMetricKey() );
-                }
-
-                const OGEX::GeometryNodeStructure *geomNode = dynamic_cast<const OGEX::GeometryNodeStructure *>(structure);
-                if (geomNode) {
-                        printf("Geometry Node: %s\n", geomNode->GetNodeName() );
-                        //const Map<MeshStructure> *meshMap = geomNode->GetMeshMap();
-                }
-                
-                const OGEX::MaterialStructure *material = dynamic_cast<const OGEX::MaterialStructure *>(structure);
-                if (material) {
-                    printf("Material: %s\n", material->GetMaterialName() );
-                }
-                */
-                structure = structure->Next();
-            }
+        // Add all the geometries to the chunk file buffer
+        if (structType == OGEX::kStructureGeometryObject) {
+            assert( header->m_numChunks < (MAX_MESHES-1) );
             
-            // Now encode all the scene nodes
-            printf("Dumping scene objects...\n");
-            header->m_sceneObjOffs = ftell( ldjamFP );
+            // Get the material for this Geom
+            const OGEX::MaterialStructure *mtl =  FindMaterialForGeom( openGexDataDescription.GetRootStructure()->GetFirstSubnode(),
+                                                                geomObj );
             
-            structure = openGexDataDescription.GetRootStructure()->GetFirstSubnode();
-            while (structure)
-            {
-                uint32_t structType = structure->GetStructureType();
-                //printf(" struct... %s type '%s'\n",
-                //       structure->GetStructureName(),
-                //       FourCC2Str( structType ) );
-
-                  if (structType == OGEX::kStructureGeometryNode) {
-                      const OGEX::GeometryNodeStructure *geomNode = (OGEX::GeometryNodeStructure*)structure;
-                      const OGEX::GeometryObjectStructure *geomObj = (OGEX::GeometryObjectStructure*)geomNode->GetObjectStructure();
-                      
-                      // Find it in the mesh table
-                      int meshIndex = -1;
-                      for (int i=0; i<meshTableSize; i++) {
-                          if (meshTable[i].ogexGeom == geomObj) {
-                              meshIndex = i;
-                              break;
-                          }
-                      }
-                      
-                      if (meshIndex == -1) {
-                          printf("Geometry Node: %s GEOM NOT FOUND\n", (const char *)geomNode->GetNodeName() );
-                      } else {
-                          printf("Geometry Node: %s GEOM %d [%s]\n",
-                                 (const char *)geomNode->GetNodeName(), meshIndex,
-                                 meshTable[meshIndex].jamfileMesh->m_name );
-                          
-                          LDJamFileSceneObject sceneObj;
-                          sceneObj.m_meshIndex = meshIndex;
-                          WriteSceneObj(&sceneObj, geomNode, ldjamFP );
-                          
-                          header->m_numSceneObjs++;
-                      }
-                  }
+            if (WriteGeom( nextMeshInfo, geomObj, mtl, ldjamFP, ldjamContentBuff )) {
                 
-                structure = structure->Next();
+                // Add to the mesh table so we can find it again
+                MeshInfoTable &meshAssoc = meshTable[meshTableSize++];
+                meshAssoc.ogexGeom = (OGEX::GeometryObjectStructure*)structure;
+                meshAssoc.jamfileMesh = nextMeshInfo;
+                
+                header->m_numChunks++;
+                nextMeshInfo++;
             }
         }
+
+        /*
+        const OGEX::MetricStructure *metric = dynamic_cast<const OGEX::MetricStructure *>(structure);
+        if (metric) {
+                printf("Metric: %s\n", (const char *)metric->GetMetricKey() );
+        }
+
+        const OGEX::GeometryNodeStructure *geomNode = dynamic_cast<const OGEX::GeometryNodeStructure *>(structure);
+        if (geomNode) {
+                printf("Geometry Node: %s\n", geomNode->GetNodeName() );
+                //const Map<MeshStructure> *meshMap = geomNode->GetMeshMap();
+        }
+        
+        const OGEX::MaterialStructure *material = dynamic_cast<const OGEX::MaterialStructure *>(structure);
+        if (material) {
+            printf("Material: %s\n", material->GetMaterialName() );
+        }
+        */
+        structure = structure->Next();
     }
+    
+    // Now encode all the scene nodes
+    printf("Dumping scene objects...\n");
+    header->m_sceneObjOffs = ftell( ldjamFP );
+    
+    structure = openGexDataDescription.GetRootStructure()->GetFirstSubnode();
+    while (structure)
+    {
+        uint32_t structType = structure->GetStructureType();
+        //printf(" struct... %s type '%s'\n",
+        //       structure->GetStructureName(),
+        //       FourCC2Str( structType ) );
+
+          if (structType == OGEX::kStructureGeometryNode) {
+              const OGEX::GeometryNodeStructure *geomNode = (OGEX::GeometryNodeStructure*)structure;
+              const OGEX::GeometryObjectStructure *geomObj = (OGEX::GeometryObjectStructure*)geomNode->GetObjectStructure();
+              
+              // Find it in the mesh table
+              int meshIndex = -1;
+              for (int i=0; i<meshTableSize; i++) {
+                  if (meshTable[i].ogexGeom == geomObj) {
+                      meshIndex = i;
+                      break;
+                  }
+              }
+              
+              if (meshIndex == -1) {
+                  printf("Geometry Node: %s GEOM NOT FOUND\n", (const char *)geomNode->GetNodeName() );
+              } else {
+                  printf("Geometry Node: %s GEOM %d [%s]\n",
+                         (const char *)geomNode->GetNodeName(), meshIndex,
+                         meshTable[meshIndex].jamfileMesh->m_name );
+                  
+                  LDJamFileSceneObject sceneObj;
+                  sceneObj.m_meshIndex = meshIndex;
+                  WriteSceneObj(&sceneObj, geomNode, ldjamFP );
+                  
+                  header->m_numSceneObjs++;
+              }
+          }
+        
+        structure = structure->Next();
+    }
+
+    
+    // Now encode all the cameras
+    printf("Dumping cameras...\n");
+    header->m_cameraOffs = ftell( ldjamFP );
+    
+    structure = openGexDataDescription.GetRootStructure()->GetFirstSubnode();
+    while (structure)
+    {
+        uint32_t structType = structure->GetStructureType();
+        //printf(" struct... %s type '%s'\n",
+        //       structure->GetStructureName(),
+        //       FourCC2Str( structType ) );
+        
+        if (structType == OGEX::kStructureCameraNode) {
+
+            const OGEX::CameraNodeStructure *camNode = (OGEX::CameraNodeStructure*)structure;
+            
+            // TODO: Find the maching CameraObject
+            const OGEX::CameraObjectStructure *camObject = NULL;
+            
+            printf("Camera Node: %s CAM [%s]\n",
+                       (const char *)camNode->GetNodeName(), "???"  );
+                
+            LDJamFileSceneCamera camera;
+            WriteSceneCamera(&camera, camNode, camObject, ldjamFP );
+                
+            header->m_numCameras++;
+        }
+        
+        structure = structure->Next();
+    }
+    
 
     printf("HEADER: %d chunks...\n", header->m_numChunks );
     for (uint32_t i=0; i < header->m_numChunks; i++) {

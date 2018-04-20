@@ -8,18 +8,23 @@
 
 #include "glm/glm.hpp"
 
+#define LDJAMFILE_VERSION (3)
 
 #pragma pack(push, 1)
 
 struct LDJamFileHeader 
 {
 	uint32_t m_fourCC;    // Expects 'LD48'
-    uint32_t m_fileVersion;
+    uint32_t m_fileVersion; // LDJAMFILE_VERSION
 	
     uint32_t m_numChunks;
     
+    uint32_t m_numCameras;
     uint32_t m_numSceneObjs;
-    uint32_t m_sceneObjOffs;  // After chunks? need to clean this up
+    
+    // After chunks? need to clean this up
+    uint32_t m_sceneObjOffs;
+    uint32_t m_cameraOffs;
 };
 
 
@@ -27,7 +32,8 @@ struct LDJamFileHeader
 // db header.
 struct LDJamFileMeshInfo
 {
-	char m_name[32];	
+	char m_name[32];
+    char m_texture[32];
 	glm::vec4 m_tintColor;
 
 	glm::vec3 m_bboxMin;
@@ -51,6 +57,13 @@ struct LDJamFileSceneObject
     glm::mat4x4 m_transform;
     
     // TODO: Material
+};
+
+struct LDJamFileSceneCamera
+{
+    char m_name[32];
+    glm::mat4x4 m_transform;
+    float fovx;
 };
 
 struct LDJamFileVertex

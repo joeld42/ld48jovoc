@@ -3,7 +3,8 @@
 #
 cmake_minimum_required(VERSION 2.8)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
+#set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
+set(MACOSX_DEPLOYMENT_TARGET 10.12)
 
 # include the fips main cmake file
 get_filename_component(FIPS_ROOT_DIR "../fips" ABSOLUTE)

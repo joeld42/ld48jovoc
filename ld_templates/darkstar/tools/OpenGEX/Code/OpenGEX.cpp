@@ -851,6 +851,13 @@ GeometryNodeStructure::~GeometryNodeStructure()
 {
 }
 
+const MaterialStructure *GeometryNodeStructure::GetMaterial( int index ) const
+{
+    if (materialStructureArray.GetElementCount() > index) {
+        return materialStructureArray[index];
+    } else return NULL;
+}
+
 bool GeometryNodeStructure::ValidateProperty(const DataDescription *dataDescription, const String& identifier, DataType *type, void **value)
 {
 	if (identifier == "visible")

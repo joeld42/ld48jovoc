@@ -45,4 +45,4 @@ void main() {
 }
 @end
 
-@program TestShader displayVS displayFS
+@program WorldShader displayVS displayFS
