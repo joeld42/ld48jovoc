@@ -20,10 +20,15 @@
 #include "IO/IO.h"
 #include "LocalFS/LocalFileSystem.h"
 
+#include "soloud.h"
+#include "soloud_wav.h"
+#include "soloud_wavstream.h"
+
 #include "Camera.h"
 #include "SceneObject.h"
 #include "DebugDraw.h"
 #include "UIAssets.h"
+
 
 class DarkStarApp : public Oryol::App {
     
@@ -79,5 +84,14 @@ private:
     void interfaceScreens( Tapnik::UIAssets *uiAssets );
     
     Tapnik::UIAssets *uiAssets;
+    SoLoud::Soloud soloud;
+    
+    // TODO: wrap up all this 
+    Oryol::Buffer sfxJumpData;
+    SoLoud::Wav sfxJump;
+    
+    int musicPlaying = 0;
+    Oryol::Buffer musicData;
+    SoLoud::WavStream music;
 };
 #endif

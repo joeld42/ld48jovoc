@@ -10,6 +10,12 @@
 #include "Input/Input.h"
 #include "Core/Time/Clock.h"
 
+//#include "Sound/Sound.h"
+//#include "Sound/SoundGen.h"
+#include "soloud.h"
+#include "soloud_wav.h"
+#include "soloud_wavstream.h"
+
 #include "Assets/Gfx/ShapeBuilder.h"
 
 #include "glm/gtc/type_ptr.hpp"
@@ -20,7 +26,11 @@
 
 
 #include "IO/IO.h"
+#if ORYOL_EMSCRIPTEN
+#include "HttpFS/HTTPFileSystem.h"
+#else
 #include "LocalFS/LocalFileSystem.h"
+#endif
 
 #include "Camera.h"
 #include "SceneObject.h"
@@ -64,6 +74,24 @@ DarkStarApp::OnInit() {
     Dbg::Setup();
 
     Input::Setup();
+    
+    
+    // Initialize SoLoud (automatic back-end selection)
+    soloud.init();
+    
+    IO::Load("gamedata:jump.wav", [this](IO::LoadResult loadResult) {
+        this->sfxJumpData = std::move(loadResult.Data);
+        sfxJump.loadMem(sfxJumpData.Data(), sfxJumpData.Size(), true, false );
+        printf("SFX Jump loaded...\n");
+    });
+    
+    IO::Load("gamedata:irongame.ogg", [this](IO::LoadResult loadResult) {
+        this->musicData = std::move(loadResult.Data);
+        music.loadMem(musicData.Data(), musicData.Size(), true, false );
+        music.setLooping(true);
+        soloud.play( music );
+        musicPlaying = 1;
+    });
     /*
     Input::SetPointerLockHandler([this](const InputEvent& event) -> PointerLockMode::Code {
         if (event.Button == MouseButton::Left) {
@@ -396,8 +424,19 @@ void DarkStarApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
             nextCamera();
         }
         
-        if (nk_button_label(ctx, "Button 2")) {
+        if (nk_button_label(ctx, "SFX Jump")) {
             printf("Button 2 pressed...\n");
+            soloud.play( sfxJump );
+        }
+        
+        nk_layout_row_dynamic( ctx, 50, 1);
+        if (nk_checkbox_label(ctx, "Music", &musicPlaying ) ) {        
+            printf("Music Toggled: %s\n", musicPlaying?"ON":"OFF");
+            if (!musicPlaying) {
+                music.stop();
+            } else {
+                soloud.play( music );
+            }
         }
         
     }
