@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 2.8)
 #set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
 set(MACOSX_DEPLOYMENT_TARGET 10.12)
 
+
 # include the fips main cmake file
 get_filename_component(FIPS_ROOT_DIR "../fips" ABSOLUTE)
 include("${FIPS_ROOT_DIR}/cmake/fips.cmake")
@@ -18,10 +19,12 @@ include("${FIPS_ROOT_DIR}/cmake/fips.cmake")
 #set(ORYOL_SAMPLE_URL "http://floooh.github.com/oryol-samples/data/" CACHE STRING "Samples URL" FORCE)
 
 set(MACOSX_DEPLOYMENT_TARGET 10.12)
+set(FIPS_EMSCRIPTEN_RELATIVE_SHELL_HTML "html/shell_darkstar.html")
 
 fips_setup()
 fips_project(darkstar)
 include_directories(code)
+
 
 # FIXME: only add tools directory to tools build
 fips_include_directories(tools/OpenDDL/Code)
