@@ -51,6 +51,12 @@ public:
         glm::mat4x4 invXform;
         bool mouseHovering;
         bool hoverDirty; // Force recheck hover even if mouse hasn't moved
+        
+        // Special stuff for cards
+        float flipAmount;
+        float tiltAmount;
+        glm::vec2 tablePos;
+        float cardSize;
     };
     
     bool hidden;

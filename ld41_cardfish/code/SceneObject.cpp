@@ -279,8 +279,9 @@ void Scene::CreateCardMeshes()
     
     for (int cardNdx=0; cardNdx < 2; cardNdx++)
     {
-        int numVerts = 4;
-        int numTriIndices = 6;
+        int numVerts = 8;
+        int numTriIndices = 12;
+        int slot = cardNdx + 1; //slot 0 is card back
         
         Oryol::Buffer buff;
         buff.Reserve(sizeof(LDJamFileVertex) * numVerts + sizeof(uint16_t) * numTriIndices);
@@ -292,25 +293,44 @@ void Scene::CreateCardMeshes()
         meshSetup.NumIndices = numTriIndices;
         
         vertData[0].m_pos = glm::vec3( -0.5f, -0.5f*cardAspect, 0.0f );
-        vertData[0].m_st0 = glm::vec2( cardUVWidth * (cardNdx+0), 1.0f );
+        vertData[0].m_st0 = glm::vec2( cardUVWidth * (slot+0), 1.0f );
         
         vertData[1].m_pos = glm::vec3(  0.5f, -0.5f*cardAspect, 0.0f );
-        vertData[1].m_st0 = glm::vec2( cardUVWidth * (cardNdx+1), 1.0f );
+        vertData[1].m_st0 = glm::vec2( cardUVWidth * (slot+1), 1.0f );
         
         vertData[2].m_pos = glm::vec3(  0.5f,  0.5f*cardAspect, 0.0f );
-        vertData[2].m_st0 = glm::vec2( cardUVWidth * (cardNdx+1), 0.0f );
+        vertData[2].m_st0 = glm::vec2( cardUVWidth * (slot+1), 0.0f );
         
         vertData[3].m_pos = glm::vec3( -0.5f,  0.5f*cardAspect, 0.0f );
-        vertData[3].m_st0 = glm::vec2( cardUVWidth * (cardNdx+0), 0.0f );
+        vertData[3].m_st0 = glm::vec2( cardUVWidth * (slot+0), 0.0f );
+        
+        // Card Back
+        vertData[4].m_pos = glm::vec3( -0.5f, -0.5f*cardAspect, 0.0f );
+        vertData[4].m_st0 = glm::vec2( 0.0f, 1.0f );
+        
+        vertData[5].m_pos = glm::vec3(  0.5f, -0.5f*cardAspect, 0.0f );
+        vertData[5].m_st0 = glm::vec2( cardUVWidth, 1.0f );
+        
+        vertData[6].m_pos = glm::vec3(  0.5f,  0.5f*cardAspect, 0.0f );
+        vertData[6].m_st0 = glm::vec2( cardUVWidth, 0.0f );
+        
+        vertData[7].m_pos = glm::vec3( -0.5f,  0.5f*cardAspect, 0.0f );
+        vertData[7].m_st0 = glm::vec2( 0.0f, 0.0f );
 
-        for (int i=0; i < 4; i++) {
-            vertData[0].m_nrm = glm::vec3( 0.0f, 0.0f, 1.0f);
-            vertData[0].m_st1 = vertData[0].m_st0;
+
+        for (int i=0; i < numVerts; i++) {
+            vertData[i].m_nrm = glm::vec3( 0.0f, 0.0f, 1.0f);
+            vertData[i].m_st1 = vertData[i].m_st0;
         }
         
+        // card front
         indexData[0] = 0; indexData[1] = 1; indexData[2] = 2;
         indexData[3] = 0; indexData[4] = 2; indexData[5] = 3;
-        
+
+        // card back
+        indexData[6] = 4; indexData[7] = 6; indexData[8] = 5;
+        indexData[9] = 4; indexData[10] = 7; indexData[11] = 6;
+
         meshSetup.IndicesType = IndexType::Index16;
         meshSetup.Layout = meshLayout;
         

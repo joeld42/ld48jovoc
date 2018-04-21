@@ -19,7 +19,7 @@ struct UIAssets {
     Oryol::float32 fbHeight;
     
     // Common UI assets
-    struct nk_font *font_14;
+    struct nk_font *font_20;
     struct nk_font *font_30;
     
     // large rectangulerish buttons

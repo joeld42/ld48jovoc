@@ -17,7 +17,7 @@ void UIAssets::SetupUI()
         // need to make the data static
         this->ttfData = std::move(loadResult.Data);
         NKUI::BeginFontAtlas();
-        this->font_14 = NKUI::AddFont(this->ttfData, 14.0f);
+        this->font_20 = NKUI::AddFont(this->ttfData, 20.0f);
         this->font_30 = NKUI::AddFont(this->ttfData, 30.0f);
         NKUI::EndFontAtlas();
         

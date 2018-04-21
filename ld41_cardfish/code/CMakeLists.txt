@@ -1,6 +1,7 @@
 fips_begin_app(ld41_cardfish windowed)
     fips_files(CardFish-Main.cpp 
     	       CardFishApp.h CardFishApp.cpp
+    	       CardFishGame.h CardFishGame.cpp
     		  SceneObject.cpp SceneObject.h
 	          #SceneCoordinator.cpp SceneCoordinator.h
 	          #SceneController.cpp SceneController.h 

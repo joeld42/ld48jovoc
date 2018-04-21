@@ -42,6 +42,9 @@
 using namespace Oryol;
 using namespace Tapnik;
 
+#define DRAW_ANIM_TIME (0.5f)
+#define BIG_CARD_SIZE (2.5f)
+
 //------------------------------------------------------------------------------
 AppState::Code
 CardFishApp::OnInit() {
@@ -229,6 +232,8 @@ CardFishApp::OnRunning() {
     //this->lateUpdate();
         
     // === Finalize Transforms
+    this->updateCards();
+    
     gameScene->finalizeTransforms( activeCamera->ViewProj, cardCamera.ViewProj );
     this->updatePicking();
     
@@ -271,7 +276,7 @@ CardFishApp::OnRunning() {
     
     // Do UI
     if (this->uiAssets->fontValid) {
-        //this->interfaceScreens( uiAssets );
+        this->interfaceScreens( uiAssets );
     }
     
     Dbg::DrawTextBuffer();
@@ -357,7 +362,7 @@ void CardFishApp::updatePicking()
             
             if (RayHitObject( obj, obj->isCard?mouseCardsRay:mouseRay) ) {
                 obj->interaction->mouseHovering = true;
-                obj->vsParams.tintColor = glm::vec4( 1,1,0,1 );
+                obj->vsParams.tintColor = glm::vec4( 1,1,1,1 );
             } else {
                 obj->vsParams.tintColor = glm::vec4( 1 );
                 obj->interaction->mouseHovering = false;
@@ -368,6 +373,26 @@ void CardFishApp::updatePicking()
         //dbgDrawBBox( obj, dd:: );
         // TODO: if it's a tile, hover it
     }
+    
+    // For testing...
+    /*
+    for (int i=0; i < testCards.Size(); i++) {
+        SceneObject *obj = testCards[i];
+        if (obj->interaction->mouseHovering) {
+            obj->interaction->flipAmount += 0.05f;
+        } else {
+            obj->interaction->flipAmount -= 0.08f;
+        }
+        obj->interaction->flipAmount = glm::clamp( obj->interaction->flipAmount, 0.0f, 1.0f);
+        
+        
+        glm::mat4 xlate = glm::translate( glm::mat4(), glm::vec3( ((float)i-2.5) * 1.2f, -2.0f, 0.0f ));
+        glm::mat4 rot = glm::rotate( xlate,
+                                    obj->interaction->flipAmount * glm::pi<float>(),
+                                    glm::vec3(0.0f, 1.0f, 0.0f)  );
+        obj->xform = rot;
+    }
+     */
 }
 
 // =======================================================================================
@@ -380,35 +405,125 @@ void CardFishApp::onSceneLoaded()
     gameCamera.UpdateModel( cam.mat );
     gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 0.01f, 1000.0f);
     
+    deckTablePos = glm::vec2( 2.86f, -2.1f );
+    currCardTablePos = glm::vec2(0.0f, 0.35f);
+    
+    /*
     for (int i=0; i < 5; i++) {
         SceneObject *obj = gameScene->spawnObjectWithMeshNamed( (i&0x1)?"card0":"card1");
         obj->isCard = true;
         obj->makeInteractable();
         obj->xform = glm::translate(glm::mat4(), glm::vec3( ((float)i-2.5) * 1.2f, -2.0f, 0.0f ));
+        testCards.Add( obj );
     }
+    */
+    
+    game.resetGame();
+    prepareNextDrawCard();
+    drawNextCard();
 }
 void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
 {
+    gameTime += fixedDt;
+    float dt = fixedDt.AsSeconds();
     
+    // Need to animate the current card??
+    if (currentCard.drawAnimTimer > 0.0f) {
+        currentCard.drawAnimTimer -= dt;
+        if (currentCard.drawAnimTimer < 0.0f) {
+            currentCard.drawAnimTimer = 0.0f;
+        }
+        
+        float t = currentCard.drawAnimTimer / DRAW_ANIM_TIME;
+        currentCard.sceneObj->interaction->tablePos = glm::mix( this->currCardTablePos, this->deckTablePos, t );
+        currentCard.sceneObj->interaction->flipAmount = t;
+        currentCard.sceneObj->interaction->cardSize = glm::mix( BIG_CARD_SIZE, 1.0f, t );
+    } else {
+        if ((currentCard.sceneObj) && (currentCard.sceneObj->interaction)) {
+            if (isDraggingCard) {
+                if (activeDropZone == DropZone_LAKE) {
+                    currentCard.sceneObj->isCard = false;
+                    
+                    //currentCard.sceneObj->xform = glm::translate( glm::mat4(), groundCursor );
+                    
+                    glm::mat4 xlate = glm::translate( glm::mat4(), groundCursor );
+                    glm::mat4 rot1 = glm::rotate( xlate, glm::radians( 90.0f),
+                                                glm::vec3(1.0f, 0.0f, 0.0f)  );
+                    glm::mat4 rot2 = glm::rotate( rot1,
+                                                float(gameTime.AsSeconds() * glm::pi<float>()),
+                                                glm::vec3(0.0f, 1.0f, 0.0f)  );
+                    glm::mat4 scl = glm::scale( rot2, glm::vec3( 5.0f ));
+                    currentCard.sceneObj->xform = scl;
+                    
+                } else {
+                    currentCard.sceneObj->isCard = true;
+                    currentCard.sceneObj->interaction->tablePos = glm::vec2( tableCursor );
+                }
+            } else {
+                // Fly card back to table center
+                currentCard.sceneObj->interaction->tablePos = glm::mix( currentCard.sceneObj->interaction->tablePos,
+                                                                       this->currCardTablePos, 0.3f );
+            }
+        }
+    }
+    
+
 }
 
 void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
 {
     // Update mouse ray and ground cursor
-    mouseRay = gameCamera.getCameraRay(Input::MousePosition().x,
-                                       Input::MousePosition().y );
+    glm::vec2 mousePos = Input::MousePosition();
+    mouseRay = gameCamera.getCameraRay(mousePos.x, mousePos.y );
     
     // find where the ray hits the ground plane
     float t = mouseRay.pos.z / -mouseRay.dir.z;
     groundCursor = mouseRay.pos + ( mouseRay.dir * t );
     
-    mouseCardsRay = cardCamera.getCameraRay(Input::MousePosition().x,
-                                            Input::MousePosition().y );
+    mouseCardsRay = cardCamera.getCameraRay( mousePos.x, mousePos.y );
+
+    float t2 = mouseCardsRay.pos.z / -mouseCardsRay.dir.z;
+    tableCursor = mouseCardsRay.pos + ( mouseCardsRay.dir * t2 );
 
 //    Dbg::PrintF( "CardsRay: %3.2f %3.2f %3.2f\r\n",
 //                mouseCardsRay.dir.x,
 //                mouseCardsRay.dir.y,
 //                mouseCardsRay.dir.z );
+    
+    // TODO: Touch screens
+    if (Input::MouseButtonDown(MouseButton::Left)) {
+        if (currentCard.sceneObj->interaction->mouseHovering) {
+            isDraggingCard = true;
+            currentCard.sceneObj->interaction->cardSize = 0.8f;
+        }
+    }
+    if (Input::MouseButtonUp(MouseButton::Left)) {
+        isDraggingCard = false;
+        
+        // Handle drop
+        if ((activeDropZone == DropZone_TACKLE) && (game.tackleCards.Size() < 5)) {
+
+            // ADD TACKLE CARD
+            currentCard.sceneObj->isCard = true;
+            currentCard.sceneObj->interaction->cardSize = 1.0f;
+            currentCard.sceneObj->interaction->tablePos = glm::vec2( -2.86 + 1.0*game.tackleCards.Size(), -2.1f);
+            game.tackleCards.Add( currentCard );
+            
+            drawNextCard();
+        } else {
+            // Fly back to table center
+            currentCard.sceneObj->isCard = true;
+            currentCard.sceneObj->interaction->cardSize = BIG_CARD_SIZE;
+            currentCard.sceneObj->interaction->tablePos = glm::vec2( tableCursor );
+        }
+        
+    }
+    
+    activeDropZone = DropZone_LAKE;
+    //Dbg::PrintF("MouseY %f\n\r", mousePos.y );
+    if (mousePos.y > (uiAssets->fbHeight - 200) ) {
+        activeDropZone = DropZone_TACKLE;
+    }
 }
 
 void CardFishApp::draw()
@@ -430,18 +545,59 @@ void CardFishApp::nextCamera()
     gameCamera.UpdateModel( cam.mat );
 }
 
-void CardFishApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
+void CardFishApp::updateCards()
 {
-    // Draw UI Layer
-    nk_context* ctx = NKUI::NewFrame();
-    
-    //ctx->style.button.normal.data.color = nk_rgb( 20, 80, 20 );
-    //ctx->style.button.hover.data.color = nk_rgb( 100, 150, 100 );
-    //ctx->style.window.fixed_background = nk_style_item_image( uiAssets->img_frame );
-    
-    ctx->style.window.background = { 0, 0, 0, 0 };
-    ctx->style.window.fixed_background.data.color = { 0, 0, 0, 0 };
-    
+    for (int i=0; i < gameScene->sceneObjs.Size(); i++) {
+        SceneObject *obj = gameScene->sceneObjs[i];
+        if (obj->hidden) continue;
+        if ((obj->isCard) && (obj->interaction)) {
+            
+            obj->interaction->flipAmount = glm::clamp( obj->interaction->flipAmount, 0.0f, 1.0f);
+            
+            glm::vec2 tablePos = obj->interaction->tablePos;
+            
+            glm::mat4 xlate = glm::translate( glm::mat4(), glm::vec3( tablePos.x, tablePos.y, 0.0f ));
+            glm::mat4 rot = glm::rotate( xlate,
+                                        obj->interaction->flipAmount * glm::pi<float>(),
+                                        glm::vec3(0.0f, 1.0f, 0.0f)  );
+            glm::mat4 scl = glm::scale( rot, glm::vec3( obj->interaction->cardSize));
+            obj->xform = scl;
+        }
+    }
+
+}
+
+void CardFishApp::prepareNextDrawCard()
+{
+    if (game.deck.Size() > 0) {
+        Card &card = game.deck.Back();
+        
+        SceneObject *obj = gameScene->spawnObjectWithMeshNamed( card.cardId );
+        obj->isCard = true;
+        obj->makeInteractable();
+        obj->interaction->flipAmount = 1.0f;
+        obj->interaction->cardSize = 1.0f;
+        obj->interaction->tablePos = deckTablePos;
+        //obj->xform = glm::translate(glm::mat4(), glm::vec3( 2.9f, -2.1f, 0.0f ));
+        
+        card.sceneObj = obj;
+    }
+}
+
+void CardFishApp::drawNextCard()
+{
+    if (game.deck.Size() > 0) {
+        currentCard = game.deck.PopBack();
+        currentCard.drawAnimTimer = DRAW_ANIM_TIME;
+        
+        prepareNextDrawCard();
+    }
+}
+
+// ------------------------------------------------
+
+void CardFishApp::interfaceTitle( nk_context* ctx )
+{
     
     struct nk_panel layout;
     //static nk_flags window_flags = NK_WINDOW_BORDER;
@@ -449,13 +605,13 @@ void CardFishApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
     
     float titleW = 800;
     float titleH = 175;
-//    float titleMarg = (uiAssets->fbWidth - titleW) / 2;
-//    if (nk_begin(ctx, &layout, "title_card", nk_rect( titleMarg, 30, titleW, 175), window_flags))
-//    {
-//        nk_layout_row_dynamic( ctx, titleH, 1);
-//        nk_image( ctx, uiAssets->img_title );
-//    }
-//    nk_end(ctx);
+    //    float titleMarg = (uiAssets->fbWidth - titleW) / 2;
+    //    if (nk_begin(ctx, &layout, "title_card", nk_rect( titleMarg, 30, titleW, 175), window_flags))
+    //    {
+    //        nk_layout_row_dynamic( ctx, titleH, 1);
+    //        nk_image( ctx, uiAssets->img_title );
+    //    }
+    //    nk_end(ctx);
     
     //float menuW = 223;
     
@@ -484,7 +640,7 @@ void CardFishApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
         }
         
         nk_layout_row_dynamic( ctx, 50, 1);
-        if (nk_checkbox_label(ctx, "Music", &musicPlaying ) ) {        
+        if (nk_checkbox_label(ctx, "Music", &musicPlaying ) ) {
             printf("Music Toggled: %s\n", musicPlaying?"ON":"OFF");
             if (!musicPlaying) {
                 music.stop();
@@ -495,6 +651,48 @@ void CardFishApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
         
     }
     nk_end(ctx);
+
+}
+
+void CardFishApp::interfaceGame( nk_context* ctx )
+{
+    
+    struct nk_panel layout;
+    static nk_flags window_flags = 0;
+    
+    
+    ctx->style.window.padding = nk_vec2(0,0);
+    ctx->style.window.padding = nk_vec2(0,0);
+    
+    nk_style_set_font(ctx, &(uiAssets->font_30->handle));
+    ctx->style.text.color = nk_rgb(255,255,255);
+    
+    uiAssets->buttonStyleNormal(ctx);
+    
+    if (nk_begin(ctx, &layout, "game", nk_rect( uiAssets->fbWidth - 150,
+                                                uiAssets->fbHeight - 110,
+                                                    100, 100), window_flags))
+    {
+        // Draw pile
+        nk_layout_row_dynamic( ctx, 40, 1);
+        char buff[20];
+        sprintf( buff, "%d", game.deck.Size() );
+        nk_label(ctx, buff, NK_TEXT_CENTERED );
+    }
+    nk_end(ctx);
+
+}
+
+void CardFishApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
+{
+    // Draw UI Layer
+    nk_context* ctx = NKUI::NewFrame();
+    
+    ctx->style.window.background = { 0, 0, 0, 0 };
+    ctx->style.window.fixed_background.data.color = { 0, 0, 0, 0 };
+    
+    //interfaceTitle( ctx );
+    interfaceGame( ctx );
     
     NKUI::Draw();
     

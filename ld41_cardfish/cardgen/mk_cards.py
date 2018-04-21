@@ -29,11 +29,14 @@ if __name__=='__main__':
 	cards.append( CardDef( "Smol Bass", "fishart1.png", "A diminuative bass. This is a long string that should split into multiple lines.", 3 ))
 
 	cardframe = Image.open("cardframe_normal.png")
+	cardback = Image.open("cardback.png")
 
 	CARD_HITE = 256
 	scl = float(CARD_HITE) / cardframe.size[1] 
 	CARD_WIDTH = int(cardframe.size[0]*scl)
 	cardframe = cardframe.resize( (CARD_WIDTH,CARD_HITE), Image.ANTIALIAS ) 
+
+	cardback = cardback.resize( (CARD_WIDTH,CARD_HITE), Image.ANTIALIAS ) 
 
 	print "CARD ASPECT IS ", float(CARD_HITE) / float(CARD_WIDTH);
 	print "CARD WIDTH IS ", CARD_WIDTH, (CARD_WIDTH/1024.0);
@@ -44,7 +47,10 @@ if __name__=='__main__':
 
 	bodyFont = ImageFont.truetype( fontName, 12)
 
-	currx = 0
+	# first do the card back
+	cardsImage.paste( cardback, (0, 0) )
+
+	currx = CARD_WIDTH
 	for cd in cards:
 
 		fishart = Image.open( cd.artwork )

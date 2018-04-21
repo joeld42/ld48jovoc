@@ -28,6 +28,7 @@
 #include "SceneObject.h"
 #include "DebugDraw.h"
 #include "UIAssets.h"
+#include "CardFishGame.h"
 
 
 class CardFishApp : public Oryol::App {
@@ -82,11 +83,33 @@ private:
     void dynamicUpdate( Oryol::Duration frameDt );
     void finalizeTransforms( glm::mat4 matViewProj );
     void draw();
+    
     void interfaceScreens( Tapnik::UIAssets *uiAssets );
+    void interfaceTitle( nk_context* ctx );
+    void interfaceGame( nk_context* ctx );
     
     Tapnik::Ray mouseRay;
     Tapnik::Ray mouseCardsRay;
     glm::vec3 groundCursor;
+    glm::vec3 tableCursor;
+    enum DropZone {
+        DropZone_LAKE,
+        DropZone_TACKLE,
+        DropZone_REEL,
+    };
+    DropZone activeDropZone;
+    
+    Card currentCard;
+    bool isDraggingCard;
+        
+    CardFishGame game;
+    void updateCards();
+    void prepareNextDrawCard();
+    void drawNextCard();
+    
+    glm::vec2 deckTablePos;
+    glm::vec2 currCardTablePos;
+    Oryol::Duration gameTime;
     
     Tapnik::UIAssets *uiAssets;
     SoLoud::Soloud soloud;
