@@ -94,6 +94,8 @@ public:
     typedef std::function<void(bool success)> LoadCompleteFunc;
     void LoadScene( Oryol::StringAtom sceneName, LoadCompleteFunc loadComplete );
     
+    void CreateCardMeshes();
+    
     SceneMesh *findMeshByName( Oryol::String meshName );
     
     SceneObject *spawnObject( SceneMesh *mesh );
@@ -124,6 +126,7 @@ public:
     Oryol::Id worldShader;
     
     Oryol::Id defaultTexture;
+    Oryol::Id cardsTexture;
     Oryol::TextureSetup texBluePrint;
     Oryol::TextureSetup decalBluePrint;
     bool didSetupPipeline = false;

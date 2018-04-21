@@ -26,14 +26,12 @@ RUNTIME_DATA_DIR = "gamedata"
 
 TEXTURES = {
 
-    'TestTile_basecolor.png' : 'DXT5',
-    'TestTile_metallic.png' : 'DXT5',
-    'TestTile_normal.png' : 'DXT5',
-    'TestTile_roughness.png' : 'DXT5',
+    'lake.png' : 'DXT5',
+    'cardfish_cards.png' : 'DXT5',
 }
 
 OGEX_FILES = {
-    'TEST_Stuff.ogex',   
+    'cardfish.ogex',   
 }
 
 def fileNeedsUpdate( srcFile, destFile ):

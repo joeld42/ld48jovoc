@@ -89,8 +89,8 @@ CardFishApp::OnInit() {
         this->musicData = std::move(loadResult.Data);
         music.loadMem(musicData.Data(), musicData.Size(), true, false );
         music.setLooping(true);
-        soloud.play( music );
-        musicPlaying = 1;
+//        soloud.play( music );
+//        musicPlaying = 1;
     });
     /*
     Input::SetPointerLockHandler([this](const InputEvent& event) -> PointerLockMode::Code {
@@ -141,7 +141,7 @@ CardFishApp::OnInit() {
     gameScene = Memory::New<Scene>();
     gameScene->Setup( &gfxSetup );
     
-    gameScene->LoadScene( "TEST_Stuff",[this](bool success) {
+    gameScene->LoadScene( "cardfish",[this](bool success) {
         onSceneLoaded();
     });
     
@@ -335,12 +335,17 @@ CardFishApp::handleInputDebug() {
 // =======================================================================================
 void CardFishApp::onSceneLoaded()
 {
-    SceneCamera cam = gameScene->findNamedCamera( "MonkeyCam" );
+    SceneCamera cam = gameScene->findNamedCamera( "ShoreCam" );
     if (cam.index >=0) {
         activeCameraIndex = cam.index;
     }
     gameCamera.UpdateModel( cam.mat );
-    gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 0.01f, 100.0f);
+    gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 0.01f, 1000.0f);
+    
+    for (int i=0; i < 5; i++) {
+        SceneObject *obj = gameScene->spawnObjectWithMeshNamed( (i&0x1)?"card0":"card1");
+        obj->xform = glm::translate(glm::mat4(), glm::vec3( ((float)i-2.5) * 1.2f, 0.0f, 0.0f ));
+    }
 }
 void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
 {

@@ -50,12 +50,13 @@ void main() {
     vec3 liteColor = ( vec3(0.23,0.81,0.98)*lite1 +
                        vec3(0.65,0.23,0.84)*lite2);
     
-    vec3 col = simpleReinhardToneMapping(c.xyz * liteColor);
+    //vec3 col = simpleReinhardToneMapping(c.xyz * liteColor);
     
     
     //fragColor = vec4( abs(world_nrm.xyz), 1.0 );
-    fragColor = vec4(col, 1.0);
+    //fragColor = vec4(col, 1.0);
     //fragColor = vec4(lite, lite, lite, 1.0 );
+    fragColor = c;
 }
 @end
 

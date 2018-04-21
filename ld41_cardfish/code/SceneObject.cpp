@@ -132,6 +132,7 @@ void Scene::Setup( Oryol::GfxSetup *gfxSetup )
 //    boardIconTexture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:board_icons.dds", decalBluePrint)));
     
     defaultTexture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:wood.dds", texBluePrint)));
+    cardsTexture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:cardfish_cards.dds", texBluePrint)));
 }
 
 void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc loadComplete )
@@ -189,7 +190,6 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
             
             size_t meshDataSize = (sizeof(LDJamFileVertex) * numVerts) + (sizeof(uint16_t) * meshContent->m_triIndices);
             mesh.mesh = Gfx::CreateResource(meshSetup, meshVertData, meshDataSize );
-            
             
             
             // Assign texture if there is one
@@ -255,10 +255,72 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
             
             sceneObjs.Add( sceneObj );        
         }
+        
+        CreateCardMeshes();
       
         loadComplete( true );
     });
 
+}
+
+void Scene::CreateCardMeshes()
+{
+    const float cardUVWidth = 0.173828125f; // from mk_cards.py
+    const float cardAspect = 1.44f;
+    
+    for (int cardNdx=0; cardNdx < 2; cardNdx++)
+    {
+        int numVerts = 4;
+        int numTriIndices = 6;
+        
+        Oryol::Buffer buff;
+        buff.Reserve(sizeof(LDJamFileVertex) * numVerts + sizeof(uint16_t) * numTriIndices);
+        LDJamFileVertex *vertData = (LDJamFileVertex *)buff.Add(sizeof(LDJamFileVertex) * numVerts);
+        uint16_t *indexData = (uint16_t *)buff.Add(sizeof(uint16_t) * numTriIndices);
+        
+        auto meshSetup = MeshSetup::FromData();
+        meshSetup.NumVertices = numVerts;
+        meshSetup.NumIndices = numTriIndices;
+        
+        vertData[0].m_pos = glm::vec3( -0.5f, -0.5f*cardAspect, 0.0f );
+        vertData[0].m_st0 = glm::vec2( cardUVWidth * (cardNdx+1), 0.0f );
+        
+        vertData[1].m_pos = glm::vec3(  0.5f, -0.5f*cardAspect, 0.0f );
+        vertData[1].m_st0 = glm::vec2( cardUVWidth * (cardNdx+0), 0.0f );
+        
+        vertData[2].m_pos = glm::vec3(  0.5f,  0.5f*cardAspect, 0.0f );
+        vertData[2].m_st0 = glm::vec2( cardUVWidth * (cardNdx+0), 1.0f );
+        
+        vertData[3].m_pos = glm::vec3( -0.5f,  0.5f*cardAspect, 0.0f );
+        vertData[3].m_st0 = glm::vec2( cardUVWidth * (cardNdx+1), 1.0f );
+
+        for (int i=0; i < 4; i++) {
+            vertData[0].m_nrm = glm::vec3( 0.0f, 0.0f, 1.0f);
+            vertData[0].m_st1 = vertData[0].m_st0;
+        }
+        
+        indexData[0] = 0; indexData[1] = 1; indexData[2] = 2;
+        indexData[3] = 0; indexData[4] = 2; indexData[5] = 3;
+        
+        meshSetup.IndicesType = IndexType::Index16;
+        meshSetup.Layout = meshLayout;
+        
+        meshSetup.AddPrimitiveGroup({0, numTriIndices });
+        meshSetup.VertexDataOffset = 0;
+        meshSetup.IndexDataOffset = sizeof(LDJamFileVertex) * numVerts;
+        
+        SceneMesh mesh = {};
+        StringBuilder cardNameBuilder;
+        cardNameBuilder.Format( 32, "card%d",cardNdx );
+        mesh.meshName = cardNameBuilder.GetString();
+        
+        size_t meshDataSize = buff.Size();
+        mesh.mesh = Gfx::CreateResource(meshSetup, vertData, meshDataSize );
+        mesh.texture = cardsTexture;
+
+        mesh.numPrims = 1;
+        sceneMeshes.Add( mesh );
+    }
 }
 
 SceneObject *Scene::FindNamedObject( Oryol::String name )
