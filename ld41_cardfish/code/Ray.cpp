@@ -2,6 +2,8 @@
 #include <math.h>
 #include "Ray.h"
 
+#include "Dbg/Dbg.h"
+
 using namespace Tapnik;
 
 bool Tapnik::RayIsectAABB( Ray ray, glm::vec3 bboxMin, glm::vec3 bboxMax )
@@ -19,6 +21,8 @@ bool Tapnik::RayIsectAABB( Ray ray, glm::vec3 bboxMin, glm::vec3 bboxMax )
     
     float tA = (float)fmax(fmax(fmin(tx0, tx1), fmin(ty0, ty1)), fmin(tz0, tz1));
     float tB = (float)fmin(fmin(fmax(tx0, tx1), fmax(ty0, ty1)), fmax(tz0, tz1));
+    
+    //Oryol::Dbg::PrintF( "tZ  %3.2f %3.2f\n\r", ty0, ty1 );
     
     result = !(tB < 0 || tA> tB);
 

@@ -65,9 +65,7 @@ public:
     
     WorldShader::vsParams vsParams;
     
-    bool isTile;
-    bool handTile;
-    char tileLetter;
+    bool isCard;
     
     //glm::vec3 pos;
     //glm::quat rot;
@@ -84,7 +82,7 @@ public:
     
     void drawScene();
     
-    void finalizeTransforms(  glm::mat4 matViewProj );
+    void finalizeTransforms(  glm::mat4 matViewProj, glm::mat4 matViewProjCards );
     
     Oryol::Array<SceneMesh> sceneMeshes;
     Oryol::Array<SceneObject*> sceneObjs;
@@ -110,11 +108,12 @@ public:
     
     // Hack to reorder draw order... need some kind of real sort?
     void BringToFront( SceneObject *frontObj );
+    
+    void drawSceneLayer( Oryol::DrawState drawState, bool cardsLayer);
         
     Oryol::DrawState sceneDrawState;
-    Oryol::DrawState tileDrawState;
-    Oryol::DrawState handTileDrawState;
-    Oryol::DrawState outlineDrawState;
+    Oryol::DrawState cardDrawState;
+
     Oryol::VertexLayout meshLayout;
     
     WorldShader::vsParams sceneVSParams;
@@ -133,13 +132,6 @@ public:
     
     Oryol::Buffer sceneBuff;
         
-private:
-    enum TileDrawType {
-        TileDrawType_WORLD,
-        TileDrawType_HAND,
-        TileDrawType_OUTLINE
-    };
-    void drawTiles( Oryol::DrawState *drawState, TileDrawType tileDrawType );
 };
 
 bool RayHitObject( SceneObject *obj, Ray ray );

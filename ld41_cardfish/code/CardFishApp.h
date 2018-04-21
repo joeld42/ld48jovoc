@@ -40,7 +40,7 @@ public:
 private:
     void handleInputDebug();
     void mainMenuUI();
-
+    void updatePicking();
     void nextCamera();
     
     glm::mat4 computeMVP(const glm::mat4& proj,
@@ -63,6 +63,7 @@ private:
     // Debug mode stuff
     bool debugMode;
     Tapnik::Camera gameCamera;
+    Tapnik::Camera cardCamera;
     Tapnik::Camera dbgCamera;
     Tapnik::DebugDrawRenderer *dbgDraw;
     int activeCameraIndex = 0;
@@ -82,6 +83,10 @@ private:
     void finalizeTransforms( glm::mat4 matViewProj );
     void draw();
     void interfaceScreens( Tapnik::UIAssets *uiAssets );
+    
+    Tapnik::Ray mouseRay;
+    Tapnik::Ray mouseCardsRay;
+    glm::vec3 groundCursor;
     
     Tapnik::UIAssets *uiAssets;
     SoLoud::Soloud soloud;

@@ -9,6 +9,7 @@
 #include "IO/IO.h"
 #include "Core/String/StringBuilder.h"
 #include "Core/Memory/Memory.h"
+#include "Dbg/Dbg.h"
 
 #include "glm/gtc/random.hpp"
 #include "glm/gtc/constants.hpp"
@@ -33,7 +34,7 @@ SceneObject *makeObject( SceneMesh *mesh )
     object->mesh = mesh;
     object->hidden = false;
     object->collider = false;
-//    object->vsParams.tintColor = glm::vec4(1);
+    object->vsParams.tintColor = glm::vec4(1);
 //    object->tileVSParams.tintColor = glm::vec4(1);
 //    object->tileFSParams.decalColor = glm::vec4(1,1,0,1);
 //
@@ -122,6 +123,14 @@ void Scene::Setup( Oryol::GfxSetup *gfxSetup )
     ps.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
     
     this->sceneDrawState.Pipeline = Gfx::CreateResource(ps);
+    
+    // Make a second drawstate for Cards
+    ps.DepthStencilState.DepthWriteEnabled = false;
+    ps.DepthStencilState.DepthCmpFunc = CompareFunc::Always;
+    ps.BlendState.BlendEnabled = true;
+    ps.BlendState.SrcFactorRGB = BlendFactor::Code::SrcAlpha;
+    ps.BlendState.DstFactorRGB = BlendFactor::Code::OneMinusSrcAlpha;
+    this->cardDrawState.Pipeline = Gfx::CreateResource(ps);
     
     // Load test texture
     decalBluePrint.Sampler.MinFilter = TextureFilterMode::LinearMipmapLinear;
@@ -283,16 +292,16 @@ void Scene::CreateCardMeshes()
         meshSetup.NumIndices = numTriIndices;
         
         vertData[0].m_pos = glm::vec3( -0.5f, -0.5f*cardAspect, 0.0f );
-        vertData[0].m_st0 = glm::vec2( cardUVWidth * (cardNdx+1), 0.0f );
+        vertData[0].m_st0 = glm::vec2( cardUVWidth * (cardNdx+0), 1.0f );
         
         vertData[1].m_pos = glm::vec3(  0.5f, -0.5f*cardAspect, 0.0f );
-        vertData[1].m_st0 = glm::vec2( cardUVWidth * (cardNdx+0), 0.0f );
+        vertData[1].m_st0 = glm::vec2( cardUVWidth * (cardNdx+1), 1.0f );
         
         vertData[2].m_pos = glm::vec3(  0.5f,  0.5f*cardAspect, 0.0f );
-        vertData[2].m_st0 = glm::vec2( cardUVWidth * (cardNdx+0), 1.0f );
+        vertData[2].m_st0 = glm::vec2( cardUVWidth * (cardNdx+1), 0.0f );
         
         vertData[3].m_pos = glm::vec3( -0.5f,  0.5f*cardAspect, 0.0f );
-        vertData[3].m_st0 = glm::vec2( cardUVWidth * (cardNdx+1), 1.0f );
+        vertData[3].m_st0 = glm::vec2( cardUVWidth * (cardNdx+0), 0.0f );
 
         for (int i=0; i < 4; i++) {
             vertData[0].m_nrm = glm::vec3( 0.0f, 0.0f, 1.0f);
@@ -313,6 +322,9 @@ void Scene::CreateCardMeshes()
         StringBuilder cardNameBuilder;
         cardNameBuilder.Format( 32, "card%d",cardNdx );
         mesh.meshName = cardNameBuilder.GetString();
+        
+        mesh.bboxMin =  glm::vec3( -0.5f,  -0.5f*cardAspect, -0.1f );
+        mesh.bboxMax =  glm::vec3(  0.5f,   0.5f*cardAspect, 0.1f );
         
         size_t meshDataSize = buff.Size();
         mesh.mesh = Gfx::CreateResource(meshSetup, vertData, meshDataSize );
@@ -364,6 +376,12 @@ void Scene::BringToFront( SceneObject *frontObj )
 
 void Scene::drawScene()
 {
+    drawSceneLayer( sceneDrawState, false );
+    drawSceneLayer( cardDrawState, true );
+}
+
+void Scene::drawSceneLayer( Oryol::DrawState drawState, bool cardsLayer)
+{
     // Draw all the world objects
     for (int i=0; i < sceneObjs.Size(); i++) {
         
@@ -371,20 +389,19 @@ void Scene::drawScene()
         SceneMesh *mesh = obj->mesh;
         
         if (obj->hidden) continue;
-        if (obj->isTile) continue;
+        if (obj->isCard != cardsLayer) continue;
         
         const auto resStateTex = Gfx::QueryResourceInfo( mesh->texture ).State;
         const auto resStateMesh = Gfx::QueryResourceInfo( mesh->mesh ).State;
         
         if (resStateMesh == ResourceState::Valid) {
             if (resStateTex == ResourceState::Valid) {
-                this->sceneDrawState.FSTexture[WorldShader::tex] = mesh->texture;
+                drawState.FSTexture[WorldShader::tex] = mesh->texture;
             }
             
-            
-            this->sceneDrawState.Mesh[0] = mesh->mesh;
-            
-            Gfx::ApplyDrawState(this->sceneDrawState);            
+            drawState.Mesh[0] = mesh->mesh;
+                        
+            Gfx::ApplyDrawState( drawState );            
             Gfx::ApplyUniformBlock( obj->vsParams);
             //Gfx::ApplyUniformBlock( obj->fsParams);
             
@@ -411,7 +428,7 @@ void Scene::destroyObject( SceneObject *obj )
     
 }
 
-void Scene::finalizeTransforms(  glm::mat4 matViewProj )
+void Scene::finalizeTransforms(  glm::mat4 matViewProj, glm::mat4 matViewProjCards )
 {
     // Update scene transforms. TODO this should go into scene
     for (int i=0; i < sceneObjs.Size(); i++) {
@@ -423,17 +440,23 @@ void Scene::finalizeTransforms(  glm::mat4 matViewProj )
             obj->interaction->invXform = glm::inverse( obj->xform );
         }
         
-        //glm::mat4 modelTform = glm::translate(glm::mat4(), obj->pos);
-        //modelTform = modelTform * glm::mat4_cast( obj->rot );
+        if (obj->isCard) {
+            glm::mat4 mvp = matViewProjCards * obj->xform;
+            obj->vsParams.mvp = mvp;
+            //obj->tileVSParams.mvp = mvp;
+        } else {
+            glm::mat4 mvp = matViewProj * obj->xform;
+            obj->vsParams.mvp = mvp;
+            //obj->tileVSParams.mvp = mvp;
+        }
         
-        glm::mat4 mvp = matViewProj * obj->xform;
-        //glm::mat4 mvp = this->camera.ViewProj;
-        obj->vsParams.mvp = mvp;
-        //obj->tileVSParams.mvp = mvp;
+        
 //        if (obj->interaction) {
 //            obj->interaction->outlineVSParams.mvp = mvp;
 //        }
     }
+    
+      
 }
 
 bool Tapnik::RayHitObject( SceneObject *obj, Ray ray )
@@ -444,6 +467,11 @@ bool Tapnik::RayHitObject( SceneObject *obj, Ray ray )
     Ray ray2;
     ray2.pos = glm::vec3( obj->interaction->invXform * glm::vec4( ray.pos, 1.0 ));
     ray2.dir = glm::vec3( obj->interaction->invXform * glm::vec4( ray.dir, 0.0 ));
+    
+//    Dbg::PrintF( "%s: pos %3.2f %3.2f %3.2f dir %3.2f %3.2f %3.2f -- ",
+//                obj->mesh->meshName.AsCStr(),
+//                ray2.pos.x, ray2.pos.y, ray2.pos.z,
+//                ray2.dir.x, ray2.dir.y, ray2.dir.z );
     
     return RayIsectAABB(ray2, obj->mesh->bboxMin, obj->mesh->bboxMax );
 }

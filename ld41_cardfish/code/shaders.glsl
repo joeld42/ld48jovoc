@@ -4,6 +4,7 @@
 @vs displayVS
 uniform vsParams {
     mat4 mvp;
+    vec4 tintColor;
 };
 
 in vec4 position;
@@ -11,6 +12,7 @@ in vec4 normal;
 in vec2 texcoord0;
 out vec2 uv;
 out vec4 nrm;
+out vec4 color;
 out vec4 world_nrm;
 
 void main() {
@@ -18,6 +20,7 @@ void main() {
     uv = texcoord0;
     world_nrm = normal;
     nrm = normalize(mvp * normal);
+    color = tintColor;
 }
 @end
 
@@ -27,6 +30,7 @@ in vec2 uv;
 in vec4 nrm;
 in vec4 world_nrm;
 in vec4 ldir;
+in vec4 color;
 out vec4 fragColor;
 
 float gamma = 2.2;
@@ -40,7 +44,7 @@ vec3 simpleReinhardToneMapping(vec3 color)
 }
 
 void main() {
-    vec4 c = texture(tex, uv);
+    vec4 c = texture(tex, uv) * color;
     //vec4 c = vec4(1.0) - vec4( uv.x, uv.y, 0.0, 1.0 );
     vec3 ldir = vec3( -1.0, 0.0, 0.3 );
     vec3 ldir2 = vec3( 1.0, 0.5, 0.4 );

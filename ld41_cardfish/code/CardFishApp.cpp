@@ -137,6 +137,11 @@ CardFishApp::OnInit() {
                     uiAssets->fbWidth,
                     uiAssets->fbHeight, 0.01f, 100.0f);
     
+    cardCamera.Setup(glm::vec3(0.0, 0.0, 7.0), glm::radians(45.0f),
+                    uiAssets->fbWidth,
+                    uiAssets->fbHeight, 1.0f, 1000.0f);
+
+    
     // Load the scenes
     gameScene = Memory::New<Scene>();
     gameScene->Setup( &gfxSetup );
@@ -224,7 +229,10 @@ CardFishApp::OnRunning() {
     //this->lateUpdate();
         
     // === Finalize Transforms
-    this->finalizeTransforms( activeCamera->ViewProj );
+    gameScene->finalizeTransforms( activeCamera->ViewProj, cardCamera.ViewProj );
+    this->updatePicking();
+    
+    dd::cross(glm::value_ptr(groundCursor), 2.0f );
     
     dbgDraw->debugDrawMVP = activeCamera->ViewProj;
     dbgDraw->debugDrawOrthoMVP = glm::ortho(0.0f, uiAssets->fbWidth, uiAssets->fbHeight, 0.0f );
@@ -263,7 +271,7 @@ CardFishApp::OnRunning() {
     
     // Do UI
     if (this->uiAssets->fontValid) {
-        this->interfaceScreens( uiAssets );
+        //this->interfaceScreens( uiAssets );
     }
     
     Dbg::DrawTextBuffer();
@@ -332,6 +340,36 @@ CardFishApp::handleInputDebug() {
     dbgCamera.MoveRotate(move, rot);
 }
 
+void CardFishApp::updatePicking()
+{
+    // Only update hovering if the mouse has moved
+    const glm::vec2 &mouseMove = Input::MouseMovement();
+    bool didMouseMove = glm::length( mouseMove ) > 0.01f;
+    
+    for (int i=0; i < gameScene->sceneObjs.Size(); i++) {
+        SceneObject *obj = gameScene->sceneObjs[i];
+        
+        if (!obj->interaction) {
+            continue;
+        }
+        
+        if ((didMouseMove) || (obj->interaction->hoverDirty)) {
+            
+            if (RayHitObject( obj, obj->isCard?mouseCardsRay:mouseRay) ) {
+                obj->interaction->mouseHovering = true;
+                obj->vsParams.tintColor = glm::vec4( 1,1,0,1 );
+            } else {
+                obj->vsParams.tintColor = glm::vec4( 1 );
+                obj->interaction->mouseHovering = false;
+            }
+            obj->interaction->hoverDirty = false;
+        }
+        
+        //dbgDrawBBox( obj, dd:: );
+        // TODO: if it's a tile, hover it
+    }
+}
+
 // =======================================================================================
 void CardFishApp::onSceneLoaded()
 {
@@ -344,7 +382,9 @@ void CardFishApp::onSceneLoaded()
     
     for (int i=0; i < 5; i++) {
         SceneObject *obj = gameScene->spawnObjectWithMeshNamed( (i&0x1)?"card0":"card1");
-        obj->xform = glm::translate(glm::mat4(), glm::vec3( ((float)i-2.5) * 1.2f, 0.0f, 0.0f ));
+        obj->isCard = true;
+        obj->makeInteractable();
+        obj->xform = glm::translate(glm::mat4(), glm::vec3( ((float)i-2.5) * 1.2f, -2.0f, 0.0f ));
     }
 }
 void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
@@ -354,12 +394,21 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
 
 void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
 {
+    // Update mouse ray and ground cursor
+    mouseRay = gameCamera.getCameraRay(Input::MousePosition().x,
+                                       Input::MousePosition().y );
     
-}
+    // find where the ray hits the ground plane
+    float t = mouseRay.pos.z / -mouseRay.dir.z;
+    groundCursor = mouseRay.pos + ( mouseRay.dir * t );
+    
+    mouseCardsRay = cardCamera.getCameraRay(Input::MousePosition().x,
+                                            Input::MousePosition().y );
 
-void CardFishApp::finalizeTransforms( glm::mat4 matViewProj )
-{
-    gameScene->finalizeTransforms( matViewProj );
+//    Dbg::PrintF( "CardsRay: %3.2f %3.2f %3.2f\r\n",
+//                mouseCardsRay.dir.x,
+//                mouseCardsRay.dir.y,
+//                mouseCardsRay.dir.z );
 }
 
 void CardFishApp::draw()
