@@ -183,7 +183,7 @@ GeometryNode $node11
 {
 	Name {string {"Ground1"}}
 	ObjectRef {ref {$grid}}
-	MaterialRef (index = 0) {ref {$material1}}
+	MaterialRef (index = 0) {ref {$material3}}
 
 	Transform
 	{
@@ -1152,6 +1152,11 @@ Material $material1
 	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
 	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
 	Param (attrib = "specular_power") {float {50}}
+
+	Texture (attrib = "diffuse")
+	{
+		string {"//TestTile_basecolor.png"}
+	}
 }
 
 Material $material2
@@ -1161,4 +1166,18 @@ Material $material2
 	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
 	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
 	Param (attrib = "specular_power") {float {50}}
+}
+
+Material $material3
+{
+	Name {string {"Mtl.Cubey.001"}}
+
+	Color (attrib = "diffuse") {float[3] {{0.6400000190734865, 0.6400000190734865, 0.6400000190734865}}}
+	Color (attrib = "specular") {float[3] {{0.5, 0.5, 0.5}}}
+	Param (attrib = "specular_power") {float {50}}
+
+	Texture (attrib = "diffuse")
+	{
+		string {"//TestTile_basecolor.png"}
+	}
 }
