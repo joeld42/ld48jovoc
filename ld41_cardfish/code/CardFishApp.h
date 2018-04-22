@@ -30,6 +30,10 @@
 #include "UIAssets.h"
 #include "CardFishGame.h"
 
+struct Message {
+    Oryol::String messageText;
+    glm::vec4 color;
+};
 
 class CardFishApp : public Oryol::App {
     
@@ -88,10 +92,14 @@ private:
     void interfaceTitle( nk_context* ctx );
     void interfaceGame( nk_context* ctx );
     
+    void message( Oryol::String messageText, glm::vec4 color );
+    
     Tapnik::Ray mouseRay;
     Tapnik::Ray mouseCardsRay;
     glm::vec3 groundCursor;
     glm::vec3 tableCursor;
+    Tapnik::SceneObject *lakeObj;
+    Tapnik::SceneObject *trashCanObj;
     
     glm::vec2 fishDiagramPos;
     
@@ -99,6 +107,7 @@ private:
         DropZone_LAKE,
         DropZone_TACKLE,
         DropZone_REEL,
+        DropZone_TRASH,
     };
     DropZone activeDropZone;
     
@@ -110,14 +119,22 @@ private:
     float calcReelDiagramXPos( float reelDistance );
     float calcReelDiagramYPos( float tension );
     
+    
+    
     CardFishGame game;
     void updateCards();
     void prepareNextDrawCard();
     void drawNextCard();
+    void doCast();
+    void updateSlack();
+    void trashCard();
     
     glm::vec2 deckTablePos;
     glm::vec2 currCardTablePos;
     Oryol::Duration gameTime;
+    
+    Oryol::Array<Message> messageQueue;
+    float messageTimeout;
     
     Tapnik::UIAssets *uiAssets;
     SoLoud::Soloud soloud;

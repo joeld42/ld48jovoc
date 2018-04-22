@@ -27,6 +27,8 @@ RUNTIME_DATA_DIR = "gamedata"
 TEXTURES = {
 
     'lake.png' : 'DXT5',
+    'lake2.png' : 'DXT5',
+    'trashcan.png' : 'DXT5',
     'cardfish_cards.png' : 'DXT5',
 }
 
@@ -52,7 +54,8 @@ def fileNeedsUpdate( srcFile, destFile ):
 if __name__=='__main__':
 
     # Hack for fish game, copy over the cardbacks
-    shutil.copyfile( "./cardgen/cardfish_cards.png", "./assets/cardfish_cards.png",)
+    if fileNeedsUpdate("./cardgen/cardfish_cards.png", "./assets/cardfish_cards.png" ):
+        shutil.copyfile( "./cardgen/cardfish_cards.png", "./assets/cardfish_cards.png" )
 
     # -----------------------------------
     # OGEX Scene Files    

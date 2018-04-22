@@ -31,11 +31,13 @@ SceneObject *makeObject( SceneMesh *mesh )
 {
     //SceneObject *object = new SceneObject();
     SceneObject *object = Memory::New<SceneObject>();
+    Memory::Fill( object, sizeof(SceneObject), 0 );
+    
     object->mesh = mesh;
     object->hidden = false;
     object->collider = false;
     object->vsParams.tintColor = glm::vec4(1);
-//    object->tileVSParams.tintColor = glm::vec4(1);
+    object->vsParamsLake.tintColor = glm::vec4(1);
 //    object->tileFSParams.decalColor = glm::vec4(1,1,0,1);
 //
     //object->vsParams.decalTint = glm::vec4(0);
@@ -123,14 +125,30 @@ void Scene::Setup( Oryol::GfxSetup *gfxSetup )
     ps.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
     
     this->sceneDrawState.Pipeline = Gfx::CreateResource(ps);
-    
+
     // Make a second drawstate for Cards
     ps.DepthStencilState.DepthWriteEnabled = false;
     ps.DepthStencilState.DepthCmpFunc = CompareFunc::Always;
     ps.BlendState.BlendEnabled = true;
+    ps.BlendState.SrcFactorAlpha = BlendFactor::Code::SrcAlpha;
+    ps.BlendState.DstFactorAlpha = BlendFactor::Code::OneMinusSrcAlpha;
     ps.BlendState.SrcFactorRGB = BlendFactor::Code::SrcAlpha;
     ps.BlendState.DstFactorRGB = BlendFactor::Code::OneMinusSrcAlpha;
     this->cardDrawState.Pipeline = Gfx::CreateResource(ps);
+    
+    // Drawstate for transparent stuff (the lake)
+    lakeShader = Gfx::CreateResource(LakeShader::Setup());
+    auto psLake = PipelineSetup::FromLayoutAndShader( meshLayout, lakeShader);
+    psLake.RasterizerState.CullFaceEnabled = true;
+    psLake.RasterizerState.CullFace = Face::Code::Front;
+    psLake.RasterizerState.SampleCount = gfxSetup->SampleCount;
+    psLake.DepthStencilState.DepthWriteEnabled = true;
+    psLake.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
+    psLake.BlendState.BlendEnabled = true;
+    psLake.BlendState.SrcFactorRGB = BlendFactor::Code::SrcAlpha;
+    psLake.BlendState.DstFactorRGB = BlendFactor::Code::OneMinusSrcAlpha;
+    this->lakeDrawState.Pipeline = Gfx::CreateResource(psLake);
+
     
     // Load test texture
     decalBluePrint.Sampler.MinFilter = TextureFilterMode::LinearMipmapLinear;
@@ -223,8 +241,12 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
             
             SceneCamera camera;
             camera.cameraName = String( sceneCamInfo->m_name );
-            camera.mat = sceneCamInfo->m_transform;
+            camera.mat = glm::mat4( sceneCamInfo->m_transform );
+            
             camera.index = i;
+            
+//            printf("Loaded camera %s\n", sceneCamInfo->m_name );
+//            dbgPrintMatrix( "mat", camera.mat);
             
             sceneCams.Add( camera );
         }
@@ -278,7 +300,7 @@ void Scene::CreateCardMeshes()
     const float cardUVHite = 0.5f;
     const float cardAspect = 1.44f;
     
-    int numCards = 5;
+    int numCards = cardIds.Size();
     for (int cardNdx=0; cardNdx < numCards; cardNdx++)
     {
         int numVerts = 8;
@@ -343,9 +365,7 @@ void Scene::CreateCardMeshes()
         meshSetup.IndexDataOffset = sizeof(LDJamFileVertex) * numVerts;
         
         SceneMesh mesh = {};
-        StringBuilder cardNameBuilder;
-        cardNameBuilder.Format( 32, "card%d",cardNdx );
-        mesh.meshName = cardNameBuilder.GetString();
+        mesh.meshName = cardIds[cardNdx];
         
         printf("CARD: %s\n", mesh.meshName.AsCStr() );
         
@@ -401,7 +421,7 @@ void Scene::BringToFront( SceneObject *frontObj )
 }
 
 
-void Scene::drawSceneLayer( Oryol::DrawState drawState, bool cardsLayer)
+void Scene::drawSceneLayer( Oryol::DrawState drawState, bool cardsLayer, bool lake)
 {
     // Draw all the world objects
     for (int i=0; i < sceneObjs.Size(); i++) {
@@ -409,6 +429,7 @@ void Scene::drawSceneLayer( Oryol::DrawState drawState, bool cardsLayer)
         SceneObject *obj = sceneObjs[i];
         SceneMesh *mesh = obj->mesh;
         
+        if (obj->lake != lake) continue;
         if (obj->hidden) continue;
         if (obj->isCard != cardsLayer) continue;
         
@@ -422,9 +443,14 @@ void Scene::drawSceneLayer( Oryol::DrawState drawState, bool cardsLayer)
             
             drawState.Mesh[0] = mesh->mesh;
                         
-            Gfx::ApplyDrawState( drawState );            
-            Gfx::ApplyUniformBlock( obj->vsParams);
-            //Gfx::ApplyUniformBlock( obj->fsParams);
+            Gfx::ApplyDrawState( drawState );
+            if (obj->lake) {
+                Gfx::ApplyUniformBlock( obj->vsParamsLake);
+                Gfx::ApplyUniformBlock( obj->fsParamsLake);
+            } else {
+                Gfx::ApplyUniformBlock( obj->vsParams);
+                //Gfx::ApplyUniformBlock( obj->fsParams);
+            }
             
             for (int j=0; j < mesh->numPrims; j++) {
                 Gfx::Draw(j);
@@ -469,6 +495,10 @@ void Scene::finalizeTransforms(  glm::mat4 matViewProj, glm::mat4 matViewProjCar
             glm::mat4 mvp = matViewProj * obj->xform;
             obj->vsParams.mvp = mvp;
             //obj->tileVSParams.mvp = mvp;
+        }
+        
+        if (obj->lake) {
+            obj->vsParamsLake.mvp = obj->vsParams.mvp;
         }
         
         

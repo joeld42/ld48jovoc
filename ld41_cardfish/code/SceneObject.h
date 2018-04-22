@@ -61,6 +61,7 @@ public:
     
     bool hidden;
     bool collider;
+    bool lake;
     glm::mat4x4 xform;
     
     // If this is true, invXForm will be calculated and picking functions will work...
@@ -70,6 +71,8 @@ public:
     SceneMesh *mesh;
     
     WorldShader::vsParams vsParams;
+    LakeShader::vsParams vsParamsLake;
+    LakeShader::fsParams fsParamsLake;
     
     bool isCard;
     
@@ -98,6 +101,7 @@ public:
     typedef std::function<void(bool success)> LoadCompleteFunc;
     void LoadScene( Oryol::StringAtom sceneName, LoadCompleteFunc loadComplete );
     
+    Oryol::Array<Oryol::String> cardIds;
     void CreateCardMeshes();
     
     SceneMesh *findMeshByName( Oryol::String meshName );
@@ -115,9 +119,10 @@ public:
     // Hack to reorder draw order... need some kind of real sort?
     void BringToFront( SceneObject *frontObj );
     
-    void drawSceneLayer( Oryol::DrawState drawState, bool cardsLayer);
+    void drawSceneLayer( Oryol::DrawState drawState, bool cardsLayer, bool lake);
         
     Oryol::DrawState sceneDrawState;
+    Oryol::DrawState lakeDrawState;
     Oryol::DrawState cardDrawState;
 
     Oryol::VertexLayout meshLayout;
@@ -129,6 +134,7 @@ public:
     Oryol::Id boardIconTexture;
     
     Oryol::Id worldShader;
+    Oryol::Id lakeShader;
     
     Oryol::Id defaultTexture;
     Oryol::Id cardsTexture;

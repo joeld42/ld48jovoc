@@ -22,8 +22,9 @@
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/matrix_inverse.hpp"
-#include "shaders.h"
+#include "glm/gtc/random.hpp"
 
+#include "shaders.h"
 
 #include "IO/IO.h"
 #if ORYOL_EMSCRIPTEN
@@ -47,6 +48,9 @@ using namespace Tapnik;
 #define DRAW_ANIM_TIME (0.5f)
 #define BIG_CARD_SIZE (2.5f)
 #define REEL_TIMEOUT (0.5f)
+
+#define MESSAGE_TIME (1.0f)
+#define MESSAGE_FADE_TIME (2.0f)
 
 //------------------------------------------------------------------------------
 AppState::Code
@@ -137,7 +141,11 @@ CardFishApp::OnInit() {
     
     // setup clear states
     this->passAction.Color[0] = glm::vec4( 0.2, 0.2, 0.2, 1.0 );
-    
+
+    gameCamera.Setup(glm::vec3(0.0, 0.0, 25.0), glm::radians(45.0f),
+                    uiAssets->fbWidth,
+                    uiAssets->fbHeight, 0.01f, 100.0f);
+
     dbgCamera = {};
     dbgCamera.Setup(glm::vec3(0.0, 0.0, 25.0), glm::radians(45.0f),
                     uiAssets->fbWidth,
@@ -151,6 +159,11 @@ CardFishApp::OnInit() {
     // Load the scenes
     gameScene = Memory::New<Scene>();
     gameScene->Setup( &gfxSetup );
+    
+    game.SetupCardDefs();
+    for (int i=0; i < game.cardDefs.Size(); i++) {
+        gameScene->cardIds.Add( game.cardDefs[i].cardId );
+    }
     
     gameScene->LoadScene( "cardfish",[this](bool success) {
         onSceneLoaded();
@@ -254,14 +267,18 @@ CardFishApp::OnRunning() {
     // render one frame
     Gfx::BeginPass(this->passAction);
     
-    gameScene->drawSceneLayer( gameScene->sceneDrawState, false );
-    
+    gameScene->drawSceneLayer( gameScene->sceneDrawState, false, false );
+    gameScene->drawSceneLayer( gameScene->lakeDrawState, false, true );
     
     //    const ddVec3 boxColor  = { 0.0f, 0.8f, 0.8f };
     //    const ddVec3 boxCenter = { 0.0f, 0.0f, 0.0f };
     //    float boxSize = 1.0f;
     //    dd::box(boxCenter, boxColor, boxSize, boxSize, boxSize );
     //    dd::cross(boxCenter, 1.0f);
+    
+    if (Input::KeyDown(Key::Z)) {
+        nextCamera();
+    }
     
     if (Input::KeyDown(Key::Tab)) {
         debugMode = !debugMode;
@@ -283,7 +300,7 @@ CardFishApp::OnRunning() {
     }
     
     // Draw the table cards on top
-    gameScene->drawSceneLayer( gameScene->cardDrawState, true );
+    gameScene->drawSceneLayer( gameScene->cardDrawState, true, false );
     
     Dbg::DrawTextBuffer();
     
@@ -368,9 +385,9 @@ void CardFishApp::updatePicking()
             
             if (RayHitObject( obj, obj->isCard?mouseCardsRay:mouseRay) ) {
                 obj->interaction->mouseHovering = true;
-                obj->vsParams.tintColor = glm::vec4( 1,1,1,1 );
+                //obj->vsParams.tintColor = glm::vec4( 1,1,1,1 );
             } else {
-                obj->vsParams.tintColor = glm::vec4( 1 );
+                //obj->vsParams.tintColor = glm::vec4( 1 );
                 obj->interaction->mouseHovering = false;
             }
             obj->interaction->hoverDirty = false;
@@ -379,6 +396,26 @@ void CardFishApp::updatePicking()
         //dbgDrawBBox( obj, dd:: );
         // TODO: if it's a tile, hover it
     }
+    
+    // special handling.. if the trash can is hovered then don't hover the lake
+    if (lakeObj && trashCanObj) {
+        if (trashCanObj->interaction->mouseHovering) {
+            lakeObj->interaction->mouseHovering = false;
+        }
+    }
+    
+    if (lakeObj) {
+        if (lakeObj->interaction->mouseHovering) {
+            lakeObj->vsParams.tintColor = glm::vec4( 1 );
+            lakeObj->fsParamsLake.highlight = 1.0f;
+        } else {
+            lakeObj->vsParamsLake.tintColor = glm::vec4( 0.6f, 0.6f, 0.6f, 1.0f );
+            lakeObj->fsParamsLake.highlight = 0.0f;
+        }
+        lakeObj->fsParamsLake.tval = gameTime.AsSeconds() * 0.012f;
+    }
+    
+    
     
     // For testing...
     /*
@@ -404,7 +441,7 @@ void CardFishApp::updatePicking()
 // =======================================================================================
 void CardFishApp::onSceneLoaded()
 {
-    SceneCamera cam = gameScene->findNamedCamera( "ShoreCam" );
+    SceneCamera cam = gameScene->findNamedCamera( "lake1Cam" );
     if (cam.index >=0) {
         activeCameraIndex = cam.index;
     }
@@ -413,6 +450,14 @@ void CardFishApp::onSceneLoaded()
     
     deckTablePos = glm::vec2( 2.86f, -2.1f );
     currCardTablePos = glm::vec2(0.0f, 0.35f);
+    
+    lakeObj = gameScene->FindNamedObject( "Lake" );
+    lakeObj->lake = true;
+    lakeObj->makeInteractable();
+    
+    // TODO: multiple trash cans
+    trashCanObj = gameScene->FindNamedObject( "TrashCan" );
+    trashCanObj->makeInteractable();
     
     /*
     for (int i=0; i < 5; i++) {
@@ -427,6 +472,9 @@ void CardFishApp::onSceneLoaded()
     game.resetGame();
     prepareNextDrawCard();
     drawNextCard();
+    
+    messageTimeout = MESSAGE_TIME + MESSAGE_FADE_TIME;
+    message( "Ready to Fish!", glm::vec4( 0.5f, 1.0f, 0.5f, 1.0f ));
 }
 void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
 {
@@ -447,7 +495,21 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
     } else {
         if ((currentCard.sceneObj) && (currentCard.sceneObj->interaction)) {
             if (isDraggingCard) {
-                if (activeDropZone == DropZone_LAKE) {
+                if (activeDropZone == DropZone_TRASH) {
+                    currentCard.sceneObj->isCard = false;
+                    
+                    glm::mat4 xlate = glm::translate( trashCanObj->xform,
+                                        glm::vec3(0.0f, 0.0f, 0.03f + fabs(sin(gameTime.AsSeconds() * 3.0f) )) );
+                    glm::mat4 rot1 = glm::rotate( xlate, glm::radians( 90.0f),
+                                                 glm::vec3(1.0f, 0.0f, 0.0f)  );
+                    glm::mat4 rot2 = glm::rotate( rot1,
+                                                 float(gameTime.AsSeconds() * glm::pi<float>()),
+                                                 glm::vec3(0.0f, 1.0f, 0.0f)  );
+                    glm::mat4 scl = glm::scale( rot2, glm::vec3( 0.9f ));
+                    currentCard.sceneObj->xform = scl;
+
+                    
+                } else if (activeDropZone == DropZone_LAKE) {
                     currentCard.sceneObj->isCard = false;
                     
                     //currentCard.sceneObj->xform = glm::translate( glm::mat4(), groundCursor );
@@ -473,6 +535,20 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
         }
     }
     
+    // Update lake fish
+    // TODO: Flocking sim...
+    for (int i=0; i < game.lakeFish.Size(); i++) {
+        glm::mat4 xlate = glm::translate( glm::mat4(),
+                            game.lakeFish[i].lakePos + glm::vec3( 0.0f, 0.0f,
+                                                sin(gameTime.AsSeconds() + (game.lakeFish[i].seed * 100.0) )) );
+        glm::mat4 rot1 = glm::rotate( xlate, glm::radians( 90.0f),
+                                     glm::vec3(1.0f, 0.0f, 0.0f)  );
+        glm::mat4 rot2 = glm::rotate( rot1,
+                                     float( (game.lakeFish[i].seed * 100.0) + gameTime.AsSeconds() * 0.5f * glm::pi<float>()),
+                                     glm::vec3(0.0f, 1.0f, 0.0f)  );
+        glm::mat4 scl = glm::scale( rot2, glm::vec3( 1.0f ));
+        game.lakeFish[i].sceneObj->xform = scl;
+    }
     
     // Reel in the fishy
     if (reelPowerRemaining > 0) {
@@ -484,28 +560,38 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
             reelTimeout = REEL_TIMEOUT;
         
             if (game.reelDistance <= 0) {
-                printf("Yay earned %d fishpoints...\n", game.reelCard.fishPoints );
+                reelPowerRemaining = 0;
                 
-                gameScene->destroyObject( game.reelCard.sceneObj );
-                game.reelCard.sceneObj = NULL;
-            }
-            
-            if (reelPowerRemaining <= 0) {
-                // Check for too high or too low tension...
-                if (game.reelTension > game.reelTensionMax) {
-                    printf("Line Broke...\n");
+                StringBuilder strBuilder;
+                strBuilder.Format( 200, "Yay, caught %s and earned %d fishpoints...",
+                                  game.reelCard.title.AsCStr(),
+                                  game.reelCard.fishPoints );
+                message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
+                if (game.reelCard.sceneObj != NULL) {
                     gameScene->destroyObject( game.reelCard.sceneObj );
                     game.reelCard.sceneObj = NULL;
-                    
-                    game.reelDistance = 0;
                 }
             }
         }
     }
     
+    // Update the message queue
+    if (messageQueue.Size() > 0 ) {
+        messageTimeout -= dt;
+        if (messageTimeout < 0.0f) {
+            messageQueue.PopFront();
+            messageTimeout = MESSAGE_TIME + MESSAGE_FADE_TIME;
+        }
+    }
+}
 
+void CardFishApp::message( Oryol::String messageText, glm::vec4 color )
+{
+    Message msg = {};
+    msg.messageText = messageText;
+    msg.color = color;
     
-
+    messageQueue.Add( msg );
 }
 
 void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
@@ -539,63 +625,139 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
         isDraggingCard = false;
         
         // Handle drop
-        if ((activeDropZone == DropZone_TACKLE) && (game.tackleCards.Size() < 5)) {
-
-            // ADD TACKLE CARD
-            currentCard.sceneObj->isCard = true;
-            currentCard.sceneObj->interaction->cardSize = 1.0f;
-            currentCard.sceneObj->interaction->tablePos = glm::vec2( -2.86 + 1.0*game.tackleCards.Size(), -2.1f);
-            game.tackleCards.Add( currentCard );
-            
-            drawNextCard();
+        bool handledCard = false;
+        if (activeDropZone == DropZone_TRASH) {
+            trashCard();
+        } else if (activeDropZone == DropZone_TACKLE) {
+            if ((game.tackleCards.Size() < 5) && (currentCard.cardType==CardType_TACKLE)) {
+                // ADD TACKLE CARD
+                currentCard.sceneObj->isCard = true;
+                currentCard.sceneObj->interaction->cardSize = 1.0f;
+                currentCard.sceneObj->interaction->tablePos = glm::vec2( -2.86 + 1.0*game.tackleCards.Size(), -2.1f);
+                game.PlayTackleCard( currentCard );
+                updateSlack();
+                
+                handledCard = true;
+                drawNextCard();
+            }
         } else if (activeDropZone == DropZone_REEL) /* && (game.reelDistance > 0) */ {
-            
             
             if (game.reelDistance > 0) {
                 
                 reelTimeout = REEL_TIMEOUT;
-                reelPowerRemaining += game.reelCard.reelPow;
+                reelPowerRemaining += currentCard.reelPow;
 
-            } else {
-
-                // Put the card on the line (TODO: only do this for a cast)
-                currentCard.sceneObj->isCard = true;
-                currentCard.sceneObj->interaction->cardSize = 0.5f;
-                currentCard.sceneObj->interaction->tablePos = glm::vec2( 3.0f, 2.0f);
-                
-                game.reelCard = currentCard;
-                game.reelTension = 5;
-                game.reelDistance = 10;
-                
-                // transfer ownership of card to reelCard
+                // Consume the card used to reel the fish
+                if (currentCard.sceneObj) {
+                    gameScene->destroyObject( currentCard.sceneObj );
+                }
                 currentCard.sceneObj = NULL;
-            }
-            
-            // Consume the card used to reel the fish
-            if (currentCard.sceneObj) {
-                gameScene->destroyObject( currentCard.sceneObj );
-            }
-            currentCard.sceneObj = NULL;
-            drawNextCard();
+                drawNextCard();
+                handledCard = true;
 
-        } else {
+            }
+        } else if (activeDropZone == DropZone_LAKE)  {
+            
+            if ((currentCard.cardType == CardType_CAST) || (currentCard.cardType == CardType_FISH)) {
+                
+                if (currentCard.cardType == CardType_CAST) {
+                    
+                    // Consume the cast card
+                    if (currentCard.sceneObj) {
+                        gameScene->destroyObject( currentCard.sceneObj );
+                    }
+                    currentCard.sceneObj = NULL;
+
+                    doCast();
+                } else {
+                    // Add fish to lake
+                    currentCard.lakePos = groundCursor;
+                    currentCard.seed = glm::linearRand(0.0f, 1.0f);
+                    game.PlayCardToLake( currentCard );
+                    updateSlack();
+                }
+                handledCard = true;
+                drawNextCard();
+            }
+        }
+        
+        if (!handledCard) {
             // Fly back to table center
             currentCard.sceneObj->isCard = true;
+            currentCard.sceneObj->vsParams.tintColor = glm::vec4( 1.0 );
             currentCard.sceneObj->interaction->cardSize = BIG_CARD_SIZE;
             currentCard.sceneObj->interaction->tablePos = glm::vec2( tableCursor );
         }
         
     }
     
+    // Update drop zone
     activeDropZone = DropZone_LAKE;
     //Dbg::PrintF("MouseY %f\n\r", mousePos.y );
-    if (mousePos.y < 100 ) {
+    if (trashCanObj) {
+        trashCanObj->vsParams.tintColor = glm::vec4( 1.0f);
+    }
+    if (trashCanObj && trashCanObj->interaction->mouseHovering) {
+        activeDropZone = DropZone_TRASH;
+        currentCard.sceneObj->vsParams.tintColor = glm::vec4( 0.6, 0.6, 1.0, 1.0 );
+        trashCanObj->vsParams.tintColor = glm::vec4( 0.5f, 1.0f, 1.0f, 1.0f );
+    } else if (mousePos.y < 100 ) {
         activeDropZone = DropZone_REEL;
     } else if (mousePos.y > (uiAssets->fbHeight - 200) ) {
         activeDropZone = DropZone_TACKLE;
+        if ((currentCard.sceneObj) && (isDraggingCard)) {
+            if ((game.tackleCards.Size() < 5) && (currentCard.cardType==CardType_TACKLE)) {
+                currentCard.sceneObj->vsParams.tintColor = glm::vec4( 1.0 );
+            } else {
+                currentCard.sceneObj->vsParams.tintColor = glm::vec4( 1.0, 0.6, 0.6, 1.0 );
+            }
+        }
+    } else {
+        if (currentCard.sceneObj) {
+            currentCard.sceneObj->vsParams.tintColor = glm::vec4( 1.0 );
+        }
     }
 }
 
+void CardFishApp::doCast()
+{
+    // If we're already after a fish, let it go
+    if (game.reelDistance > 0) {
+        StringBuilder strBuilder;
+        strBuilder.Format( 200, "You let %s go ...",
+                          game.reelCard.title.AsCStr() );
+        message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
+    
+        gameScene->destroyObject( game.reelCard.sceneObj );
+        game.reelCard.sceneObj = NULL;
+        game.reelDistance = 0;
+    }
+    
+    if (game.lakeFish.Size() > 0) {
+        Card lakeCard = game.castLakeCard();
+        lakeCard.sceneObj->isCard = true;
+        lakeCard.sceneObj->interaction->cardSize = 0.5f;
+        lakeCard.sceneObj->interaction->tablePos = glm::vec2( 3.0f, 2.0f);
+        
+        game.reelCard = lakeCard;
+        game.reelTension = 5;
+        game.reelDistance = 3;
+        
+        // transfer ownership of card to reelCard
+        currentCard.sceneObj = NULL;
+        
+        StringBuilder strBuilder;
+        strBuilder.Format( 200, "Hooked %s, now reel it in...",
+                          game.reelCard.title.AsCStr() );
+        message( strBuilder.GetString(), glm::vec4(0.39f,0.99f,0.50f,1.0f) );
+        
+    } else {
+
+        message( "Didn't even get a nibble...", glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
+    }
+    
+}
+                
 void CardFishApp::nextCamera()
 {
     activeCameraIndex++;
@@ -608,6 +770,8 @@ void CardFishApp::nextCamera()
     Log::Info("Camera: %s\n", cam.cameraName.AsCStr() );
     
     gameCamera.UpdateModel( cam.mat );
+    
+    dbgPrintMatrix( "gameCamera model", gameCamera.Model );
 }
 
 void CardFishApp::updateCards()
@@ -656,6 +820,50 @@ void CardFishApp::drawNextCard()
         currentCard.drawAnimTimer = DRAW_ANIM_TIME;
         
         prepareNextDrawCard();
+    }
+}
+
+void CardFishApp::trashCard()
+{
+    // Discard card
+    if (currentCard.sceneObj) {
+        gameScene->destroyObject( currentCard.sceneObj );
+        currentCard.sceneObj = NULL;
+    }
+    updateSlack();
+    drawNextCard();
+}
+
+void CardFishApp::updateSlack()
+{
+    // If there's a fish on the line, add 1 slack
+    if (game.reelDistance > 0) {
+        
+        bool lostFish = false;
+        if (game.reelTension > game.reelTensionMax) {
+            
+            StringBuilder strBuilder;
+            strBuilder.Format( 200, "Line Broke! %s got away...",
+                              game.reelCard.title.AsCStr() );
+            message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
+            lostFish = true;
+        }
+        
+        game.UpdateLineTension();
+        
+        if (game.reelTension < game.reelSlackMin) {
+            StringBuilder strBuilder;
+            strBuilder.Format( 200, "Lost 'em! %s got away...",
+                              game.reelCard.title.AsCStr() );
+            message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
+            lostFish = true;
+        }
+        
+        if (lostFish) {
+            gameScene->destroyObject( game.reelCard.sceneObj );
+            game.reelCard.sceneObj = NULL;
+            game.reelDistance = 0;
+        }
     }
 }
 
@@ -780,7 +988,6 @@ void CardFishApp::interfaceGame( nk_context* ctx )
             float reelOffs = 0.0;
             if (reelTimeout > 0) {
                 reelOffs = 1.0-(reelTimeout / REEL_TIMEOUT);
-                
             }
             
             fishDiagramPos = glm::vec2(calcReelDiagramXPos(game.reelDistance - par_easings_in_out_cubic( reelOffs ) ),
@@ -808,6 +1015,34 @@ void CardFishApp::interfaceGame( nk_context* ctx )
     }
     nk_end(ctx);
 
+    // ---------------------------------------------
+    //  Message Panel
+    // ---------------------------------------------
+    
+    if (messageQueue.Size()) {
+        const Message &currMessage = messageQueue.Front();
+        
+        nk_style_set_font(ctx, &(uiAssets->font_30->handle));
+        
+        float fade = 1.0f;
+        if (messageTimeout < MESSAGE_FADE_TIME) {
+            fade = messageTimeout / MESSAGE_FADE_TIME;
+        }
+        int fadeInt = 255 * currMessage.color.a * fade;
+        ctx->style.text.color = nk_rgba( currMessage.color.r * 255,
+                                         currMessage.color.g * 255,
+                                         currMessage.color.b * 255,
+                                         fadeInt);
+        
+        ctx->style.window.fixed_background = nk_style_item_color(nk_rgba( 0, 0, 0, 200 * fade));
+        
+        if (nk_begin(ctx, &layout, "message_hud", nk_rect( 100, 10, uiAssets->fbWidth-200, 80), 0)) {
+            nk_layout_row_dynamic( ctx, 50, 1);
+            nk_label( ctx, currMessage.messageText.AsCStr(), NK_TEXT_CENTERED );
+        }
+        nk_end(ctx);
+    }
+    
 }
 
 void CardFishApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
