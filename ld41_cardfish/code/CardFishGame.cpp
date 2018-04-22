@@ -119,6 +119,7 @@ void CardFishGame::resetGame()
 {
     // Initial player deck
     playerDeck.Clear();
+    tackleCards.Clear();
     addCardsToDeck(playerDeck, "cast", 5 );
     addCardsToDeck(playerDeck, "gloves", 2 );
     addCardsToDeck(playerDeck, "high_test", 2 );

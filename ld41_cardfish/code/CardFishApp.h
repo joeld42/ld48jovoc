@@ -111,7 +111,7 @@ private:
     };
     DropZone activeDropZone;
     
-    Card currentCard;
+    Card currentCard = {};
     bool isDraggingCard;
     float reelTimeout;
     int reelPowerRemaining;
@@ -120,8 +120,8 @@ private:
     float calcReelDiagramYPos( float tension );
     
     
-    
     CardFishGame game;
+    void startGame();
     void updateCards();
     void prepareNextDrawCard();
     void drawNextCard();
@@ -143,7 +143,10 @@ private:
     Oryol::Buffer sfxJumpData;
     SoLoud::Wav sfxJump;
     
+    int doStartGame = -1;
+    
     int musicPlaying = 0;
+    bool ready = false;
     Oryol::Buffer musicData;
     SoLoud::WavStream music;
 };

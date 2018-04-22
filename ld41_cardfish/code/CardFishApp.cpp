@@ -67,8 +67,7 @@ CardFishApp::OnInit() {
     ioSetup.Assigns.Add("gamedata:", "cwd:gamedata/");
 #endif
     
-    IO::Setup(ioSetup);
-    
+    IO::Setup(ioSetup);    
     
     
     gfxSetup = GfxSetup::WindowMSAA4(800, 600, "LD41 CardFish");
@@ -86,6 +85,7 @@ CardFishApp::OnInit() {
     Input::Setup();
     
     
+    
     // Initialize SoLoud (automatic back-end selection)
     soloud.init();
     
@@ -95,12 +95,12 @@ CardFishApp::OnInit() {
         printf("SFX Jump loaded...\n");
     });
     
-    IO::Load("gamedata:irongame.ogg", [this](IO::LoadResult loadResult) {
+    IO::Load("gamedata:ByTheLake.ogg", [this](IO::LoadResult loadResult) {
         this->musicData = std::move(loadResult.Data);
         music.loadMem(musicData.Data(), musicData.Size(), true, false );
         music.setLooping(true);
-//        soloud.play( music );
-//        musicPlaying = 1;
+        soloud.play( music );
+        musicPlaying = 1;
     });
     /*
     Input::SetPointerLockHandler([this](const InputEvent& event) -> PointerLockMode::Code {
@@ -160,6 +160,7 @@ CardFishApp::OnInit() {
     gameScene = Memory::New<Scene>();
     gameScene->Setup( &gfxSetup );
     
+    game.gameStarted = false;
     game.SetupCardDefs();
     for (int i=0; i < game.cardDefs.Size(); i++) {
         gameScene->cardIds.Add( game.cardDefs[i].cardId );
@@ -300,7 +301,9 @@ CardFishApp::OnRunning() {
     }
     
     // Draw the table cards on top
-    gameScene->drawSceneLayer( gameScene->cardDrawState, true, false );
+    if (game.gameStarted) {
+        gameScene->drawSceneLayer( gameScene->cardDrawState, true, false );
+    }
     
     Dbg::DrawTextBuffer();
     
@@ -405,7 +408,7 @@ void CardFishApp::updatePicking()
     }
     
     if (lakeObj) {
-        if (lakeObj->interaction->mouseHovering) {
+        if ((lakeObj->interaction->mouseHovering) && (isDraggingCard)) {
             lakeObj->vsParams.tintColor = glm::vec4( 1 );
             lakeObj->fsParamsLake.highlight = 1.0f;
         } else {
@@ -441,6 +444,9 @@ void CardFishApp::updatePicking()
 // =======================================================================================
 void CardFishApp::onSceneLoaded()
 {
+    ready = true;
+    printf(".... OnSceneLoaded... ready \n");
+    
     SceneCamera cam = gameScene->findNamedCamera( "lake1Cam" );
     if (cam.index >=0) {
         activeCameraIndex = cam.index;
@@ -469,18 +475,38 @@ void CardFishApp::onSceneLoaded()
     }
     */
     
+}
+
+void CardFishApp::startGame()
+{
+    game.gameStarted = true;
     game.resetGame();
     prepareNextDrawCard();
     drawNextCard();
     
     messageTimeout = MESSAGE_TIME + MESSAGE_FADE_TIME;
     message( "Ready to Fish!", glm::vec4( 0.5f, 1.0f, 0.5f, 1.0f ));
+
 }
+
 void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
 {
     gameTime += fixedDt;
     float dt = fixedDt.AsSeconds();
     
+    // Our input handling is crap so give it a few frames
+    // between pressing play before starting game
+    if (!game.gameStarted) {
+        if (doStartGame > 0) {
+            doStartGame--;
+            if (doStartGame <= 0) {
+                doStartGame = -1;
+                startGame();
+            }
+        }
+        return;
+    }
+
     // Need to animate the current card??
     if (currentCard.drawAnimTimer > 0.0f) {
         currentCard.drawAnimTimer -= dt;
@@ -489,9 +515,11 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
         }
         
         float t = currentCard.drawAnimTimer / DRAW_ANIM_TIME;
-        currentCard.sceneObj->interaction->tablePos = glm::mix( this->currCardTablePos, this->deckTablePos, t );
-        currentCard.sceneObj->interaction->flipAmount = t;
-        currentCard.sceneObj->interaction->cardSize = glm::mix( BIG_CARD_SIZE, 1.0f, t );
+        if (currentCard.sceneObj) {
+            currentCard.sceneObj->interaction->tablePos = glm::mix( this->currCardTablePos, this->deckTablePos, t );
+            currentCard.sceneObj->interaction->flipAmount = t;
+            currentCard.sceneObj->interaction->cardSize = glm::mix( BIG_CARD_SIZE, 1.0f, t );
+        }
     } else {
         if ((currentCard.sceneObj) && (currentCard.sceneObj->interaction)) {
             if (isDraggingCard) {
@@ -567,6 +595,9 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
                                   game.reelCard.title.AsCStr(),
                                   game.reelCard.fishPoints );
                 message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
+                
+                soloud.play( sfxJump );
+                
                 if (game.reelCard.sceneObj != NULL) {
                     gameScene->destroyObject( game.reelCard.sceneObj );
                     game.reelCard.sceneObj = NULL;
@@ -596,6 +627,9 @@ void CardFishApp::message( Oryol::String messageText, glm::vec4 color )
 
 void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
 {
+    if (!game.gameStarted) {
+        return;
+    }
     // Update mouse ray and ground cursor
     glm::vec2 mousePos = Input::MousePosition();
     mouseRay = gameCamera.getCameraRay(mousePos.x, mousePos.y );
@@ -616,7 +650,7 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
     
     // TODO: Touch screens
     if (Input::MouseButtonDown(MouseButton::Left)) {
-        if (currentCard.sceneObj->interaction->mouseHovering) {
+        if (currentCard.sceneObj && currentCard.sceneObj->interaction->mouseHovering) {
             isDraggingCard = true;
             currentCard.sceneObj->interaction->cardSize = 0.8f;
         }
@@ -631,9 +665,11 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
         } else if (activeDropZone == DropZone_TACKLE) {
             if ((game.tackleCards.Size() < 5) && (currentCard.cardType==CardType_TACKLE)) {
                 // ADD TACKLE CARD
-                currentCard.sceneObj->isCard = true;
-                currentCard.sceneObj->interaction->cardSize = 1.0f;
-                currentCard.sceneObj->interaction->tablePos = glm::vec2( -2.86 + 1.0*game.tackleCards.Size(), -2.1f);
+                if (currentCard.sceneObj) {
+                    currentCard.sceneObj->isCard = true;
+                    currentCard.sceneObj->interaction->cardSize = 1.0f;
+                    currentCard.sceneObj->interaction->tablePos = glm::vec2( -2.86 + 1.0*game.tackleCards.Size(), -2.1f);
+                }
                 game.PlayTackleCard( currentCard );
                 updateSlack();
                 
@@ -683,10 +719,12 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
         
         if (!handledCard) {
             // Fly back to table center
-            currentCard.sceneObj->isCard = true;
-            currentCard.sceneObj->vsParams.tintColor = glm::vec4( 1.0 );
-            currentCard.sceneObj->interaction->cardSize = BIG_CARD_SIZE;
-            currentCard.sceneObj->interaction->tablePos = glm::vec2( tableCursor );
+            if (currentCard.sceneObj) {
+                currentCard.sceneObj->isCard = true;
+                currentCard.sceneObj->vsParams.tintColor = glm::vec4( 1.0 );
+                currentCard.sceneObj->interaction->cardSize = BIG_CARD_SIZE;
+                currentCard.sceneObj->interaction->tablePos = glm::vec2( tableCursor );
+            }
         }
         
     }
@@ -815,6 +853,7 @@ void CardFishApp::prepareNextDrawCard()
 
 void CardFishApp::drawNextCard()
 {
+    printf("... draw next card...\n");
     if (game.deck.Size() > 0) {
         currentCard = game.deck.PopBack();
         currentCard.drawAnimTimer = DRAW_ANIM_TIME;
@@ -876,7 +915,8 @@ void CardFishApp::interfaceTitle( nk_context* ctx )
     //static nk_flags window_flags = NK_WINDOW_BORDER;
     static nk_flags window_flags = 0;
     
-    float titleW = 800;
+    // TODO: Need a title card
+    //float titleW = 800;
     float titleH = 175;
     //    float titleMarg = (uiAssets->fbWidth - titleW) / 2;
     //    if (nk_begin(ctx, &layout, "title_card", nk_rect( titleMarg, 30, titleW, 175), window_flags))
@@ -903,18 +943,17 @@ void CardFishApp::interfaceTitle( nk_context* ctx )
                                                     menuW, 300), window_flags))
     {
         nk_layout_row_dynamic( ctx, 93, 1);
-        if (nk_button_label(ctx, "Next Camera")) {
-            nextCamera();
-        }
         
-        if (nk_button_label(ctx, "SFX Jump")) {
-            printf("Button 2 pressed...\n");
-            soloud.play( sfxJump );
+        char loadSpinner[12];
+        strcpy(loadSpinner,"Loading..." );
+        loadSpinner[10]="|/-\\"[int(gameTime.AsSeconds()*20.0f)%4];
+        if (nk_button_label(ctx, ready?"Play!":loadSpinner )) {
+            if (ready) {
+                doStartGame = 10;
+            }
         }
-        
         nk_layout_row_dynamic( ctx, 50, 1);
-        if (nk_checkbox_label(ctx, "Music", &musicPlaying ) ) {
-            printf("Music Toggled: %s\n", musicPlaying?"ON":"OFF");
+        if (nk_checkbox_label(ctx, musicPlaying?"Music: ON":"Music: OFF", &musicPlaying ) ) {
             if (!musicPlaying) {
                 music.stop();
             } else {
@@ -1053,8 +1092,12 @@ void CardFishApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
     ctx->style.window.background = { 0, 0, 0, 0 };
     ctx->style.window.fixed_background.data.color = { 0, 0, 0, 0 };
     
-    //interfaceTitle( ctx );
-    interfaceGame( ctx );
+    if (!game.gameStarted)
+    {
+        interfaceTitle( ctx );
+    } else {
+        interfaceGame( ctx );
+    }
     
     NKUI::Draw();
     

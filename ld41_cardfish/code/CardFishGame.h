@@ -39,6 +39,8 @@ struct CardFishGame {
     
     Oryol::Array<Card> lakeFish;
     
+    bool gameStarted;
+    
     void SetupCardDefs();
     void shuffle( Oryol::Array<Card> &cards );
     void addCardsToDeck( Oryol::Array<Card> &cards, Oryol::String cardId, int howMany );
