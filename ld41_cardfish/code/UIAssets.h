@@ -29,6 +29,12 @@ struct UIAssets {
     struct nk_image img_btn_large_red;
     struct nk_image img_btn_large_grey;
     
+    struct nk_image img_line_tension;
+    struct nk_image img_fish_icon;
+    struct nk_image img_tension_high;
+    struct nk_image img_tension_low;
+    struct nk_image img_fishing_line;
+    
     void SetupUI();
     
     bool fontValid = false;

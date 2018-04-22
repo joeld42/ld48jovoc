@@ -21,12 +21,15 @@ class CardDef( object ):
 
 if __name__=='__main__':
 
-	cardsImage = Image.new( "RGBA", (1024, 256), (255, 255, 255, 0) )
+	cardsImage = Image.new( "RGBA", (1024, 512), (255, 255, 255, 0) )
 	draw = ImageDraw.Draw(cardsImage)
 
 	cards = []
 	cards.append( CardDef( "Lake Fish", "fishart1.png", "A pretty normal fish.", 2 ))
-	cards.append( CardDef( "Smol Bass", "fishart1.png", "A diminuative bass. This is a long string that should split into multiple lines.", 3 ))
+	cards.append( CardDef( "Smol Bass", "fishart1.png", "A diminuative bass. Not a lot of meat on it but still tasty.", 3 ))
+	cards.append( CardDef( "High-Test Line", "tackleart1.png", "Line Tension +1.", 2 ))
+	cards.append( CardDef( "Supple Gloves", "tackleart1.png", "Allowed Slack -1.", 2 ))
+	cards.append( CardDef( "Cast!", "castart1.png", "CAST! Hook a fish from the lake!", 2 ))
 
 	cardframe = Image.open("cardframe_normal.png")
 	cardback = Image.open("cardback.png")
@@ -51,19 +54,20 @@ if __name__=='__main__':
 	cardsImage.paste( cardback, (0, 0) )
 
 	currx = CARD_WIDTH
+	curry = 0
 	for cd in cards:
 
 		fishart = Image.open( cd.artwork )
 		scl = 141.0 / fishart.size[0]
 		fishart = fishart.resize( (141, int(fishart.size[1]*scl)), Image.ANTIALIAS )
-		cardsImage.paste( fishart, (currx+21,27) )
+		cardsImage.paste( fishart, (currx+21,curry+27) )
 
-		cardsImage.paste( cardframe, (currx, 0),mask=cardframe )
-		draw.text( (currx+21,134), cd.title, (72,31,7), titleFont )
-		draw.text( (currx+9,14), str(cd.reelPow), (58,175,35), numberFont )
+		cardsImage.paste( cardframe, (currx, curry),mask=cardframe )
+		draw.text( (currx+21,curry+134), cd.title, (72,31,7), titleFont )
+		draw.text( (currx+9,curry+14), str(cd.reelPow), (58,175,35), numberFont )
 
 		textwords = string.split(cd.text)
-		curry = 154
+		currtexty = curry+154
 		print textwords
 		linewords = []		
 		while len(textwords):
@@ -74,18 +78,21 @@ if __name__=='__main__':
 				# Doesn't fit, start a new line
 				linetext = string.join(linewords," ")
 				print "DRAW LINE", teststr
-				draw.text( (currx+22,curry), linetext, (72,31,7), bodyFont )
-				curry += linesz[1]
+				draw.text( (currx+22,currtexty), linetext, (72,31,7), bodyFont )
+				currtexty += linesz[1]
 				linewords = []
 			
 			linewords.append( textwords.pop(0) )
 
 		if len(linewords):
-			draw.text( (currx+22,curry), string.join(linewords," "), (72,31,7), bodyFont )
+			draw.text( (currx+22,currtexty), string.join(linewords," "), (72,31,7), bodyFont )
 
 
 
-		currx += CARD_WIDTH		
+		currx += CARD_WIDTH
+		if (currx > CARD_WIDTH*4):
+			currx = 0;
+			curry += CARD_HITE		
 
 	cardsImage.save("cardfish_cards.png")
 

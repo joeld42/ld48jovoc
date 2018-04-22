@@ -27,6 +27,12 @@ void UIAssets::SetupUI()
         LoadIcon( "gamedata:uiassets/btn_large_red.png", &img_btn_large_red );
         LoadIcon( "gamedata:uiassets/btn_large_grey.png", &img_btn_large_grey );
         
+        LoadIcon( "gamedata:uiassets/line_tension.png", &img_line_tension );
+        LoadIcon( "gamedata:uiassets/fish_icon.png", &img_fish_icon );
+        LoadIcon( "gamedata:uiassets/tension_high.png", &img_tension_high );
+        LoadIcon( "gamedata:uiassets/tension_low.png", &img_tension_low );
+        LoadIcon( "gamedata:uiassets/fishingline.png", &img_fishing_line );
+        
         this->fontValid = true;
     });
 }

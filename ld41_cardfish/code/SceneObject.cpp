@@ -275,13 +275,17 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
 void Scene::CreateCardMeshes()
 {
     const float cardUVWidth = 0.173828125f; // from mk_cards.py
+    const float cardUVHite = 0.5f;
     const float cardAspect = 1.44f;
     
-    for (int cardNdx=0; cardNdx < 2; cardNdx++)
+    int numCards = 5;
+    for (int cardNdx=0; cardNdx < numCards; cardNdx++)
     {
         int numVerts = 8;
         int numTriIndices = 12;
         int slot = cardNdx + 1; //slot 0 is card back
+        int col = slot % 5;
+        int row = slot / 5;
         
         Oryol::Buffer buff;
         buff.Reserve(sizeof(LDJamFileVertex) * numVerts + sizeof(uint16_t) * numTriIndices);
@@ -293,23 +297,23 @@ void Scene::CreateCardMeshes()
         meshSetup.NumIndices = numTriIndices;
         
         vertData[0].m_pos = glm::vec3( -0.5f, -0.5f*cardAspect, 0.0f );
-        vertData[0].m_st0 = glm::vec2( cardUVWidth * (slot+0), 1.0f );
+        vertData[0].m_st0 = glm::vec2( cardUVWidth * (col+0), cardUVHite * (row+1)  );
         
         vertData[1].m_pos = glm::vec3(  0.5f, -0.5f*cardAspect, 0.0f );
-        vertData[1].m_st0 = glm::vec2( cardUVWidth * (slot+1), 1.0f );
+        vertData[1].m_st0 = glm::vec2( cardUVWidth * (col+1), cardUVHite * (row+1) );
         
         vertData[2].m_pos = glm::vec3(  0.5f,  0.5f*cardAspect, 0.0f );
-        vertData[2].m_st0 = glm::vec2( cardUVWidth * (slot+1), 0.0f );
+        vertData[2].m_st0 = glm::vec2( cardUVWidth * (col+1), cardUVHite * (row+0) );
         
         vertData[3].m_pos = glm::vec3( -0.5f,  0.5f*cardAspect, 0.0f );
-        vertData[3].m_st0 = glm::vec2( cardUVWidth * (slot+0), 0.0f );
+        vertData[3].m_st0 = glm::vec2( cardUVWidth * (col+0), cardUVHite * (row+0) );
         
         // Card Back
         vertData[4].m_pos = glm::vec3( -0.5f, -0.5f*cardAspect, 0.0f );
-        vertData[4].m_st0 = glm::vec2( 0.0f, 1.0f );
+        vertData[4].m_st0 = glm::vec2( 0.0f, cardUVHite );
         
         vertData[5].m_pos = glm::vec3(  0.5f, -0.5f*cardAspect, 0.0f );
-        vertData[5].m_st0 = glm::vec2( cardUVWidth, 1.0f );
+        vertData[5].m_st0 = glm::vec2( cardUVWidth, cardUVHite );
         
         vertData[6].m_pos = glm::vec3(  0.5f,  0.5f*cardAspect, 0.0f );
         vertData[6].m_st0 = glm::vec2( cardUVWidth, 0.0f );
@@ -342,6 +346,8 @@ void Scene::CreateCardMeshes()
         StringBuilder cardNameBuilder;
         cardNameBuilder.Format( 32, "card%d",cardNdx );
         mesh.meshName = cardNameBuilder.GetString();
+        
+        printf("CARD: %s\n", mesh.meshName.AsCStr() );
         
         mesh.bboxMin =  glm::vec3( -0.5f,  -0.5f*cardAspect, -0.1f );
         mesh.bboxMax =  glm::vec3(  0.5f,   0.5f*cardAspect, 0.1f );
@@ -394,11 +400,6 @@ void Scene::BringToFront( SceneObject *frontObj )
     }
 }
 
-void Scene::drawScene()
-{
-    drawSceneLayer( sceneDrawState, false );
-    drawSceneLayer( cardDrawState, true );
-}
 
 void Scene::drawSceneLayer( Oryol::DrawState drawState, bool cardsLayer)
 {

@@ -51,6 +51,8 @@ def fileNeedsUpdate( srcFile, destFile ):
 
 if __name__=='__main__':
 
+    # Hack for fish game, copy over the cardbacks
+    shutil.copyfile( "./cardgen/cardfish_cards.png", "./assets/cardfish_cards.png",)
 
     # -----------------------------------
     # OGEX Scene Files    

@@ -28,8 +28,16 @@ struct CardFishGame {
     
     Oryol::Array<Card> deck;
     
+    void shuffle( Oryol::Array<Card> &cards );
+    
     // Tackle cards in play
     Oryol::Array<Card> tackleCards;
+    
+    int reelDistance;
+    int reelTension;
+    int reelTensionMax;
+    int reelSlackMin;
+    Card reelCard;
     
     void resetGame();
     void resetRound( int roundNum );

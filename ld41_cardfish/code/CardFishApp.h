@@ -92,6 +92,9 @@ private:
     Tapnik::Ray mouseCardsRay;
     glm::vec3 groundCursor;
     glm::vec3 tableCursor;
+    
+    glm::vec2 fishDiagramPos;
+    
     enum DropZone {
         DropZone_LAKE,
         DropZone_TACKLE,
@@ -101,7 +104,12 @@ private:
     
     Card currentCard;
     bool isDraggingCard;
-        
+    float reelTimeout;
+    int reelPowerRemaining;
+    
+    float calcReelDiagramXPos( float reelDistance );
+    float calcReelDiagramYPos( float tension );
+    
     CardFishGame game;
     void updateCards();
     void prepareNextDrawCard();

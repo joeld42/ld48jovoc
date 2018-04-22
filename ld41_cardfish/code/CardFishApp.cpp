@@ -36,6 +36,8 @@
 #include "SceneObject.h"
 #include "CardFishApp.h"
 
+#include "par_easings.h"
+
 // NKUI and stb-image for UI stuff
 #include "NKUI/NKUI.h"
 
@@ -44,6 +46,7 @@ using namespace Tapnik;
 
 #define DRAW_ANIM_TIME (0.5f)
 #define BIG_CARD_SIZE (2.5f)
+#define REEL_TIMEOUT (0.5f)
 
 //------------------------------------------------------------------------------
 AppState::Code
@@ -251,7 +254,7 @@ CardFishApp::OnRunning() {
     // render one frame
     Gfx::BeginPass(this->passAction);
     
-    this->draw();
+    gameScene->drawSceneLayer( gameScene->sceneDrawState, false );
     
     
     //    const ddVec3 boxColor  = { 0.0f, 0.8f, 0.8f };
@@ -278,6 +281,9 @@ CardFishApp::OnRunning() {
     if (this->uiAssets->fontValid) {
         this->interfaceScreens( uiAssets );
     }
+    
+    // Draw the table cards on top
+    gameScene->drawSceneLayer( gameScene->cardDrawState, true );
     
     Dbg::DrawTextBuffer();
     
@@ -467,6 +473,38 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
         }
     }
     
+    
+    // Reel in the fishy
+    if (reelPowerRemaining > 0) {
+        reelTimeout -= dt;
+        if (reelTimeout < 0.0f) {
+            reelPowerRemaining -= 1;
+            game.reelDistance -= 1;
+            game.reelTension += 1;
+            reelTimeout = REEL_TIMEOUT;
+        
+            if (game.reelDistance <= 0) {
+                printf("Yay earned %d fishpoints...\n", game.reelCard.fishPoints );
+                
+                gameScene->destroyObject( game.reelCard.sceneObj );
+                game.reelCard.sceneObj = NULL;
+            }
+            
+            if (reelPowerRemaining <= 0) {
+                // Check for too high or too low tension...
+                if (game.reelTension > game.reelTensionMax) {
+                    printf("Line Broke...\n");
+                    gameScene->destroyObject( game.reelCard.sceneObj );
+                    game.reelCard.sceneObj = NULL;
+                    
+                    game.reelDistance = 0;
+                }
+            }
+        }
+    }
+    
+
+    
 
 }
 
@@ -510,6 +548,36 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
             game.tackleCards.Add( currentCard );
             
             drawNextCard();
+        } else if (activeDropZone == DropZone_REEL) /* && (game.reelDistance > 0) */ {
+            
+            
+            if (game.reelDistance > 0) {
+                
+                reelTimeout = REEL_TIMEOUT;
+                reelPowerRemaining += game.reelCard.reelPow;
+
+            } else {
+
+                // Put the card on the line (TODO: only do this for a cast)
+                currentCard.sceneObj->isCard = true;
+                currentCard.sceneObj->interaction->cardSize = 0.5f;
+                currentCard.sceneObj->interaction->tablePos = glm::vec2( 3.0f, 2.0f);
+                
+                game.reelCard = currentCard;
+                game.reelTension = 5;
+                game.reelDistance = 10;
+                
+                // transfer ownership of card to reelCard
+                currentCard.sceneObj = NULL;
+            }
+            
+            // Consume the card used to reel the fish
+            if (currentCard.sceneObj) {
+                gameScene->destroyObject( currentCard.sceneObj );
+            }
+            currentCard.sceneObj = NULL;
+            drawNextCard();
+
         } else {
             // Fly back to table center
             currentCard.sceneObj->isCard = true;
@@ -521,14 +589,11 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
     
     activeDropZone = DropZone_LAKE;
     //Dbg::PrintF("MouseY %f\n\r", mousePos.y );
-    if (mousePos.y > (uiAssets->fbHeight - 200) ) {
+    if (mousePos.y < 100 ) {
+        activeDropZone = DropZone_REEL;
+    } else if (mousePos.y > (uiAssets->fbHeight - 200) ) {
         activeDropZone = DropZone_TACKLE;
     }
-}
-
-void CardFishApp::draw()
-{
-    gameScene->drawScene();
 }
 
 void CardFishApp::nextCamera()
@@ -654,23 +719,85 @@ void CardFishApp::interfaceTitle( nk_context* ctx )
 
 }
 
+float CardFishApp::calcReelDiagramXPos( float reelDistance )
+{
+    return 28 + 52*reelDistance;
+}
+
+float CardFishApp::calcReelDiagramYPos( float tension )
+{
+    return (10*(10.0 - tension)) - 4.0;
+}
+
+
 void CardFishApp::interfaceGame( nk_context* ctx )
 {
     
     struct nk_panel layout;
-    static nk_flags window_flags = 0;
+    //static nk_flags window_flags = 0;
+    static nk_flags window_flags = NK_WINDOW_NO_SCROLLBAR;
     
     
     ctx->style.window.padding = nk_vec2(0,0);
     ctx->style.window.padding = nk_vec2(0,0);
     
-    nk_style_set_font(ctx, &(uiAssets->font_30->handle));
+    nk_style_set_font(ctx, &(uiAssets->font_20->handle));
     ctx->style.text.color = nk_rgb(255,255,255);
     
     uiAssets->buttonStyleNormal(ctx);
     
+    
+    ctx->style.window.padding = nk_vec2(0,0);
+    ctx->style.window.fixed_background = nk_style_item_image( uiAssets->img_line_tension );
+    if (nk_begin(ctx, &layout, "reelWidgets", nk_rect( 0, 0, uiAssets->fbWidth, 100), window_flags))
+    {
+        nk_layout_space_begin(ctx, NK_STATIC, 100, 10000);
+        
+        float highTensionY = calcReelDiagramYPos( game.reelTensionMax );
+        nk_layout_space_push(ctx, nk_rect(47,0,uiAssets->fbWidth - 47,highTensionY));
+        nk_image( ctx, uiAssets->img_tension_high );
+        
+        nk_layout_space_push(ctx, nk_rect(47,-10,uiAssets->fbWidth - 47,50));
+        nk_text( ctx, "Too Much Tension", 16, NK_TEXT_ALIGN_TOP|NK_TEXT_ALIGN_CENTERED );
+
+        float lowTensionY = calcReelDiagramYPos( game.reelSlackMin );
+        nk_layout_space_push(ctx, nk_rect(47,lowTensionY,uiAssets->fbWidth - 47, 100 - lowTensionY));
+        nk_image( ctx, uiAssets->img_tension_low );
+        
+        nk_layout_space_push(ctx, nk_rect(47,60,uiAssets->fbWidth - 47,50));
+        nk_text( ctx, "Too Slack", 9, NK_TEXT_ALIGN_TOP|NK_TEXT_ALIGN_CENTERED );
+        
+        for (int i=1; i < 15; i++) {
+            char buff[10];
+            sprintf(buff, "%d", i );
+            nk_layout_space_push(ctx, nk_rect( calcReelDiagramXPos(i),73, 80, 50));
+            nk_text( ctx, buff, strlen(buff), NK_TEXT_ALIGN_TOP|NK_TEXT_ALIGN_LEFT );
+        }
+        
+        
+        if (game.reelDistance > 0) {
+            
+            float reelOffs = 0.0;
+            if (reelTimeout > 0) {
+                reelOffs = 1.0-(reelTimeout / REEL_TIMEOUT);
+                
+            }
+            
+            fishDiagramPos = glm::vec2(calcReelDiagramXPos(game.reelDistance - par_easings_in_out_cubic( reelOffs ) ),
+                                       calcReelDiagramYPos(game.reelTension) );
+            
+            nk_layout_space_push(ctx, nk_rect( 47, 0, fishDiagramPos.x-47 + 4, fishDiagramPos.y + 4));
+            nk_image( ctx, uiAssets->img_fishing_line );
+            
+            nk_layout_space_push(ctx, nk_rect(fishDiagramPos.x, fishDiagramPos.y-20,100,50));
+            nk_image( ctx, uiAssets->img_fish_icon );
+        }
+    }
+    nk_end(ctx);
+    nk_style_set_font(ctx, &(uiAssets->font_30->handle));
+    ctx->style.window.fixed_background = nk_style_item_color(nk_rgba( 0, 0, 0, 0));
     if (nk_begin(ctx, &layout, "game", nk_rect( uiAssets->fbWidth - 150,
-                                                uiAssets->fbHeight - 110,
+                                                uiAssets->fbHeight - 180,
                                                     100, 100), window_flags))
     {
         // Draw pile
