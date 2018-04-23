@@ -277,8 +277,10 @@ CardFishApp::OnRunning() {
     //    dd::box(boxCenter, boxColor, boxSize, boxSize, boxSize );
     //    dd::cross(boxCenter, 1.0f);
     
+    if (Input::KeyDown(Key::Q)) {
+        game.gameOver = true;
+    }
     if (Input::KeyDown(Key::Z)) {
-        nextCamera();
     }
     
     if (Input::KeyDown(Key::Tab)) {
@@ -301,7 +303,7 @@ CardFishApp::OnRunning() {
     }
     
     // Draw the table cards on top
-    if (game.gameStarted) {
+    if ((game.gameStarted) && (!game.gameOver)) {
         gameScene->drawSceneLayer( gameScene->cardDrawState, true, false );
     }
     
@@ -480,6 +482,7 @@ void CardFishApp::onSceneLoaded()
 void CardFishApp::startGame()
 {
     game.gameStarted = true;
+    game.gameOver = false;
     game.resetGame();
     prepareNextDrawCard();
     drawNextCard();
@@ -594,8 +597,8 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
                 strBuilder.Format( 200, "Yay, caught %s and earned %d fishpoints...",
                                   game.reelCard.title.AsCStr(),
                                   game.reelCard.fishPoints );
+                game.fishPoints += game.reelCard.fishPoints;
                 message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
-                
                 soloud.play( sfxJump );
                 
                 if (game.reelCard.sceneObj != NULL) {
@@ -627,9 +630,6 @@ void CardFishApp::message( Oryol::String messageText, glm::vec4 color )
 
 void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
 {
-    if (!game.gameStarted) {
-        return;
-    }
     // Update mouse ray and ground cursor
     glm::vec2 mousePos = Input::MousePosition();
     mouseRay = gameCamera.getCameraRay(mousePos.x, mousePos.y );
@@ -643,6 +643,11 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
     float t2 = mouseCardsRay.pos.z / -mouseCardsRay.dir.z;
     tableCursor = mouseCardsRay.pos + ( mouseCardsRay.dir * t2 );
 
+    if ((!game.gameStarted)||(game.gameOver)) {
+        return;
+    }
+
+    
 //    Dbg::PrintF( "CardsRay: %3.2f %3.2f %3.2f\r\n",
 //                mouseCardsRay.dir.x,
 //                mouseCardsRay.dir.y,
@@ -661,7 +666,9 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
         // Handle drop
         bool handledCard = false;
         if (activeDropZone == DropZone_TRASH) {
-            trashCard();
+            if (isDraggingCard) {
+                trashCard();
+            }
         } else if (activeDropZone == DropZone_TACKLE) {
             if ((game.tackleCards.Size() < 5) && (currentCard.cardType==CardType_TACKLE)) {
                 // ADD TACKLE CARD
@@ -737,7 +744,9 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
     }
     if (trashCanObj && trashCanObj->interaction->mouseHovering) {
         activeDropZone = DropZone_TRASH;
-        currentCard.sceneObj->vsParams.tintColor = glm::vec4( 0.6, 0.6, 1.0, 1.0 );
+        if ((isDraggingCard) && (currentCard.sceneObj)) {
+            currentCard.sceneObj->vsParams.tintColor = glm::vec4( 0.6, 0.6, 1.0, 1.0 );
+        }
         trashCanObj->vsParams.tintColor = glm::vec4( 0.5f, 1.0f, 1.0f, 1.0f );
     } else if (mousePos.y < 100 ) {
         activeDropZone = DropZone_REEL;
@@ -859,8 +868,36 @@ void CardFishApp::drawNextCard()
         currentCard.drawAnimTimer = DRAW_ANIM_TIME;
         
         prepareNextDrawCard();
+    } else {
+        // Tried to draw a card but the deck was empty ... game over man!
+        game.gameOver = true;
+        
+        cleanupCards( game.tackleCards );
+        cleanupCards( game.lakeFish );
+        cleanupCards( game.deck );
+        if (currentCard.sceneObj) {
+            gameScene->destroyObject( currentCard.sceneObj );
+            currentCard.sceneObj = NULL;
+        }
+        if (game.reelCard.sceneObj) {
+            gameScene->destroyObject( game.reelCard.sceneObj );
+            game.reelCard.sceneObj = NULL;
+        }
     }
 }
+
+
+void CardFishApp::cleanupCards( Oryol::Array<Card> &cards )
+{
+    for (int i=0; i < cards.Size(); i++) {
+        if (cards[i].sceneObj) {
+            gameScene->destroyObject( cards[i].sceneObj );
+            cards[i].sceneObj = NULL;
+        }
+    }
+    cards.Clear();
+}
+
 
 void CardFishApp::trashCard()
 {
@@ -994,52 +1031,55 @@ void CardFishApp::interfaceGame( nk_context* ctx )
     uiAssets->buttonStyleNormal(ctx);
     
     
-    ctx->style.window.padding = nk_vec2(0,0);
-    ctx->style.window.fixed_background = nk_style_item_image( uiAssets->img_line_tension );
-    if (nk_begin(ctx, &layout, "reelWidgets", nk_rect( 0, 0, uiAssets->fbWidth, 100), window_flags))
+    if (!game.gameOver)
     {
-        nk_layout_space_begin(ctx, NK_STATIC, 100, 10000);
-        
-        float highTensionY = calcReelDiagramYPos( game.reelTensionMax );
-        nk_layout_space_push(ctx, nk_rect(47,0,uiAssets->fbWidth - 47,highTensionY));
-        nk_image( ctx, uiAssets->img_tension_high );
-        
-        nk_layout_space_push(ctx, nk_rect(47,-10,uiAssets->fbWidth - 47,50));
-        nk_text( ctx, "Too Much Tension", 16, NK_TEXT_ALIGN_TOP|NK_TEXT_ALIGN_CENTERED );
-
-        float lowTensionY = calcReelDiagramYPos( game.reelSlackMin );
-        nk_layout_space_push(ctx, nk_rect(47,lowTensionY,uiAssets->fbWidth - 47, 100 - lowTensionY));
-        nk_image( ctx, uiAssets->img_tension_low );
-        
-        nk_layout_space_push(ctx, nk_rect(47,60,uiAssets->fbWidth - 47,50));
-        nk_text( ctx, "Too Slack", 9, NK_TEXT_ALIGN_TOP|NK_TEXT_ALIGN_CENTERED );
-        
-        for (int i=1; i < 15; i++) {
-            char buff[10];
-            sprintf(buff, "%d", i );
-            nk_layout_space_push(ctx, nk_rect( calcReelDiagramXPos(i),73, 80, 50));
-            nk_text( ctx, buff, strlen(buff), NK_TEXT_ALIGN_TOP|NK_TEXT_ALIGN_LEFT );
-        }
-        
-        
-        if (game.reelDistance > 0) {
+        ctx->style.window.padding = nk_vec2(0,0);
+        ctx->style.window.fixed_background = nk_style_item_image( uiAssets->img_line_tension );
+        if (nk_begin(ctx, &layout, "reelWidgets", nk_rect( 0, 0, uiAssets->fbWidth, 100), window_flags))
+        {
+            nk_layout_space_begin(ctx, NK_STATIC, 100, 10000);
             
-            float reelOffs = 0.0;
-            if (reelTimeout > 0) {
-                reelOffs = 1.0-(reelTimeout / REEL_TIMEOUT);
+            float highTensionY = calcReelDiagramYPos( game.reelTensionMax );
+            nk_layout_space_push(ctx, nk_rect(47,0,uiAssets->fbWidth - 47,highTensionY));
+            nk_image( ctx, uiAssets->img_tension_high );
+            
+            nk_layout_space_push(ctx, nk_rect(47,-10,uiAssets->fbWidth - 47,50));
+            nk_text( ctx, "Too Much Tension", 16, NK_TEXT_ALIGN_TOP|NK_TEXT_ALIGN_CENTERED );
+
+            float lowTensionY = calcReelDiagramYPos( game.reelSlackMin );
+            nk_layout_space_push(ctx, nk_rect(47,lowTensionY,uiAssets->fbWidth - 47, 100 - lowTensionY));
+            nk_image( ctx, uiAssets->img_tension_low );
+            
+            nk_layout_space_push(ctx, nk_rect(47,60,uiAssets->fbWidth - 47,50));
+            nk_text( ctx, "Too Slack", 9, NK_TEXT_ALIGN_TOP|NK_TEXT_ALIGN_CENTERED );
+            
+            for (int i=1; i < 15; i++) {
+                char buff[10];
+                sprintf(buff, "%d", i );
+                nk_layout_space_push(ctx, nk_rect( calcReelDiagramXPos(i),73, 80, 50));
+                nk_text( ctx, buff, strlen(buff), NK_TEXT_ALIGN_TOP|NK_TEXT_ALIGN_LEFT );
             }
             
-            fishDiagramPos = glm::vec2(calcReelDiagramXPos(game.reelDistance - par_easings_in_out_cubic( reelOffs ) ),
-                                       calcReelDiagramYPos(game.reelTension) );
             
-            nk_layout_space_push(ctx, nk_rect( 47, 0, fishDiagramPos.x-47 + 4, fishDiagramPos.y + 4));
-            nk_image( ctx, uiAssets->img_fishing_line );
-            
-            nk_layout_space_push(ctx, nk_rect(fishDiagramPos.x, fishDiagramPos.y-20,100,50));
-            nk_image( ctx, uiAssets->img_fish_icon );
+            if (game.reelDistance > 0) {
+                
+                float reelOffs = 0.0;
+                if (reelTimeout > 0) {
+                    reelOffs = 1.0-(reelTimeout / REEL_TIMEOUT);
+                }
+                
+                fishDiagramPos = glm::vec2(calcReelDiagramXPos(game.reelDistance - par_easings_in_out_cubic( reelOffs ) ),
+                                           calcReelDiagramYPos(game.reelTension) );
+                
+                nk_layout_space_push(ctx, nk_rect( 47, 0, fishDiagramPos.x-47 + 4, fishDiagramPos.y + 4));
+                nk_image( ctx, uiAssets->img_fishing_line );
+                
+                nk_layout_space_push(ctx, nk_rect(fishDiagramPos.x, fishDiagramPos.y-20,100,50));
+                nk_image( ctx, uiAssets->img_fish_icon );
+            }
         }
+        nk_end(ctx);
     }
-    nk_end(ctx);
     nk_style_set_font(ctx, &(uiAssets->font_30->handle));
     ctx->style.window.fixed_background = nk_style_item_color(nk_rgba( 0, 0, 0, 0));
     if (nk_begin(ctx, &layout, "game", nk_rect( uiAssets->fbWidth - 150,
@@ -1053,7 +1093,21 @@ void CardFishApp::interfaceGame( nk_context* ctx )
         nk_label(ctx, buff, NK_TEXT_CENTERED );
     }
     nk_end(ctx);
-
+    
+    if (!game.gameOver) {
+        if (nk_begin(ctx, &layout, "game_stats", nk_rect( 0, 100, 200, 150), window_flags))
+        {
+            char buff[50];
+            nk_style_set_font(ctx, &(uiAssets->font_20->handle));
+            
+            nk_layout_row_dynamic( ctx, 22, 1);
+            sprintf(buff, "Fish Points: %d", game.fishPoints );
+            ctx->style.text.color = nk_rgb( 181, 100, 255 );
+            nk_label(ctx, buff, NK_TEXT_LEFT );
+        }
+        nk_end(ctx);
+    }
+    
     // ---------------------------------------------
     //  Message Panel
     // ---------------------------------------------
@@ -1082,6 +1136,81 @@ void CardFishApp::interfaceGame( nk_context* ctx )
         nk_end(ctx);
     }
     
+    // ---------------------------------------------
+    //  Game Over Man
+    // ---------------------------------------------
+    if (game.gameOver)
+    {
+        ctx->style.window.background = nk_rgba(43,81,123, 200);
+        ctx->style.window.border_color = nk_rgb( 56, 119, 249 );
+        ctx->style.window.fixed_background.data.color = nk_rgba(43,81,123, 200);
+        
+        float ww = uiAssets->fbWidth-300;
+        float sz = 1.0;
+        //float hh =
+        if (nk_begin(ctx, &layout, "game_end", nk_rect( 150, 130, ww, 400), NK_WINDOW_BORDER)) {
+            
+            ctx->style.text.color = nk_rgb( 255, 255, 255 );
+            nk_style_set_font(ctx, &(uiAssets->font_30->handle));
+            nk_layout_row_dynamic( ctx, 50, 1);
+            nk_label( ctx, "--- Game Finished! ---", NK_TEXT_CENTERED );
+
+            char buff[50];
+            
+            nk_layout_row_dynamic( ctx, 30, 1);
+            sprintf(buff, "Fish Points: %d", game.fishPoints );
+            ctx->style.text.color = nk_rgb( 181, 100, 255 );
+            nk_label(ctx, buff, NK_TEXT_CENTERED );
+            
+            ctx->style.text.color = nk_rgb( 255, 255, 255 );
+            nk_style_set_font(ctx, &(uiAssets->font_30->handle));
+            
+            const char *fishRating = "???";
+            const char *ratingText = "???";
+            if (game.fishPoints < 6) {
+                fishRating = "Fish Friend";
+                ratingText = "Maybe you don't need to catch anything, and "
+                              "you just like drinking beer and hanging around lakes.";
+            } else if (game.fishPoints < 12) {
+                    fishRating = "Weekend Warrior";
+                    ratingText = "A bad day of fishing is better than a great day at work, amirite?";
+            } else if (game.fishPoints < 18) {
+                fishRating = "Outdoorsey";
+                ratingText = "Respectable showing. A fine kettle of fish. A basket of bream. A hellabit of halibut.";
+            } else {
+                fishRating = "Master Angler";
+                ratingText = "You think like a fish. You drink pondwater and poop neon marshmallows.";
+            }
+            
+            ctx->style.text.color = nk_rgb( 255, 255, 40 );
+            nk_style_set_font(ctx, &(uiAssets->font_30->handle));
+            nk_layout_row_dynamic( ctx, 40, 1);
+            nk_label(ctx, fishRating, NK_TEXT_CENTERED );
+            
+            ctx->style.text.color = nk_rgb( 255, 255, 255 );
+            nk_style_set_font(ctx, &(uiAssets->font_20->handle));
+            nk_layout_row_dynamic( ctx, 120, 1);
+            nk_label_wrap(ctx, ratingText );
+            
+            nk_style_set_font(ctx, &(uiAssets->font_30->handle));
+            nk_layout_row_begin(ctx, NK_STATIC, 93*sz, 3);
+            nk_layout_row_push(ctx, (ww - (230*sz))/2 );
+            nk_label( ctx, "", NK_TEXT_CENTERED );
+            nk_layout_row_push(ctx, 230);
+            if (nk_button_label(ctx, "Play Again" )) {
+                game.gameStarted = false;
+                game.gameOver = false;
+                game.resetGame();
+            }
+            nk_layout_row_end(ctx);
+            
+            
+            
+        }
+        nk_end(ctx);
+    }
+
+
 }
 
 void CardFishApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
@@ -1090,6 +1219,7 @@ void CardFishApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
     nk_context* ctx = NKUI::NewFrame();
     
     ctx->style.window.background = { 0, 0, 0, 0 };
+    ctx->style.window.border_color = { 0, 0, 0, 0 };
     ctx->style.window.fixed_background.data.color = { 0, 0, 0, 0 };
     
     if (!game.gameStarted)

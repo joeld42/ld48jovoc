@@ -117,7 +117,9 @@ void CardFishGame::shuffle( Oryol::Array<Card> &cards )
 
 void CardFishGame::resetGame()
 {
+    
     // Initial player deck
+    fishPoints = 0;
     playerDeck.Clear();
     tackleCards.Clear();
     addCardsToDeck(playerDeck, "cast", 5 );

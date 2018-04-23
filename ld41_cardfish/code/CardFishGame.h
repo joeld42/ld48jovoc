@@ -35,11 +35,12 @@ struct CardFishGame {
     Oryol::Array<Card> playerDeck;
     Oryol::Array<Card> lakeDeck;
     
+    // Gameplay
     Oryol::Array<Card> deck;
-    
     Oryol::Array<Card> lakeFish;
     
     bool gameStarted;
+    bool gameOver;
     
     void SetupCardDefs();
     void shuffle( Oryol::Array<Card> &cards );
@@ -64,6 +65,7 @@ struct CardFishGame {
     void UpdateLineTension();
     Card castLakeCard();
     
+    int fishPoints;
     int reelDistance;
     int reelTension;
     int reelTensionMax;

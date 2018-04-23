@@ -128,6 +128,7 @@ private:
     void doCast();
     void updateSlack();
     void trashCard();
+    void cleanupCards( Oryol::Array<Card> &cards );
     
     glm::vec2 deckTablePos;
     glm::vec2 currCardTablePos;
