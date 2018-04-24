@@ -33,6 +33,8 @@
 #include "LocalFS/LocalFileSystem.h"
 #endif
 
+#include "glm/gtx/matrix_interpolation.hpp"
+
 #include "Camera.h"
 #include "SceneObject.h"
 #include "CardFishApp.h"
@@ -51,6 +53,7 @@ using namespace Tapnik;
 
 #define MESSAGE_TIME (0.75f)
 #define MESSAGE_FADE_TIME (0.2f)
+#define ANIM_CAMERA_TIME (2.5f)
 
 //------------------------------------------------------------------------------
 AppState::Code
@@ -63,8 +66,8 @@ CardFishApp::OnInit() {
     ioSetup.Assigns.Add("gamedata:", "http://localhost:8000/gamedata/");
 #else
     ioSetup.FileSystems.Add( "file", LocalFileSystem::Creator() );
-    //ioSetup.Assigns.Add("gamedata:", "root:../Resources/gamedata/");
-    ioSetup.Assigns.Add("gamedata:", "cwd:gamedata/");
+    ioSetup.Assigns.Add("gamedata:", "root:../Resources/gamedata/");
+    //ioSetup.Assigns.Add("gamedata:", "cwd:gamedata/");
 #endif
     
     IO::Setup(ioSetup);    
@@ -138,6 +141,7 @@ CardFishApp::OnInit() {
     //Memory::Clear(&g_uiMedia, sizeof(g_uiMedia));
     
     Log::Info("---- setup NKUI ---\n");
+    isAnimCamera = false;
     
     // setup clear states
     this->passAction.Color[0] = glm::vec4( 156.0f/255.0f, 221.0f/255.0f, 206.0f/255.0f, 1.0 );
@@ -292,7 +296,11 @@ CardFishApp::OnRunning() {
         } else {
             soloud.play( music );
         }
-
+    }
+    
+    if (Input::KeyDown(Key::X)) {
+        disposeCard(currentCard);
+        drawNextCard();
     }
     
     if (Input::KeyDown(Key::Tab)) {
@@ -462,7 +470,13 @@ void CardFishApp::switchToNamedCamera( Oryol::String cameraName )
     if (cam.index >=0) {
         activeCameraIndex = cam.index;
     }
-    gameCamera.UpdateModel( cam.mat );
+    
+    startCamera = glm::mat4( gameCamera.Model );
+    endCamera = glm::mat4( cam.mat );
+    isAnimCamera = true;
+    switchCameraAnim = 0.0f;
+    
+    //gameCamera.UpdateModel( cam.mat );
     gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 0.01f, 1000.0f);
 
 }
@@ -518,6 +532,21 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
     gameTime += fixedDt;
     float dt = fixedDt.AsSeconds();
     
+    // Camera stuff
+    if (isAnimCamera) {
+        switchCameraAnim += dt;
+        float t = switchCameraAnim / ANIM_CAMERA_TIME;
+        if (t > 1.0f) {
+            t = 1.0f;
+            isAnimCamera = false;
+            switchCameraAnim = 0.0f;
+        }
+        
+        gameCamera.UpdateModel( glm::interpolate( startCamera, endCamera, t ) );
+        
+    }
+    
+    
     // Our input handling is crap so give it a few frames
     // between pressing play before starting game
     if (!game.gameStarted) {
@@ -531,6 +560,10 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
         return;
     }
 
+    if (mouseDownTimeout > 0) {
+        mouseDownTimeout -= dt;
+    }
+    
     // Need to animate the current card??
     if (currentCard.drawAnimTimer > 0.0f) {
         currentCard.drawAnimTimer -= dt;
@@ -581,8 +614,10 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
                 }
             } else {
                 // Fly card back to table center
-                currentCard.sceneObj->interaction->tablePos = glm::mix( currentCard.sceneObj->interaction->tablePos,
-                                                                       this->currCardTablePos, 0.3f );
+                if (currentCard.sceneObj) {
+                    currentCard.sceneObj->interaction->tablePos = glm::mix( currentCard.sceneObj->interaction->tablePos,
+                                                                           this->currCardTablePos, 0.3f );
+                }
             }
         }
     }
@@ -644,6 +679,12 @@ void CardFishApp::message( Oryol::String messageText, glm::vec4 color )
 
 void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
 {
+    
+    // Don't update if we're animating
+    if (currentCard.drawAnimTimer > 0.0f) {
+        return;
+    }
+    
     // Update mouse ray and ground cursor
     glm::vec2 mousePos = Input::MousePosition();
     mouseRay = gameCamera.getCameraRay(mousePos.x, mousePos.y );
@@ -673,10 +714,20 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
             isDraggingCard = true;
             currentCard.sceneObj->interaction->cardSize = 0.8f;
         }
+        mouseDownTimeout = 0.2f;
     }
     if (Input::MouseButtonUp(MouseButton::Left)) {
         bool wasDragging = isDraggingCard;
         isDraggingCard = false;
+        
+        if (mouseDownTimeout > 0.0f) {
+            // Just cancel drag, don't process
+            if (currentCard.sceneObj) {
+                currentCard.sceneObj->isCard = true;
+                currentCard.sceneObj->interaction->cardSize = BIG_CARD_SIZE;
+            }
+            return;
+        }
         
         // Handle drop
         bool handledCard = false;
@@ -1052,13 +1103,15 @@ void CardFishApp::drawNextCard()
         // Tried to draw a card but the deck was empty ... game over man!
         game.gameOver = true;
         
-        switchToNamedCamera( "titleCam" );
+        switchToNamedCamera( "gameOverCam" );
         
         cleanupCards( game.tackleCards );
         cleanupCards( game.lakeFish );
         cleanupCards( game.deck );
         
-        disposeCard( currentCard );
+        // BUG??
+        //disposeCard( currentCard );
+        currentCard.sceneObj = NULL;
         disposeCard( game.reelCard );
     }
 }
@@ -1382,6 +1435,7 @@ void CardFishApp::interfaceGame( nk_context* ctx )
                 game.gameStarted = false;
                 game.gameOver = false;
                 game.resetGame();
+                switchToNamedCamera("titleCam");
             }
             nk_layout_row_end(ctx);
             

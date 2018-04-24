@@ -116,6 +116,12 @@ private:
     bool isDraggingCard;
     float reelTimeout;
     int reelPowerRemaining;
+    float mouseDownTimeout = 0.2f;
+    
+    bool isAnimCamera = false;
+    float switchCameraAnim;
+    glm::mat4x4 startCamera;
+    glm::mat4x4 endCamera;
     
     float calcReelDiagramXPos( float reelDistance );
     float calcReelDiagramYPos( float tension );
