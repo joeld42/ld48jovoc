@@ -9,6 +9,7 @@ enum CardType {
     CardType_CAST,
     CardType_FISH,
     CardType_TACKLE,
+    CardType_ACTION
 };
 
 struct Card {
@@ -19,6 +20,7 @@ struct Card {
     int fishPoints; // Victory Points
     int depth;
     int cardFaceIndex;
+    int charges; // Some cards, like "Cast Repeater" have charges
     Tapnik::SceneObject *sceneObj; // May be NULL if this card isn't drawn yet
     
     // For interfacey stuff
@@ -45,6 +47,11 @@ struct CardFishGame {
     void SetupCardDefs();
     void shuffle( Oryol::Array<Card> &cards );
     void addCardsToDeck( Oryol::Array<Card> &cards, Oryol::String cardId, int howMany );
+    void returnCardToDeck( Card card );
+    int countTackle( Oryol::String cardId );
+    int calcReelPower( Card &card );
+    
+    Card FindCardDef(  Oryol::String cardId );
     
     void AddCardDef  ( Oryol::String cardId,
                         Oryol::String title,

@@ -32,6 +32,7 @@ void UIAssets::SetupUI()
         LoadIcon( "gamedata:uiassets/tension_high.png", &img_tension_high );
         LoadIcon( "gamedata:uiassets/tension_low.png", &img_tension_low );
         LoadIcon( "gamedata:uiassets/fishingline.png", &img_fishing_line );
+        LoadIcon( "gamedata:uiassets/titlecard.png", &img_title_card );
         
         this->fontValid = true;
     });

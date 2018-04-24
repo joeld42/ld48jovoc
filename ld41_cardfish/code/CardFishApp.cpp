@@ -49,8 +49,8 @@ using namespace Tapnik;
 #define BIG_CARD_SIZE (2.5f)
 #define REEL_TIMEOUT (0.5f)
 
-#define MESSAGE_TIME (1.0f)
-#define MESSAGE_FADE_TIME (2.0f)
+#define MESSAGE_TIME (0.75f)
+#define MESSAGE_FADE_TIME (0.2f)
 
 //------------------------------------------------------------------------------
 AppState::Code
@@ -140,7 +140,7 @@ CardFishApp::OnInit() {
     Log::Info("---- setup NKUI ---\n");
     
     // setup clear states
-    this->passAction.Color[0] = glm::vec4( 0.2, 0.2, 0.2, 1.0 );
+    this->passAction.Color[0] = glm::vec4( 156.0f/255.0f, 221.0f/255.0f, 206.0f/255.0f, 1.0 );
 
     gameCamera.Setup(glm::vec3(0.0, 0.0, 25.0), glm::radians(45.0f),
                     uiAssets->fbWidth,
@@ -254,7 +254,7 @@ CardFishApp::OnRunning() {
     gameScene->finalizeTransforms( activeCamera->ViewProj, cardCamera.ViewProj );
     this->updatePicking();
     
-    dd::cross(glm::value_ptr(groundCursor), 2.0f );
+    //dd::cross(glm::value_ptr(groundCursor), 2.0f );
     
     dbgDraw->debugDrawMVP = activeCamera->ViewProj;
     dbgDraw->debugDrawOrthoMVP = glm::ortho(0.0f, uiAssets->fbWidth, uiAssets->fbHeight, 0.0f );
@@ -277,10 +277,22 @@ CardFishApp::OnRunning() {
     //    dd::box(boxCenter, boxColor, boxSize, boxSize, boxSize );
     //    dd::cross(boxCenter, 1.0f);
     
-    if (Input::KeyDown(Key::Q)) {
-        game.gameOver = true;
-    }
+    // Toggle vis for screenshots
     if (Input::KeyDown(Key::Z)) {
+        if (currentCard.sceneObj) {
+            currentCard.sceneObj->hidden = !currentCard.sceneObj->hidden;
+        }
+    }
+    
+    // Toggle music
+    if (Input::KeyDown(Key::M)) {
+        musicPlaying = !musicPlaying;
+        if (!musicPlaying) {
+            music.stop();
+        } else {
+            soloud.play( music );
+        }
+
     }
     
     if (Input::KeyDown(Key::Tab)) {
@@ -443,18 +455,25 @@ void CardFishApp::updatePicking()
      */
 }
 
+// TODO: interpolate
+void CardFishApp::switchToNamedCamera( Oryol::String cameraName )
+{
+    SceneCamera cam = gameScene->findNamedCamera( cameraName );
+    if (cam.index >=0) {
+        activeCameraIndex = cam.index;
+    }
+    gameCamera.UpdateModel( cam.mat );
+    gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 0.01f, 1000.0f);
+
+}
+
 // =======================================================================================
 void CardFishApp::onSceneLoaded()
 {
     ready = true;
     printf(".... OnSceneLoaded... ready \n");
     
-    SceneCamera cam = gameScene->findNamedCamera( "lake1Cam" );
-    if (cam.index >=0) {
-        activeCameraIndex = cam.index;
-    }
-    gameCamera.UpdateModel( cam.mat );
-    gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 0.01f, 1000.0f);
+    switchToNamedCamera( "titleCam" );
     
     deckTablePos = glm::vec2( 2.86f, -2.1f );
     currCardTablePos = glm::vec2(0.0f, 0.35f);
@@ -486,6 +505,8 @@ void CardFishApp::startGame()
     game.resetGame();
     prepareNextDrawCard();
     drawNextCard();
+    
+    switchToNamedCamera( "lake1Cam" );
     
     messageTimeout = MESSAGE_TIME + MESSAGE_FADE_TIME;
     message( "Ready to Fish!", glm::vec4( 0.5f, 1.0f, 0.5f, 1.0f ));
@@ -587,24 +608,17 @@ void CardFishApp::fixedUpdate( Oryol::Duration fixedDt )
         if (reelTimeout < 0.0f) {
             reelPowerRemaining -= 1;
             game.reelDistance -= 1;
-            game.reelTension += 1;
+            
+            if (game.reelCard.cardId != "dead_fish") {
+                game.reelTension += 1;
+            }
+            
             reelTimeout = REEL_TIMEOUT;
         
             if (game.reelDistance <= 0) {
-                reelPowerRemaining = 0;
-                
-                StringBuilder strBuilder;
-                strBuilder.Format( 200, "Yay, caught %s and earned %d fishpoints...",
-                                  game.reelCard.title.AsCStr(),
-                                  game.reelCard.fishPoints );
-                game.fishPoints += game.reelCard.fishPoints;
-                message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
-                soloud.play( sfxJump );
-                
-                if (game.reelCard.sceneObj != NULL) {
-                    gameScene->destroyObject( game.reelCard.sceneObj );
-                    game.reelCard.sceneObj = NULL;
-                }
+                catchReelFish();
+            } else {
+                updateTension();
             }
         }
     }
@@ -661,13 +675,15 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
         }
     }
     if (Input::MouseButtonUp(MouseButton::Left)) {
+        bool wasDragging = isDraggingCard;
         isDraggingCard = false;
         
         // Handle drop
         bool handledCard = false;
         if (activeDropZone == DropZone_TRASH) {
-            if (isDraggingCard) {
+            if ((wasDragging) && (currentCard.cardId != "shoe")) {
                 trashCard();
+                handledCard = true;
             }
         } else if (activeDropZone == DropZone_TACKLE) {
             if ((game.tackleCards.Size() < 5) && (currentCard.cardType==CardType_TACKLE)) {
@@ -688,36 +704,36 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
             if (game.reelDistance > 0) {
                 
                 reelTimeout = REEL_TIMEOUT;
-                reelPowerRemaining += currentCard.reelPow;
+                reelPowerRemaining +=  game.calcReelPower( currentCard );
 
                 // Consume the card used to reel the fish
-                if (currentCard.sceneObj) {
-                    gameScene->destroyObject( currentCard.sceneObj );
-                }
-                currentCard.sceneObj = NULL;
+                disposeCard( currentCard );
                 drawNextCard();
                 handledCard = true;
 
             }
         } else if (activeDropZone == DropZone_LAKE)  {
             
-            if ((currentCard.cardType == CardType_CAST) || (currentCard.cardType == CardType_FISH)) {
+            // Really could combine Cast and Action
+            if ((currentCard.cardType == CardType_CAST) ||
+                (currentCard.cardType == CardType_FISH) ||
+                (currentCard.cardType == CardType_ACTION)) {
                 
                 if (currentCard.cardType == CardType_CAST) {
                     
                     // Consume the cast card
-                    if (currentCard.sceneObj) {
-                        gameScene->destroyObject( currentCard.sceneObj );
-                    }
-                    currentCard.sceneObj = NULL;
-
+                    disposeCard( currentCard );
                     doCast();
-                } else {
-                    // Add fish to lake
-                    currentCard.lakePos = groundCursor;
-                    currentCard.seed = glm::linearRand(0.0f, 1.0f);
-                    game.PlayCardToLake( currentCard );
+                    
+                } else if (currentCard.cardType == CardType_ACTION) {
+                    // Consume the action card
+                    disposeCard( currentCard );
+                    doAction();
                     updateSlack();
+                    
+                } else {
+                    // CardType_FISH
+                    doLake();
                 }
                 handledCard = true;
                 drawNextCard();
@@ -766,8 +782,141 @@ void CardFishApp::dynamicUpdate( Oryol::Duration frameDt )
     }
 }
 
+void CardFishApp::disposeCard( Card &card ) {
+    
+    // TODO: ref-count scene objs? ugh?
+    if (card.sceneObj != NULL) {
+        gameScene->destroyObject( card.sceneObj );
+        card.sceneObj = NULL;
+    }
+}
+
+void CardFishApp::catchReelFish()
+{
+    reelPowerRemaining = 0;
+    game.reelDistance = 0;
+    
+    StringBuilder strBuilder;
+    strBuilder.Format( 200, "Yay, caught %s and earned %d fishpoints...",
+                      game.reelCard.title.AsCStr(),
+                      game.reelCard.fishPoints );
+    game.fishPoints += game.reelCard.fishPoints;
+    message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
+    soloud.play( sfxJump );
+    
+    disposeCard( game.reelCard );
+}
+
+void CardFishApp::doAction()
+{
+    if (currentCard.cardId=="power_reel") {
+        if (game.reelDistance > 0) {
+            // Insta-catch
+            catchReelFish();
+        } else {
+            message( "No fish on line, Power Reel does nothing.", glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
+        }
+
+
+    } else if (currentCard.cardId=="zap_line") {
+        
+        if (game.reelDistance > 0) {
+            game.reelCard = transmuteCard( game.reelCard, "dead_fish" );
+        } else {
+            message( "No fish on line, Zap Line does nothing.", glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
+        }
+
+    } else if (currentCard.cardId=="dynamite") {
+    
+        int count = 0;
+        for (int i=0; i < game.lakeFish.Size(); i++) {
+            game.lakeFish[i] = transmuteCard( game.lakeFish[i], "dead_fish" );
+            count++;
+        }
+        if (game.reelDistance > 0) {
+            game.reelCard = transmuteCard( game.reelCard, "dead_fish" );
+            count++;
+        }
+        StringBuilder strBuilder;
+        strBuilder.Format( 200, "BOOM! Dynamite killed %d fish.", count );
+        message( strBuilder.GetString(), glm::vec4(0.39f,0.99f,0.50f,1.0f) );
+    
+    } else if (currentCard.cardId=="capsize") {
+        
+        for (int i = 0; i < game.tackleCards.Size(); i++) {
+            disposeCard( game.tackleCards[i] );
+            game.returnCardToDeck( game.tackleCards[i] );
+        }
+        
+        game.tackleCards.Clear();
+        
+    } else if (currentCard.cardId=="scoop_net") {
+        
+        int totalFishPoints = 0;
+        for (int i=game.lakeFish.Size()-1; i >=0; i--) {
+            
+            if (game.lakeFish[i].cardId=="dead_fish") {
+                totalFishPoints += game.lakeFish[i].fishPoints;
+                disposeCard( game.lakeFish[i] );
+                game.lakeFish.EraseSwapBack( i );
+            }
+        }
+        
+        if ((game.reelDistance > 0) && (game.reelCard.cardId == "dead_fish" )) {
+            totalFishPoints += game.reelCard.fishPoints;
+            disposeCard( game.reelCard );
+            game.reelDistance = 0;
+        }
+        
+        game.fishPoints += totalFishPoints;
+        
+        StringBuilder strBuilder;
+        strBuilder.Format( 200, "Scooped up %d points worth of dead fish.", totalFishPoints );
+        message( strBuilder.GetString(), glm::vec4(0.39f,0.99f,0.50f,1.0f) );
+
+        
+    } else  {
+        printf("MISSING action for card '%s'\n", currentCard.cardId.AsCStr() );
+    }
+
+}
+
+void CardFishApp::doLake()
+{
+    // Add fish to lake
+    currentCard.lakePos = groundCursor;
+    currentCard.seed = glm::linearRand(0.0f, 1.0f);
+    
+    
+    if (currentCard.cardId=="minnows") {
+        Card minnow = game.FindCardDef("minnow");
+        for (int i=0; i < 3; i++) {
+            Card cardClone = minnow;
+            cardClone.sceneObj = NULL;
+            spawnCardObject( cardClone );
+            cardClone.sceneObj->isCard = false;
+            cardClone.lakePos = glm::gaussRand( groundCursor, glm::vec3(1.0f));            
+            cardClone.seed = glm::linearRand(0.0f, 1.0f);
+            game.PlayCardToLake( cardClone );
+        }
+        
+        disposeCard( currentCard );
+        
+    } else {
+        game.PlayCardToLake( currentCard );
+    }
+    
+    updateSlack();
+}
+
 void CardFishApp::doCast()
 {
+    // Special casts?
+    if ((currentCard.cardId == "cast2") && (currentCard.charges>0)) {
+        currentCard.charges--;
+        game.returnCardToDeck( currentCard );
+    }
+
     // If we're already after a fish, let it go
     if (game.reelDistance > 0) {
         StringBuilder strBuilder;
@@ -775,20 +924,20 @@ void CardFishApp::doCast()
                           game.reelCard.title.AsCStr() );
         message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
     
-        gameScene->destroyObject( game.reelCard.sceneObj );
-        game.reelCard.sceneObj = NULL;
+        disposeCard( game.reelCard);
         game.reelDistance = 0;
     }
     
     if (game.lakeFish.Size() > 0) {
         Card lakeCard = game.castLakeCard();
         lakeCard.sceneObj->isCard = true;
-        lakeCard.sceneObj->interaction->cardSize = 0.5f;
-        lakeCard.sceneObj->interaction->tablePos = glm::vec2( 3.0f, 2.0f);
+        lakeCard.sceneObj->interaction->cardSize = 0.8f;
+        lakeCard.sceneObj->interaction->tablePos = glm::vec2( 3.0f, 2.3f);
         
         game.reelCard = lakeCard;
-        game.reelTension = 5;
-        game.reelDistance = 3;
+        game.reelTension = 6;
+        game.reelDistance = lakeCard.depth;
+        printf("Reeldistance is %d\n", game.reelDistance );
         
         // transfer ownership of card to reelCard
         currentCard.sceneObj = NULL;
@@ -843,20 +992,51 @@ void CardFishApp::updateCards()
 
 }
 
+void CardFishApp::spawnCardObject( Card &card ) {
+    if (card.sceneObj != NULL) {
+        printf("WARN: spawnCardObject called for card '%s' but it already has a sceneObj.\n" , card.cardId.AsCStr() );
+    }
+    
+    SceneObject *obj = gameScene->spawnObjectWithMeshNamed( card.cardId );
+    obj->isCard = true;
+    obj->makeInteractable();
+    obj->interaction->flipAmount = 1.0f;
+    obj->interaction->cardSize = 1.0f;
+    obj->interaction->tablePos = deckTablePos;
+    //obj->xform = glm::translate(glm::mat4(), glm::vec3( 2.9f, -2.1f, 0.0f ));
+    
+    card.sceneObj = obj;
+
+}
+
+Card CardFishApp::transmuteCard( Card origCard, Oryol::String newCardId )
+{
+    Card newCard = game.FindCardDef( newCardId );
+    newCard.charges = origCard.charges;
+    newCard.seed = origCard.seed;
+    newCard.drawAnimTimer = origCard.drawAnimTimer;
+    newCard.lakePos = origCard.lakePos;
+    
+    spawnCardObject( newCard );
+    if (origCard.sceneObj) {
+        newCard.sceneObj->xform = origCard.sceneObj->xform;
+        newCard.sceneObj->isCard = origCard.sceneObj->isCard;
+        
+        if (origCard.sceneObj->interaction) {
+            *(newCard.sceneObj->interaction) = *(origCard.sceneObj->interaction );
+        }
+        
+        disposeCard( origCard );
+    }
+
+    return newCard;
+}
+
 void CardFishApp::prepareNextDrawCard()
 {
     if (game.deck.Size() > 0) {
         Card &card = game.deck.Back();
-        
-        SceneObject *obj = gameScene->spawnObjectWithMeshNamed( card.cardId );
-        obj->isCard = true;
-        obj->makeInteractable();
-        obj->interaction->flipAmount = 1.0f;
-        obj->interaction->cardSize = 1.0f;
-        obj->interaction->tablePos = deckTablePos;
-        //obj->xform = glm::translate(glm::mat4(), glm::vec3( 2.9f, -2.1f, 0.0f ));
-        
-        card.sceneObj = obj;
+        spawnCardObject( card );
     }
 }
 
@@ -872,28 +1052,23 @@ void CardFishApp::drawNextCard()
         // Tried to draw a card but the deck was empty ... game over man!
         game.gameOver = true;
         
+        switchToNamedCamera( "titleCam" );
+        
         cleanupCards( game.tackleCards );
         cleanupCards( game.lakeFish );
         cleanupCards( game.deck );
-        if (currentCard.sceneObj) {
-            gameScene->destroyObject( currentCard.sceneObj );
-            currentCard.sceneObj = NULL;
-        }
-        if (game.reelCard.sceneObj) {
-            gameScene->destroyObject( game.reelCard.sceneObj );
-            game.reelCard.sceneObj = NULL;
-        }
+        
+        disposeCard( currentCard );
+        disposeCard( game.reelCard );
     }
 }
+
 
 
 void CardFishApp::cleanupCards( Oryol::Array<Card> &cards )
 {
     for (int i=0; i < cards.Size(); i++) {
-        if (cards[i].sceneObj) {
-            gameScene->destroyObject( cards[i].sceneObj );
-            cards[i].sceneObj = NULL;
-        }
+        disposeCard( cards[i] );
     }
     cards.Clear();
 }
@@ -902,12 +1077,28 @@ void CardFishApp::cleanupCards( Oryol::Array<Card> &cards )
 void CardFishApp::trashCard()
 {
     // Discard card
-    if (currentCard.sceneObj) {
-        gameScene->destroyObject( currentCard.sceneObj );
-        currentCard.sceneObj = NULL;
-    }
+    disposeCard( currentCard );
     updateSlack();
     drawNextCard();
+}
+
+void CardFishApp::updateTension()
+{
+    printf("Udate tension reelDist %d tension %d (%d, %d)\n",
+           game.reelDistance, game.reelTension, game.reelTensionMax, game.reelSlackMin );
+    
+    // Note: Reel tension max has some one-off problem
+    if (game.reelTension > game.reelTensionMax+1) {
+        
+        StringBuilder strBuilder;
+        strBuilder.Format( 200, "Line Broke! %s got away...",
+                          game.reelCard.title.AsCStr() );
+        message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
+
+        disposeCard( game.reelCard );
+        game.reelDistance = 0;
+    }
+
 }
 
 void CardFishApp::updateSlack()
@@ -915,29 +1106,17 @@ void CardFishApp::updateSlack()
     // If there's a fish on the line, add 1 slack
     if (game.reelDistance > 0) {
         
-        bool lostFish = false;
-        if (game.reelTension > game.reelTensionMax) {
-            
-            StringBuilder strBuilder;
-            strBuilder.Format( 200, "Line Broke! %s got away...",
-                              game.reelCard.title.AsCStr() );
-            message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
-            lostFish = true;
+        if (game.reelCard.cardId != "dead_fish") {
+            game.UpdateLineTension();
         }
         
-        game.UpdateLineTension();
-        
-        if (game.reelTension < game.reelSlackMin) {
+        if (game.reelTension <= game.reelSlackMin) {
             StringBuilder strBuilder;
             strBuilder.Format( 200, "Lost 'em! %s got away...",
                               game.reelCard.title.AsCStr() );
             message( strBuilder.GetString(), glm::vec4(0.86f,0.26f,0.18f, 1.0f) );
-            lostFish = true;
-        }
-        
-        if (lostFish) {
-            gameScene->destroyObject( game.reelCard.sceneObj );
-            game.reelCard.sceneObj = NULL;
+            
+            disposeCard( game.reelCard );
             game.reelDistance = 0;
         }
     }
@@ -953,15 +1132,16 @@ void CardFishApp::interfaceTitle( nk_context* ctx )
     static nk_flags window_flags = 0;
     
     // TODO: Need a title card
-    //float titleW = 800;
+    float titleW = 800;
     float titleH = 175;
-    //    float titleMarg = (uiAssets->fbWidth - titleW) / 2;
-    //    if (nk_begin(ctx, &layout, "title_card", nk_rect( titleMarg, 30, titleW, 175), window_flags))
-    //    {
-    //        nk_layout_row_dynamic( ctx, titleH, 1);
-    //        nk_image( ctx, uiAssets->img_title );
-    //    }
-    //    nk_end(ctx);
+
+    float titleMarg = (uiAssets->fbWidth - titleW) / 2;
+    if (nk_begin(ctx, &layout, "title_card", nk_rect( titleMarg, 0, titleW, 175), NK_WINDOW_NO_SCROLLBAR))
+    {
+        nk_layout_row_dynamic( ctx, titleH, 1);
+        nk_image( ctx, uiAssets->img_title_card );
+    }
+    nk_end(ctx);
     
     //float menuW = 223;
     
@@ -972,11 +1152,12 @@ void CardFishApp::interfaceTitle( nk_context* ctx )
     ctx->style.window.padding = nk_vec2(0,0);
     ctx->style.window.padding = nk_vec2(0,0);
     
+    ctx->style.text.color = nk_rgb( 255, 255, 255 );
     nk_style_set_font(ctx, &(uiAssets->font_30->handle));
     
     uiAssets->buttonStyleNormal(ctx);
     
-    if (nk_begin(ctx, &layout, "main_menu", nk_rect( menuMarg, 30 + titleH + 80,
+    if (nk_begin(ctx, &layout, "main_menu", nk_rect( menuMarg, 30 + titleH + 170,
                                                     menuW, 300), window_flags))
     {
         nk_layout_row_dynamic( ctx, 93, 1);
@@ -1039,7 +1220,7 @@ void CardFishApp::interfaceGame( nk_context* ctx )
         {
             nk_layout_space_begin(ctx, NK_STATIC, 100, 10000);
             
-            float highTensionY = calcReelDiagramYPos( game.reelTensionMax );
+            float highTensionY = calcReelDiagramYPos( game.reelTensionMax+1 );
             nk_layout_space_push(ctx, nk_rect(47,0,uiAssets->fbWidth - 47,highTensionY));
             nk_image( ctx, uiAssets->img_tension_high );
             

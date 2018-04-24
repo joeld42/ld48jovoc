@@ -34,6 +34,7 @@ struct UIAssets {
     struct nk_image img_tension_high;
     struct nk_image img_tension_low;
     struct nk_image img_fishing_line;
+    struct nk_image img_title_card;
     
     void SetupUI();
     

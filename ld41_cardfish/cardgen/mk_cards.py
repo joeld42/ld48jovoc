@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 CardType_CAST = 1
 CardType_FISH = 2
 CardType_TACKLE = 3
+CardType_ACTION = 4
 
 class CardDef( object ):
 
@@ -20,8 +21,8 @@ class CardDef( object ):
 		self.cardType = cardType
 		self.title = title
 		self.artwork = artwork
-		self.flavorText = flavorText
-		self.actionText = actionText
+		self.flavorText = flavorText.replace( '=', ',')
+		self.actionText = actionText.replace( '=', ',')
 		self.reelPow = reelPow
 		self.fishPoints = fishPoints
 		self.depth = depth
@@ -29,7 +30,7 @@ class CardDef( object ):
 def stripQuotes( s ):
 	return s.strip('"')
 
-def doCardText( draw, text, font, currx, curry, texty ):
+def doCardText( draw, text, font, currx, curry, texty, col ):
 	xmarg  = 24
 	textwords = string.split(text)
 	currtexty = curry+154+texty
@@ -45,7 +46,7 @@ def doCardText( draw, text, font, currx, curry, texty ):
 			# Doesn't fit, start a new line
 			linetext = string.join(linewords," ")
 			print "DRAW LINE", teststr
-			draw.text( (currx+xmarg,currtexty), linetext, (72,31,7), font )
+			draw.text( (currx+xmarg,currtexty), linetext, col, font )
 			#currtexty += linesz[1]
 			currtexty += leading
 			linewords = []
@@ -53,7 +54,7 @@ def doCardText( draw, text, font, currx, curry, texty ):
 		linewords.append( textwords.pop(0) )
 
 	if len(linewords):
-		draw.text( (currx+xmarg,currtexty), string.join(linewords," "), (72,31,7), font )
+		draw.text( (currx+xmarg,currtexty), string.join(linewords," "), col, font )
 		#currtexty += linesz[1]
 		currtexty += leading
 
@@ -61,7 +62,7 @@ def doCardText( draw, text, font, currx, curry, texty ):
 
 if __name__=='__main__':
 
-	cardsImage = Image.new( "RGBA", (1024, 512), (255, 255, 255, 0) )
+	cardsImage = Image.new( "RGBA", (2048, 1024), (255, 255, 255, 0) )
 	draw = ImageDraw.Draw(cardsImage)
 
 	cards = []
@@ -79,6 +80,7 @@ if __name__=='__main__':
 		"CardType_CAST" : CardType_CAST,
 		"CardType_FISH" : CardType_FISH,
 		"CardType_TACKLE" : CardType_TACKLE,
+		"CardType_ACTION" : CardType_ACTION,
 	}
 
 	cardDefTokens = []
@@ -146,18 +148,20 @@ if __name__=='__main__':
 	cardback = cardback.resize( (CARD_WIDTH,CARD_HITE), Image.ANTIALIAS ) 
 
 	print "CARD ASPECT IS ", float(CARD_HITE) / float(CARD_WIDTH);
-	print "CARD WIDTH IS ", CARD_WIDTH, (CARD_WIDTH/1024.0);
+	print "CARD WIDTH IS ", CARD_WIDTH, (CARD_WIDTH/2048.0);
 
-	fontName = "../gamedata/uiassets/Roboto-Medium.ttf"
-	fontName2 = "Roboto-Italic.ttf"
+	fontName = "Gora-Rough.ttf"
+	actionFontName = "Roboto-Medium.ttf"
+	flavorFontName = "LazyFox.ttf"
+
 	titleFont = ImageFont.truetype( fontName, 14)
 	numberFont = ImageFont.truetype( fontName, 18)
 	vpfont = ImageFont.truetype( fontName, 24)
-	tinyFont = ImageFont.truetype( fontName2, 10 )
-	tinyFont2 = ImageFont.truetype( fontName2, 9 )
+	tinyFont = ImageFont.truetype( actionFontName, 10 )
+	tinyFont2 = ImageFont.truetype( actionFontName, 9 )
 
-	bodyFont = ImageFont.truetype( fontName, 12)
-	flavorFont = ImageFont.truetype( fontName2, 12)
+	bodyFont = ImageFont.truetype( actionFontName, 12)
+	flavorFont = ImageFont.truetype( flavorFontName, 12)
 
 
 	# first do the card back
@@ -179,34 +183,34 @@ if __name__=='__main__':
 		texty = 0
 		SPC = 8
 		if cd.flavorText:
-			texty = doCardText( draw, cd.flavorText, flavorFont, currx, curry, texty )
+			texty = doCardText( draw, cd.flavorText, flavorFont, currx, curry, texty, (72,31,7) )
 			texty += 8
 
 		if cd.actionText:
-			texty = doCardText( draw, cd.actionText, bodyFont, currx, curry, texty )
+			texty = doCardText( draw, cd.actionText, bodyFont, currx, curry, texty, (14,78,138) )
 			texty += 8
 
 		if (cd.cardType == CardType_FISH):
-			cardsImage.paste( vpicon, (currx+127, curry+202), mask=vpicon )
-			draw.text( (currx+139, curry+208), str(cd.fishPoints), (255,255,255), vpfont );
+			cardsImage.paste( vpicon, (currx+127, curry+203), mask=vpicon )
+			draw.text( (currx+139, curry+212), str(cd.fishPoints), (255,255,255), vpfont );
 
-			draw.rectangle( (currx+115, curry+134, currx+160, curry+146 ),
-				fill=(35,94,175), outline=(36,61,128) )
-			scooch = 3
-			font = tinyFont
-			if cd.depth < 6:
-				depthText = "Shallow"
-			else:
-				depthText = "Deepwater"
-				scooch = -4
-				font = tinyFont2
+			# draw.rectangle( (currx+115, curry+134, currx+160, curry+146 ),
+			# 	fill=(35,94,175), outline=(36,61,128) )
+			# scooch = 3
+			# font = tinyFont
+			# if cd.depth < 6:
+			# 	depthText = "Shallow"
+			# else:
+			# 	depthText = "Deepwater"
+			# 	scooch = -4
+			# 	font = tinyFont2
 
-			draw.text( (currx+120+scooch, curry+136), depthText, (120,190,230), font );
+			# draw.text( (currx+120+scooch, curry+136), depthText, (120,190,230), font );
 
 
 
 		currx += CARD_WIDTH
-		if (currx > CARD_WIDTH*4):
+		if (currx > CARD_WIDTH*10):
 			currx = 0;
 			curry += CARD_HITE	
 

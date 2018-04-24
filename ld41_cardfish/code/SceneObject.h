@@ -93,6 +93,8 @@ public:
     
     void finalizeTransforms(  glm::mat4 matViewProj, glm::mat4 matViewProjCards );
     
+    // NOTE: Be careful adding sceneMeshes after load, as that can cause a realloc and
+    // sceneObjs keep pointers into here.. which isn't great
     Oryol::Array<SceneMesh> sceneMeshes;
     Oryol::Array<SceneObject*> sceneObjs;
     Oryol::Array<SceneCamera> sceneCams;

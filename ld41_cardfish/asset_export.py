@@ -25,10 +25,10 @@ OGEX_DIR = "assets"
 RUNTIME_DATA_DIR = "gamedata"
 
 TEXTURES = {
-
-    'lake.png' : 'DXT5',
-    'lake2.png' : 'DXT5',
+    
+    'lake2.png' : 'DXT5',  # water surface
     'trashcan.png' : 'DXT5',
+    'cardfish_world.png' : 'DXT5',
     'cardfish_cards.png' : 'DXT5',
 }
 
@@ -84,9 +84,14 @@ if __name__=='__main__':
         texfile = os.path.split( tex )[-1]
         destFile = os.path.join( PROJECT_DIR, RUNTIME_DATA_DIR, os.path.splitext( texfile )[0] + ".dds"  )
         if fileNeedsUpdate(srcFile, destFile ):
+            mipMode = 'UseSourceOrGenerate'
+            if tex == 'cardfish_cards.png':
+                mipMode = 'None'
+                
             cmd = [ CRUNCH_TOOL,
                     '-file', srcFile,
                     '-out', destFile,
+                    '-mipMode', mipMode,                    
                     '-gamma', '1.0',
                     '-' + fmt
                     ]

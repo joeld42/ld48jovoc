@@ -158,12 +158,15 @@ void Scene::Setup( Oryol::GfxSetup *gfxSetup )
 //    tileFontTexture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:tilefont.dds", decalBluePrint)));
 //    boardIconTexture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:board_icons.dds", decalBluePrint)));
     
-    defaultTexture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:wood.dds", texBluePrint)));
+    //defaultTexture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:wood.dds", texBluePrint)));
     cardsTexture =  Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( "gamedata:cardfish_cards.dds", texBluePrint)));
 }
 
 void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc loadComplete )
 {
+    // HACK because we want to grow the mesh list later
+    sceneMeshes.Reserve(100);
+    
     StringBuilder strBuilder;
     strBuilder.Format( 4096, "gamedata:%s.ldjam", sceneName.AsCStr() );
     Log::Info("fetch scene %s", strBuilder.GetString().AsCStr() );
@@ -217,7 +220,6 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
             
             size_t meshDataSize = (sizeof(LDJamFileVertex) * numVerts) + (sizeof(uint16_t) * meshContent->m_triIndices);
             mesh.mesh = Gfx::CreateResource(meshSetup, meshVertData, meshDataSize );
-            
             
             // Assign texture if there is one
             Log::Info("Texture is '%s'\n", meshInfo->m_texture );
@@ -296,8 +298,8 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
 
 void Scene::CreateCardMeshes()
 {
-    const float cardUVWidth = 0.173828125f; // from mk_cards.py
-    const float cardUVHite = 0.5f;
+    const float cardUVWidth = 0.0869140625; // from mk_cards.py
+    const float cardUVHite = 0.25f;
     const float cardAspect = 1.44f;
     
     int numCards = cardIds.Size();
@@ -306,13 +308,18 @@ void Scene::CreateCardMeshes()
         int numVerts = 8;
         int numTriIndices = 12;
         int slot = cardNdx + 1; //slot 0 is card back
-        int col = slot % 5;
-        int row = slot / 5;
+        int col = slot % 11;
+        int row = slot / 11;
         
-        Oryol::Buffer buff;
-        buff.Reserve(sizeof(LDJamFileVertex) * numVerts + sizeof(uint16_t) * numTriIndices);
-        LDJamFileVertex *vertData = (LDJamFileVertex *)buff.Add(sizeof(LDJamFileVertex) * numVerts);
-        uint16_t *indexData = (uint16_t *)buff.Add(sizeof(uint16_t) * numTriIndices);
+        //Oryol::Buffer buff;
+        //buff.Reserve(sizeof(LDJamFileVertex) * numVerts + sizeof(uint16_t) * numTriIndices);
+        //LDJamFileVertex *vertData = (LDJamFileVertex *)buff.Add(sizeof(LDJamFileVertex) * numVerts);
+        //uint16_t *indexData = (uint16_t *)buff.Add(sizeof(uint16_t) * numTriIndices);
+        
+        size_t buffSz =sizeof(LDJamFileVertex) * numVerts + sizeof(uint16_t) * numTriIndices;
+        uint8_t *buff = (uint8_t*)malloc(buffSz);
+        LDJamFileVertex *vertData = (LDJamFileVertex*)buff;
+        uint16_t *indexData = (uint16_t*)(buff + sizeof(LDJamFileVertex) * numVerts );
         
         auto meshSetup = MeshSetup::FromData();
         meshSetup.NumVertices = numVerts;
@@ -367,13 +374,15 @@ void Scene::CreateCardMeshes()
         SceneMesh mesh = {};
         mesh.meshName = cardIds[cardNdx];
         
-        printf("CARD: %s\n", mesh.meshName.AsCStr() );
+        printf("CARD: %s vertData %p meshDataSize %zu\n",
+               mesh.meshName.AsCStr(), vertData, buffSz
+                                            /*buff.Size()*/ );
         
         mesh.bboxMin =  glm::vec3( -0.5f,  -0.5f*cardAspect, -0.1f );
         mesh.bboxMax =  glm::vec3(  0.5f,   0.5f*cardAspect, 0.1f );
         
-        size_t meshDataSize = buff.Size();
-        mesh.mesh = Gfx::CreateResource(meshSetup, vertData, meshDataSize );
+        //size_t meshDataSize = buff.Size();
+        mesh.mesh = Gfx::CreateResource(meshSetup, vertData, /*meshDataSize*/ buffSz );
         mesh.texture = cardsTexture;
 
         mesh.numPrims = 1;
@@ -432,6 +441,7 @@ void Scene::drawSceneLayer( Oryol::DrawState drawState, bool cardsLayer, bool la
         if (obj->lake != lake) continue;
         if (obj->hidden) continue;
         if (obj->isCard != cardsLayer) continue;
+        
         
         const auto resStateTex = Gfx::QueryResourceInfo( mesh->texture ).State;
         const auto resStateMesh = Gfx::QueryResourceInfo( mesh->mesh ).State;

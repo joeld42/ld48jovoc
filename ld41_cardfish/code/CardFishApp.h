@@ -93,6 +93,7 @@ private:
     void interfaceGame( nk_context* ctx );
     
     void message( Oryol::String messageText, glm::vec4 color );
+    void switchToNamedCamera( Oryol::String camera );
     
     Tapnik::Ray mouseRay;
     Tapnik::Ray mouseCardsRay;
@@ -126,9 +127,17 @@ private:
     void prepareNextDrawCard();
     void drawNextCard();
     void doCast();
+    void doAction();
+    void doLake();
+    void catchReelFish();
+    void updateTension();
     void updateSlack();
     void trashCard();
+    void spawnCardObject( Card &card );
+    Card transmuteCard( Card origCard, Oryol::String newCardId );
     void cleanupCards( Oryol::Array<Card> &cards );
+    void disposeCard( Card &card );
+    
     
     glm::vec2 deckTablePos;
     glm::vec2 currCardTablePos;
