@@ -1,0 +1,45 @@
+
+html, body {
+    background-color: #B2B6D1;
+    color: #222;
+}
+
+.flexible-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    padding-top: 30px;
+    height: 0;
+    overflow: hidden;
+}
+
+.flexible-container iframe,
+.flexible-container object,
+.flexible-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.genre-block
+{
+    display: inline-block;
+    font-size: 15px;
+    width: 24%;
+}
+.genre-check
+{
+    margin-right: 3px;
+    margin-left: 5px;
+}
+.form-submit-button {
+    background: #0066A2;
+    color: white;
+    border-style: outset;
+    border-color: #0066A2;
+    height: 50px;
+
+    font: bold 18px arial, sans-serif;
+    text-shadow:none;
+}

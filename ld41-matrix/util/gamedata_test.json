@@ -1,0 +1,169 @@
+{
+    "entries": [
+        {
+            "author": 9689,
+            "body": "![A Relatively Small World Slightly Larger_3.jpg](///raw/9d5/2/z/1099e.jpg)  \nCombining __Fishing Simulator__ with __Defense__  \n__You are Elias Muttonhedge, the last of the Conservationists, and the Industrialists are trying to kill you! Save all the rare fish you can while dodging the Industrialist missiles!  \nInstructions to play are in-game.__  \n\n## Features\nRelaxing Ukelele Music  \nGlobal Highscores (self-hosted) -  \n_I spent three weeks teaching myself Javascript to make this server, and I'm quite proud of it!_  \nPress Esc to Exit!  \nPerhaps some undocumented 'features'? :wink:\n\n```\nChange Log:\n04-22-2018 - Fixed a bug where entering a username would freeze the game. Fixed the tutorial showing multiple times per session. Fixed a bug where the highscores list would not sort correctly. Removed some developer  shortcuts ;)\n```\n",
+            "created": "2018-03-15T17:22:21Z",
+            "grade": {
+                "grade-01": 12,
+                "grade-02": 12,
+                "grade-03": 12,
+                "grade-04": 12,
+                "grade-05": 12,
+                "grade-06": 11,
+                "grade-07": 12,
+                "grade-08": 11
+            },
+            "id": 73266,
+            "love": 0,
+            "magic": {
+                "cool": 88.264928903946,
+                "feedback": 5,
+                "given": 8.375,
+                "grade": 11.75,
+                "smart": -3.7954307273497
+            },
+            "meta": {
+                "author": [
+                    9689
+                ],
+                "cover": "///content/9d5/2/z/10979.jpg",
+                "link-01": "https://www.dropbox.com/s/7zb8nhdek89xgth/The_Fat_Man_And_The_Sea.zip?dl=1",
+                "link-01-name": "Windows (Standalone)",
+                "link-01-tag": "42337",
+                "link-02": "https://www.dropbox.com/s/orm56bea4n280r8/The_Fat_Man_And_The_Sea_Ubuntu.zip?dl=1",
+                "link-02-name": "Ubuntu",
+                "link-02-tag": "42341",
+                "link-03": "https://www.dropbox.com/s/7ysrgq65b2jonyg/The_Fat_Man_And_The_Sea.yyz?dl=1",
+                "link-03-name": "Source Code (.yyz)",
+                "link-03-tag": "42332"
+            },
+            "modified": "2018-04-23T03:17:54Z",
+            "name": "The Fat Man and the Sea",
+            "notes": 23,
+            "notes-timestamp": "2018-04-26T16:52:55Z",
+            "parent": 73256,
+            "parents": [
+                1,
+                5,
+                9,
+                73256
+            ],
+            "path": "/events/ludum-dare/41/the-fat-man-and-the-sea",
+            "published": "2018-04-23T01:01:42Z",
+            "slug": "the-fat-man-and-the-sea",
+            "subsubtype": "compo",
+            "subtype": "game",
+            "superparent": 9,
+            "type": "item",
+            "version": 250975
+        },
+        {
+            "author": 7013,
+            "body": "Play as the Dungeon Master in the final battle of a long(?) running campaign. The twist is that you'll be doing it over email.\n\nBrought to you by:  \nMattDahEpic (Master of Code)  \nStempy (Weaver of Story)\n\nStarring:  \nBig Bad Evil Guy, Warlock, Paladin, Ranger, Rogue",
+            "created": "2018-03-15T17:28:57Z",
+            "grade": {
+                "grade-01": 7,
+                "grade-02": 7,
+                "grade-03": 7,
+                "grade-04": 7
+            },
+            "id": 73269,
+            "love": 0,
+            "magic": {
+                "cool": 170.29386365926,
+                "feedback": 0,
+                "given": 7.25,
+                "grade": 7,
+                "smart": 1.7700489198215
+            },
+            "meta": {
+                "allow-anonymous-comments": "1",
+                "author": [
+                    7013,
+                    78786
+                ],
+                "cover": "///content/56b/1/z/1204d.png",
+                "grade-05-out": "1",
+                "grade-06-out": "1",
+                "grade-07-out": "1",
+                "grade-08-out": "1",
+                "link-01": "https://play.octolopagon.games/dastards_dungeon",
+                "link-01-name": "Web + Email",
+                "link-01-tag": "42336",
+                "link-02": ""
+            },
+            "modified": "2018-04-23T22:54:30Z",
+            "name": "Dastard's Dungeon",
+            "notes": 6,
+            "notes-timestamp": "2018-04-26T01:30:06Z",
+            "parent": 73256,
+            "parents": [
+                1,
+                5,
+                9,
+                73256
+            ],
+            "path": "/events/ludum-dare/41/dastards-dungeon",
+            "published": "2018-04-23T22:54:30Z",
+            "slug": "dastards-dungeon",
+            "subsubtype": "jam",
+            "subtype": "game",
+            "superparent": 9,
+            "type": "item",
+            "version": 259846
+        },
+        {
+            "author": 9576,
+            "body": "You are a normal student, when one day somebody you know very well at your High School ask you for a date. Finally ! A chance to have a true romantic story. You know what that mean ?\n\nThat mean you will ENTER THE DUNGEON OF HIGH SCHOOL ROMANCE ! \n\n![9.png](///raw/865/2/z/11936.png)\n\nGo on a date, fight strange ennemies, level up, discover treasures and make your way through the perfect love story in this Dungeon Crawler / Romantic visual novel where ultimate romance can only be achieved trough FIGHTING !\n\nNote : Don't hesitate to rate me in Graphics. The ASCII style is part of the game.",
+            "created": "2018-03-15T20:16:24Z",
+            "grade": {
+                "grade-01": 37,
+                "grade-02": 37,
+                "grade-03": 37,
+                "grade-04": 37,
+                "grade-05": 36,
+                "grade-07": 37,
+                "grade-08": 36
+            },
+            "id": 73292,
+            "love": 0,
+            "magic": {
+                "cool": 113.89419454125,
+                "feedback": 47,
+                "given": 40.375,
+                "grade": 36.714285714286,
+                "smart": 29.286322830484
+            },
+            "meta": {
+                "author": [
+                    9576
+                ],
+                "cover": "///content/865/2/z/11935.png",
+                "grade-06-out": "1",
+                "link-01": "http://touloutoumou.com/games/Dungeon/",
+                "link-01-name": "Web browser",
+                "link-01-tag": "42440"
+            },
+            "modified": "2018-04-23T18:53:56Z",
+            "name": "Dungeon of High School romance",
+            "notes": 32,
+            "notes-timestamp": "2018-04-26T21:10:54Z",
+            "parent": 73256,
+            "parents": [
+                1,
+                5,
+                9,
+                73256
+            ],
+            "path": "/events/ludum-dare/41/dungeon-of-high-school-romance",
+            "published": "2018-04-23T18:33:05Z",
+            "slug": "dungeon-of-high-school-romance",
+            "subsubtype": "jam",
+            "subtype": "game",
+            "superparent": 9,
+            "type": "item",
+            "version": 255785
+        }
+    ]
+}

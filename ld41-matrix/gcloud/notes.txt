@@ -1,0 +1,12 @@
+
+LOCAL DEVSERVER:
+dev_appserver.py $PWD
+
+DEPLOY:
+gcloud app deploy app.yaml --project ld41-matrix
+
+ERROR LOGS:
+https://console.cloud.google.com/errors?time=P1D&project=ld41-matrix
+
+UPDATE INDEX:
+gcloud datastore create-indexes index.yaml

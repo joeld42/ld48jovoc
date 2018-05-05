@@ -1,0 +1,37 @@
+{% extends "adminbase.html" %}
+{% block title %}Assign Genres -- {{ game.gameTitle }}{% endblock %}
+
+{% block content %}
+
+<h2>{{ game.gameTitle }}</h2>
+
+
+<form method="post" action="{{ url_for('assignGame', ldjamId=game.ldjamId) }}">
+    <div>
+        {% for colgenres in genres %}
+            <div class="genre-block">
+                {% for genre in colgenres %}
+                <input type="checkbox" class="genre-check" name="genre_{{ genre.key.id() }}"
+                       {% if genre.key.id() in currGenres %}checked{% endif %}
+                >{{ genre.genreName }}<br>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+    </div>
+      <input class="form-submit-button" type="submit" name="do_update" value="Update">
+      <input class="form-submit-button" type="submit" name="do_pick" value="Save and Pick">
+      <input class="form-submit-button" type="submit" name="do_random" value="Save and Get Another">
+</form>
+
+{% endblock %}
+
+{% block ldframe %}
+<div class="flexible-container">
+<iframe src="https://ldjam.com/{{ game.url }}"
+        title="iframe example 1">
+  <p>Your browser does not support iframes.</p>
+</iframe>
+</div>
+{% endblock %}
+

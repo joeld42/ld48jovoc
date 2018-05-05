@@ -1,0 +1,19 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto);
+
+html, body {
+    background-color: #222422;
+}
+
+html, body, .stage--fullscreen {
+
+    padding: 0;
+    margin: auto;
+    display: block;
+    width: 1000px;
+    height: 800px;
+}
+
+.pagetitle {
+    color: #800080;
+}
+

@@ -1,0 +1,15 @@
+
+
+{% extends "adminbase.html" %}
+{% block title %}Assign Games{% endblock %}
+
+{% block content %}
+
+<h1>Assign Games</h1>
+<h2>{{ numAssigns }} games need assignment</h2>
+
+{% for game in games %}
+<p><a href="{{ url_for('assignGame',ldjamId=game.ldjamId) }}">{{ game.gameTitle }}</a></p>
+{% endfor %}
+
+{% endblock %}

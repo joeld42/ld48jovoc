@@ -1,0 +1,29 @@
+    <!doctype html>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <title>Add New Genre</title>
+    {% if message %}
+    <p>{{ message }}</p>
+    <hr>
+    {% endif %}
+
+    <ul>
+    {% for genre in genres %}
+        <li>{{ genre.genreName }} </li>
+    {% endfor %}
+    </ul>
+
+    <h1>Add Genre</h1>
+    <form method="post" action="{{ url_for('add_genre') }}>
+
+      <label for="genre_ident">Genre Identifier:</label>
+      <input type="text" name="genre_ident"><br/>
+
+    <label for="genre_name">Genre Name:</label>
+      <input type="text" name="genre_name"><br/>
+      <input type="submit">
+    </form>
+    <hr>
+    <form method="post" action="{{ url_for('add_default_genres') }}">
+        <p>Add Default Genres</p>
+      <input type="submit">
+    </form>

@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>LD41 Matrix</title>
+   <link rel="stylesheet" type="text/css" href="/static/style.css">
+      <script>
+          var genres = [
+            {% for genre in genres %}"{{ genre.genreName }}",{% endfor %}
+          ];
+          var genreKeys = [
+          {% for genre in genres %}{{ genre.key.id() }},{% endfor %}
+          ];
+
+          var genreCounts = [
+          {% for gc in grid %}{{ gc }}, {% endfor %}
+          ];
+      </script>
+  </head>
+  <body>
+    <div id="container">
+      <div class="pagetitle">
+        <h1>LD41 Matrix View</h1>
+      </div>
+      <div id="main">
+          {% for genre in genres %}
+          <li>{{ genre.genreName }}</li>
+          {% endfor %}
+        <p>TODO: stuff goes here</p>
+          <p>{{ grid }}</p>
+      </div>
+    </div>
+  </body>
+</html>
