@@ -11,8 +11,8 @@
         {% for colgenres in genres %}
             <div class="genre-block">
                 {% for genre in colgenres %}
-                <input type="checkbox" class="genre-check" name="genre_{{ genre.key.id() }}"
-                       {% if genre.key.id() in currGenres %}checked{% endif %}
+                <input type="checkbox" class="genre-check" name="genre_{{ genre.genreIdent }}"
+                       {% if genre.genreIdent in currGenres %}checked{% endif %}
                 >{{ genre.genreName }}<br>
                 {% endfor %}
             </div>

@@ -44,7 +44,7 @@ DEFAULT_GENRES = {
     'typing' : 'Typing',
 
     'hunting' : 'Hunting',
-    'sim' : 'Simulation',
+    'sim' : 'Simulation,City Builder',
     'retro' : 'Retro Arcade',
     'strategy' : 'Turn-Based Strategy',
     'towerdefense' : 'Tower Defense',
@@ -179,11 +179,19 @@ def getOrderedGenres( forAssign ):
 @app.route('/combo/<int:gk1>/<int:gk2>')
 def genreCombo( gk1, gk2 ):
 
-    genre1 = Genre.get_by_id( gk1 )
-    genre2 = Genre.get_by_id( gk2 )
+    if not gk1 == gk2:
+        genre1 = Genre.get_by_id( gk1 )
+        genre2 = Genre.get_by_id( gk2 )
 
-    games = Entry.query( ndb.AND(Entry.genres== genre1),
-                         ndb.AND(Entry.genres== genre2) ).fetch()
+        games = Entry.query( ndb.AND(Entry.genres== genre1, Entry.genres== genre2) ).fetch()
+    else:
+        genre1 = Genre.get_by_id( gk1 )
+        games = Entry.query(Entry.genres==genre1 ).fetch()
+
+        # Filter games that have ONLY one genre
+        games = filter( lambda g: len(g.genres)==1 and (g.genres[0].genreIdent == genre1.genreIdent), games )
+
+
 
     gamesJson = []
     #   ldjamId = ndb.IntegerProperty()
@@ -202,16 +210,13 @@ def genreCombo( gk1, gk2 ):
             "ldjamId" : g.ldjamId,
             "coverArt" : g.coverArt,
             "title" : g.gameTitle,
-            "url" : g.url
+            #"url" :"https://ldjam.com" + g.url
+            # DBG: Use assign URL
+            "url" : url_for('assignGame',ldjamId=g.ldjamId)
         }
         gamesJson.append( gameJson )
 
     return jsonify( { "games" : gamesJson });
-    # resp = Response(response=jsonify( { "games" : gamesJson }),
-    #             status=200,
-    #             mimetype="application/json")
-
-    return resp
 
 @app.route('/assign/<int:ldjamId>', methods=['POST','GET'])
 def assignGame(ldjamId):
@@ -227,7 +232,7 @@ def assignGame(ldjamId):
         # Update the genres for this game
         assignedGenres = []
         for g in genres:
-            genreKey = "genre_"+str(g.key.id())
+            genreKey = "genre_"+g.genreIdent
             if request.form.has_key(genreKey) and request.form[genreKey]=='on':
                 assignedGenres.append(g)
                 print "Assigned ", g.genreName
@@ -251,11 +256,12 @@ def assignGame(ldjamId):
                 return redirect( url_for('assignGame',ldjamId=nextGame.ldjamId))
 
 
+    print "Current assigned"
     currentAssigned = []
     for g in game.genres:
-        print g.genreName
-        if g.key:
-            currentAssigned.append( g.key.id() )
+        currentAssigned.append( g.genreIdent )
+
+        print g.genreName, g.genreIdent
 
     #print "Game ", game.gameTitle, game.ldjamId, len(genres)
     # Split genres into 4 for formatting

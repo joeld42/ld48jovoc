@@ -1,0 +1,380 @@
+{
+  "games": [
+    {
+      "genres": [
+        "dating", 
+        "strategy"
+      ], 
+      "ldjamId": 85016, 
+      "title": "Ok Tactics!"
+    }, 
+    {
+      "genres": [
+        "rpg", 
+        "towerdefense"
+      ], 
+      "ldjamId": 78509, 
+      "title": "Adventure Defense"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "puzzle"
+      ], 
+      "ldjamId": 89372, 
+      "title": "Sokobang"
+    }, 
+    {
+      "genres": [
+        "roguelike", 
+        "rpg"
+      ], 
+      "ldjamId": 74291, 
+      "title": "LD41-RogueWorld"
+    }, 
+    {
+      "genres": [
+        "runner", 
+        "typing"
+      ], 
+      "ldjamId": 80007, 
+      "title": "Goose Typing Attack"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "puzzle"
+      ], 
+      "ldjamId": 77101, 
+      "title": "TinyWorlds"
+    }, 
+    {
+      "genres": [
+        "puzzle", 
+        "other"
+      ], 
+      "ldjamId": 73607, 
+      "title": "(Art + Puzzle) "
+    }, 
+    {
+      "genres": [
+        "text", 
+        "platformer"
+      ], 
+      "ldjamId": 89916, 
+      "title": "Pill-Boy's Text Adventure Platformer"
+    }, 
+    {
+      "genres": [
+        "dating", 
+        "fps"
+      ], 
+      "ldjamId": 77777, 
+      "title": "PROM"
+    }, 
+    {
+      "genres": [
+        "card", 
+        "roguelike"
+      ], 
+      "ldjamId": 87743, 
+      "title": "Rogue cards"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "strategy"
+      ], 
+      "ldjamId": 77001, 
+      "title": "Time Tug"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "other"
+      ], 
+      "ldjamId": 89990, 
+      "title": "Magic Guard"
+    }, 
+    {
+      "genres": [
+        "text", 
+        "roguelike"
+      ], 
+      "ldjamId": 84175, 
+      "title": "Roguelike Comic Book"
+    }, 
+    {
+      "genres": [
+        "card", 
+        "dating"
+      ], 
+      "ldjamId": 87168, 
+      "title": "Solitairey in School: The Card Game Dating Sim/Visual Novel"
+    }, 
+    {
+      "genres": [
+        "racing", 
+        "strategy"
+      ], 
+      "ldjamId": 87313, 
+      "title": "Spur of the Moment Racing"
+    }, 
+    {
+      "genres": [
+        "racing", 
+        "towerdefense"
+      ], 
+      "ldjamId": 78418, 
+      "title": "Tower Race"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "strategy"
+      ], 
+      "ldjamId": 75514, 
+      "title": "Time Spike"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "puzzle"
+      ], 
+      "ldjamId": 81319, 
+      "title": "Invitris"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "sports"
+      ], 
+      "ldjamId": 75482, 
+      "title": "Sunken Soldier"
+    }, 
+    {
+      "genres": [
+        "horror", 
+        "rpg"
+      ], 
+      "ldjamId": 78452, 
+      "title": "Exilium"
+    }, 
+    {
+      "genres": [
+        "dungeon", 
+        "text"
+      ], 
+      "ldjamId": 77633, 
+      "title": "Our Hero - A intriguing look at the life of an old hero"
+    }, 
+    {
+      "genres": [
+        "racing", 
+        "music"
+      ], 
+      "ldjamId": 88582, 
+      "title": "Rhythm Wheels"
+    }, 
+    {
+      "genres": [
+        "horror", 
+        "sports"
+      ], 
+      "ldjamId": 75630, 
+      "title": "BASEBALL in HELL"
+    }, 
+    {
+      "genres": [
+        "sim", 
+        "other"
+      ], 
+      "ldjamId": 77825, 
+      "title": "Stealth Road Construction"
+    }, 
+    {
+      "genres": [
+        "card", 
+        "platformer"
+      ], 
+      "ldjamId": 79679, 
+      "title": "A Tribute to Mayhem"
+    }, 
+    {
+      "genres": [
+        "puzzle", 
+        "sim"
+      ], 
+      "ldjamId": 89180, 
+      "title": "Shit Country Sweeper"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "puzzle"
+      ], 
+      "ldjamId": 91739, 
+      "title": "Ritoru Ponpon no inu"
+    }, 
+    {
+      "genres": [
+        "platformer", 
+        "towerdefense"
+      ], 
+      "ldjamId": 92326, 
+      "title": "Cursed Ascension"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "dating"
+      ], 
+      "ldjamId": 87295, 
+      "title": "Love Love! Space Attack"
+    }, 
+    {
+      "genres": [
+        "card", 
+        "towerdefense"
+      ], 
+      "ldjamId": 80010, 
+      "title": "Memory Battle"
+    }, 
+    {
+      "genres": [
+        "breakout", 
+        "sports"
+      ], 
+      "ldjamId": 87966, 
+      "title": "Slapshotter!"
+    }, 
+    {
+      "genres": [
+        "puzzle", 
+        "sim"
+      ], 
+      "ldjamId": 81176, 
+      "title": "CITY^3"
+    }, 
+    {
+      "genres": [
+        "fps", 
+        "sim"
+      ], 
+      "ldjamId": 87267, 
+      "title": "Shape Destroyer: Ascension"
+    }, 
+    {
+      "genres": [
+        "text", 
+        "rts"
+      ], 
+      "ldjamId": 90840, 
+      "title": "Legends of Starcraft"
+    }, 
+    {
+      "genres": [
+        "runner", 
+        "racing"
+      ], 
+      "ldjamId": 86037, 
+      "title": "Slow Invasion"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "fighting"
+      ], 
+      "ldjamId": 79227, 
+      "title": "Fleets Of Rage"
+    }, 
+    {
+      "genres": [
+        "music", 
+        "strategy"
+      ], 
+      "ldjamId": 84056, 
+      "title": "I bet that your CATS look good in the dance floor"
+    }, 
+    {
+      "genres": [
+        "music", 
+        "strategy"
+      ], 
+      "ldjamId": 90817, 
+      "title": "War Musician"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "music"
+      ], 
+      "ldjamId": 82139, 
+      "title": "Spitbeat"
+    }, 
+    {
+      "genres": [
+        "fps", 
+        "rpg"
+      ], 
+      "ldjamId": 78843, 
+      "title": "Showdown"
+    }, 
+    {
+      "genres": [
+        "idle", 
+        "puzzle"
+      ], 
+      "ldjamId": 89013, 
+      "title": "Ce n'est pas un jeu de pointer-et-cliquer"
+    }, 
+    {
+      "genres": [
+        "fighting", 
+        "rpg"
+      ], 
+      "ldjamId": 74312, 
+      "title": "You can't save them all... Or can you?"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "text", 
+        "rts"
+      ], 
+      "ldjamId": 77827, 
+      "title": "ASCII Space Commander"
+    }, 
+    {
+      "genres": [
+        "fighting", 
+        "text"
+      ], 
+      "ldjamId": 78706, 
+      "title": "Battle Royal in Sulina"
+    }, 
+    {
+      "genres": [
+        "rts", 
+        "typing"
+      ], 
+      "ldjamId": 73485, 
+      "title": "Fightin' Words - Real Typing Strategy"
+    }, 
+    {
+      "genres": [
+        "idk"
+      ], 
+      "ldjamId": 83918, 
+      "title": "Logs Attack"
+    }, 
+    {
+      "genres": [
+        "horror", 
+        "sports"
+      ], 
+      "ldjamId": 90834, 
+      "title": "GolfZ"
+    }
+  ]
+}

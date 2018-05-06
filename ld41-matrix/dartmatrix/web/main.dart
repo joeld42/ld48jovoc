@@ -60,7 +60,7 @@ void onDataLoaded(String responseText) {
       gameDiv.children.add(gameThumbnail);
 
       var gameLink = new html.AnchorElement();
-      gameLink.href= "https://ldjam.com" + item['url'];
+      gameLink.href= item['url'];
       gameLink.target = "_blank";
       gameDiv.children.add(gameLink);
 
@@ -93,7 +93,7 @@ Future<Null> main() async {
   ];
   
   StageOptions options = new StageOptions()
-    ..backgroundColor = Color.Black
+    ..backgroundColor = 0xFF152030
     ..renderEngine = RenderEngine.WebGL
     ..antialias = true;
 
