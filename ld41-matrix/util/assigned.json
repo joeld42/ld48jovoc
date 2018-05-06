@@ -18,6 +18,14 @@
     }, 
     {
       "genres": [
+        "music", 
+        "sports"
+      ], 
+      "ldjamId": 75683, 
+      "title": "Super Rhythm Disco Tennis"
+    }, 
+    {
+      "genres": [
         "shooter", 
         "puzzle"
       ], 
@@ -31,6 +39,14 @@
       ], 
       "ldjamId": 74291, 
       "title": "LD41-RogueWorld"
+    }, 
+    {
+      "genres": [
+        "puzzle", 
+        "rts"
+      ], 
+      "ldjamId": 87272, 
+      "title": "Robozes"
     }, 
     {
       "genres": [
@@ -50,11 +66,35 @@
     }, 
     {
       "genres": [
+        "fishing", 
+        "horror"
+      ], 
+      "ldjamId": 90953, 
+      "title": "Guardian of the Depth"
+    }, 
+    {
+      "genres": [
+        "rts", 
+        "strategy"
+      ], 
+      "ldjamId": 83394, 
+      "title": "Turn Around - When turn-based rules meets their opposite !"
+    }, 
+    {
+      "genres": [
         "puzzle", 
         "other"
       ], 
       "ldjamId": 73607, 
       "title": "(Art + Puzzle) "
+    }, 
+    {
+      "genres": [
+        "text", 
+        "sim"
+      ], 
+      "ldjamId": 79214, 
+      "title": "A Skeleton Story - Ludum Dare 41 "
     }, 
     {
       "genres": [
@@ -66,11 +106,52 @@
     }, 
     {
       "genres": [
+        "platformer", 
+        "other"
+      ], 
+      "ldjamId": 82593, 
+      "title": "2VR Platform"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "farming"
+      ], 
+      "ldjamId": 74991, 
+      "title": "Bulletland!"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "trivia", 
+        "typing"
+      ], 
+      "ldjamId": 80783, 
+      "title": "Two Incompatible Game"
+    }, 
+    {
+      "genres": [
         "dating", 
         "fps"
       ], 
       "ldjamId": 77777, 
       "title": "PROM"
+    }, 
+    {
+      "genres": [
+        "dungeon", 
+        "sports"
+      ], 
+      "ldjamId": 73268, 
+      "title": "Goal and Crossbones"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "puzzle"
+      ], 
+      "ldjamId": 89051, 
+      "title": "Space Ball Toucher "
     }, 
     {
       "genres": [
@@ -103,6 +184,14 @@
       ], 
       "ldjamId": 84175, 
       "title": "Roguelike Comic Book"
+    }, 
+    {
+      "genres": [
+        "sports", 
+        "towerdefense"
+      ], 
+      "ldjamId": 79531, 
+      "title": "Robocalypse: Xtreme Pool Master"
     }, 
     {
       "genres": [
@@ -146,6 +235,14 @@
     }, 
     {
       "genres": [
+        "card", 
+        "platformer"
+      ], 
+      "ldjamId": 79766, 
+      "title": "Super Bario Man"
+    }, 
+    {
+      "genres": [
         "shooter", 
         "sports"
       ], 
@@ -167,6 +264,14 @@
       ], 
       "ldjamId": 77633, 
       "title": "Our Hero - A intriguing look at the life of an old hero"
+    }, 
+    {
+      "genres": [
+        "platformer", 
+        "strategy"
+      ], 
+      "ldjamId": 75833, 
+      "title": "Hazel's Jump"
     }, 
     {
       "genres": [
@@ -274,6 +379,14 @@
     }, 
     {
       "genres": [
+        "platformer", 
+        "strategy"
+      ], 
+      "ldjamId": 75574, 
+      "title": "Reign of the Platforms"
+    }, 
+    {
+      "genres": [
         "runner", 
         "racing"
       ], 
@@ -314,6 +427,14 @@
     }, 
     {
       "genres": [
+        "fishing", 
+        "other"
+      ], 
+      "ldjamId": 76561, 
+      "title": "Jackhammer"
+    }, 
+    {
+      "genres": [
         "fps", 
         "rpg"
       ], 
@@ -350,6 +471,14 @@
         "fighting", 
         "text"
       ], 
+      "ldjamId": 91714, 
+      "title": "Officer Pain - The Smash Cop"
+    }, 
+    {
+      "genres": [
+        "fighting", 
+        "text"
+      ], 
       "ldjamId": 78706, 
       "title": "Battle Royal in Sulina"
     }, 
@@ -370,11 +499,27 @@
     }, 
     {
       "genres": [
+        "puzzle", 
+        "towerdefense"
+      ], 
+      "ldjamId": 88503, 
+      "title": "Tetratower"
+    }, 
+    {
+      "genres": [
         "horror", 
         "sports"
       ], 
       "ldjamId": 90834, 
       "title": "GolfZ"
+    }, 
+    {
+      "genres": [
+        "shooter", 
+        "typing"
+      ], 
+      "ldjamId": 83135, 
+      "title": "Arcade Typing Shooter"
     }
   ]
 }

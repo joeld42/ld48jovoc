@@ -4,7 +4,10 @@
 #import pdb; pdb.set_trace();
 import sys
 import json
+import time
 import random
+import logging
+import itertools
 from google.appengine.ext import ndb
 
 from flask import Flask, Response, render_template, request, redirect, url_for, jsonify
@@ -37,20 +40,19 @@ DEFAULT_GENRES = {
     'roguelike' : 'Roguelike',
     'physics' : 'Physics Toy or Puzzle',
     'breakout' : 'Breakout',
+    'battle' : 'Battle Royale',
     'sports' : 'Sports, Fitness',
     'music' : 'Rhythm, Music, Dance',
     'farming' : 'Farming, Gardening',
     'runner' : 'Infinite Runner',
     'typing' : 'Typing',
 
-    'hunting' : 'Hunting',
     'sim' : 'Simulation,City Builder',
     'retro' : 'Retro Arcade',
     'strategy' : 'Turn-Based Strategy',
     'towerdefense' : 'Tower Defense',
-    'puzzle' : 'Puzzle',
+    'puzzle' : 'Puzzle, Match3',
     'fighting' : 'Fighting',
-    'match3' : 'Match-3',
     'programming' : 'Programming',
     'pet' : 'Virtual Pet',
     'idle' : 'Clicker, Idle',
@@ -66,6 +68,7 @@ class CompoInfo(ndb.Model):
     compoNum = ndb.IntegerProperty()
     numGridGenres = ndb.IntegerProperty( indexed=False )
     gridCounts = ndb.BlobProperty( indexed=False )
+    realAssignedCount = ndb.IntegerProperty( indexed=False )
     assignedCount = ndb.IntegerProperty( indexed=False )
     entryCount = ndb.IntegerProperty( indexed=False )
 
@@ -108,6 +111,13 @@ def getAssignedPercent( compo ):
     else:
         return 0
 
+# Real count is how many have been assigned at last update_summary
+def getRealAssignedPercent( compo ):
+    if compo.realAssignedCount and compo.entryCount:
+        return int((float(compo.realAssignedCount) / compo.entryCount)*100.0)
+    else:
+        return 0
+
 @app.route('/')
 def index():
     genres = getOrderedGenres( False )
@@ -118,15 +128,15 @@ def index():
     genreCounts = [0] * (ng*ng)
 
     packedCount = bytearray(compo.gridCounts)
-    print "Len packedCount", len(packedCount), len(genreCounts)
+
     for j in range(ng):
         for i in range(ng):
             ndx = j*ng+i
             genreCounts[ndx] = packedCount[ndx]
     return render_template( 'index.html', genres=genres, grid=genreCounts,
-                            assignedCount = compo.assignedCount,
+                            assignedCount = compo.realAssignedCount,
                             entryCount = compo.entryCount,
-                            assignPct = getAssignedPercent(compo) )
+                            assignPct = getRealAssignedPercent(compo) )
 
 @app.route('/assign')
 def assignPick():
@@ -227,7 +237,16 @@ def assignGame(ldjamId):
     game = games[0]
     genres = getOrderedGenres( True )
 
+
     if request.method == 'POST':
+
+        compo = getCompoInfo()
+
+        wasAssigned = False
+        print game.genres
+        if len(game.genres) != 1 or game.genres[0].genreIdent != 'unassigned':
+            wasAssigned = True
+        print "wasAssigned ", wasAssigned
 
         # Update the genres for this game
         assignedGenres = []
@@ -237,8 +256,13 @@ def assignGame(ldjamId):
                 assignedGenres.append(g)
                 print "Assigned ", g.genreName
 
+        if len(assignedGenres) > 0:
             game.genres = assignedGenres
             game.put()
+
+            if not wasAssigned:
+                compo.assignedCount = compo.assignedCount + 1
+                compo.put()
 
 
         # Redirect back to pick screen or another game if requested
@@ -302,13 +326,14 @@ def bulk_assign():
         file = request.files['file']
         data = json.loads( file.stream.read() )
 
+
         count = 0
         total = len(data['games'])
         print "Bulk Assign ", total
         for gameJson in data['games']:
             gg = Entry.query( Entry.ldjamId == gameJson['ldjamId'] ).fetch()
             if len(gg) == 0:
-                print "WARN: didn't find game for id ", gameJson['ldjamId'], gameJson['title']
+                logging.warning( "didn't find game for id " + str(gameJson['ldjamId']) + "  " +  gameJson['title'] )
                 continue
             game = gg[0]
 
@@ -320,7 +345,7 @@ def bulk_assign():
             if len(genresForThisGame):
                 game.genres = genresForThisGame
                 game.put()
-                print "Assign ",game.gameTitle," genres ", gameJson['genres']
+                logging.info( "Assign " + game.gameTitle + " genres " + str(gameJson['genres']) )
 
         return redirect( url_for('assignPick') )
 
@@ -376,15 +401,41 @@ def getCompoInfo():
 
     return compo
 
+def make_gkey( gi1, gi2 ):
+    if (gi1 == gi2):
+        return (gi1,)
+    elif (gi1 < gi2):
+        return (gi1, gi2 )
+    else:
+        return (gi2, gi1 )
+
+def findsubsets(S,m):
+    return set(itertools.combinations(S, m))
+
 @app.route('/update_summary')
 def update_summary():
 
-    compo = getCompoInfo()
+    start_time = time.time()
 
+    compo = getCompoInfo()
     genres = getOrderedGenres( False )
 
     # Fetch ALL the entries
     allEntries = Entry.query().fetch()
+
+    # Count all genres
+    genreCounts = {}
+
+    for game in allEntries:
+        entGenres = map( lambda x: x.genreIdent, game.genres)
+        if len(entGenres)==1:
+            gkey = make_gkey(entGenres[0], entGenres[0])
+            genreCounts[gkey] = genreCounts.get( gkey, 0 ) + 1
+        else:
+            for g1, g2 in findsubsets( entGenres, 2 ):
+                gkey = make_gkey(g1, g2 )
+                genreCounts[gkey] = genreCounts.get( gkey, 0 ) + 1
+
 
     # Update the compo grid
     ng = len(genres)
@@ -395,22 +446,10 @@ def update_summary():
             if i>j:
                  gridCount[i][j] = gridCount[j][i]
             else:
-                count = 0
-
-                if (i==j):
-                    for ent in allEntries:
-                        entGenres = map( lambda x: x.genreIdent, ent.genres)
-                        if len(entGenres)==1 and (entGenres[0]==genres[i].genreIdent):
-                            count += 1
-                else:
-                    genre1 = genres[i].genreIdent
-                    genre2 = genres[j].genreIdent
-                    for ent in allEntries:
-                        entGenres = map( lambda x: x.genreIdent, ent.genres)
-                        if (genre1 in entGenres) and (genre2 in entGenres):
-                            count += 1
-
-                gridCount[i][j] = count
+                genre1 = genres[i].genreIdent
+                genre2 = genres[j].genreIdent
+                gkey = make_gkey(genre1, genre2 )
+                gridCount[i][j] = genreCounts.get( gkey, 0 )
 
     #print gridCount
 
@@ -427,6 +466,7 @@ def update_summary():
             assignedCount += 1
 
     # Update counts
+    compo.realAssignedCount = assignedCount
     compo.assignedCount = assignedCount
     compo.entryCount = len(allEntries)
     compo.put()
@@ -440,7 +480,9 @@ def update_summary():
     compo.gridCounts = str(packedCounts)
     compo.put()
 
-    return "Updated..."
+    end_time = time.time()
+    time_taken = end_time - start_time
+    return "Summary updated (%d entries, time taken %3.2fs)..." % (len(allEntries), time_taken)
 
 
 

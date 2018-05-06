@@ -88,8 +88,11 @@ Future<Null> main() async {
   var genreCounts = context['genreCounts'];
   var genreKeys = context['genreKeys'];
   var cellColors = [
-    0xFF202C11,0xFF1D3920,0xFF154634,0xFF0D524C,0xFF1A5D65,
-    0xFF38657C,0xFF5F6B8E,0xFF886F97,0xFFB17098,0xFFD4738F,0xFFEF7B80
+
+    /*0xFF202C11,*/
+    0xFF101925,
+    0xFF1D3920,0xFF154634,0xFF0D524C,0xFF1A5D65,0xFF38657C,
+    0xFF5F6B8E,0xFF886F97,0xFFB17098,0xFFD4738F,0xFFEF7B80
   ];
   
   StageOptions options = new StageOptions()
@@ -370,7 +373,7 @@ Future<Null> main() async {
         // TODO Spinner
         gamesList.children = [];
 
-        var url = "http://localhost:8080/combo/${genreKeys[cell.g1]}/${genreKeys[cell.g2]}";
+        var url = "/combo/${genreKeys[cell.g1]}/${genreKeys[cell.g2]}";
         var request = html.HttpRequest.getString(url).then(onDataLoaded);
 
       });
