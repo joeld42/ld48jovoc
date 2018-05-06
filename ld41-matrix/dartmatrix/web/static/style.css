@@ -1,9 +1,7 @@
-@import url(https://fonts.googleapis.com/css?family=Cairo);
+@import url(https://fonts.googleapis.com/css?family=Roboto);
 
 html, body {
-    font-family:'Cairo',sans-serif;
-    color:#F3CF70;
-    background-color: #152030;
+    background-color: #222422;
 }
 
 html, body, .stage--fullscreen {
@@ -15,38 +13,16 @@ html, body, .stage--fullscreen {
     height: 800px;
 }
 
-.maintitle {
-    font-family: 'Iceberg', cursive;
-    text-align: center;
-}
-.titlelink {
-    font-family:'Cairo',sans-serif;
-    font-variant: small-caps;
-    margin: auto;
-    padding: 10px;
-}
-
-a.titlelink:link {
-    color: #F3CF70;
-    text-decoration: none;
-}
-a.titlelink:hover {
-    color:#152030;
-    background-color: #F3CF70;
-    text-decoration: none;
-    border-radius: 5px;
-}
-
 .pagetitle {
     color: #800080;
 }
 
-/*.toprow {
+.toprow {
     background-color: #aaa;
-}*/
+}
 
 .gameslist {
-   /* background-color: #888; */
+    background-color: #888;
 }
 
 div.gameitem {

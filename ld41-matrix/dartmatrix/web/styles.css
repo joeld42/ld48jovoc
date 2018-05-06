@@ -11,3 +11,8 @@ html, body, .stage--fullscreen {
     width: 1000px;
     height: 800px;
 }
+
+div.gameitem {
+    padding: 4px;
+    background-color: #333333;
+}

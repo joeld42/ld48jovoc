@@ -25,24 +25,59 @@ void onDataLoaded(String responseText) {
   String resultString = "";
 
   var games = parsedMap['games'];
-  var gamesDivs = [];
-  games.forEach((item) {
 
-    var gameDiv = new html.DivElement();
-    var gameTitle = new html.HeadingElement.h3();
-    gameTitle.text = item['title'];
-    gameDiv.children.add( gameTitle );
+  var gamesPerRow = 4; // Note: Also update gameDiv column class when changing this
+  var numRows = games.length / gamesPerRow;
+  for (int row = 0; row < numRows; row++)
+  {
+    var rowDiv = new html.DivElement();
+    rowDiv.classes.add('row');
 
-    var gameThumbnail = new html.ImageElement();
-    gameThumbnail.src  = item['coverArt'];
-    gameThumbnail.width = 180;
-    gameThumbnail.height = 143;
+    for (int ndx=0; ndx < gamesPerRow; ndx++) {
 
-    gameDiv.children.add( gameThumbnail );
+      var gameIndex =row*gamesPerRow + ndx;
+      if (gameIndex>=games.length) {
+        break;
+      }
+      var item = games[gameIndex];
 
-    gamesDivs.add( gameDiv );
-  });
-  gamesList.children = gamesDivs;
+      var gameOuterDiv = new html.DivElement();
+      gameOuterDiv.classes.add('three');
+      gameOuterDiv.classes.add('columns');
+
+
+      var gameDiv = new html.DivElement();
+      gameDiv.classes.add('gameitem');
+      gameOuterDiv.children.add(gameDiv);
+
+      var thumbSrc = item['coverArt'];
+      if (thumbSrc==null) {
+        thumbSrc = "https://static.jam.vg/content/internal/tvfail.png.480x384.fit.jpg";
+      }
+      var gameThumbnail = new html.ImageElement();
+      gameThumbnail.classes.add('thumb-image');
+      gameThumbnail.src = thumbSrc;
+      gameDiv.children.add(gameThumbnail);
+
+      var gameLink = new html.AnchorElement();
+      gameLink.href= "https://ldjam.com" + item['url'];
+      gameLink.target = "_blank";
+      gameDiv.children.add(gameLink);
+
+      var gameTitle = new html.DivElement();
+      gameTitle.classes.add('thumb-overlay');
+      gameLink.children.add(gameTitle);
+
+      var gameText = new html.DivElement();
+      gameText.classes.add('thumb-text');
+      gameText.text = item['title'];
+      gameTitle.children.add(gameText);
+
+      rowDiv.children.add( gameOuterDiv );
+    }
+    gamesList.children.add( rowDiv );
+  }
+
 }
 
 
@@ -316,6 +351,9 @@ Future<Null> main() async {
 //        rotation = stage.juggler.addTween(logo, 0.5, Transition.easeInOutCubic);
 //        rotation.animate.rotation.by(2 * PI);
 //        rotation.onComplete = () => rotation = null;
+        grid.setChildIndex( rowHighlight, grid.numChildren-1);
+        grid.setChildIndex( colHighlight, grid.numChildren-1);
+
         grid.setChildIndex( cellShape, grid.numChildren-1);
         grid.setChildIndex( labelNum, grid.numChildren-1);
       });

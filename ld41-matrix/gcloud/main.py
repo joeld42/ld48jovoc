@@ -10,8 +10,12 @@ from google.appengine.ext import ndb
 from flask import Flask, Response, render_template, request, redirect, url_for, jsonify
 
 
-#import cloudstorage as gcs
-#from werkzeug import secure_filename
+# Stuff TODO
+#  - Adjust counts after each assigned genre
+#  - Update_Summary with timer
+#  - Progress bar and help wanted text
+
+
 
 DEFAULT_GENRES = {
     'unassigned' : 'UNASSIGNED',
@@ -52,7 +56,7 @@ DEFAULT_GENRES = {
     'idle' : 'Clicker, Idle',
     'rampage' : 'Rampage, Kaiju, Destruction',
     'trivia' : 'Education, Trivia, Quiz',
-    'idk' : "Don't Know",
+    'idk' : "Dont Know",
 
     'other' : 'Other',
 }
@@ -62,6 +66,8 @@ class CompoInfo(ndb.Model):
     compoNum = ndb.IntegerProperty()
     numGridGenres = ndb.IntegerProperty( indexed=False )
     gridCounts = ndb.BlobProperty( indexed=False )
+    assignedCount = ndb.IntegerProperty( indexed=False )
+    entryCount = ndb.IntegerProperty( indexed=False )
 
 
 class Genre(ndb.Model):
@@ -96,10 +102,15 @@ def add_cors(resp):
         resp.headers['Access-Control-Max-Age'] = '1'
     return resp
 
+def getAssignedPercent( compo ):
+    if compo.assignedCount and compo.entryCount:
+        return int((float(compo.assignedCount) / compo.entryCount)*100.0)
+    else:
+        return 0
 
 @app.route('/')
 def index():
-    genres = getOrderedGenres()
+    genres = getOrderedGenres( False )
     compo = getCompoInfo()
 
     # expand the genre counts
@@ -112,11 +123,15 @@ def index():
         for i in range(ng):
             ndx = j*ng+i
             genreCounts[ndx] = packedCount[ndx]
-
-    return render_template( 'index.html', genres=genres, grid=genreCounts )
+    return render_template( 'index.html', genres=genres, grid=genreCounts,
+                            assignedCount = compo.assignedCount,
+                            entryCount = compo.entryCount,
+                            assignPct = getAssignedPercent(compo) )
 
 @app.route('/assign')
 def assignPick():
+
+    compo = getCompoInfo()
 
     undefGenres = Genre.query(Genre.genreIdent=='unassigned').fetch()
     if len(undefGenres)==0:
@@ -129,11 +144,13 @@ def assignPick():
 
     return render_template( 'assign.html',
                             numAssigns=len(gamesNeedAssign),
-                            games = gamesNeedAssign[:10]
-                            )
+                            games = gamesNeedAssign[:10],
+                            assignedCount = compo.assignedCount,
+                            entryCount = compo.entryCount,
+                            assignPct = getAssignedPercent(compo) )
 
 
-def getOrderedGenres():
+def getOrderedGenres( forAssign ):
     genres = Genre.query().order(Genre.genreName).fetch()
 
     # remove 'UNASSIGNED' and put "other" at the end
@@ -152,7 +169,8 @@ def getOrderedGenres():
 
     if genreOther:
         filteredGenres.append( genreOther )
-    if genreIDK:
+    if genreIDK and forAssign:
+        # Only include "I don't know" in assign
         filteredGenres.append( genreIDK )
 
 
@@ -202,7 +220,7 @@ def assignGame(ldjamId):
     if len(games) == 0:
         return "Didn't find game id " + str(ldjamId)
     game = games[0]
-    genres = getOrderedGenres()
+    genres = getOrderedGenres( True )
 
     if request.method == 'POST':
 
@@ -269,9 +287,47 @@ def get_assigned():
 @app.route('/bulk_assign', methods=['POST', 'GET'])
 def bulk_assign():
     if request.method == 'POST':
-        # TODO : bulk assign
-        pass
-    return render_template('bulk_assign.html')
+
+        genreList = getOrderedGenres( False )
+        genres = {}
+        for g in genreList:
+            genres[g.genreIdent] = g
+
+        file = request.files['file']
+        data = json.loads( file.stream.read() )
+
+        count = 0
+        total = len(data['games'])
+        print "Bulk Assign ", total
+        for gameJson in data['games']:
+            gg = Entry.query( Entry.ldjamId == gameJson['ldjamId'] ).fetch()
+            if len(gg) == 0:
+                print "WARN: didn't find game for id ", gameJson['ldjamId'], gameJson['title']
+                continue
+            game = gg[0]
+
+            genresForThisGame = []
+            for gid in gameJson['genres']:
+                if genres.has_key( gid ):
+                    genresForThisGame.append( genres[gid] )
+
+            if len(genresForThisGame):
+                game.genres = genresForThisGame
+                game.put()
+                print "Assign ",game.gameTitle," genres ", gameJson['genres']
+
+        return redirect( url_for('assignPick') )
+
+
+    return '''
+    <!doctype html>
+    <title>Bulk Assign</title>
+    <h1>Upload new Bulk Assign JSON</h1>
+    <form method=post enctype=multipart/form-data>
+      <p><input type=file name=file>
+         <input type=submit value=Upload>
+    </form>
+    '''
 
 
 
@@ -279,7 +335,7 @@ def bulk_assign():
 def add_genre():
     addedMsg = None
 
-    genres = getOrderedGenres()
+    genres = getOrderedGenres( False )
     for g in genres:
         print g, g.genreName
 
@@ -302,7 +358,7 @@ def getCompoInfo():
     # need something to query the CompoInfo by
     compoNum = 41
 
-    genres = getOrderedGenres()
+    genres = getOrderedGenres( False )
     compos = CompoInfo.query( CompoInfo.compoNum==compoNum ).fetch()
 
     if len(compos)<1:
@@ -319,11 +375,10 @@ def update_summary():
 
     compo = getCompoInfo()
 
-    genres = getOrderedGenres()
+    genres = getOrderedGenres( False )
 
     # Fetch ALL the entries
     allEntries = Entry.query().fetch()
-
 
     # Update the compo grid
     ng = len(genres)
@@ -338,20 +393,37 @@ def update_summary():
 
                 if (i==j):
                     for ent in allEntries:
-                        entGenres = map( lambda x: x.genreName, ent.genres)
-                        if len(entGenres)==1 and (entGenres[0]==genres[i].genreName):
+                        entGenres = map( lambda x: x.genreIdent, ent.genres)
+                        if len(entGenres)==1 and (entGenres[0]==genres[i].genreIdent):
                             count += 1
                 else:
-                    genre1 = genres[i].genreName
-                    genre2 = genres[j].genreName
+                    genre1 = genres[i].genreIdent
+                    genre2 = genres[j].genreIdent
                     for ent in allEntries:
-                        entGenres = map( lambda x: x.genreName, ent.genres)
+                        entGenres = map( lambda x: x.genreIdent, ent.genres)
                         if (genre1 in entGenres) and (genre2 in entGenres):
                             count += 1
 
                 gridCount[i][j] = count
 
-    print gridCount
+    #print gridCount
+
+    # Count unassigned
+    assignedCount = 0
+    for ent in allEntries:
+
+        isUnassigned = False
+        for g in ent.genres:
+            if g.genreIdent=='unassigned':
+                isUnassigned = True
+
+        if not isUnassigned:
+            assignedCount += 1
+
+    # Update counts
+    compo.assignedCount = assignedCount
+    compo.entryCount = len(allEntries)
+    compo.put()
 
     # Convert to a blob
     packedCounts = bytearray(ng*ng)
@@ -396,7 +468,7 @@ def upload():
 
     undefGenre = undefGenres[0]
 
-    allGenres = getOrderedGenres()
+    allGenres = getOrderedGenres( True )
 
     if request.method == 'POST':
         file = request.files['file']

@@ -1,15 +1,12 @@
-<!DOCTYPE html><html><head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="scaffolded-by" content="https://github.com/google/stagehand">
-    <title>dartmatrix</title>
-    <link href="https://fonts.googleapis.com/css?family=Cairo" rel="stylesheet">
-    <link rel="stylesheet" href="static/style.css">
+{% extends "base.html" %}
+{% block title %}LD41 Matrix{% endblock %}
+
+{% block head %}
     <script>
         var genres = [
             {% for genre in genres %}"{{ genre.genreName }}",{% endfor %}
           ];
+
           var genreKeys = [
           {% for genre in genres %}{{ genre.key.id() }},{% endfor %}
           ];
@@ -21,20 +18,37 @@
 
     <script defer="" src="static/main.dart.js"></script>
     
-</head>
+{% endblock %}
 
-<body>
+
+
+{% block body %}
+    <div class="container">
+      <div class="row toprow">
+            <div class="two columns"><p>{{ assignedCount }} of {{ entryCount }} assigned.</p></div>
+            <div class="eight columns"><h1 class="maintitle">LD41 Genre Matrix</h1></div>
+            <div class="two columns"><a href="/about" class="titlelink">About</a></div>
+      </div>
+    </div>
+
 
     <canvas id="stage" class="stage--fullscreen"></canvas>
 
-    <h2 id="genre-title">Genre + Genre</h2>
-    <div id="gameslist">
+    <div class="container gameslist">
 
+        <div class="row">
+            <div class="twelve columns">
+                <h3 id="genre-title">Select a combination...</h3>
+            </div>
+        </div>
     </div>
+
+    <div class="container gameslist" id="gameslist">
+    </div>
+
 
 
     <!-- stub to load the font so StageXL can use it -->
     <div style="font-family:'Cairo',sans-serif;">&nbsp;</div>
 
-
-</body></html>
+{% endblock %}
