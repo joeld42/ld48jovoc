@@ -6,6 +6,13 @@ html, body {
     background-color: #152030;
 }
 
+div.helpme {
+    color: #ffffff;
+    background-color: #6D2261;
+    border-radius: 10px;
+    padding: 10px;
+}
+
 html, body, .stage--fullscreen {
 
     padding: 0;

@@ -8,6 +8,8 @@ import time
 import random
 import logging
 import itertools
+import datetime
+
 from google.appengine.ext import ndb
 
 from flask import Flask, Response, render_template, request, redirect, url_for, jsonify
@@ -71,6 +73,9 @@ class CompoInfo(ndb.Model):
     realAssignedCount = ndb.IntegerProperty( indexed=False )
     assignedCount = ndb.IntegerProperty( indexed=False )
     entryCount = ndb.IntegerProperty( indexed=False )
+    needsRebuild = ndb.IntegerProperty( indexed=False )
+    lastRebuildTime = ndb.DateTimeProperty( indexed=False )
+    adminCode = ndb.StringProperty( indexed=False )
 
 
 class Genre(ndb.Model):
@@ -138,6 +143,14 @@ def index():
                             entryCount = compo.entryCount,
                             assignPct = getRealAssignedPercent(compo) )
 
+@app.route('/about')
+def about():
+    return render_template( 'about.html')
+
+@app.route('/assign_howto')
+def assignHowto():
+    return render_template( 'assign_howto.html')
+
 @app.route('/assign')
 def assignPick():
 
@@ -148,7 +161,12 @@ def assignPick():
         return "Need to init genres"
     undefGenre = undefGenres[0]
 
-    gamesNeedAssign = Entry.query( Entry.genres==undefGenre ).fetch(limit=10)
+    offs = 0
+    gamesLeft = compo.entryCount - compo.assignedCount
+    if gamesLeft > 20:
+        offs = random.randint(0,gamesLeft-10)
+
+    gamesNeedAssign = Entry.query( Entry.genres==undefGenre ).fetch(limit=10,offset=offs)
 
     random.shuffle( gamesNeedAssign )
 
@@ -215,14 +233,15 @@ def genreCombo( gk1, gk2 ):
         #gg = map (lambda x: x.key.id(), filter( lambda y: y.key != None, g.genres))
         #print list(g.genres), gg
 
-        print g
         gameJson = {
             "ldjamId" : g.ldjamId,
             "coverArt" : g.coverArt,
             "title" : g.gameTitle,
-            #"url" :"https://ldjam.com" + g.url
-            # DBG: Use assign URL
-            "url" : url_for('assignGame',ldjamId=g.ldjamId)
+
+            "url" :"https://ldjam.com" + g.url
+
+            # DBG: Use assign URL -- todo make this switchable by user
+            #"url" : url_for('assignGame',ldjamId=g.ldjamId)
         }
         gamesJson.append( gameJson )
 
@@ -239,6 +258,10 @@ def assignGame(ldjamId):
 
 
     if request.method == 'POST':
+
+        # Just go back without doing anything
+        if request.form.has_key('back'):
+            return redirect( url_for('assignPick'))
 
         compo = getCompoInfo()
 
@@ -262,7 +285,9 @@ def assignGame(ldjamId):
 
             if not wasAssigned:
                 compo.assignedCount = compo.assignedCount + 1
-                compo.put()
+
+            compo.needsRebuild = 1
+            compo.put()
 
 
         # Redirect back to pick screen or another game if requested
@@ -272,7 +297,13 @@ def assignGame(ldjamId):
             undefGenres = Genre.query(Genre.genreName=='UNASSIGNED').fetch()
             undefGenre = undefGenres[0]
 
-            gamesNeedAssign = Entry.query( Entry.genres==undefGenre ).fetch()
+            offs = 0
+            gamesLeft = compo.entryCount - compo.assignedCount
+            if gamesLeft > 20:
+                offs = random.randint(0,gamesLeft-10)
+
+            print "Offset", offs
+            gamesNeedAssign = Entry.query( Entry.genres==undefGenre ).fetch( offset=offs )
             if (len(gamesNeedAssign)==0):
                 return redirect( url_for('assignPick'))
             else:
@@ -318,6 +349,8 @@ def get_assigned():
 def bulk_assign():
     if request.method == 'POST':
 
+        compo = getCompoInfo()
+
         genreList = getOrderedGenres( False )
         genres = {}
         for g in genreList:
@@ -346,6 +379,10 @@ def bulk_assign():
                 game.genres = genresForThisGame
                 game.put()
                 logging.info( "Assign " + game.gameTitle + " genres " + str(gameJson['genres']) )
+
+
+        compo.needsRebuild = 1
+        compo.put()
 
         return redirect( url_for('assignPick') )
 
@@ -412,12 +449,66 @@ def make_gkey( gi1, gi2 ):
 def findsubsets(S,m):
     return set(itertools.combinations(S, m))
 
-@app.route('/update_summary')
-def update_summary():
+@app.route('/check_update')
+def check_update():
+
+    compo = getCompoInfo()
+
+    if compo.lastRebuildTime:
+        nextRebuild = compo.lastRebuildTime + datetime.timedelta( minutes=10)
+    else:
+        # just pack an arbitrary rebuild time if not set
+        compo.lastRebuildTime = datetime.datetime.now() + datetime.timedelta( minutes=60 )
+        compo.put()
+
+    now = datetime.datetime.now()
+    if nextRebuild > now:
+        print "seconds until next ", (nextRebuild - datetime.datetime.now()).seconds
+        timeUntilNext = int((nextRebuild - datetime.datetime.now()).seconds / 60.0)
+    else:
+        print "rebuild time passed"
+        timeUntilNext = 0
+
+
+    return render_template( 'update.html',
+                            assignedCount = compo.realAssignedCount,
+                            entryCount = compo.entryCount,
+                            assignPct = getRealAssignedPercent(compo),
+                            needsUpdate=compo.needsRebuild,
+                            lastUpdate=compo.lastRebuildTime,
+                            nextUpdate=nextRebuild,
+                            timeUntilNext = timeUntilNext )
+
+
+@app.route('/do_update', methods=['POST','GET'])
+def do_update():
 
     start_time = time.time()
 
     compo = getCompoInfo()
+
+    # Check if this was explictly requested
+    shouldUpdate = False
+    if request.method == 'POST':
+        # if this is a requested update, check for the proper admin code
+        if not request.form.has_key('update_now'):
+            return redirect( url_for('check_update') )
+
+        admincode = request.form.get( "admincode", "")
+        shouldUpdate = True
+
+    else:
+        admincode = request.args.get('admincode')
+        if not compo.needsRebuild:
+            compo.lastRebuildTime = datetime.datetime.now()
+            compo.put()
+            return "Already up to date"
+
+    # pseudosecurity..
+    if admincode!=compo.adminCode:
+        return "Wrong or missing Admin code..."
+
+
     genres = getOrderedGenres( False )
 
     # Fetch ALL the entries
@@ -469,6 +560,8 @@ def update_summary():
     compo.realAssignedCount = assignedCount
     compo.assignedCount = assignedCount
     compo.entryCount = len(allEntries)
+    compo.needsRebuild = 0
+    compo.lastRebuildTime = datetime.datetime.now()
     compo.put()
 
     # Convert to a blob
@@ -589,20 +682,3 @@ def upload():
          <input type=submit value=Upload>
     </form>
     '''
-
-@app.route('/form')
-def form():
-    return render_template('form.html')
-
-@app.route('/submitted', methods=['POST'])
-def submitted_form():
-
-    #print request.form
-    name = request.form['name']
-    email = request.form['email']
-    site = request.form['site_url']
-    comments = request.form['comments']
-
-    return render_template( 'submitted_form.html',
-                            name=name, email=email, site=site,
-                            comments=comments)

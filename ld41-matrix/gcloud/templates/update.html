@@ -1,0 +1,30 @@
+
+{% extends "adminbase.html" %}
+{% block title %}Update Matrix{% endblock %}
+
+{% block content %}
+ <div class="content">
+    <h1>Update Matrix</h1>
+    <div class="meter">
+      <span style="width: {{ assignPct }}%"></span>
+    </div>
+    <h2>{{ assignedCount }} of {{ entryCount }} games ({{ assignPct }}%) are assigned .</h2>
+
+     <p>
+         {% if needsUpdate %}
+         Matrix needs rebuild.<br>
+         {% else %}
+         Matrix is up-to-date.<br>
+         {% endif %}
+         Last Rebuild Time: {{ lastUpdate }}<br>
+         Next Rebuild at or before: {{ nextUpdate }}<br>
+         Time until rebuild: {% if timeUntilNext > 0 %} approx {{ timeUntilNext }} minutes. {% else %} Soon.. {% endif %}
+     </p>
+     <form method="post" action="{{ url_for('do_update') }}">
+         Admin Code: <input type="text" name="admincode"><br>
+         <input class="form-submit-button" type="submit" name="update_now" value="Update Now">
+     </form>
+
+ </div>
+
+{% endblock %}

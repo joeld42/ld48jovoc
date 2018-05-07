@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}LD41 Matrix{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <h1>How to Assign Games</h1>
+
+            <a href="{{ url_for("index") }}">Back to Matrix</a>
+
+            <p style="background-color:#AE2850">
+                NOTE: I'm still testing/debugging this so if you are on this page please
+                go ahead and tag some entries, but don't share the link widely for a few
+                more days. Thanks, Joel! Also please send any bugs or feedback to joeld42@gmail.com
+            </p>
+
+            <h2>Introduction</h2>
+            <p>
+                The assign page will show you a list of 10 or so game titles that need
+                genres assigned. Pick any one of them and you will be brought to
+                the game assign page.
+            </p>
+
+            <img src="static/assign_howto.png">
+            <p>
+                The compo page on the LDJAM site will be displayed in a frame below the
+                genres. Read the description and check the two genres from the list
+                that best fit the game. After picking, choose one of the actions:
+                <ul>
+                <li><strong>UPDATE</strong> - will save the changes to the genre and remain on this page.</li>
+                <li><strong>Save and Pick</strong> - Will save the genres and return to pick another game.</li>
+                <li><strong>Save and Get Another</strong> - Will save the genres and give you another game to assign at random.</li>
+                </ul>
+            </p>
+
+            <h2>Tips and Advice</h2>
+            <ul>
+                <li>Always prefer the author's intent. If the author(s) state the genres for the game, always go
+                    with that, even if the game seems to better fit a different genre.
+                </li>
+                <li>
+                    If a genre is not present on the list, choose the closest one you can. For example, there's no
+                    "Survival" genre on my list, but these often fit under "Farming", "Horror" or "Hunting".
+                </li>
+                <li>
+                    If a genre really doesn't fit anything else, assign it to "Other". Try to avoid this catch-all
+                    category but it's better to put something there than someplace clearly wrong. For example, a
+                    "Drawing" + "Racing" game could be filed under "Other" + "Racing".
+                </li>
+                <li>
+                    Many entries are incomplete, placeholders, or don't have enough information in the description.
+                    In this case, assign them the special genre "Don't Know". Games assigned to this genre will
+                    not be included in the data, and will be set aside to categorize later. Don't mix "Dont Know" with
+                    other genres.
+                </li>
+                <li>
+                    Some games are really a single genre, for example the author might have combined incompatible
+                    settings or themes instead of game mechanics, or just didn't want to follow the theme too closely.
+                    That's fine! If this is the case, assign them just one genre. These entries appear along the
+                    diagonal in the matrix.
+                </li>
+                <li>
+                    Some games are more than two genres, or even trying to fit a whole bunch of genres in. If it really
+                    does fit all those genres, go ahead and assign it more than two. Don't assign more than four genres
+                    as that will weight the game too much in the matrix.
+                </li>
+            </ul>
+
+            <p>
+                NOTE: The data displayed on the front page only updates every 10 minutes or so. You won't see
+                your changes reflected immediately, but they should show up if you check back in 10 minutes.
+            </p>
+
+            <h2>Let's go!</h2>
+            <p>If you've read the instructions, go ahead and start assigning!</p>
+            <a class="button button-primary" href="{{ url_for("assignPick") }}">Start Assigning</a>
+         </div>
+     </div>
+</div>
+{% endblock %}

@@ -8,5 +8,11 @@ gcloud app deploy app.yaml --project ld41-matrix
 ERROR LOGS:
 https://console.cloud.google.com/errors?time=P1D&project=ld41-matrix
 
+ONLINE LOG VIEWER:
+https://console.cloud.google.com/logs/viewer
+
 UPDATE INDEX:
 gcloud datastore create-indexes index.yaml
+
+CRON STATUS:
+https://console.cloud.google.com/appengine/taskqueues/cron?project=ld41-matrix
