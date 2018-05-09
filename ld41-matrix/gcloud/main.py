@@ -25,44 +25,42 @@ from flask import Flask, Response, render_template, request, redirect, url_for, 
 DEFAULT_GENRES = {
     'unassigned' : 'UNASSIGNED',
 
-    'fishing' : 'Fishing',
-    'card' : 'Card, Dice and Board Game',
-    'fps' :'First Person Shooter',
-    'rts' :'Real-Time Strategy',
-    'cooking' :'Cooking, Crafting',
-    'rpg' :'Role Playing Game',
-    'dating' :'Dating Simulator',
-    'racing' :'Racing, Driving, Vehicle',
-    'shooter' :'Arcade Shooter, Bullet Hell',
-    'dungeon' :'Dungeon Crawler',
-
-    'horror' :'Horror, Zombie',
-    'text' : 'Narrative, Text Adventure',
-    'platformer' : 'Platformer',
-    'roguelike' : 'Roguelike',
-    'physics' : 'Physics Toy or Puzzle',
-    'breakout' : 'Breakout',
-    'battle' : 'Battle Royale',
-    'sports' : 'Sports, Fitness',
-    'music' : 'Rhythm, Music, Dance',
-    'farming' : 'Farming, Gardening',
-    'runner' : 'Infinite Runner',
-    'typing' : 'Typing',
-
-    'sim' : 'Simulation,City Builder',
-    'retro' : 'Retro Arcade',
-    'strategy' : 'Turn-Based Strategy',
-    'towerdefense' : 'Tower Defense',
-    'puzzle' : 'Puzzle, Match3',
-    'fighting' : 'Fighting',
-    'programming' : 'Programming',
-    'pet' : 'Virtual Pet',
-    'idle' : 'Clicker, Idle',
-    'rampage' : 'Rampage, Kaiju, Destruction',
-    'trivia' : 'Education, Trivia, Quiz',
-    'idk' : "Dont Know",
-
-    'other' : 'Other',
+    "battle" : "Battle Royale",
+    "breakout" : "Breakout",
+    "card" : "Card, Dice and Board Game",
+    "idle" : "Clicker, Idle",
+    "cooking" : "Cooking, Crafting",
+    "dating" : "Dating Simulator",
+    "dungeon" : "Dungeon Crawler",
+    "trivia" : "Education, Trivia, Quiz",
+    "farming" : "Farming, Gardening",
+    "fighting" : "Fighting, Beat-em-up",
+    "fps" : "First Person Shooter",
+    "fishing" : "Fishing",
+    "horror" : "Horror, Zombie",
+    "hunting" : "Hunting, Survival",
+    "runner" : "Infinite Runner",
+    "text" : "Narrative, Text Adventure",
+    "physics" : "Physics Toy or Puzzle",
+    "platformer" : "Platformer",
+    "programming" : "Programming, Logic",
+    "puzzle" : "Puzzle, Match3",
+    "racing" : "Racing, Driving, Vehicle",
+    "rampage" : "Rampage, Kaiju, Destruction",
+    "rts" : "Real-Time Strategy",
+    "retro" : "Retro Arcade, Pinball",
+    "music" : "Rhythm, Music, Dance",
+    "roguelike" : "Roguelike",
+    "rpg" : "Role Playing Game, MMO",
+    "shooter" : "Shooter, Arcade, Bullet Hell",
+    "sim" : "Simulation,City Builder",
+    "sports" : "Sports, Fitness",
+    "towerdefense" : "Tower Defense",
+    "strategy" : "Turn-Based Strategy",
+    "typing" : "Typing",
+    "pet" : "Virtual Pet",
+    "other" : "Other",
+    "idk" : "Dont Know",
 }
 
 
@@ -123,8 +121,9 @@ def getRealAssignedPercent( compo ):
     else:
         return 0
 
-@app.route('/')
-def index():
+
+def do_index( editMode ):
+
     genres = getOrderedGenres( False )
     compo = getCompoInfo()
 
@@ -141,7 +140,18 @@ def index():
     return render_template( 'index.html', genres=genres, grid=genreCounts,
                             assignedCount = compo.realAssignedCount,
                             entryCount = compo.entryCount,
-                            assignPct = getRealAssignedPercent(compo) )
+                            assignPct = getRealAssignedPercent(compo),
+                            editMode = editMode )
+
+@app.route('/')
+def index():
+    return do_index( False )
+
+@app.route('/edit')
+def index_editMode():
+    return do_index( True )
+
+
 
 @app.route('/about')
 def about():
@@ -211,7 +221,22 @@ def genreCombo( gk1, gk2 ):
         genre1 = Genre.get_by_id( gk1 )
         genre2 = Genre.get_by_id( gk2 )
 
-        games = Entry.query( ndb.AND(Entry.genres== genre1, Entry.genres== genre2) ).fetch()
+        # Works locally, not on deploy
+        #games = Entry.query( ndb.AND(Entry.genres== genre1, Entry.genres== genre2) ).fetch()
+        #games = Entry.query( Entry.genres== genre1, Entry.genres== genre2 ).fetch()
+
+        # Wordaround for deploy.. should be the same as above??
+        games = Entry.query( ndb.OR(Entry.genres== genre1, Entry.genres== genre2) ).fetch()
+        filteredGames = []
+        for g in games:
+            entGenres = map( lambda x: x.genreIdent, g.genres)
+            if genre1.genreIdent in entGenres and genre2.genreIdent in entGenres:
+                filteredGames.append( g )
+
+        games = filteredGames
+
+
+
     else:
         genre1 = Genre.get_by_id( gk1 )
         games = Entry.query(Entry.genres==genre1 ).fetch()
@@ -233,15 +258,16 @@ def genreCombo( gk1, gk2 ):
         #gg = map (lambda x: x.key.id(), filter( lambda y: y.key != None, g.genres))
         #print list(g.genres), gg
 
+        if not request.args.get( "editMode", 0):
+            gameURL = "https://ldjam.com" + g.url
+        else:
+            gameURL = url_for('assignGame',ldjamId=g.ldjamId)
+
         gameJson = {
             "ldjamId" : g.ldjamId,
             "coverArt" : g.coverArt,
             "title" : g.gameTitle,
-
-            "url" :"https://ldjam.com" + g.url
-
-            # DBG: Use assign URL -- todo make this switchable by user
-            #"url" : url_for('assignGame',ldjamId=g.ldjamId)
+            "url" : gameURL
         }
         gamesJson.append( gameJson )
 
@@ -479,6 +505,17 @@ def check_update():
                             nextUpdate=nextRebuild,
                             timeUntilNext = timeUntilNext )
 
+
+@app.route('/dump_genres')
+def dump_genres():
+    # Dump genres so we can paste them back into the local test env
+    # after making changes on prod
+
+    result = []
+    for g in getOrderedGenres( True ):
+        result.append( '"%s" : "%s",' % (g.genreIdent, g.genreName) )
+
+    return "<pre>" + '\n'.join(result) + "</pre>"
 
 @app.route('/do_update', methods=['POST','GET'])
 def do_update():

@@ -19,7 +19,7 @@ var gamesList = html.querySelector('#gameslist');
 
 void onDataLoaded(String responseText) {
   var jsonString = responseText;
-  print(jsonString);
+  //print(jsonString);
   Map parsedMap = JSON.decode(responseText);
 
   String resultString = "";
@@ -374,6 +374,11 @@ Future<Null> main() async {
         gamesList.children = [];
 
         var url = "/combo/${genreKeys[cell.g1]}/${genreKeys[cell.g2]}";
+
+        if (context['editMode']) {
+          url = url + "?editMode=1";
+        }
+
         var request = html.HttpRequest.getString(url).then(onDataLoaded);
 
       });

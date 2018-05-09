@@ -8,13 +8,12 @@
             <h1>How to Assign Games</h1>
 
             <a href="{{ url_for("index") }}">Back to Matrix</a>
-
-            <p style="background-color:#AE2850">
-                NOTE: I'm still testing/debugging this so if you are on this page please
-                go ahead and tag some entries, but don't share the link widely for a few
-                more days. Thanks, Joel! Also please send any bugs or feedback to joeld42@gmail.com
-            </p>
-
+            <h2>TLDR</h2>
+            <h4>
+                Pick (usually) two genres that best fit each game.
+            </h4>
+                <a class="button button-primary" href="{{ url_for("assignPick") }}">Start Assigning</a>
+            <p>Read on if you want more guidance...</p>
             <h2>Introduction</h2>
             <p>
                 The assign page will show you a list of 10 or so game titles that need
@@ -71,6 +70,7 @@
                 NOTE: The data displayed on the front page only updates every 10 minutes or so. You won't see
                 your changes reflected immediately, but they should show up if you check back in 10 minutes.
             </p>
+
 
             <h2>Let's go!</h2>
             <p>If you've read the instructions, go ahead and start assigning!</p>

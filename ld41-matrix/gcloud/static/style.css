@@ -59,6 +59,7 @@ a.titlelink:hover {
 div.gameitem {
     position: relative;
     height: 150px;
+    max-width: 168px;
     margin: 4px;
     background-color: #333333;
     border-radius: 10px;
@@ -107,6 +108,11 @@ div.gameitem {
     opacity: 1.0;
 }
 
+.arrow {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
 
 /* Progress bar stuff */
 .meter {

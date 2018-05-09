@@ -14,6 +14,11 @@
           var genreCounts = [
           {% for gc in grid %}{{ gc }}, {% endfor %}
           ];
+
+          {% if editMode %}
+          var editMode = true;
+          {% endif %}
+
     </script>
 
     <script defer="" src="static/main.dart.js"></script>
@@ -21,22 +26,22 @@
 {% endblock %}
 
 
-
 {% block body %}
     <div class="container">
       <div class="row toprow">
             <div class="two columns">
-                <a href="https://ldjam.com/events/ludum-dare/41" class="titlelink">LD41</a>
+                <a href="https://ldjam.com/events/ludum-dare/41" class="titlelink" target="_blank">LD41</a>
             </div>
             <div class="eight columns"><h1 class="maintitle">LD41 Genre Matrix</h1></div>
             <div class="two columns"><a href="/about" class="titlelink">About</a></div>
       </div>
 
+        {% if editMode %}
         <p style="background-color:#AE2850">
-                NOTE: I'm still testing/debugging this so if you are on this page please
-                go ahead and tag some entries, but don't share the link widely for a few
-                more days. Thanks, Joel! Also please send any bugs or feedback to joeld42@gmail.com
-            </p>
+            Note: Edit Links Enabled
+        </p>
+        {% endif %}
+        <p>Select a combination from the Matrix. Games will be listed below...</p>
 
     </div>
 
@@ -50,33 +55,39 @@
                 <h3 id="genre-title">Select a combination...</h3>
             </div>
         </div>
+        <!--div class="container gameslist" id="gameslist"-->
+        <div id="gameslist">
+        </div>
+
     </div>
 
-    <div class="container gameslist" id="gameslist">
-    </div>
 
     {% if assignedCount < entryCount %}
     <div class="container helpme">
         <div class="row">
-            <div class="twelve columns">
+            <div class="six columns">
                 <h3>Help classify games!</h3>
-                <p>
-                    There were over 3000 entries to LD41, and no official list of
-                    what genres each entry decided to mash-up.
-                    <strong>You can help</strong> tag entries until and identify
-                    the whole collection! Click here for more info.
-                </p>
             </div>
-        </div>
-        <div class="row">
-            <div class="nine columns">
+            <div class="six columns">
                 <div class="meter">
                 <span style="width: {{ assignPct }}%"></span>
                 </div>
                 <p>{{ assignedCount }} games of {{ entryCount }} ({{ assignPct }}%) assigned.</p>
             </div>
+        </div>
+        <div class="row">
             <div class="three columns">
+                <img src="static/arrow_down.gif" class="arrow">
                 <a class="button button-primary" href="{{ url_for("assignHowto") }}">Start Tagging</a>
+                <img src="static/arrow_up.gif" class="arrow">
+            </div>
+            <div class="nine columns">
+                <p>
+                    There were over 3000 entries to LD41, and no official list of
+                    what genres each entry decided to mash-up.
+                    <strong>You can help</strong> tag entries until and identify
+                    the whole collection! <strong>Click START TAGGING to help out!</strong>
+                </p>
             </div>
         </div>
     </div>
