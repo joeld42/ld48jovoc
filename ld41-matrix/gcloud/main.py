@@ -5,6 +5,8 @@
 import sys
 import json
 import time
+import re
+import string
 import random
 import logging
 import itertools
@@ -86,8 +88,12 @@ class Entry(ndb.Model):
     ldjamId = ndb.IntegerProperty()
     url = ndb.StringProperty(indexed=False)
     coverArt = ndb.StringProperty(indexed=False)
-    gameTitle = ndb.StringProperty(indexed=False)
+    gameTitle = ndb.StringProperty()
     genres = ndb.StructuredProperty( Genre, repeated=True)
+
+class StupidSearchTerm(ndb.Model):
+    searchTerm = ndb.StringProperty()
+    ldjamId = ndb.IntegerProperty( repeated=True )
 
 # ===============================================
 # ===============================================
@@ -186,6 +192,58 @@ def assignPick():
                             assignedCount = compo.assignedCount,
                             entryCount = compo.entryCount,
                             assignPct = getAssignedPercent(compo) )
+
+def normalizeTerm( s ):
+
+    clean = re.compile('[\W_]+', re.UNICODE)
+    s = clean.sub('', s.lower() )
+
+    return s
+
+
+@app.route('/make_search')
+def make_search():
+    allEntries = Entry.query().fetch()
+    words = {}
+    for ent in allEntries:
+        for w in string.split( ent.gameTitle ):
+            w = normalizeTerm( w )
+
+            if not words.has_key(w):
+                words[w] = set()
+
+            words[w].add( ent.ldjamId )
+
+    ww = words.keys()
+    ww.sort()
+    for w in ww:
+        wl = list(words[w])
+        #print w.encode('utf-8'), wl, len(wl)
+        searchTerm = StupidSearchTerm( searchTerm = w, ldjamId = wl )
+        searchTerm.put()
+
+    return "built index ..."
+
+
+
+@app.route('/search')
+def search():
+
+    target=request.args.get( 'search_term', None )
+
+    searchResults = []
+    if target:
+        target = normalizeTerm(target)
+        searchResults = StupidSearchTerm.query( StupidSearchTerm.searchTerm==target ).fetch()
+
+    results = []
+    if (len(searchResults)):
+        results = Entry.query( Entry.ldjamId.IN( searchResults[0].ldjamId ) ).fetch()
+
+    return render_template('search.html', results=results, searchTerm=target)
+
+
+
 
 
 def getOrderedGenres( forAssign ):

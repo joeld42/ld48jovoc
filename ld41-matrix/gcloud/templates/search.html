@@ -1,0 +1,33 @@
+{% extends "adminbase.html" %}
+{% block title %}Search{% endblock %}
+
+{% block content %}
+ <div class="content">
+    <h1>Search Games</h1>
+
+    <form method="get" action="{{ url_for('search') }}">
+      <label for="search_term">Search:</label>
+      <input type="text" name="search_term"><br/>
+      <input type="submit">
+    </form>
+
+     <hr>
+     {% if searchTerm %}
+     <h3>Games Matching '{{ searchTerm }}'...</h3>
+     {% endif %}
+
+     {% if results %}
+
+        {% for game in results %}
+            <a href="{{ url_for('assignGame', ldjamId=game.ldjamId) }}">{{ game.gameTitle }}</a><br>
+        {% endfor %}
+     {% else %}
+        {% if searchTerm %}
+        <p>No Results...(search whole words only)</p>
+        {% endif %}
+     {% endif %}
+
+
+ </div>
+
+{% endblock %}
