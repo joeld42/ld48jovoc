@@ -1,0 +1,19 @@
+#
+# rgl text file (v1.0) - raygui layout text file generated using rGuiLayout
+#
+# Total number of controls:     4
+# Anchor info:   a <id> <posx> <posy> <enabled>
+# Control info:  c <id> <type> <name> <rectangle> <anchor_id> <text>
+#
+a 000 0 0 1
+a 001 0 0 0
+a 002 0 0 0
+a 003 0 0 0
+a 004 0 0 0
+a 005 0 0 0
+a 006 0 0 0
+a 007 0 0 0
+c 000 1 GroupBox000 6 300 400 100 0 Loot
+c 001 1 GroupBox001 200 10 200 90 0 Hero Name
+c 002 15 SliderBar002 235 25 125 15 0 HP
+c 003 15 SliderBar003 235 45 125 15 0 Mana
