@@ -5,6 +5,7 @@
 #include <string.h>
 #include <assert.h>
 
+#undef DEBUG
 #include "raylib.h"
 
 //#define RAYMATH_IMPLEMENTATION

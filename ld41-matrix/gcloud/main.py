@@ -203,11 +203,18 @@ def normalizeTerm( s ):
 
 @app.route('/make_search')
 def make_search():
+
+    filt = request.args.get('filt', "abcdef ghijkl mnopqrs tuvwxyz")
+    #print "FILTER", filt
+
     allEntries = Entry.query().fetch()
     words = {}
     for ent in allEntries:
         for w in string.split( ent.gameTitle ):
             w = normalizeTerm( w )
+
+            if not len(w) or w[0] in filt:
+                continue
 
             if not words.has_key(w):
                 words[w] = set()
@@ -222,7 +229,7 @@ def make_search():
         searchTerm = StupidSearchTerm( searchTerm = w, ldjamId = wl )
         searchTerm.put()
 
-    return "built index ..."
+    return "added index (%d words) ..." % len(ww)
 
 
 

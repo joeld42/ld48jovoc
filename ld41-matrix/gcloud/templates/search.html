@@ -4,6 +4,7 @@
 {% block content %}
  <div class="content">
     <h1>Search Games</h1>
+     <p>Search single words only...</p>
 
     <form method="get" action="{{ url_for('search') }}">
       <label for="search_term">Search:</label>
@@ -23,7 +24,7 @@
         {% endfor %}
      {% else %}
         {% if searchTerm %}
-        <p>No Results...(search whole words only)</p>
+        <p>No Results...(search single words only)</p>
         {% endif %}
      {% endif %}
 
