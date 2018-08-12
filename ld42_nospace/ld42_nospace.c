@@ -925,7 +925,7 @@ Item *GenRandomLoot( Game *game )
 
 
         case ItemType_WEAPON:
-            itemName = "Weapon";
+            itemName = ExpandString( game->genRules, "#WEAPON#" );
             minSize = 1;
             maxSize = 5;
             break;
@@ -944,7 +944,7 @@ Item *GenRandomLoot( Game *game )
 
 
         case ItemType_POTION_HEALTH:
-            itemName = "Health Potion";
+            itemName = ExpandString( game->genRules, "#HEALTH#" );
             minSize = 1;
             maxSize = 2;
             powerMin = 2;
@@ -953,7 +953,7 @@ Item *GenRandomLoot( Game *game )
             break;     
 
         case ItemType_POTION_MANA:
-            itemName = "Mana Potion";
+            itemName = ExpandString( game->genRules, "#MANA#" );
             minSize = 1;
             maxSize = 2;
             powerMin = 2;
@@ -1036,24 +1036,33 @@ int main()
 
     AddRule( game.genRules, "big", "Large,Great,Super,Mighty");
     AddRule( game.genRules, "small", "Small,Short,Tiny");
+    AddRule( game.genRules, "size", "#big#,#small#");
     AddRule( game.genRules, "fancy", "Soldier's,Rusted,Ceremonial,Stabby,Nomad's,Warrior's");
     AddRule( game.genRules, "legend", "of the #critter#");
     AddRule( game.genRules, "critter", "Badger,Bear,Lion,Elk,Nomad,Dragon");
 
-    AddRule( game.genRules, "weapon", "#SWORD#,#AXE#");
+    AddRule( game.genRules, "WEAPON", "#SWORD#,#AXE#");
     AddRule( game.genRules, "SWORD", "#big# #sword#,#small# #sword#,#fancy# #sword#,#sword# #legend#");
     AddRule( game.genRules, "AXE", "#big# #axe#,#small# #axe#,#fancy# #axe#,#axe# #legend#");
     AddRule( game.genRules, "sword", "Sword,Blade,Cutlass");
     AddRule( game.genRules, "axe", "Axe,Hatchet,Cleaver");
+
+
+    AddRule( game.genRules, "potion", "Potion,Scroll");
+    AddRule( game.genRules, "HEALTH", "#healing# #potion#,#size# #healing# Potion");
+    AddRule( game.genRules, "healing", "Health,Healing,Rejuvination");
+
+    AddRule( game.genRules, "MANA", "#mana# #potion#,#size# #mana# Potion");
+    AddRule( game.genRules, "mana", "Mana,Energy");
     
 
-    for (int i=0; i < 20; i++) {
-        char *testString = ExpandString( game.genRules, "#weapon#" );
-        printf("Result %d: %s\n", i, testString );
-        free(testString);
-    }
+    // for (int i=0; i < 20; i++) {
+    //     char *testString = ExpandString( game.genRules, "#weapon#" );
+    //     printf("Result %d: %s\n", i, testString );
+    //     free(testString);
+    // }
 
-    return 0;
+    // return 0;
 
     // setup game data
     int currSum = 0;
@@ -1338,6 +1347,9 @@ int main()
                 float h2 = game.dragItem->icon.height * 0.9375f;
                 game.dragItemCorner = Vector2Make( mousePos.x - w2, mousePos.y - h2);
                 DrawTextureEx( game.dragItem->icon, game.dragItemCorner, 0.0f, 1.875f, itemColor );
+
+                //DrawText( fb->text, fb->pos.x, fb->pos.y, 18, col );
+                DrawText( game.dragItem->name, game.dragItemCorner.x,  game.dragItemCorner.y + h2*2, 6, BLACK );                        
             }
 
             // Draw trash items
