@@ -10,6 +10,8 @@
 // Notes for RayGui:
 // -- Font support in GUI? Even just one global GUI font would be nice, doesn't have to
 //    be super customizeable
+// -- background color for groupboxes that supports alpha
+// -- support double-click
 
 #include <stdint.h>
 #include "raylib.h"
@@ -19,13 +21,22 @@
 #include "raygui.h"
 
 #define ITEM_SQ (15)
+#define LOOTBOX_W (300)
+
+#define MAX_PANELS (10)
+
+#define TRASH_TIME (0.5)
 
 #define CLEAR CLITERAL{ 0, 0, 0, 0 }
+
+#define FRAME_DT (1.0/60.0)
 
 enum {
     GridFlags_FULL = 1 << 0,
     GridFlags_HIGHLIGHTED = 1 << 1,
 };
+
+struct InventoryContainerStruct;
 
 typedef struct ItemStruct
 {
@@ -38,17 +49,23 @@ typedef struct ItemStruct
     Vector2 lootPos;
     Rectangle screenRect;
 
+    // An item can be a container (such as a backpack)
+    struct InventoryContainerStruct *ctr;
+
     // for items placed into grid
     int placex;
     int placey;
     struct ItemStruct *nextInGrid; // for placed items
+
+    // for trashed items
+    float trashCountdown;
 
 } Item;
 
 typedef struct ItemGridStruct
 {
     bool isSlot;
-    
+
     Vector2 origin;
     int xsize;
     int ysize;
@@ -75,6 +92,12 @@ typedef struct InventoryContainerStruct
 
 } InventoryContainer;
 
+typedef struct PanelStruct
+{
+    Item *inspectItem; // for inspect panels
+    InventoryContainer *ctr; // for inventory containers
+} Panel;
+
 typedef struct GameStruct
 {
     float health;
@@ -82,8 +105,8 @@ typedef struct GameStruct
 
     InventoryContainer *invRoot;
 
-    InventoryContainer *invStack[10];
-    int invStackSize;
+    Panel panelStack[MAX_PANELS];
+    int panelStackSize;
 
     Item *lootItems[100];
     int numLootItems;
@@ -92,7 +115,28 @@ typedef struct GameStruct
     ItemGrid *dropTargetGrid;
     Vector2 dragItemCorner;
 
+    Item *trashItems[10];
+    int numTrashItems;
+
 } Game;
+
+// Textures are destroyed at the end of frame
+Texture unloadTexQueue[50];
+int unloadTexQueueSize = 0;
+
+void PushUnloadTex( Texture tex )
+{
+    unloadTexQueue[unloadTexQueueSize++] = tex;
+}
+
+void FlushUnloadTexQueue()
+{
+    for (int i=0; i < unloadTexQueueSize; i++) {
+        UnloadTexture( unloadTexQueue[i] );
+    }
+
+    unloadTexQueueSize = 0;
+}
 
 void *BaseAllocFunc( size_t size, char *file, int line )
 {
@@ -155,6 +199,20 @@ Item *CreateItem()
     return item;
 }
 
+void DestroyItem( Item *item )
+{
+    if (item->icon.width > 0) {
+        PushUnloadTex( item->icon );
+    }    
+
+    // If this item is a backpack, destroy all the items in it too
+    if (item->ctr) {
+        printf("TODO: destroy contained items.\n");
+    }
+
+    free( item );
+}
+
 void MakeItemImage( Item *item )
 {
     int width = item->xsize * 8;
@@ -163,6 +221,12 @@ void MakeItemImage( Item *item )
 
     Color col1 = VIOLET;
     Color col2 = BEIGE;
+
+    if (item->ctr) {
+        col1 = BROWN;
+        col2 = DARKBROWN;
+    }
+
     int checksX = 8;
     int checksY = 8;
     for (int y = 0; y < height; y++)
@@ -190,13 +254,43 @@ void MakeItemImage( Item *item )
     free(pixels);
 
     item->icon = LoadTextureFromImage( image );
-    // TODO free image?
+    UnloadImage( image );
 
 }
 
 //------------------------------------------------------------------------------------
 // InventoryContainer
 //------------------------------------------------------------------------------------
+
+Panel MakeInventoryPanel( InventoryContainer *ctr )
+{
+    Panel result = {0};
+    result.ctr = ctr;
+    return result;
+}
+
+Panel MakeInspectPanel( Item *item )
+{
+    Panel result = {0};
+    result.inspectItem = item;
+    return result;    
+}
+
+void PushPanel( Game *game, Panel panel )
+{
+    if (game->panelStackSize < MAX_PANELS) {
+        game->panelStack[game->panelStackSize++] = panel;
+    }
+}
+
+void PopPanel( Game *game ) {
+    if (game->panelStackSize > 1) {
+        game->panelStackSize--;
+    }
+}
+
+
+
 InventoryContainer *CreateInventoryCtr( char *name )
 {
     InventoryContainer *ctr = Alloc(InventoryContainer);
@@ -207,6 +301,22 @@ InventoryContainer *CreateInventoryCtr( char *name )
     ctr->width = 130;
 
     return ctr;
+}
+
+void InspectItem( Game *game, InventoryContainer *currCtr, Item *item ) {
+
+    // Pop until we're back at the current container
+
+    while (game->panelStack[game->panelStackSize-1].ctr != currCtr) {
+        PopPanel( game );
+    }
+
+    // If this is an item, make an inspect panel
+    if (item->ctr) {
+        PushPanel( game, MakeInventoryPanel( item->ctr ) );
+    } else {
+        PushPanel( game, MakeInspectPanel( item ));    
+    }
 }
 
 void ReleaseInventoryCtr( InventoryContainer *ctr )
@@ -241,6 +351,40 @@ void GridRemovePlacedItem( ItemGrid *grid, Item *item )
 
         prev = curr;
         curr = curr->nextInGrid;
+    }
+}
+
+void ContainerRemoveItem( InventoryContainer *ctr, Item *item )
+{
+    // Try to remove it from all grids
+    ItemGrid *currGrid = ctr->grids;
+    while (currGrid) {
+
+        if (currGrid->isSlot) {
+            if (currGrid->slotItem == item) {
+                currGrid->slotItem = NULL;
+            }
+        } else {
+            GridRemovePlacedItem( currGrid, item );
+        }
+
+        currGrid = currGrid->next;
+    }
+}
+
+void PickupDragItem( Game *game, Item *item )
+{
+    game->dragItem = item;
+
+    // If this is a container and it's open on the panel stack, close it
+    // to prevent nesting cycles of containers
+    if ((item) && (item->ctr)) {
+        for (int i=1; i < game->panelStackSize;i++) {
+            if (game->panelStack[i].ctr == item->ctr) {
+                game->panelStackSize = i;
+                break;
+            }
+        }
     }
 }
 
@@ -284,7 +428,7 @@ void DrawInventoryContainer( Game *game, float xval, InventoryContainer *ctr )
             if (curr->slotItem) {
 
                 Vector2 fitSize = Vector2Make( curr->xsize * ITEM_SQ-1, curr->ysize * ITEM_SQ-1 );
-                Vector2 ctr = Vector2Make( og.x + (curr->xsize * ITEM_SQ +1)/ 2,
+                Vector2 center = Vector2Make( og.x + (curr->xsize * ITEM_SQ +1)/ 2,
                                            og.y + (curr->ysize * ITEM_SQ +1)/ 2 );
 
                 float sz = FloatMax( fitSize.x, fitSize.y );
@@ -306,11 +450,13 @@ void DrawInventoryContainer( Game *game, float xval, InventoryContainer *ctr )
                 float w2 = curr->slotItem->icon.width * scale * 0.5;
                 float h2 = curr->slotItem->icon.height * scale * 0.5;
                 DrawTextureEx( curr->slotItem->icon,
-                    Vector2Make( ctr.x - w2, ctr.y - h2), 0.0f, scale, color );
+                    Vector2Make( center.x - w2, center.y - h2), 0.0f, scale, color );
 
-                if ((canPickup) && (IsMouseButtonPressed( MOUSE_LEFT_BUTTON )) ) {
-                    game->dragItem = curr->slotItem;
+                if ((canPickup) && (IsMouseButtonPressed( MOUSE_LEFT_BUTTON )) ) {                    
+                    PickupDragItem( game, curr->slotItem );
                     curr->slotItem = NULL;
+                } else if ((canPickup) && (IsMouseButtonPressed( MOUSE_RIGHT_BUTTON )) ) {
+                    InspectItem( game, ctr, curr->slotItem );
                 }
             }
 
@@ -379,8 +525,10 @@ void DrawInventoryContainer( Game *game, float xval, InventoryContainer *ctr )
                 DrawTextureEx( currItem->icon, sq, 0.0f, 1.875f, color );
 
                 if ((canPickup) && (IsMouseButtonPressed( MOUSE_LEFT_BUTTON )) ) {
-                    game->dragItem = currItem;
+                    PickupDragItem( game, currItem );
                     GridRemovePlacedItem( curr, currItem );
+                } else if ((canPickup) && (IsMouseButtonPressed( MOUSE_RIGHT_BUTTON )) ) {
+                    InspectItem( game, ctr, currItem );                
                 }
 
                 currItem = currItem->nextInGrid;
@@ -418,7 +566,7 @@ void ClearGridHighlight( ItemGrid *grid )
 }
 
 
-bool TryDropItemOnGrid( ItemGrid *grid, Item *item, Vector2 hoverPos, bool performDrop )
+bool TryDropItemOnGrid( Game *game, ItemGrid *grid, Item *item, Vector2 hoverPos, bool performDrop )
 {
     if (grid->isSlot) {
         // If it's a slot, doesn't matter can hold one item
@@ -486,6 +634,93 @@ bool TryDropItemOnGrid( ItemGrid *grid, Item *item, Vector2 hoverPos, bool perfo
     }
 }
 
+void ConsumeItem( Game *game, Item *item )
+{
+    // remove from any container
+    for (int i=0; i < game->panelStackSize; i++) {
+        InventoryContainer *ctr = game->panelStack[i].ctr;
+        if (ctr) {
+            ContainerRemoveItem( ctr, item );
+        }        
+    }
+    
+    // TODO: Add health or stuff here
+
+    DestroyItem( item );
+
+}
+
+void DrawItemPanel( Game *game, int xval, Item *item )
+{
+    Rectangle rect = { 5, 50, 130, 140 };
+    rect.x = xval;
+    rect.width = item->xsize * ITEM_SQ + 20;
+    GuiGroupBox(rect, item->name);
+
+    float centerx = xval + (rect.width/2);
+
+    float scale = 2.0f;
+    float w2 = item->icon.width * scale * 0.5f;
+    float h2 = item->icon.height * scale * 0.5f;
+    Vector2 itemCorner = Vector2Make( centerx - w2, rect.y + 30 );
+    DrawTextureEx( item->icon, itemCorner, 0.0f, scale, WHITE );
+
+    // For potions
+    if (GuiButton( RectMake( centerx - 20, 170, 40, 14 ), "Drink")) {
+        PopPanel( game );
+            
+        ConsumeItem( game, item );
+    }
+}
+
+//------------------------------------------------------------------------------------
+// Random item generation
+//------------------------------------------------------------------------------------
+
+Item *GenRandomLoot( Game *game )
+{
+    Item *item = CreateItem();
+
+    strcpy(item->name,"Item");
+    item->xsize = GetRandomValue( 1, 5 );
+    item->ysize = GetRandomValue( 1, 5 );
+    item->lootPos = Vector2Make( GetRandomValue( item->xsize, LOOTBOX_W-item->xsize),
+                                 GetRandomValue( 200 + (item->ysize/2), 300-(item->ysize/2) ) );
+
+    // dbg make item shape
+    for (int i=0; i < item->xsize; i++) {
+        for (int j=0; j < item->ysize; j++) {
+            if (GetRandomValue(0,10) < 3) {
+                item->grid[i][j] = 0;
+            } else {
+                item->grid[i][j] = 1;
+            }
+        }
+    }
+
+    // Some items are containers
+    if (GetRandomValue(0,4) < 1) {
+
+        for (int i=0; i < item->xsize; i++) {
+            for (int j=0; j < item->ysize; j++) {
+                item->grid[i][j] = 1;
+            }
+        }
+
+        InventoryContainer *ctr = CreateInventoryCtr( "Container");
+        ctr->width = 110;
+        //game.invStack[game.invStackSize++] = backpack;
+        ItemGrid *g = AddGrid( ctr, (Vector2){ 10, 10}, 6, 6 );
+
+        item->ctr = ctr;
+    }
+
+    MakeItemImage( item );
+
+    return item;
+}
+
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -505,8 +740,8 @@ int main()
     game.invRoot = CreateInventoryCtr( "Equipped" );
     game.invRoot->width = 130;
 
-    game.invStack[0] = game.invRoot;
-    game.invStackSize = 1;
+    game.panelStack[0] = MakeInventoryPanel( game.invRoot );
+    game.panelStackSize = 1;
     
     // Helmet
     ItemGrid *g = AddGrid( game.invRoot, (Vector2){ 65-ITEM_SQ, 5 }, 2, 2 );
@@ -532,16 +767,16 @@ int main()
     // Right Hand
     g = AddGrid( game.invRoot, (Vector2){ 108, 93}, 1, 1 );
 
-    InventoryContainer *backpack = CreateInventoryCtr( "Backpack");
-    backpack->width = 110;
-    game.invStack[game.invStackSize++] = backpack;
+    // InventoryContainer *backpack = CreateInventoryCtr( "Backpack");
+    // backpack->width = 110;
+    // game.invStack[game.invStackSize++] = backpack;
 
-    g = AddGrid( backpack, (Vector2){ 10, 10}, 6, 6 );
+    // g = AddGrid( backpack, (Vector2){ 10, 10}, 6, 6 );
 
-    InventoryContainer *sachel = CreateInventoryCtr( "Sachel");
-    sachel->width = (ITEM_SQ * 4) + 20;
-    game.invStack[game.invStackSize++] = sachel;
-    g = AddGrid( sachel, (Vector2){ 10, 10}, 4, 4 );
+    // InventoryContainer *sachel = CreateInventoryCtr( "Sachel");
+    // sachel->width = (ITEM_SQ * 4) + 20;
+    // game.invStack[game.invStackSize++] = sachel;
+    // g = AddGrid( sachel, (Vector2){ 10, 10}, 4, 4 );
 
 
     SetTargetFPS(60);
@@ -567,7 +802,7 @@ int main()
             if (item->screenRect.x < 8) {
                 isOverlap= true;
                 item->lootPos.x += 1;
-            } else if (item->screenRect.x + item->icon.width > 400-8 ) {
+            } else if (item->screenRect.x + item->icon.width > LOOTBOX_W-8 ) {
                 isOverlap= true;
                 item->lootPos.x -= 1;
             } else if (item->screenRect.y < 208) {
@@ -602,49 +837,36 @@ int main()
         // Update Loot
         // TODO add timer
         if ((!isOverlap) && (game.numLootItems < 100)) {
-            Item *item = CreateItem();
 
-            strcpy(item->name,"Item");
-            item->xsize = GetRandomValue( 1, 5 );
-            item->ysize = GetRandomValue( 1, 5 );
-            item->lootPos = Vector2Make( GetRandomValue( item->xsize, 400-item->xsize),
-                                         GetRandomValue( 200 + (item->ysize/2), 300-(item->ysize/2) ) );
+            Item *item = GenRandomLoot( &game );
 
-            // dbg make item shape
-            for (int i=0; i < item->xsize; i++) {
-                for (int j=0; j < item->ysize; j++) {
-                    if (GetRandomValue(0,10) < 3) {
-                        item->grid[i][j] = 0;
-                    } else {
-                        item->grid[i][j] = 1;
-                    }
-                }
-            }
-
-            MakeItemImage( item );
             game.lootItems[game.numLootItems++] = item;
         }
 
         Vector2 mousePos = GetMousePosition();
 
         game.dropTargetGrid = NULL;
-        for (int i=0; i < game.invStackSize; i++) {
-            ItemGrid *curr = game.invStack[i]->grids;
-            while (curr) {
-                bool canDrop = false;
+        for (int i=0; i < game.panelStackSize; i++) {
+            Panel *panel = game.panelStack + i;
+            InventoryContainer *ctr = panel->ctr;
+            if (ctr) {
+                ItemGrid *curr = ctr->grids;
+                while (curr) {
+                    bool canDrop = false;
 
-                ClearGridHighlight( curr );
+                    ClearGridHighlight( curr );
 
-                if ((game.dragItem) && (CheckCollisionPointRec(mousePos, curr->screenRect ))) {
-                    // check if it's a valid drop
-                    if (TryDropItemOnGrid( curr, game.dragItem, game.dragItemCorner, false )) {
-                        canDrop = true;  
-                        game.dropTargetGrid = curr;
+                    if ((game.dragItem) && (CheckCollisionPointRec(mousePos, curr->screenRect ))) {
+                        // check if it's a valid drop
+                        if (TryDropItemOnGrid( &game, curr, game.dragItem, game.dragItemCorner, false )) {
+                            canDrop = true;  
+                            game.dropTargetGrid = curr;
+                        }
                     }
-                }
-                curr->highlightForDrop = canDrop;
+                    curr->highlightForDrop = canDrop;
 
-                curr = curr->next;
+                    curr = curr->next;
+                }
             }
         }
 
@@ -659,11 +881,15 @@ int main()
 
             // Draw inventory stack
             int currX = 5;
-            for (int i=0; i < game.invStackSize; i++)
-            {
-                InventoryContainer *ctr = game.invStack[i];
-                DrawInventoryContainer( &game, currX, ctr );        
-                currX += ctr->width + 5;
+            for (int i=0; i < game.panelStackSize; i++) {
+                Panel *panel = game.panelStack + i;
+                if (panel->ctr) {                    
+                    DrawInventoryContainer( &game, currX, panel->ctr );        
+                    currX += panel->ctr->width + 5;
+                } else if (panel->inspectItem) {
+                    DrawItemPanel( &game, currX, panel->inspectItem );
+                    currX += panel->inspectItem->xsize * ITEM_SQ + 20;
+                }
             }
 
             // raygui: controls drawing
@@ -671,7 +897,10 @@ int main()
             game.health = GuiSliderBarEx((Rectangle){ 235, 8, 125, 15 }, game.health, 0, 100, "HP", true);
             game.mana = GuiSliderBarEx((Rectangle){ 235, 28, 125, 15 }, game.mana, 0, 100, "Mana", true);
 
-            GuiGroupBox((Rectangle){ 6, 200, 380, 90 }, "Loot");
+            GuiGroupBox((Rectangle){ 6, 200, LOOTBOX_W, 90 }, "Loot");
+
+            GuiGroupBox((Rectangle){ LOOTBOX_W + 8, 200, 400 - (LOOTBOX_W+12), 90 }, "Trash");
+
             bool didPickup = false;
             int pickupItemIndex = -1;
             for (int i = 0; i < game.numLootItems; i++) {
@@ -691,7 +920,7 @@ int main()
                     if (IsMouseButtonPressed( MOUSE_LEFT_BUTTON )) {
                         pickupItemIndex = i;
                         
-                        game.dragItem = item;
+                        PickupDragItem( &game, item );
                         didPickup = true;
                     }
                 }
@@ -714,31 +943,73 @@ int main()
                     // If there's a grid we can drop into, do that                    
                     if (game.dropTargetGrid) {
                         ItemGrid *dropGrid = game.dropTargetGrid;
-                        if (TryDropItemOnGrid( dropGrid, game.dragItem, game.dragItemCorner, true )) {
-                            game.dragItem = NULL;
+                        if (TryDropItemOnGrid( &game, dropGrid, game.dragItem, game.dragItemCorner, true )) {
+                            PickupDragItem( &game, NULL );
                         }
                     } 
 
-                    // If we didn't drop it on the dropTarget, drop it back in the loot
+                    // If we didn't drop it on the dropTarget, trash?
+                    if (game.dragItem) {
+                        if ((mousePos.x > LOOTBOX_W) && (mousePos.y > 200)) {
+                            
+                            // Close all containers so we don't have to deal with tem
+                            game.panelStackSize = 1;
+
+
+                            // Trash item
+                            game.dragItem->lootPos = mousePos;
+                            game.dragItem->trashCountdown = TRASH_TIME;
+                            game.trashItems[game.numTrashItems++] = game.dragItem;
+                            PickupDragItem( &game, NULL );
+                        }
+                    }
+
+                    // Drop it back in the loot pile
                     if (game.dragItem) {
                         // Drop item back in the lootins
                         game.dragItem->lootPos = Vector2Make( mousePos.x, FloatMax( mousePos.y, 200) );
                         game.lootItems[game.numLootItems++] = game.dragItem;
                     }
-                    game.dragItem = NULL;
+                    PickupDragItem( &game, NULL );
                 }
             }
 
+            // Draw drag item
             if (game.dragItem) {
-                // DrawTexture( game.dragItem->icon, 
-                //                 mousePos.x - game.dragItem->icon.width/2, 
-                //                 mousePos.y - game.dragItem->icon.height/2, 
-                //                 WHITE );
+                
+                Color itemColor = Fade( WHITE, 0.5 );
+                if ((mousePos.x > LOOTBOX_W) && (mousePos.y > 200)) {
+                    itemColor = RED;
+                }
+
                 float w2 = game.dragItem->icon.width * 0.9375f;
                 float h2 = game.dragItem->icon.height * 0.9375f;
                 game.dragItemCorner = Vector2Make( mousePos.x - w2, mousePos.y - h2);
-                DrawTextureEx( game.dragItem->icon, game.dragItemCorner, 0.0f, 1.875f, Fade(WHITE,0.5) );
+                DrawTextureEx( game.dragItem->icon, game.dragItemCorner, 0.0f, 1.875f, itemColor );
             }
+
+            // Draw trash items
+            for (int i=game.numTrashItems-1; i >=0; i--) {
+
+                Item *trashItem = game.trashItems[i];
+
+                float t = trashItem->trashCountdown / TRASH_TIME;
+
+                float w2 = trashItem->icon.width * 0.9375f * t;
+                float h2 = trashItem->icon.height * 0.9375f * t;
+                Color itemTrashColor = Fade( PINK, t );
+                
+                DrawTextureEx( trashItem->icon, 
+                    Vector2Make( trashItem->lootPos.x - w2, trashItem->lootPos.y - h2), 
+                    t * 360.0f, 2.0f * t, itemTrashColor ); 
+
+                trashItem->trashCountdown -= FRAME_DT;
+                if (trashItem->trashCountdown < 0.0) {
+                    game.trashItems[i] = game.trashItems[--game.numTrashItems];
+                    DestroyItem( trashItem );
+                }
+            }
+
 
             //----------------------------------------------------------------------------------
         EndTextureMode();
@@ -748,6 +1019,9 @@ int main()
             (Rectangle){ 0, 0, screenTarget.texture.width*2, screenTarget.texture.height*2 }, 
             (Vector2){ 0, 0 }, 0.0f, WHITE);
         EndDrawing();
+
+        FlushUnloadTexQueue();
+
         //----------------------------------------------------------------------------------
     }
 
