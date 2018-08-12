@@ -48,6 +48,7 @@ typedef struct ItemStruct
 typedef struct ItemGridStruct
 {
     bool isSlot;
+    
     Vector2 origin;
     int xsize;
     int ysize;
@@ -213,7 +214,38 @@ void ReleaseInventoryCtr( InventoryContainer *ctr )
     free( ctr );
 }
 
-void DrawInventoryContainer( float xval, InventoryContainer *ctr )
+void GridRemovePlacedItem( ItemGrid *grid, Item *item ) 
+{
+    Item *prev = NULL;
+    Item *curr = grid->placedItems;
+    while (curr) {
+
+        if (curr == item) {
+
+            // remove the full tags            
+            for (int i=0; i < item->xsize; i++) {
+                for (int j=0; j < item->ysize; j++) {
+                    if (item->grid[i][j]) {                        
+                        grid->gridflags[item->placex + i][item->placey + j] &= ~GridFlags_FULL;
+                    }
+                }
+            }            
+            // clean up the list
+            if (prev) {
+                prev->nextInGrid = curr->nextInGrid;
+            } else {
+                grid->placedItems = curr->nextInGrid;
+            }
+            return;
+        }
+
+        prev = curr;
+        curr = curr->nextInGrid;
+    }
+}
+
+
+void DrawInventoryContainer( Game *game, float xval, InventoryContainer *ctr )
 {
     Rectangle rect = { 5, 50, 130, 140 };
     rect.x = xval;
@@ -235,6 +267,8 @@ void DrawInventoryContainer( float xval, InventoryContainer *ctr )
             borderColor = DARKGREEN;
             fillColor = GREEN;
         }
+
+        Vector2 mousePos = GetMousePosition();
 
         if (curr->isSlot)
         {
@@ -259,16 +293,37 @@ void DrawInventoryContainer( float xval, InventoryContainer *ctr )
                 float scale = FloatMin( 1.0f, sz/itemSz );
 
                 //printf("Scale %f, sz is %f itemSz %f\n", scale, sz, itemSz );
+                Color color = WHITE;
+                bool canPickup = false;
+                if (CheckCollisionPointRec(mousePos, curr->screenRect)) {
+                    if (!game->dragItem) {
+                        color = GREEN;
+                        canPickup = true;
+                    }
+                }
+
 
                 float w2 = curr->slotItem->icon.width * scale * 0.5;
                 float h2 = curr->slotItem->icon.height * scale * 0.5;
                 DrawTextureEx( curr->slotItem->icon,
-                    Vector2Make( ctr.x - w2, ctr.y - h2), 0.0f, scale, WHITE );
+                    Vector2Make( ctr.x - w2, ctr.y - h2), 0.0f, scale, color );
 
-                //DrawTextureEx( curr->slotItem->icon, og, 0.0f, 1.875f, WHITE );
+                if ((canPickup) && (IsMouseButtonPressed( MOUSE_LEFT_BUTTON )) ) {
+                    game->dragItem = curr->slotItem;
+                    curr->slotItem = NULL;
+                }
             }
 
         } else {
+            
+            int cursorX = -1;
+            int cursorY = -1;
+            if (mousePos.x >= curr->screenRect.x) {
+                cursorX = (mousePos.x - curr->screenRect.x) / ITEM_SQ;
+            }
+            if (mousePos.y >= curr->screenRect.y) {
+                cursorY = (mousePos.y - curr->screenRect.y) / ITEM_SQ;
+            }
 
             for (int i=0; i < curr->xsize; i++) {
                 for (int j=0; j < curr->ysize; j++) {
@@ -278,6 +333,11 @@ void DrawInventoryContainer( float xval, InventoryContainer *ctr )
                     sq.y = og.y + (j*ITEM_SQ);
 
                     Color cellFillColor = fillColor;
+
+                    if ((cursorX==i) && (cursorY==j)) {
+                        cellFillColor = GREEN;
+                    }
+
                     if (curr->gridflags[i][j] & GridFlags_HIGHLIGHTED) {
                         if (curr->highlightForDrop) {
                             cellFillColor = YELLOW;                        
@@ -299,7 +359,29 @@ void DrawInventoryContainer( float xval, InventoryContainer *ctr )
                 sq.x = og.x + (currItem->placex*ITEM_SQ);
                 sq.y = og.y + (currItem->placey*ITEM_SQ);
 
-                DrawTextureEx( currItem->icon, sq, 0.0f, 1.875f, WHITE );
+                // see if this overlaps cursorXY
+                Color color = WHITE;
+                bool canPickup = false;
+                if (!game->dragItem) {
+                    for (int i=0; i < currItem->xsize; i++) {
+                        for (int j=0; j < currItem->ysize; j++) {
+                            if ((cursorX==currItem->placex + i) && 
+                                (cursorY==currItem->placey + j) &&
+                                (currItem->grid[i][j]) ) {
+                                // Can pickup this item
+                                color = GREEN;
+                                canPickup = true;
+                            }
+                        }                        
+                    }
+                }
+
+                DrawTextureEx( currItem->icon, sq, 0.0f, 1.875f, color );
+
+                if ((canPickup) && (IsMouseButtonPressed( MOUSE_LEFT_BUTTON )) ) {
+                    game->dragItem = currItem;
+                    GridRemovePlacedItem( curr, currItem );
+                }
 
                 currItem = currItem->nextInGrid;
             }
@@ -334,6 +416,7 @@ void ClearGridHighlight( ItemGrid *grid )
         }
     }
 }
+
 
 bool TryDropItemOnGrid( ItemGrid *grid, Item *item, Vector2 hoverPos, bool performDrop )
 {
@@ -579,7 +662,7 @@ int main()
             for (int i=0; i < game.invStackSize; i++)
             {
                 InventoryContainer *ctr = game.invStack[i];
-                DrawInventoryContainer( currX, ctr );        
+                DrawInventoryContainer( &game, currX, ctr );        
                 currX += ctr->width + 5;
             }
 
