@@ -2,11 +2,14 @@
 *
 *   nospace_gui - tool description
 *
-*   LICENSE: zlib/libpng
 *
 *   Copyright (c) 2018 tapnik
 *
 **********************************************************************************************/
+
+// Notes for RayGui:
+// -- Font support in GUI? Even just one global GUI font would be nice, doesn't have to
+//    be super customizeable
 
 #include <stdint.h>
 #include "raylib.h"
@@ -17,9 +20,11 @@
 
 #define ITEM_SQ (15)
 
+#define CLEAR CLITERAL{ 0, 0, 0, 0 }
+
 enum {
-    CellFlags_FULL = 1 << 0,
-    CellFlags_HIGHLIGHTED = 1 << 1,
+    GridFlags_FULL = 1 << 0,
+    GridFlags_HIGHLIGHTED = 1 << 1,
 };
 
 typedef struct ItemStruct
@@ -32,6 +37,12 @@ typedef struct ItemStruct
     
     Vector2 lootPos;
     Rectangle screenRect;
+
+    // for items placed into grid
+    int placex;
+    int placey;
+    struct ItemStruct *nextInGrid; // for placed items
+
 } Item;
 
 typedef struct ItemGridStruct
@@ -46,6 +57,8 @@ typedef struct ItemGridStruct
 
     Rectangle screenRect;
     struct ItemGridStruct *next;
+
+    struct ItemStruct *placedItems;
 
     bool highlightForDrop;
 
@@ -76,6 +89,7 @@ typedef struct GameStruct
 
     Item *dragItem;
     ItemGrid *dropTargetGrid;
+    Vector2 dragItemCorner;
 
 } Game;
 
@@ -111,6 +125,10 @@ float FloatMin( float a, float b) {
     if (a < b) return a; else return b;
 }
 
+float IntMin( int a, int b) {
+    if (a < b) return a; else return b;
+}
+
 float FloatMax( float a, float b) {
     if (a > b) return a; else return b;
 }
@@ -142,16 +160,28 @@ void MakeItemImage( Item *item )
     int height = item->ysize * 8;
     Color *pixels = (Color *)malloc(width*height*sizeof(Color));
 
-    Color col1 = BLUE;
-    Color col2 = GREEN;
+    Color col1 = VIOLET;
+    Color col2 = BEIGE;
     int checksX = 8;
     int checksY = 8;
     for (int y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
         {
-            if ((x/checksX + y/checksY)%2 == 0) pixels[y*width + x] = col1;
-            else pixels[y*width + x] = col2;
+            int xx = x/checksX;
+            int yy = y/checksY;
+            if (item->grid[xx][yy]) {
+                if ((x/checksX + y/checksY)%2 == 0) pixels[y*width + x] = col1;
+                else pixels[y*width + x] = col2;
+            } else {
+                pixels[y*width+x] = CLEAR;
+            }
+
+            // border
+            if ((x==0)||(y==0)||(x==width-1)||(y==height-1)) {
+                pixels[y*width+x] = MAGENTA;
+            }
+
         }
     }
 
@@ -246,9 +276,32 @@ void DrawInventoryContainer( float xval, InventoryContainer *ctr )
                     Vector2 sq;
                     sq.x = og.x + (i*ITEM_SQ);
                     sq.y = og.y + (j*ITEM_SQ);
+
+                    Color cellFillColor = fillColor;
+                    if (curr->gridflags[i][j] & GridFlags_HIGHLIGHTED) {
+                        if (curr->highlightForDrop) {
+                            cellFillColor = YELLOW;                        
+                        } else {
+                            cellFillColor = RED;
+                        }
+                    }
+
                     DrawRectangle( sq.x, sq.y, ITEM_SQ+1, ITEM_SQ+1, borderColor );
-                    DrawRectangle( sq.x+1, sq.y+1, ITEM_SQ-1, ITEM_SQ-1, fillColor );
+                    DrawRectangle( sq.x+1, sq.y+1, ITEM_SQ-1, ITEM_SQ-1, cellFillColor );
                 }
+            }
+
+            // Draw placed items
+            Item *currItem = curr->placedItems;
+            while (currItem) {
+
+                Vector2 sq;
+                sq.x = og.x + (currItem->placex*ITEM_SQ);
+                sq.y = og.y + (currItem->placey*ITEM_SQ);
+
+                DrawTextureEx( currItem->icon, sq, 0.0f, 1.875f, WHITE );
+
+                currItem = currItem->nextInGrid;
             }
         }
 
@@ -270,6 +323,18 @@ ItemGrid *AddGrid( InventoryContainer *ctr, Vector2 origin, int xs, int ys )
     return grid;
 }
 
+void ClearGridHighlight( ItemGrid *grid ) 
+{
+    if (!grid->isSlot) {
+        // Clear all highlight flags
+        for (int i=0; i < grid->xsize; i++ ) {
+            for (int j=0; j < grid->ysize; j++ ) {
+                grid->gridflags[i][j] &= ~GridFlags_HIGHLIGHTED;
+            }
+        }
+    }
+}
+
 bool TryDropItemOnGrid( ItemGrid *grid, Item *item, Vector2 hoverPos, bool performDrop )
 {
     if (grid->isSlot) {
@@ -283,7 +348,58 @@ bool TryDropItemOnGrid( ItemGrid *grid, Item *item, Vector2 hoverPos, bool perfo
             return true;
         }
     } else {
-        return false;
+
+        // Highlight the cells where it would land
+        bool isOverlap = false;
+        int x0 = (int)((hoverPos.x - grid->screenRect.x) / ITEM_SQ);
+        int y0 = (int)((hoverPos.y - grid->screenRect.y) / ITEM_SQ);
+
+        if (x0 + item->xsize > grid->xsize) {
+            isOverlap = true;
+        }
+
+        if (y0 + item->ysize > grid->ysize) {
+            isOverlap = true;
+        }
+
+        if ((x0 < 0) || (y0 < 0)) {
+            isOverlap = true;
+        }
+
+        for (int i=x0; i < IntMin( grid->xsize, x0 + item->xsize); i++ ) {
+            for (int j=y0; j < IntMin( grid->xsize, y0 + item->ysize); j++ ) {
+
+                if ((i < 0) || (j < 0)) {
+                    continue;
+                }
+
+                if (item->grid[i-x0][j-y0]) {
+                   grid->gridflags[i][j] |= GridFlags_HIGHLIGHTED;
+
+                   if (grid->gridflags[i][j] & GridFlags_FULL) {
+                        isOverlap = true;
+                   }
+                }
+            }
+        }
+
+        if ((!isOverlap) && (performDrop)) {
+            item->nextInGrid = grid->placedItems;
+            item->placex = x0;
+            item->placey = y0;
+            grid->placedItems = item;
+
+            for (int i=0; i < item->xsize; i++) {
+                for (int j=0; j < item->ysize; j++) {
+                    if (item->grid[i][j]) {
+                        grid->gridflags[x0+i][y0+j] |= GridFlags_FULL;
+                    }
+                }
+            }
+
+        }
+
+        return !isOverlap;
     }
 }
 
@@ -403,12 +519,24 @@ int main()
         // Update Loot
         // TODO add timer
         if ((!isOverlap) && (game.numLootItems < 100)) {
-            Item *item = Alloc(Item);
+            Item *item = CreateItem();
+
             strcpy(item->name,"Item");
             item->xsize = GetRandomValue( 1, 5 );
             item->ysize = GetRandomValue( 1, 5 );
             item->lootPos = Vector2Make( GetRandomValue( item->xsize, 400-item->xsize),
                                          GetRandomValue( 200 + (item->ysize/2), 300-(item->ysize/2) ) );
+
+            // dbg make item shape
+            for (int i=0; i < item->xsize; i++) {
+                for (int j=0; j < item->ysize; j++) {
+                    if (GetRandomValue(0,10) < 3) {
+                        item->grid[i][j] = 0;
+                    } else {
+                        item->grid[i][j] = 1;
+                    }
+                }
+            }
 
             MakeItemImage( item );
             game.lootItems[game.numLootItems++] = item;
@@ -421,12 +549,15 @@ int main()
             ItemGrid *curr = game.invStack[i]->grids;
             while (curr) {
                 bool canDrop = false;
+
+                ClearGridHighlight( curr );
+
                 if ((game.dragItem) && (CheckCollisionPointRec(mousePos, curr->screenRect ))) {
                     // check if it's a valid drop
-                    if (TryDropItemOnGrid( curr, game.dragItem, mousePos, false )) {
+                    if (TryDropItemOnGrid( curr, game.dragItem, game.dragItemCorner, false )) {
                         canDrop = true;  
                         game.dropTargetGrid = curr;
-                    }                    
+                    }
                 }
                 curr->highlightForDrop = canDrop;
 
@@ -500,7 +631,7 @@ int main()
                     // If there's a grid we can drop into, do that                    
                     if (game.dropTargetGrid) {
                         ItemGrid *dropGrid = game.dropTargetGrid;
-                        if (TryDropItemOnGrid( dropGrid, game.dragItem, mousePos, true )) {
+                        if (TryDropItemOnGrid( dropGrid, game.dragItem, game.dragItemCorner, true )) {
                             game.dragItem = NULL;
                         }
                     } 
@@ -522,8 +653,8 @@ int main()
                 //                 WHITE );
                 float w2 = game.dragItem->icon.width * 0.9375f;
                 float h2 = game.dragItem->icon.height * 0.9375f;
-                DrawTextureEx( game.dragItem->icon,
-                    Vector2Make( mousePos.x - w2, mousePos.y - h2), 0.0f, 1.875f, WHITE );
+                game.dragItemCorner = Vector2Make( mousePos.x - w2, mousePos.y - h2);
+                DrawTextureEx( game.dragItem->icon, game.dragItemCorner, 0.0f, 1.875f, Fade(WHITE,0.5) );
             }
 
             //----------------------------------------------------------------------------------
