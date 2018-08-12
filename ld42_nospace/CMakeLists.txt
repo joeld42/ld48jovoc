@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.8.11)
 project (LD42NOSPACE)
 
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+
 include_directories(
 	/Users/joeld/Toolkits/raylib2/raylib/src/
 	/Users/joeld/Toolkits/raylib2/raygui/src/

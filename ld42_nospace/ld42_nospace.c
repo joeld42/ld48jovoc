@@ -26,6 +26,7 @@
 #define MAX_PANELS (10)
 
 #define TRASH_TIME (0.5)
+#define FEEDBACK_TIME (1.5)
 
 #define CLEAR CLITERAL{ 0, 0, 0, 0 }
 
@@ -38,9 +39,36 @@ enum {
 
 struct InventoryContainerStruct;
 
+enum {
+    ItemType_GOLD,
+    ItemType_TREASURE,
+    ItemType_WEAPON,
+    ItemType_ARMOR,
+    ItemType_POTION_HEALTH,
+    ItemType_POTION_MANA,
+    ItemType_CONTAINER,
+
+    NUM_ITEM_TYPES
+};
+
+int g_itemWeights[NUM_ITEM_TYPES] = {
+    10, // ItemType_GOLD
+    10, // ItemType_TREASURE,
+    10, // ItemType_WEAPON,
+    8, // ItemType_ARMOR,
+    5, // ItemType_POTION_HEALTH,
+    5, // ItemType_POTION_MANA  
+    10, //ItemType_CONTAINER,
+};
+
+int g_itemWeightSums[ NUM_ITEM_TYPES ];
+int g_itemWeightTotal;
+
 typedef struct ItemStruct
 {
     char name[64];
+    char *verb;
+    int itemType;
     int xsize;
     int ysize;
     uint8_t grid[5][5];
@@ -59,6 +87,12 @@ typedef struct ItemStruct
 
     // for trashed items
     float trashCountdown;
+
+    // valuable items
+    int value;
+
+    // for consumables like potions and stuff
+    int power;
 
 } Item;
 
@@ -102,6 +136,8 @@ typedef struct GameStruct
 {
     float health;
     float mana;
+    int gold;
+    int goldDisplayed;
 
     InventoryContainer *invRoot;
 
@@ -118,7 +154,22 @@ typedef struct GameStruct
     Item *trashItems[10];
     int numTrashItems;
 
+    // rulesets for stuff
+    struct StringGenRuleStruct *genRules;
+
 } Game;
+
+#define MAX_FEEDBACK (400)
+typedef struct FeedbackNumberStruct {
+    char text[20];
+    Vector2 pos;
+    Vector2 vel;
+    Color color;
+    float age;
+} FeedbackNumber;
+FeedbackNumber g_feedbacks[MAX_FEEDBACK];
+int g_numFeedbacks = 0;
+
 
 // Textures are destroyed at the end of frame
 Texture unloadTexQueue[50];
@@ -174,6 +225,10 @@ float IntMin( int a, int b) {
     if (a < b) return a; else return b;
 }
 
+float IntMax( int a, int b) {
+    if (a > b) return a; else return b;
+}
+
 float FloatMax( float a, float b) {
     if (a > b) return a; else return b;
 }
@@ -187,6 +242,132 @@ Vector2 Vector2MultAdd( Vector2 a, Vector2 b, float cf )
 Rectangle ExpandRect( Rectangle rect, float amount ) {
     return RectMake( rect.x - amount, rect.y - amount, 
             rect.width + amount, rect.height + amount );
+}
+
+Vector2 ItemCenter( Item *item ) {
+    return Vector2Make( item->screenRect.x + item->screenRect.width * 0.5,
+                        item->screenRect.y + item->screenRect.height * 0.5 );
+}
+
+//------------------------------------------------------------------------------------
+// Feedback Text
+//------------------------------------------------------------------------------------
+
+void PushFeedback( char *msg, Vector2 pos, Color color )
+{
+    FeedbackNumber *fb = g_feedbacks + g_numFeedbacks++;
+    strncpy(fb->text, msg, 19 );
+    fb->vel = Vector2Make( ((float)GetRandomValue( -100, 100)/100.0) * 0.3, -1.0 );
+    fb->pos = Vector2Scale( pos, 2.0);
+    fb->color = color;
+    fb->age = 0;
+}
+
+void PushFeedbackN( int num, Vector2 pos, Color color )
+{
+    char buff[20];
+    sprintf( buff, "%d", num );
+    PushFeedback( buff, pos, color );
+}
+
+//------------------------------------------------------------------------------------
+// StringGen
+//------------------------------------------------------------------------------------
+typedef struct StringGenRuleStruct {
+    char *src;
+    char *replacement;
+    struct StringGenRuleStruct *next;
+} StringGenRule;
+
+StringGenRule *AddOneRule( StringGenRule *rules, char *src, char *replacement )
+{
+    printf("Add Rule: %s -> %s\n", src, replacement );
+
+    StringGenRule *rule = Alloc( StringGenRule );
+    rule->src = strdup( src );
+    rule->replacement = strdup( replacement );
+    rule->next = rules->next;
+
+    rules->next = rule;
+
+    return rule;
+}
+
+void AddRule( StringGenRule *rules, char *src, char *replacement )
+{
+    // multi-rules have multiple replacements split on ','
+    char buff[1024];
+    char *brk;
+
+    strcpy( buff, replacement ); // make it "safe" for strtok ;)
+    char *repl = strtok_r( buff, ",", &brk );
+    while (repl) {
+        AddOneRule( rules, src, repl );
+        repl = strtok_r( NULL, ",", &brk );
+    }
+}
+
+char *ExpandString( StringGenRule *rules, char *orig )
+{
+    char *curr = strdup(orig);
+    
+    char buff[2048]; // work space
+    StringGenRule *matchingRules[100];
+    int numMatchingRules = 0;
+    
+    // Keep going until curr has no more expansion token
+    char *chExpStart;
+    while ((chExpStart = strchr(curr, '#'))) {
+
+        //printf("Expanding: '%s'\n", curr );
+
+        char *chExpEnd = strchr( chExpStart+1, '#');
+        if (!chExpEnd) {
+            printf("WARNING: Unclosed tag %s\n", chExpStart);
+            break;
+        }
+
+        StringGenRule *currRule = rules;
+        numMatchingRules = 0;
+        while (currRule) {
+            int len = (chExpEnd-chExpStart)-1;
+            //printf("chExpStart %s src %s len %d\n", chExpStart+1, currRule->src, len );
+            if (!strncmp( currRule->src, chExpStart+1, len) ) {
+                //printf("RULE %s -> %s matches\n", currRule->src, currRule->replacement );
+                matchingRules[numMatchingRules++] = currRule;
+            }
+
+            currRule = currRule->next;
+        }
+
+        if (numMatchingRules==0) {            
+            printf("WARN: no matching rules found for '%s'\n", chExpStart );
+            break;
+        }
+        //printf("%d matching rules\n", numMatchingRules );
+
+        // Choose a match at random
+        int matchNdx = GetRandomValue( 0, numMatchingRules-1 );
+        StringGenRule *matchRule = matchingRules[matchNdx];
+
+        char *ch = buff;
+        // printf("curr is %s len %d\n", curr, chExpStart - curr );
+        // printf("replacement is %s\n", matchRule->replacement );
+
+        strncpy( ch, curr, chExpStart - curr );
+        ch += chExpStart - curr;
+        *ch = '\0';
+        strcat( ch, matchRule->replacement );
+        //ch += strlen( currRule->replacement );
+        strcat( ch, chExpEnd+1 );
+        
+        // FIXME don't do this
+        free( curr );
+        curr = strdup( buff );
+    }
+
+
+    return curr;
 }
 
 //------------------------------------------------------------------------------------
@@ -225,6 +406,15 @@ void MakeItemImage( Item *item )
     if (item->ctr) {
         col1 = BROWN;
         col2 = DARKBROWN;
+    } else if (item->itemType == ItemType_GOLD) {
+        col1 = YELLOW;
+        col2 = GOLD;
+    } else if (item->itemType == ItemType_POTION_HEALTH) {
+        col1 = RED;
+        col2 = PINK;
+    } else if (item->itemType == ItemType_POTION_MANA) {
+        col1 = SKYBLUE;
+        col2 = VIOLET;
     }
 
     int checksX = 8;
@@ -374,6 +564,17 @@ void ContainerRemoveItem( InventoryContainer *ctr, Item *item )
 
 void PickupDragItem( Game *game, Item *item )
 {
+
+    if ((item) && (item->itemType == ItemType_GOLD)) {
+        // If this is a gold item, just consume it immediately and
+        // add to player's balance
+        PushFeedbackN( item->value, ItemCenter(item), GOLD );
+
+        game->gold += item->value;
+        DestroyItem( item );
+        return;
+    } 
+
     game->dragItem = item;
 
     // If this is a container and it's open on the panel stack, close it
@@ -634,7 +835,7 @@ bool TryDropItemOnGrid( Game *game, ItemGrid *grid, Item *item, Vector2 hoverPos
     }
 }
 
-void ConsumeItem( Game *game, Item *item )
+void ConsumeItem( Game *game, Item *item, Vector2 srcPos )
 {
     // remove from any container
     for (int i=0; i < game->panelStackSize; i++) {
@@ -644,7 +845,16 @@ void ConsumeItem( Game *game, Item *item )
         }        
     }
     
-    // TODO: Add health or stuff here
+    if (item->itemType == ItemType_POTION_HEALTH) {
+        game->health = FloatMin( game->health + item->power, 100.0 );
+
+        PushFeedbackN( item->power, srcPos, PINK );
+
+    } else if (item->itemType == ItemType_POTION_MANA) {        
+        game->mana = FloatMin( game->mana + item->power, 100.0 );
+
+        PushFeedbackN( item->power, srcPos, SKYBLUE );
+    }
 
     DestroyItem( item );
 
@@ -665,11 +875,12 @@ void DrawItemPanel( Game *game, int xval, Item *item )
     Vector2 itemCorner = Vector2Make( centerx - w2, rect.y + 30 );
     DrawTextureEx( item->icon, itemCorner, 0.0f, scale, WHITE );
 
-    // For potions
-    if (GuiButton( RectMake( centerx - 20, 170, 40, 14 ), "Drink")) {
-        PopPanel( game );
-            
-        ConsumeItem( game, item );
+    // For items with actions
+    if (item->verb) {
+        if (GuiButton( RectMake( centerx - 20, 170, 40, 14 ), item->verb)) {
+            PopPanel( game );            
+            ConsumeItem( game, item, Vector2Make( centerx, 180) );
+        }
     }
 }
 
@@ -681,9 +892,100 @@ Item *GenRandomLoot( Game *game )
 {
     Item *item = CreateItem();
 
-    strcpy(item->name,"Item");
-    item->xsize = GetRandomValue( 1, 5 );
-    item->ysize = GetRandomValue( 1, 5 );
+    int typeWgt = GetRandomValue( 0, g_itemWeightTotal);
+    for (int i=0; i < NUM_ITEM_TYPES; i++) {
+        if (typeWgt <= g_itemWeightSums[i]) {
+            item->itemType = i;
+            break;
+        }
+    }
+
+    // Set up item based on item type
+    char *itemName = "Item";
+    char *itemVerb = NULL;
+    int minSize = 1;
+    int maxSize = 4;
+    int powerMin = 0;
+    int powerMax = 0;
+    int valueMin = 1;
+    int valueMax = 50; 
+
+    switch( item->itemType ) {
+        case ItemType_GOLD:
+            itemName = "Gold";
+            minSize = 1;
+            maxSize = 2;            
+            break;
+
+        case ItemType_TREASURE:
+            itemName = "Treasure";
+            minSize = 2;
+            maxSize = 5;
+            break;
+
+
+        case ItemType_WEAPON:
+            itemName = "Weapon";
+            minSize = 1;
+            maxSize = 5;
+            break;
+
+        case ItemType_ARMOR:
+            itemName = "Armor";
+            minSize = 2;
+            maxSize = 5;
+            break;
+
+        ItemType_MYSTERY:
+             itemName = "Mystery Potion";
+             powerMin = 5;
+             powerMax = 10;
+             break;
+
+
+        case ItemType_POTION_HEALTH:
+            itemName = "Health Potion";
+            minSize = 1;
+            maxSize = 2;
+            powerMin = 2;
+            powerMax = 10;
+            itemVerb = "Drink";
+            break;     
+
+        case ItemType_POTION_MANA:
+            itemName = "Mana Potion";
+            minSize = 1;
+            maxSize = 2;
+            powerMin = 2;
+            powerMax = 10;
+            itemVerb = "Drink";
+            if (GetRandomValue(0,4) < 1) {
+                goto ItemType_MYSTERY;
+            }
+            break;     
+
+        case ItemType_CONTAINER:
+            itemName = "Container";
+            minSize = 2;
+            maxSize = 6;
+            break;
+
+    }
+
+    strcpy(item->name, itemName );
+    item->verb = itemVerb;
+    item->xsize = GetRandomValue( minSize, maxSize );
+    item->ysize = GetRandomValue( minSize, maxSize );
+
+    item->power = GetRandomValue( powerMin, powerMax );
+
+    if ((item->itemType == ItemType_GOLD) || (item->itemType == ItemType_TREASURE)) {
+        valueMin = item->xsize * item->ysize;
+        valueMax = valueMin * valueMin;
+    }    
+
+    item->value = GetRandomValue( valueMin, valueMax );
+
     item->lootPos = Vector2Make( GetRandomValue( item->xsize, LOOTBOX_W-item->xsize),
                                  GetRandomValue( 200 + (item->ysize/2), 300-(item->ysize/2) ) );
 
@@ -699,7 +1001,7 @@ Item *GenRandomLoot( Game *game )
     }
 
     // Some items are containers
-    if (GetRandomValue(0,4) < 1) {
+    if (item->itemType == ItemType_CONTAINER) {
 
         for (int i=0; i < item->xsize; i++) {
             for (int j=0; j < item->ysize; j++) {
@@ -726,6 +1028,41 @@ Item *GenRandomLoot( Game *game )
 //------------------------------------------------------------------------------------
 int main()
 {
+    Game game = { 0 };
+
+    StringGenRule mainRules = {0};
+    mainRules.src = "adasdasdasdsa"; // dummy rule
+    game.genRules = &mainRules;
+
+    AddRule( game.genRules, "big", "Large,Great,Super,Mighty");
+    AddRule( game.genRules, "small", "Small,Short,Tiny");
+    AddRule( game.genRules, "fancy", "Soldier's,Rusted,Ceremonial,Stabby,Nomad's,Warrior's");
+    AddRule( game.genRules, "legend", "of the #critter#");
+    AddRule( game.genRules, "critter", "Badger,Bear,Lion,Elk,Nomad,Dragon");
+
+    AddRule( game.genRules, "weapon", "#SWORD#,#AXE#");
+    AddRule( game.genRules, "SWORD", "#big# #sword#,#small# #sword#,#fancy# #sword#,#sword# #legend#");
+    AddRule( game.genRules, "AXE", "#big# #axe#,#small# #axe#,#fancy# #axe#,#axe# #legend#");
+    AddRule( game.genRules, "sword", "Sword,Blade,Cutlass");
+    AddRule( game.genRules, "axe", "Axe,Hatchet,Cleaver");
+    
+
+    for (int i=0; i < 20; i++) {
+        char *testString = ExpandString( game.genRules, "#weapon#" );
+        printf("Result %d: %s\n", i, testString );
+        free(testString);
+    }
+
+    return 0;
+
+    // setup game data
+    int currSum = 0;
+    for (int i=0; i < sizeof(g_itemWeights)/sizeof(g_itemWeights[0]); i++ ) {
+        currSum += g_itemWeights[i];
+        g_itemWeightSums[i] = currSum;
+        g_itemWeightTotal = currSum;
+    }
+
     // Initialization
     //---------------------------------------------------------------------------------------
     int screenWidth = 800;
@@ -734,9 +1071,8 @@ int main()
     InitWindow(screenWidth, screenHeight, "nospace_gui");
     SetMouseScale(0.5f);
 
-    Game game = { 0 };
-    game.health = 50.0f;
-    game.mana = 50.0f;
+    game.health = 10.0f;
+    game.mana = 10.0f;
     game.invRoot = CreateInventoryCtr( "Equipped" );
     game.invRoot->width = 130;
 
@@ -894,8 +1230,24 @@ int main()
 
             // raygui: controls drawing
             //----------------------------------------------------------------------------------            
-            game.health = GuiSliderBarEx((Rectangle){ 235, 8, 125, 15 }, game.health, 0, 100, "HP", true);
-            game.mana = GuiSliderBarEx((Rectangle){ 235, 28, 125, 15 }, game.mana, 0, 100, "Mana", true);
+            game.health = GuiSliderBarEx((Rectangle){ 50, 8, 125, 15 }, game.health, 0, 100, "HP", false);
+            game.mana = GuiSliderBarEx((Rectangle){ 50, 28, 125, 15 }, game.mana, 0, 100, "Mana", false);
+
+            if (game.goldDisplayed != game.gold) {
+                int diff = game.gold - game.goldDisplayed;
+                int sgn = 1;                
+                if (diff < 0) {
+                    sgn = -1;
+                    diff = -diff;
+                }
+
+                int amt = IntMax( diff / 10, 1 );
+                game.goldDisplayed += (amt * sgn);
+            }
+
+            char buff[200];
+            sprintf(buff, "Gold: %d", game.goldDisplayed );
+            GuiLabel( (Rectangle){ 180, 8, 125, 15 }, buff );
 
             GuiGroupBox((Rectangle){ 6, 200, LOOTBOX_W, 90 }, "Loot");
 
@@ -1018,6 +1370,28 @@ int main()
             (Rectangle){ 0, 0, screenTarget.texture.width, -screenTarget.texture.height }, 
             (Rectangle){ 0, 0, screenTarget.texture.width*2, screenTarget.texture.height*2 }, 
             (Vector2){ 0, 0 }, 0.0f, WHITE);
+
+        // Now draw feedback texts above screen
+        for (int i=g_numFeedbacks-1; i >= 0; i-- ) {
+            FeedbackNumber *fb = g_feedbacks + i;
+            fb->age += FRAME_DT;
+            if (fb->age > FEEDBACK_TIME) {
+                g_feedbacks[i] = g_feedbacks[--g_numFeedbacks];
+            } else {
+                float t = fb->age / FEEDBACK_TIME;
+                Color col = Fade( fb->color, 1.0 - t );
+                Color borderCol = Fade( BLACK, 1.0 - t );
+                fb->pos = Vector2Add( fb->pos, fb->vel );
+
+                for (int x=-1; x <=1; x++) {
+                    for (int y=-1; y <=1; y++) {
+                        DrawText( fb->text, fb->pos.x + x, fb->pos.y +y, 18, borderCol );
+                    }
+                }
+                DrawText( fb->text, fb->pos.x, fb->pos.y, 18, col );
+            }
+        }
+
         EndDrawing();
 
         FlushUnloadTexQueue();
