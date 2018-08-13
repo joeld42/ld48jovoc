@@ -14,6 +14,8 @@
 // -- support double-click, dragbegin, dragend, 
 
 #include <stdint.h>
+#include <assert.h>
+
 #include "raylib.h"
 #include "raymath.h"
 
@@ -304,6 +306,37 @@ Rectangle ExpandRect( Rectangle rect, float amount ) {
             rect.width + amount, rect.height + amount );
 }
 
+float Clamp01( float t )
+{
+    if (t < 0.0) return 0.0;
+    else if (t > 1.0) return 1.0;
+    return t;
+}
+
+Color ColorLerp( Color colorA, Color colorB, float t )
+{
+    Color result;
+    t = Clamp01( t );
+    float t2 = 1.0 - t;
+
+    result.r = (unsigned char)( (colorA.r*t2) + (colorB.r*t) );
+    result.g = (unsigned char)( (colorA.g*t2) + (colorB.g*t) );
+    result.b = (unsigned char)( (colorA.b*t2) + (colorB.b*t) );
+    result.a = (unsigned char)( (colorA.a*t2) + (colorB.a*t) );
+
+    return result;
+}
+
+Color HexColor( uint32_t hex )
+{
+    Color result;
+    result.r = (hex >> 16) & 0xFF;
+    result.g = (hex >> 8) & 0xFF;
+    result.b = (hex >> 0) & 0xFF;
+    result.a = 0xFF;
+    return result;
+}
+
 Vector2 ItemCenter( Item *item ) {
     return Vector2Make( item->screenRect.x + item->screenRect.width * 0.5,
                         item->screenRect.y + item->screenRect.height * 0.5 );
@@ -454,7 +487,7 @@ void DestroyItem( Item *item )
     free( item );
 }
 
-void MakeItemImage( Item *item )
+void MakeItemImageTest( Item *item )
 {
     int width = item->xsize * 8;
     int height = item->ysize * 8;
@@ -505,7 +538,183 @@ void MakeItemImage( Item *item )
 
     item->icon = LoadTextureFromImage( image );
     UnloadImage( image );
+}
 
+
+uint32_t GetPixelSafe( Image img, int i, int j ) {
+    if ((i >= 0) && (j >= 0) && (i < img.width) && (j < img.height)) {
+        uint32_t *pixels = (uint32_t*)img.data;
+        return *(pixels + j*img.width + i);
+    } else return 0x0;
+}
+int CountNeighbors( Image img, int i, int j ) 
+{
+    int c = 0;
+    for (int ii=-1; ii<=1; ii++) {
+        if (ii==0) continue;
+        int i2 = i + ii;
+        int j2 = j + ii;
+        
+        uint32_t p = GetPixelSafe( img, i, j2 );
+        if (p) c++;
+
+        p = GetPixelSafe( img, i2, j );
+        if (p) c++;
+    }
+    return c;
+}
+
+typedef struct ItemStyleInfoStruct {
+    Color colorR0;
+    Color colorR1;
+    Color colorG0;
+    Color colorG1;
+    Color colorB0;
+    Color colorB1;
+    Color gemColor;    
+    bool addGems;
+} ItemStyleInfo;
+
+Image MakeImageFromTemplate( Image tmpl, ItemStyleInfo styleInfo )
+{
+    Image result = ImageCopy( tmpl );
+    assert (tmpl.format == UNCOMPRESSED_R8G8B8A8);
+
+    int mirrorX = 0;
+    uint32_t *pixels = (uint32_t*)result.data;
+    uint32_t *pixelTempl = (uint32_t*)tmpl.data;
+
+    // Find extents of each color mask
+    int rmin=result.width;
+    int rmax=0;
+    for (int j=0; j < result.height; j++) {
+        for (int i=0; i < result.width; i++) {
+            uint32_t *p = pixels + (j*result.width+i);
+            if (*p > 0) {
+                Color c;
+                c.b = ((*p) & 0xFF0000) >> 16;
+                c.g = ((*p) & 0x00FF00) >> 8;
+                c.r = ((*p) & 0x0000FF);
+
+                if ((c.r > c.g) && (c.r > c.b)) {
+                    if (i < rmin) rmin = i;
+                    if (i > rmax) rmax = i;
+                } else if ((c.g > c.r) && (c.g > c.b)) {
+                    // todo
+                } else {
+                    // todo
+                }
+
+
+            }
+        }
+    }
+
+    for (int j=0; j < result.height; j++) {
+        for (int i=0; i < result.width; i++) {
+            uint32_t *p = pixels + (j*result.width+i);
+            uint32_t *pt = pixelTempl + (j*result.width+i);
+
+            // Yellow, mirror (skip this pass)
+            if ( *p == 0xFF00FFFF ) {
+                *p = 0x0;
+                if (i > mirrorX) {
+                    mirrorX = i;
+                }
+            } else if ( *p == 0xFF000000 ) {
+                *p = 0x0;
+            } else {
+                Color c;
+                c.b = ((*pt) & 0xFF0000) >> 16;
+                c.g = ((*pt) & 0x00FF00) >> 8;
+                c.r = ((*pt) & 0x0000FF);
+                int v = GetRandomValue(0,255);
+                int vv;
+                Color baseCol;
+                if ((c.r == c.g) && (c.g == c.b) && (styleInfo.addGems)) {
+                    baseCol = styleInfo.gemColor;
+                } else if ((c.r > c.g) && (c.r > c.b)) {
+                    float t = 0.5;
+                    if (rmax > rmin) {
+                        t = (float)(i-rmin) / (float)(rmax-rmin);
+                    }
+                    baseCol =  ColorLerp( styleInfo.colorR0, styleInfo.colorR1, t );
+                    vv = c.r;
+                } else if ((c.g > c.r) && (c.g > c.b)) {
+                    baseCol = styleInfo.colorG0;
+                    vv = c.g;
+                } else {
+                    baseCol = styleInfo.colorB0;
+                    vv = c.b;
+                }
+
+                if (v < vv) {
+                    *p = 0xFF000000 | (baseCol.b << 16) | (baseCol.g << 8) | baseCol.r;
+                } else {
+                    *p = 0;
+                }
+            }
+        }
+    }
+
+    int mirrorsEdge = 1;
+    if (GetRandomValue(0,10) > 5) {
+        mirrorsEdge = 2;
+    }
+
+    // Apply mirroring
+    for (int j=0; j < result.height; j++) {
+        for (int i=0; i < result.width; i++) {
+            uint32_t *p = pixels + (j*result.width+i);
+            uint32_t *pt = pixelTempl + (j*result.width+i);
+            if ( *pt == 0xFF00FFFF ) {
+                int i2 = mirrorX - (i - (mirrorX+mirrorsEdge));
+                uint32_t *p2 = pixels + (j*result.width+i2);
+                *p = *p2;
+            }
+        }
+    }
+
+    // remove any floating pixels
+    for (int j=0; j < result.height; j++) {
+        for (int i=0; i < result.width; i++) {
+            int n = CountNeighbors( result, i, j );
+            if (n==0) {
+                uint32_t *p = pixels + (j*result.width+i);
+                *p = 0x0;
+            }
+        }
+    }
+
+    // outline pixels
+    Image outlineImg = GenImageColor(  result.width+2, result.height+2, CLEAR );  
+    uint32_t *olPixels = (uint32_t*)outlineImg.data;
+
+    for (int j=0; j < outlineImg.height; j++) {
+        for (int i=0; i < outlineImg.width; i++) {
+            uint32_t *p = olPixels + (j*outlineImg.width+i);
+            if (*p==0x0) {
+                int n = CountNeighbors( result, i-1, j-1 );
+                if (n!=0) {                
+                    *p = 0xFF000000;
+                }
+
+                uint32_t p2 = GetPixelSafe( result, i-1, j-1 );
+                if (p2) {
+                    *p = p2;
+                }
+            }
+        }
+    }
+
+    int flip = GetRandomValue( 0, 4);
+    if (flip == 1) {
+        ImageRotateCW( &outlineImg );
+    } else if (flip==2) {
+        ImageRotateCCW( &outlineImg );
+    }
+
+    return outlineImg;
 }
 
 //------------------------------------------------------------------------------------
@@ -724,7 +933,7 @@ void DrawInventoryContainer( Game *game, float xval, InventoryContainer *ctr )
                     curr->slotItem = NULL;
                 } else if ((canPickup) && (_isSingleClick) ) {
                     InspectItem( game, ctr, curr->slotItem );
-                }
+                } 
             }
 
         } else {
@@ -974,7 +1183,7 @@ Item *GenRandomLoot( Game *game )
     int powerMin = 0;
     int powerMax = 0;
     int valueMin = 1;
-    int valueMax = 50; 
+    int valueMax = 50;
 
     switch( item->itemType ) {
         case ItemType_GOLD:
@@ -1055,6 +1264,7 @@ Item *GenRandomLoot( Game *game )
     item->lootPos = Vector2Make( GetRandomValue( item->xsize, LOOTBOX_W-item->xsize),
                                  GetRandomValue( 200 + (item->ysize/2), 300-(item->ysize/2) ) );
 
+
     // dbg make item shape
     for (int i=0; i < item->xsize; i++) {
         for (int j=0; j < item->ysize; j++) {
@@ -1083,7 +1293,7 @@ Item *GenRandomLoot( Game *game )
         item->ctr = ctr;
     }
 
-    MakeItemImage( item );
+    MakeItemImageTest( item );
 
     return item;
 }
@@ -1153,6 +1363,11 @@ int main()
 
     game.panelStack[0] = MakeInventoryPanel( game.invRoot );
     game.panelStackSize = 1;
+
+
+    // Test Image Gen
+    Image imgTemplate = LoadImage( "../gamedata/tmpl_shortsword.png");
+    Texture testImgTex;
     
     // Helmet
     ItemGrid *g = AddGrid( game.invRoot, (Vector2){ 65-ITEM_SQ, 5 }, 2, 2 );
@@ -1279,6 +1494,27 @@ int main()
                     curr = curr->next;
                 }
             }
+        }
+
+        // Test image gen
+        if (IsKeyPressed( KEY_T)) {
+            ItemStyleInfo testStyle;
+            testStyle.colorR0 = HexColor( 0x779dc7 );
+            testStyle.colorR1 = HexColor( 0x493310 );
+
+            testStyle.colorG0 = HexColor( 0xdda651 );
+            testStyle.colorG1 = HexColor( 0x907d81 );
+
+            testStyle.colorB0 = HexColor( 0x6c4222 );
+            testStyle.colorB1 = HexColor( 0xada363 );
+
+            testStyle.addGems = true;
+
+            // TODO: random HSV color
+            testStyle.gemColor = HexColor( GetRandomValue( 0, 0xffffff) );
+
+            Image genImage = MakeImageFromTemplate( imgTemplate, testStyle );
+            testImgTex = LoadTextureFromImage( genImage );
         }
 
         // Draw
@@ -1475,6 +1711,12 @@ int main()
                 }
                 DrawText( fb->text, fb->pos.x, fb->pos.y, 18, col );
             }
+        }
+
+        // Draw Test Image
+        if (testImgTex.width > 0) {
+            DrawRectangle( 0, 0, 500, 500, WHITE );
+            DrawTextureEx(testImgTex, (Vector2){20, 20}, 0.0f, 12.0, WHITE ); 
         }
 
         EndDrawing();
