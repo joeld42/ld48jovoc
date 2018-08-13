@@ -11,7 +11,7 @@
 // -- Font support in GUI? Even just one global GUI font would be nice, doesn't have to
 //    be super customizeable
 // -- background color for groupboxes that supports alpha
-// -- support double-click
+// -- support double-click, dragbegin, dragend, 
 
 #include <stdint.h>
 #include "raylib.h"
@@ -187,6 +187,66 @@ void FlushUnloadTexQueue()
     }
 
     unloadTexQueueSize = 0;
+}
+
+bool g_isMouseDown;
+float g_mouseButtonPrevPressTime;
+float g_mouseButtonLastPressTime;
+Vector2 g_mouseDownPos;
+Vector2 g_mousePos;
+bool g_isDragging = false;
+
+// Frame mouse events
+bool _isDragStarted = false;
+bool _isDragEnded = false;
+bool _isSingleClick = false;
+bool _isDoubleClick = false;
+
+void MouseButtonUpdate()
+{
+
+    _isDragStarted = false;
+    _isDragEnded = false;
+    _isSingleClick = false;
+    _isDoubleClick = false;
+
+    static float timeVal = 0.0;
+    timeVal += FRAME_DT;
+    g_mousePos = GetMousePosition();
+    
+    if (IsMouseButtonReleased( MOUSE_LEFT_BUTTON )) {
+        printf("release (%3.2f)...\n", timeVal);
+        g_isMouseDown = false;
+
+        if (!g_isDragging) {
+            if (timeVal - g_mouseButtonPrevPressTime < 0.4) {
+                printf("Double Clicked (%f)\n", timeVal - g_mouseButtonLastPressTime );
+                _isDoubleClick = true;
+            } else {
+                printf("Single Clicked\n");
+                _isSingleClick = true;
+            }
+        }
+    }
+    if (IsMouseButtonPressed( MOUSE_LEFT_BUTTON )) {
+        g_mouseDownPos = g_mousePos;
+        g_isMouseDown = true;
+        g_mouseButtonPrevPressTime = g_mouseButtonLastPressTime;
+        g_mouseButtonLastPressTime = timeVal;
+        //printf("press (%3.2f)...\n", timeVal);
+    }
+
+    float moveAmt = Vector2Distance(g_mousePos, g_mouseDownPos );
+    if ((g_isMouseDown) && (moveAmt > 0.1) && (!g_isDragging)) {
+        g_isDragging = true;
+        printf("Drag Started\n");
+        _isDragStarted = true;
+    } else if ((g_isDragging) && (!g_isMouseDown)) {
+        printf("Drag Ended\n");
+        g_isDragging = false;
+        _isDragEnded = true;
+    }
+
 }
 
 void *BaseAllocFunc( size_t size, char *file, int line )
@@ -562,16 +622,21 @@ void ContainerRemoveItem( InventoryContainer *ctr, Item *item )
     }
 }
 
+void PickupGold( Game *game, Item *item )
+{
+    // If this is a gold item, just consume it immediately and
+    // add to player's balance
+    PushFeedbackN( item->value, ItemCenter(item), GOLD );
+
+    game->gold += item->value;
+    DestroyItem( item );
+}
+
 void PickupDragItem( Game *game, Item *item )
 {
 
     if ((item) && (item->itemType == ItemType_GOLD)) {
-        // If this is a gold item, just consume it immediately and
-        // add to player's balance
-        PushFeedbackN( item->value, ItemCenter(item), GOLD );
-
-        game->gold += item->value;
-        DestroyItem( item );
+        PickupGold( game, item );
         return;
     } 
 
@@ -653,10 +718,11 @@ void DrawInventoryContainer( Game *game, float xval, InventoryContainer *ctr )
                 DrawTextureEx( curr->slotItem->icon,
                     Vector2Make( center.x - w2, center.y - h2), 0.0f, scale, color );
 
-                if ((canPickup) && (IsMouseButtonPressed( MOUSE_LEFT_BUTTON )) ) {                    
+
+                if ((canPickup) && (_isDragStarted) ) {                    
                     PickupDragItem( game, curr->slotItem );
                     curr->slotItem = NULL;
-                } else if ((canPickup) && (IsMouseButtonPressed( MOUSE_RIGHT_BUTTON )) ) {
+                } else if ((canPickup) && (_isSingleClick) ) {
                     InspectItem( game, ctr, curr->slotItem );
                 }
             }
@@ -725,10 +791,10 @@ void DrawInventoryContainer( Game *game, float xval, InventoryContainer *ctr )
 
                 DrawTextureEx( currItem->icon, sq, 0.0f, 1.875f, color );
 
-                if ((canPickup) && (IsMouseButtonPressed( MOUSE_LEFT_BUTTON )) ) {
+                if ((canPickup) && (_isDragStarted) ) {
                     PickupDragItem( game, currItem );
                     GridRemovePlacedItem( curr, currItem );
-                } else if ((canPickup) && (IsMouseButtonPressed( MOUSE_RIGHT_BUTTON )) ) {
+                } else if ((canPickup) && (_isSingleClick) ) {
                     InspectItem( game, ctr, currItem );                
                 }
 
@@ -1136,7 +1202,7 @@ int main()
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
 
-
+        MouseButtonUpdate();
 
         // Update loot items so they try not to overlap
         bool isOverlap = false;
@@ -1278,7 +1344,14 @@ int main()
                 if ((!game.dragItem) && (CheckCollisionPointRec( mousePos, item->screenRect)) ) {
                     highlightColor = GREEN;
 
-                    if (IsMouseButtonPressed( MOUSE_LEFT_BUTTON )) {
+                    if ((_isSingleClick) || (_isDoubleClick)) {
+                        if (item->itemType == ItemType_GOLD) {                            
+                            PickupGold( &game, item );
+                            pickupItemIndex = i;
+                        }
+                    }
+
+                    if (_isDragStarted) {
                         pickupItemIndex = i;
                         
                         PickupDragItem( &game, item );
@@ -1297,7 +1370,7 @@ int main()
             }
 
 
-            if ((!didPickup) && (IsMouseButtonReleased( MOUSE_LEFT_BUTTON )) ) 
+            if ((!didPickup) && (_isDragEnded) ) 
             {
                 if (game.dragItem) {
 
