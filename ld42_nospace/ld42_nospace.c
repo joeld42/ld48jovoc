@@ -159,6 +159,9 @@ typedef struct GameStruct
     // rulesets for stuff
     struct StringGenRuleStruct *genRules;
 
+    Image tmplShortSwordOrnate;
+    Image tmplPotionMedium;
+
 } Game;
 
 #define MAX_FEEDBACK (400)
@@ -571,8 +574,9 @@ typedef struct ItemStyleInfoStruct {
     Color colorG1;
     Color colorB0;
     Color colorB1;
-    Color gemColor;    
+    Color gemColor; 
     bool addGems;
+    bool canRotate;
 } ItemStyleInfo;
 
 Image MakeImageFromTemplate( Image tmpl, ItemStyleInfo styleInfo )
@@ -686,6 +690,9 @@ Image MakeImageFromTemplate( Image tmpl, ItemStyleInfo styleInfo )
         }
     }
 
+    // TODO: control with style flag    
+    //ImageResizeNN( &result, result.width*2, result.height*2 );
+
     // outline pixels
     Image outlineImg = GenImageColor(  result.width+2, result.height+2, CLEAR );  
     uint32_t *olPixels = (uint32_t*)outlineImg.data;
@@ -707,12 +714,15 @@ Image MakeImageFromTemplate( Image tmpl, ItemStyleInfo styleInfo )
         }
     }
 
-    int flip = GetRandomValue( 0, 4);
-    if (flip == 1) {
-        ImageRotateCW( &outlineImg );
-    } else if (flip==2) {
-        ImageRotateCCW( &outlineImg );
+    if (styleInfo.canRotate) {
+        int flip = GetRandomValue( 0, 4);
+        if (flip == 1) {
+            ImageRotateCW( &outlineImg );
+        } else if (flip==2) {
+            ImageRotateCCW( &outlineImg );
+        }
     }
+
 
     return outlineImg;
 }
@@ -1185,6 +1195,26 @@ Item *GenRandomLoot( Game *game )
     int valueMin = 1;
     int valueMax = 50;
 
+    Image genImage = {0};
+    bool doTemplateImage = false;
+
+    ItemStyleInfo testStyle;
+    testStyle.colorR0 = HexColor( 0x779dc7 );
+    testStyle.colorR1 = HexColor( 0x493310 );
+
+    testStyle.colorG0 = HexColor( 0xdda651 );
+    testStyle.colorG1 = HexColor( 0x907d81 );
+
+    testStyle.colorB0 = HexColor( 0x6c4222 );
+    testStyle.colorB1 = HexColor( 0xada363 );
+
+    testStyle.addGems = true;
+    testStyle.canRotate = true;
+
+    // TODO: random HSV color
+    testStyle.gemColor = HexColor( GetRandomValue( 0, 0xffffff) );
+
+
     switch( item->itemType ) {
         case ItemType_GOLD:
             itemName = "Gold";
@@ -1203,6 +1233,7 @@ Item *GenRandomLoot( Game *game )
             itemName = ExpandString( game->genRules, "#WEAPON#" );
             minSize = 1;
             maxSize = 5;
+            genImage = game->tmplShortSwordOrnate;
             break;
 
         case ItemType_ARMOR:
@@ -1225,6 +1256,10 @@ Item *GenRandomLoot( Game *game )
             powerMin = 2;
             powerMax = 10;
             itemVerb = "Drink";
+            testStyle.colorG0 = HexColor( 0xFF0000 );
+            testStyle.colorG1 = HexColor( 0xAA0000 );
+            testStyle.canRotate = false;
+            genImage = game->tmplPotionMedium;
             break;     
 
         case ItemType_POTION_MANA:
@@ -1233,6 +1268,10 @@ Item *GenRandomLoot( Game *game )
             maxSize = 2;
             powerMin = 2;
             powerMax = 10;
+            testStyle.colorG0 = HexColor( 0x0000FF );
+            testStyle.colorG1 = HexColor( 0x00FFFF );
+            genImage = game->tmplPotionMedium;
+            testStyle.canRotate = false;
             itemVerb = "Drink";
             if (GetRandomValue(0,4) < 1) {
                 goto ItemType_MYSTERY;
@@ -1242,15 +1281,29 @@ Item *GenRandomLoot( Game *game )
         case ItemType_CONTAINER:
             itemName = "Container";
             minSize = 2;
-            maxSize = 6;
+            maxSize = 5;
             break;
 
     }
 
     strcpy(item->name, itemName );
     item->verb = itemVerb;
-    item->xsize = GetRandomValue( minSize, maxSize );
-    item->ysize = GetRandomValue( minSize, maxSize );
+
+    if (genImage.width > 0) {
+        doTemplateImage = true;
+    }
+
+    if (doTemplateImage) {
+
+        genImage = MakeImageFromTemplate( genImage, testStyle );            
+
+        item->xsize = IntMax( genImage.width / 8, 1);
+        item->ysize = IntMax( genImage.height / 8, 1);
+        printf("SIZE %d %d\n", item->xsize, item->ysize );
+    } else {
+        item->xsize = GetRandomValue( minSize, maxSize );
+        item->ysize = GetRandomValue( minSize, maxSize );
+    }
 
     item->power = GetRandomValue( powerMin, powerMax );
 
@@ -1265,13 +1318,13 @@ Item *GenRandomLoot( Game *game )
                                  GetRandomValue( 200 + (item->ysize/2), 300-(item->ysize/2) ) );
 
 
-    // dbg make item shape
+    // dbg make item shape zzz
     for (int i=0; i < item->xsize; i++) {
-        for (int j=0; j < item->ysize; j++) {
-            if (GetRandomValue(0,10) < 3) {
-                item->grid[i][j] = 0;
+        for (int j=0; j < item->ysize; j++) {     
+            if (GetRandomValue(0,3)==0) {       
+                item->grid[i][j] = 0; 
             } else {
-                item->grid[i][j] = 1;
+                item->grid[i][j] = 1; 
             }
         }
     }
@@ -1280,7 +1333,7 @@ Item *GenRandomLoot( Game *game )
     if (item->itemType == ItemType_CONTAINER) {
 
         for (int i=0; i < item->xsize; i++) {
-            for (int j=0; j < item->ysize; j++) {
+            for (int j=0; j < item->ysize; j++) {                
                 item->grid[i][j] = 1;
             }
         }
@@ -1293,7 +1346,11 @@ Item *GenRandomLoot( Game *game )
         item->ctr = ctr;
     }
 
-    MakeItemImageTest( item );
+    if (doTemplateImage) {
+        item->icon = LoadTextureFromImage( genImage );
+    } else {
+        MakeItemImageTest( item );
+    }
 
     return item;
 }
@@ -1366,7 +1423,8 @@ int main()
 
 
     // Test Image Gen
-    Image imgTemplate = LoadImage( "../gamedata/tmpl_shortsword.png");
+    game.tmplShortSwordOrnate = LoadImage( "../gamedata/tmpl_shortsword.png");
+    game.tmplPotionMedium = LoadImage( "../gamedata/tmpl_potion_med.png");
     Texture testImgTex;
     
     // Helmet
@@ -1513,7 +1571,7 @@ int main()
             // TODO: random HSV color
             testStyle.gemColor = HexColor( GetRandomValue( 0, 0xffffff) );
 
-            Image genImage = MakeImageFromTemplate( imgTemplate, testStyle );
+            Image genImage = MakeImageFromTemplate( game.tmplPotionMedium, testStyle );
             testImgTex = LoadTextureFromImage( genImage );
         }
 
