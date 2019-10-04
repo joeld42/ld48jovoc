@@ -1,0 +1,1 @@
+xcopy /Y TK_OpenGex_LDJAM.py "c:\Users\joeld\AppData\Roaming\Blender Foundation\Blender\2.80\scripts\addons\"
