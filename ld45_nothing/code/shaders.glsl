@@ -149,6 +149,7 @@ void main() {
 
 	float nDotL = clamp( dot( lightDir.xyz, nrm.xyz ), 0, 1);
 	vec3 lightCol = mix( vec3(0.1,0.12,0.2), vec3(1,1,1), nDotL );
+	
 
     fragColor = applyShadow( shadowMap, vec4(cBaseColor * lightCol, 1.0), lightProjPos );
     

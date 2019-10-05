@@ -31,7 +31,7 @@
 #include "Renderizer.h"
 #include "DebugDraw.h"
 #include "UIAssets.h"
-
+#include "CivGame.h"
 
 class LD45NothingApp : public Oryol::App {
     
@@ -69,7 +69,8 @@ private:
     Tapnik::Camera gameCamera;
     Tapnik::Camera dbgCamera;
     Tapnik::DebugDrawRenderer *dbgDraw;
-    int activeCameraIndex = 0;
+	Tapnik::Camera* activeCamera;
+	int activeCameraIndex;
     
     // Gameplay stuff
     Oryol::TimePoint startTimePoint;
@@ -79,7 +80,10 @@ private:
 
     // Game stuff
     // Note to self -- split these into another file if not messing with the main game loop structure much
-    Tapnik::Scene *gameScene;
+	CivGame *civGame;
+	void StartGame();
+
+	Tapnik::Scene *gameScene;
     void onSceneLoaded();
     void fixedUpdate( Oryol::Duration fixedDt );
     void dynamicUpdate( Oryol::Duration frameDt );

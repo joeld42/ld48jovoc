@@ -215,6 +215,7 @@ LD45NothingApp::OnCleanup() {
 }
 
 
+
 //------------------------------------------------------------------------------
 AppState::Code
 LD45NothingApp::OnRunning() {
@@ -222,7 +223,7 @@ LD45NothingApp::OnRunning() {
     // Update clocks
     frameDtRaw = Clock::LapTime(this->lastTimePoint);
     
-    Camera *activeCamera = debugMode?&dbgCamera:&gameCamera;
+    activeCamera = debugMode?&dbgCamera:&gameCamera;
     
 	renderizer->activeCamera = activeCamera;
 
@@ -231,7 +232,6 @@ LD45NothingApp::OnRunning() {
     // Do update loop
     Oryol::Duration frameDt = Oryol::Duration::FromSeconds( 1.0/60.0 );
     
-    this->dynamicUpdate( frameDtRaw );
     
     leftoverTime += frameDtRaw;
     while ( leftoverTime > frameDt )
@@ -240,6 +240,8 @@ LD45NothingApp::OnRunning() {
         leftoverTime -= frameDt;
     }
     
+	this->dynamicUpdate(frameDtRaw);
+
     //this->lateUpdate();
         
     // === Finalize Transforms
@@ -266,10 +268,40 @@ LD45NothingApp::OnRunning() {
 	this->draw();
 
         const ddVec3 boxColor  = { 0.0f, 0.8f, 0.8f };
-        const ddVec3 boxCenter = { 0.0f, 0.0f, 0.0f };
+        //const ddVec3 boxCenter = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 boxCenter = glm::vec3(0.0f);
+
+		if (civGame) {
+			boxCenter = civGame->groundCursor;
+		}
+
         float boxSize = 1.0f;
-        dd::box(boxCenter, boxColor, boxSize, boxSize, boxSize );
-        dd::cross(boxCenter, 1.0f);
+        dd::box( glm::value_ptr(boxCenter), boxColor, boxSize, boxSize, boxSize );
+        dd::cross( glm::value_ptr(boxCenter), 1.0f);
+
+		const ddVec3 Up = { 0.0f, 0.0f, 1.0f };
+		dd::circle(glm::value_ptr(boxCenter), Up, dd::colors::Cornsilk, 2.0f, 20);
+
+		// debug hex ids
+		if (civGame)
+		{
+			for (int j = 0; j < BOARD_SZ; j++) {
+				for (int i = 0; i < BOARD_SZ; i++) {
+					GameHex* hex = civGame->boardHex(i, j);
+					if (hex) {
+						char buff[10];
+						sprintf(buff, "%d,%d", i, j);
+
+						ddVec3 textPos2D;
+						textPos2D[0] = hex->screenPos.x - 20;
+						textPos2D[1] = hex->screenPos.y - 15;
+						textPos2D[2] = 0.0f;
+						
+						dd::screenText(buff, textPos2D, dd::colors::White);
+					}
+				}
+			}
+		}
     
     if (Input::KeyDown(Key::Tab)) {
         debugMode = !debugMode;
@@ -369,21 +401,29 @@ LD45NothingApp::handleInputDebug() {
 // =======================================================================================
 void LD45NothingApp::onSceneLoaded()
 {
-    SceneCamera cam = gameScene->findNamedCamera( "MonkeyCam" );
+    SceneCamera cam = gameScene->findNamedCamera( "Camera" );
     if (cam.index >=0) {
         activeCameraIndex = cam.index;
     }
     gameCamera.UpdateModel( cam.mat );
     gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 0.01f, 100.0f);
+
+	// TODO: title screen here
+	StartGame();
+
 }
 void LD45NothingApp::fixedUpdate( Oryol::Duration fixedDt )
 {
-    
+	if (civGame) {
+		civGame->fixedUpdate(fixedDt, activeCamera );
+	}
 }
 
 void LD45NothingApp::dynamicUpdate( Oryol::Duration frameDt )
 {
-    
+	if (civGame) {
+		civGame->dynamicUpdate(frameDt, activeCamera);
+	}
 }
 
 void LD45NothingApp::finalizeTransforms( glm::mat4 matViewProj )
@@ -411,6 +451,15 @@ void LD45NothingApp::nextCamera()
     Log::Info("Camera: %s\n", cam.cameraName.AsCStr() );
     
     gameCamera.UpdateModel( cam.mat );
+}
+
+void
+LD45NothingApp::StartGame()
+{
+	o_assert(civGame == NULL);
+	civGame = Memory::New<CivGame>();
+	civGame->uiAssets = uiAssets;
+	civGame->SetupWithScene(gameScene);
 }
 
 void LD45NothingApp::interfaceScreens( Tapnik::UIAssets *uiAssets )

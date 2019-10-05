@@ -66,8 +66,8 @@ SceneObject *Scene::spawnObjectByName( Oryol::String name )
 SceneMesh *Scene::findMeshByName( Oryol::String meshName )
 {
     for (int i=0; i < sceneMeshes.Size(); i++) {
-        if (sceneMeshes[i].meshName == meshName) {
-            return &sceneMeshes[i];
+        if (sceneMeshes[i]->meshName == meshName) {
+            return sceneMeshes[i];
         }
     }
     return NULL;
@@ -162,11 +162,11 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
         
         for (size_t i=0; i < fileHeader->m_numChunks; i++) {
             
-            SceneMesh mesh = {};
+			SceneMesh* mesh = Memory::New<SceneMesh>();
             LDJamFileMeshInfo *meshInfo = meshInfos + i;
             
-            mesh.bboxMin = meshInfo->m_bboxMin;
-            mesh.bboxMax = meshInfo->m_bboxMax;
+            mesh->bboxMin = meshInfo->m_bboxMin;
+            mesh->bboxMax = meshInfo->m_bboxMax;
             
             // For now, everything is loaded, TODO load the contents part
             // when needed
@@ -190,10 +190,10 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
             meshSetup.VertexDataOffset = 0;
             meshSetup.IndexDataOffset = sizeof(LDJamFileVertex) * numVerts;
             
-            mesh.meshName = String( meshInfo->m_name );
+            mesh->meshName = String( meshInfo->m_name );
             
             size_t meshDataSize = (sizeof(LDJamFileVertex) * numVerts) + (sizeof(uint16_t) * meshContent->m_triIndices);
-            mesh.mesh = Gfx::CreateResource(meshSetup, meshVertData, meshDataSize );
+            mesh->mesh = Gfx::CreateResource(meshSetup, meshVertData, meshDataSize );
             
             
             
@@ -203,12 +203,12 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
                 StringBuilder texLocBuilder;
                 texLocBuilder.Format( 4096, "gamedata:%s.dds", meshInfo->m_texture );
                 Log::Info("Locator is %s\n", texLocBuilder.GetString().AsCStr() );
-                mesh.texture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( Locator(texLocBuilder.GetString()), texBluePrint)));
+                mesh->texture = Gfx::LoadResource(TextureLoader::Create(TextureSetup::FromFile( Locator(texLocBuilder.GetString()), texBluePrint)));
             } else {
                 Log::Info("Using default texture\n");
-                mesh.texture = defaultTexture;
+                mesh->texture = defaultTexture;
             }
-            mesh.numPrims = 1;
+            mesh->numPrims = 1;
             sceneMeshes.Add( mesh );
         }
         // Add the cameras
@@ -232,7 +232,7 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
         for (uint32_t i=0; i < fileHeader->m_numSceneObjs; i++) {
             LDJamFileSceneObject *sceneObjInfo = sceneObjBase + i;
             Log::Info("SceneObj[%d] is %s\n", i, sceneObjInfo->m_name );
-            SceneObject *sceneObj = makeObject( &sceneMeshes[sceneObjInfo->m_meshIndex] );
+            SceneObject *sceneObj = makeObject( sceneMeshes[sceneObjInfo->m_meshIndex] );
             sceneObj->objectName = String( sceneObjInfo->m_name );
             
             // NOTE: for some reason sceneObj->xform = sceneObjInfo->m_transform doesn't work in emscripten
@@ -271,7 +271,7 @@ Scene::BuildMesh( Oryol::String meshName,
                  void *vertAndIndexData,
                  int numVertData, int numIndexData, int replaceMeshIndex )
 {
-    SceneMesh mesh = {};
+    SceneMesh *mesh = Memory::New<SceneMesh>();
     // TODO: calc bbox
     //mesh.bboxMin =
     //mesh.bboxMax =
@@ -287,28 +287,24 @@ Scene::BuildMesh( Oryol::String meshName,
     meshSetup.VertexDataOffset = 0;
     meshSetup.IndexDataOffset = sizeof(LDJamFileVertex) * numVertData;
     
-    mesh.meshName = meshName;
+    mesh->meshName = meshName;
 
     size_t meshDataSize = (sizeof(LDJamFileVertex) * numVertData) + (sizeof(uint16_t) * numIndexData);
-    mesh.mesh = Gfx::CreateResource(meshSetup, vertAndIndexData, meshDataSize );
+    mesh->mesh = Gfx::CreateResource(meshSetup, vertAndIndexData, meshDataSize );
 
-    mesh.texture = texture;
-    mesh.numPrims = 1;
+    mesh->texture = texture;
+    mesh->numPrims = 1;
     
     
     if ((replaceMeshIndex < 0) || (replaceMeshIndex > sceneMeshes.Size()) )
     {
-        int nextMesh = sceneMeshes.Size();
         sceneMeshes.Add( mesh );
-        return &(sceneMeshes[nextMesh]);
     } else {
         // TODO: free the old mesh
         sceneMeshes[ replaceMeshIndex ] = mesh;
-        return &(sceneMeshes[replaceMeshIndex]);
     }
-
+	return mesh;
     
-
 }
 
 SceneObject *Scene::FindNamedObject( Oryol::String name )
@@ -358,7 +354,6 @@ void Scene::drawShadowPass( Oryol::DrawState &shadowDrawState )
         SceneMesh *mesh = obj->mesh;
 
         if (obj->hidden) continue;
-        if (obj->handTile) continue;
         
         const auto resStateMesh = Gfx::QueryResourceInfo( mesh->mesh ).State;
         // TODO Texture
@@ -389,7 +384,6 @@ void Scene::drawScene( Oryol::Id shadowMap )
         SceneMesh *mesh = obj->mesh;
         
         if (obj->hidden) continue;
-        if (obj->isTile) continue;
         
         const auto resStateTex = Gfx::QueryResourceInfo( mesh->texture ).State;
         const auto resStateMesh = Gfx::QueryResourceInfo( mesh->mesh ).State;
