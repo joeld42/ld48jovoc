@@ -5,16 +5,18 @@ import shutil
 
 # FIXME NOW: Make one gamedata directory per target platform
 
-PROJECT_DIR = '/Users/joeld/oprojects/ld45_nothing'
+PROJECT_DIR = 'C:/oprojects/ld45_nothing'
 
-CRUNCH_TOOL = '/Users/joeld/Toolkits/crunch-osx/bin_osx/crunch'
-TEXTURETOOL_TOOL = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/texturetool'
+#CRUNCH_TOOL = '/Users/joeld/Toolkits/crunch-osx/bin_osx/crunch'
+#TEXTURETOOL_TOOL = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/texturetool'
+CRUNCH_TOOL = 'c:/Toolkits/bin/crunch_x64'
+
 
 #BLENDER_TOOL = '/Applications/Blender/blender.app/Contents/MacOS/blender'
 #BLENDER_EXPORT_SCRIPT = 'export_scene.py'
 #-b srcart/forest.blend -P script/export_scene.py -- ld33_export.cfg
 
-LDJAM_TOOL = '/Users/joeld/oprojects/fips-deploy/ld45_nothing/osx-xcode-debug/ldjamtool'
+LDJAM_TOOL = 'c:/oprojects/fips-deploy/ld45_nothing/osx-xcode-debug/ldjamtool'
 
 #'./assets/TestLevelSF.ogex ./gamedata/TestLevelSF.ldjam'
 
@@ -26,14 +28,11 @@ RUNTIME_DATA_DIR = "gamedata"
 
 TEXTURES = {
 
-    'TestTile_basecolor.png' : 'DXT5',
-    'TestTile_metallic.png' : 'DXT5',
-    'TestTile_normal.png' : 'DXT5',
-    'TestTile_roughness.png' : 'DXT5',
+    'ground.png' : 'DXT5',
 }
 
 OGEX_FILES = {
-    'TEST_Stuff.ogex',   
+    'ld45nothing.ogex',   
 }
 
 def fileNeedsUpdate( srcFile, destFile ):

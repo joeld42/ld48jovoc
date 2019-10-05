@@ -156,7 +156,7 @@ LD45NothingApp::OnInit() {
     gameScene = Memory::New<Scene>();
     gameScene->Setup( &gfxSetup, renderPassMultisample );
     
-    gameScene->LoadScene( "TEST_StuffB",[this](bool success) {
+    gameScene->LoadScene( "ld45nothing",[this](bool success) {
         onSceneLoaded();
     });
     
@@ -257,6 +257,9 @@ LD45NothingApp::OnRunning() {
 	// Maybe move this to debug tools??
 	if (Input::KeyDown(Key::P)) {
 		renderizer->debugDrawShadowMap = !renderizer->debugDrawShadowMap;
+	}
+	else if (Input::KeyDown(Key::L)) {
+		renderizer->drawMainScene = !renderizer->drawMainScene;
 	}
     
 	// render on frame

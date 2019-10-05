@@ -193,7 +193,7 @@ void Renderizer::renderScene(Tapnik::Scene* scene, Tapnik::UIAssets* uiAssets)
 	Gfx::Draw();
 
 	// Draw the actual scene
-	if (scene) {
+	if ((scene)&&(drawMainScene)) {
 		scene->drawScene(shadowMap);
 	}
 }

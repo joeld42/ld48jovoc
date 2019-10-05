@@ -660,7 +660,7 @@ int main( int argc, char *argv[] )
     free(buffer);
     free(fileHeader);
 
-
+	printf("Wrote %s\n", argv[2]);
 
 
 }

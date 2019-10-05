@@ -14,7 +14,7 @@ if __name__=='__main__':
 	#doCommand("Sync working code with ld48jovoc",
 	#		  "rsync -rtvu c:/oprojects/ld45_nothing/ /c:/ld48jovoc/ld45_nothing")
 	doCommand("Copy working code to ld48jovoc",
-		"xcopy c:\\oprojects\\ld45_nothing\\ c:\\Projects\\ld48jovoc\\ld45_nothing\\" )
+		"xcopy /y /e c:\\oprojects\\ld45_nothing c:\\Projects\\ld48jovoc\\ld45_nothing" )
 
 	#if ("-publish" in sys.argv):
 	#	doCommand("Upload to site",
