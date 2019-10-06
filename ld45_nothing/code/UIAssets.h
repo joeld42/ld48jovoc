@@ -28,6 +28,8 @@ struct UIAssets {
     struct nk_image img_btn_large_green;
     struct nk_image img_btn_large_red;
     struct nk_image img_btn_large_grey;
+
+	struct nk_image img_panel_bldg_food;
     
     void SetupUI();
     
@@ -35,10 +37,15 @@ struct UIAssets {
     Oryol::Buffer ttfData;
 
     void LoadIcon(const char* url, struct nk_image* img);
+
+	void storeDefaultStyle(nk_context* ctx);
+	void restoreDefaultStyle(nk_context* ctx);
     
     void buttonStyleNormal( nk_context* ctx );
     void buttonStyleCancel( nk_context* ctx );
     void buttonStyleDisabled( nk_context* ctx );
+
+	struct nk_style defaultStyle;
 };
     
 } // Namespace Tapnik

@@ -327,8 +327,9 @@ LD45NothingApp::OnRunning() {
     
     
     // Do UI
-    if (this->uiAssets->fontValid) {
-        this->interfaceScreens( uiAssets );
+    if ((civGame) && (this->uiAssets->fontValid)) {
+        //this->interfaceScreens( uiAssets );
+		civGame->interfaceScreens(uiAssets);
     }
     
     Dbg::DrawTextBuffer();
@@ -422,6 +423,16 @@ void LD45NothingApp::fixedUpdate( Oryol::Duration fixedDt )
 void LD45NothingApp::dynamicUpdate( Oryol::Duration frameDt )
 {
 	if (civGame) {
+
+		// update the game camera
+		float xd = civGame->camRiseDist.x;
+		glm::vec3 eyePos = civGame->camFocusPos + glm::vec3(sin(civGame->camRotato) * xd, -cos(civGame->camRotato) * xd, civGame->camRiseDist.y);
+		glm::mat4 lookAt = glm::inverse( glm::lookAt(eyePos, civGame->camFocusPos, glm::vec3(0.0f, 0.0f, 1.0f)) );		
+
+		//Log::Info("eyePos %3.2f, %3.2f, %3.2f\n", eyePos.x, eyePos.y, eyePos.z);
+
+		gameCamera.UpdateModel(lookAt);
+
 		civGame->dynamicUpdate(frameDt, activeCamera);
 	}
 }

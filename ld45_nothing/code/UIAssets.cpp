@@ -26,6 +26,8 @@ void UIAssets::SetupUI()
         LoadIcon( "gamedata:uiassets/btn_large_green.png", &img_btn_large_green );
         LoadIcon( "gamedata:uiassets/btn_large_red.png", &img_btn_large_red );
         LoadIcon( "gamedata:uiassets/btn_large_grey.png", &img_btn_large_grey );
+
+		LoadIcon("gamedata:uiassets/panel_bldg_food.png", &img_panel_bldg_food );
         
         this->fontValid = true;
     });
@@ -55,6 +57,17 @@ void UIAssets::buttonStyleDisabled( nk_context* ctx ) {
     ctx->style.button.text_normal = nk_rgb(128,128,128);
     ctx->style.button.text_hover = nk_rgb(128,128,128);
     ctx->style.button.padding = nk_vec2(0,0);
+}
+
+
+void UIAssets::storeDefaultStyle(nk_context* ctx)
+{
+	defaultStyle = ctx->style;
+}
+
+void UIAssets::restoreDefaultStyle(nk_context* ctx)
+{
+	ctx->style = defaultStyle;
 }
 
 //------------------------------------------------------------------------------
