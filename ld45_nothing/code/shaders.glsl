@@ -104,7 +104,10 @@ out vec4 world_nrm;
 void main() {
     gl_Position = mvp * position;
     lightProjPos = lightMVP * position;
-	lightDir = lightMVP * vec4( 0,0,1,0 );
+	//lightDir = lightMVP * vec4( 0,0,1,0 );
+
+	lightDir = vec4( normalize(vec3( 0.3, 0.1, -1.0)), 0.0 );
+
     uv = texcoord0;
     uvDecal = texcoord1;
     world_nrm = normal;
@@ -146,9 +149,9 @@ void main() {
     
     //vec3 cDecalColor = cDecal.xyz * decalTintColor.xyz;
     //vec3 cResult = mix( cBaseColor, cDecalColor, cDecal.a * decalTintColor.a );
-
+	
 	float nDotL = clamp( dot( lightDir.xyz, nrm.xyz ), 0, 1);
-	vec3 lightCol = mix( vec3(0.1,0.12,0.2), vec3(1,1,1), nDotL );
+	vec3 lightCol = mix( vec3(0.1,0.12,0.2), vec3(1.2), nDotL );
 	
     fragColor = applyShadow( shadowMap, vec4(cBaseColor * lightCol, 1.0), lightProjPos );    	
 }

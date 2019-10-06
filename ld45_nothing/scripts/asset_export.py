@@ -27,8 +27,8 @@ OGEX_DIR = "assets"
 RUNTIME_DATA_DIR = "gamedata"
 
 TEXTURES = {
-
     'ground.png' : 'DXT5',
+    'hex_back.png' : 'DXT5',
 }
 
 OGEX_FILES = {

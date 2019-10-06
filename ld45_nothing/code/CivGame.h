@@ -77,8 +77,13 @@ public:
 	float hoverBump;
 	glm::vec2 screenPos;
 	Tapnik::SceneObject* sceneObj;
+	Tapnik::SceneObject* hexBackObj;
 	char hexName[12];
 	float clickBounce;
+	
+	float flipAmountTarg;
+	float flipAmount;
+	glm::vec3 flipAxis;
 
 	enum TerrainType {
 		Terrain_OCEAN,
@@ -159,6 +164,8 @@ public:
 
 	Tapnik::Scene* scene;
 	Oryol::Id testTex;
+	Tapnik::SceneMesh* hexBackMesh;
+
 	GameHex *board[BOARD_SZ*BOARD_SZ];
 
 	float gameTime;

@@ -124,7 +124,7 @@ void Scene::Setup( Oryol::GfxSetup *gfxSetup, int renderSampleCount )
     ps.DepthStencilState.DepthWriteEnabled = true;
     ps.DepthStencilState.DepthCmpFunc = CompareFunc::LessEqual;
 	ps.BlendState.ColorFormat = PixelFormat::RGBA16F;
-	ps.BlendState.DepthFormat = PixelFormat::DEPTH; // DEPTHSTENCIL
+	ps.BlendState.DepthFormat = PixelFormat::DEPTHSTENCIL; // DEPTHSTENCIL
     
     this->sceneDrawState.Pipeline = Gfx::CreateResource(ps);
     

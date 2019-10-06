@@ -409,7 +409,7 @@ void LD45NothingApp::onSceneLoaded()
         activeCameraIndex = cam.index;
     }
     gameCamera.UpdateModel( cam.mat );
-    gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 0.01f, 100.0f);
+    gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 1.0f, 100.0f);
 
 	// TODO: title screen here
 	StartGame();

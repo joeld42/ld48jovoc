@@ -85,7 +85,7 @@ Renderizer::Renderizer(  const Oryol::VertexLayout &meshLayout,
 		float renderDownscale = 1;
 		mainRenderSetup = TextureSetup::RenderTarget2D(
 			(int)(1280 * renderDownscale),
-			(int)(720 * renderDownscale), PixelFormat::RGBA16F, PixelFormat::DEPTH);
+			(int)(720 * renderDownscale), PixelFormat::RGBA16F, PixelFormat::DEPTHSTENCIL );
 		mainRenderSetup.SampleCount = mainRenderSampleCount;
 
 		mainRenderSetup.Sampler.MinFilter = TextureFilterMode::Linear;

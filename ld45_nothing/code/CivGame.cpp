@@ -1,5 +1,6 @@
 
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/quaternion.hpp"
 #include "glm/gtc/random.hpp"
 
 #include "Input/Input.h"
@@ -139,14 +140,20 @@ GameHex *CivGame::boardHex(int i, int j)
 void CivGame::SetupWithScene(Scene* _scene)
 {
 	scene = _scene;
-	printf("CivGame::SetupWithScene\n");
+	Log::Info("CivGame::SetupWithScene\n");
 
-	testTex = scene->sceneObjs[0]->mesh->texture;
+	SceneObject* groundObj = scene->FindNamedObject("Grid");
+	testTex = groundObj->mesh->texture;
+
+	// Hang on to the hex back object
+	SceneObject* hexbackObj = scene->FindNamedObject("HexBack");
+	
+	hexBackMesh = hexbackObj?hexbackObj->mesh:NULL;
 
 	// Remove all of the object instances (but keep the meshes)
 	while (scene->sceneObjs.Size() > 0) {
 		SceneObject* obj = scene->sceneObjs[0];
-		printf("Removing object %s\n", obj->objectName.AsCStr());
+		Log::Info("Removing object %s\n", obj->objectName.AsCStr());
 		scene->sceneObjs.EraseSwapBack(0);
 	}
 
@@ -175,8 +182,19 @@ void CivGame::SetupWithScene(Scene* _scene)
 			hex->hexWorldPos = hexPos;
 			hex->pos = hexPos;
 			hex->pos.z = glm::linearRand(-200.0f, -10.0f);
-			hex->sceneObj = hexTile;
-			hexTile->xform = glm::translate(glm::mat4(1.0f), hexPos);		
+			hex->sceneObj = hexTile;			
+			hex->flipAmount = hex->flipAmountTarg = 1.0f;
+			hexTile->xform = glm::translate(glm::mat4(1.0f), hexPos);
+
+			if (hexBackMesh) {
+				SceneObject* hexBackObj = scene->spawnObject(hexBackMesh);
+				hexBackObj->xform = hexTile->xform;
+				// TODO: subtle darkening for hexes that need more exploreing?
+				hexBackObj->vsParams.decalTint = glm::vec4(1.0f);
+				hex->hexBackObj = hexBackObj;				
+			} else {
+				hex->hexBackObj = NULL;
+			}
 
 			ApplyTerrainEffects(hex);
 		}
@@ -189,6 +207,9 @@ void CivGame::ApplyTerrainEffects(GameHex* hex)
 	glm::vec4 tileTint = glm::vec4(0.3f, 0.3f, 0.4f, 1.0f);
 	if (hex->exploreCount == 0)
 	{
+		// Explored tiles are face up
+		hex->flipAmountTarg = 0.0f;
+
 		// If tile  is explored, show tile
 		switch (hex->terrain) {
 		case GameHex::TerrainType::Terrain_OCEAN:
@@ -212,6 +233,10 @@ void CivGame::ApplyTerrainEffects(GameHex* hex)
 			break;
 		}
 	}
+	else {
+		// Unexplored, flip it over
+		hex->flipAmountTarg = 1.0f;
+	}
 
 	hex->sceneObj->vsParams.tintColor = tileTint;
 
@@ -223,7 +248,6 @@ void CivGame::SetupGameBoard()
 	int rowStart[9] = { 3, 1, 0, 0, 0, 0, 0, 2, 4  };
 	int rowEnd[9] = { 5, 7, 8, 8, 8, 8, 8, 6, 4 };
 
-
 	int CC = BOARD_SZ / 2;
 	for (int i = 0; i < BOARD_SZ; i++) {
 		for (int j = 0; j < BOARD_SZ; j++) {
@@ -234,6 +258,12 @@ void CivGame::SetupGameBoard()
 				board[boardNdx] = NULL;
 			} else {
 				GameHex *hex = Memory::New<GameHex>(i, j);
+
+				//hex->flipAxis = glm::normalize( glm::vec3(glm::diskRand(1.0f), 0.0f) );
+
+				int flipAxisInt = (int)(glm::linearRand(0.0f, 1.0f) * 5);
+				float ang = (glm::pi<float>() / 3.0f) * flipAxisInt;
+				hex->flipAxis = glm::normalize(glm::vec3(cos(ang), sin(ang), 0.0f));
 
 				// terrain type (todo)
 				int tndx = (int)(glm::linearRand(0.0f, 1.0f) * (GameHex::TerrainType::NUM_TERRAIN - 1));
@@ -630,8 +660,29 @@ void CivGame::dynamicUpdate(Oryol::Duration frameDt, Tapnik::Camera * activeCame
 				}
 			}
 	
-			// Update the transform
-			hex->sceneObj->xform = glm::translate(glm::mat4(1.0f), hex->pos + glm::vec3( 0.0f, 0.0f, cb ) );
+			// Update the transform and flip
+			float needFlipAnim = (hex->flipAmountTarg - hex->flipAmount);
+			if (fabs(needFlipAnim) > 0.001f) {
+				float flipDir = needFlipAnim > 0.0f ? 1.0f : -1.0f;
+				hex->flipAmount += dt * flipDir * 1.0f;
+				// Don't bound when flipping cause it looks weird
+				cb = 0.0f;
+			}
+			else {
+				hex->flipAmount = hex->flipAmountTarg;
+			}
+			
+			//hex->flipAmount += dt;
+			//hex->flipAmount = fmod(hex->flipAmount, 1.0f);
+
+			glm::quat hexFlip = glm::angleAxis(hex->flipAmount * glm::pi<float>(),hex->flipAxis );
+
+			//glm::mat4x4 hexXform = 
+			glm::mat4x4 hexXform = glm::translate(glm::mat4x4(), hex->pos + glm::vec3(0.0f, 0.0f, cb));
+			hex->sceneObj->xform = hexXform * glm::toMat4(hexFlip);
+			if (hex->hexBackObj) {
+				hex->hexBackObj->xform = hex->sceneObj->xform;
+			}
 		}
 	}	
 
@@ -1009,9 +1060,27 @@ Tapnik::SceneMesh* CivGame::BuildHexMesh( float hexSize )
 	indexes[16] = 6;
 	indexes[17] = 1;
 
+#if 1
+	static bool didWriteMesh = false;
+	if (!didWriteMesh) {
+		FILE* fp = fopen("c:\\oprojects\\ld45_nothing\\hex_dump.obj", "wt");
+		for (int i = 0; i < numCapVerts; i++) {
+			fprintf(fp, "v %f %f %f\n", verts[i].m_pos[0], verts[i].m_pos[2], verts[i].m_pos[1]);
+		}
+
+		for (int i = 0; i < numCapTris; i++) {
+			fprintf(fp, "f %d %d %d\n", indexes[i * 3 + 0] + 1, indexes[i * 3 + 1] + 1, indexes[i * 3 + 2] + 1);
+		}
+		fclose(fp);
+		didWriteMesh = true;
+		Log::Info("Wrote OBJ hex\n");
+	}
+#endif
+
 	SceneMesh* hexMesh = scene->BuildMesh("Hex_MESH", testTex, geomBuffer,
 		numCapVerts, numCapTris * 3);
 
 	return hexMesh;
 }
+
 
