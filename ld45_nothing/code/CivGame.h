@@ -23,6 +23,11 @@
 	T name = default; \
 	BuildingInfo with##name##( T _##name## ) { ##name## = _##name##; return *this; }
 
+enum {
+	Type_EXPLORE,
+	Type_RESOURCE
+};
+
 class BuildingInfo
 {
 public:
@@ -35,9 +40,12 @@ public:
 	BUILDING_PROPERTY(uint64_t, BaseCost, 10);
 	BUILDING_PROPERTY(double, CostMultiplier, 1.15 );
 	BUILDING_PROPERTY(int, BuildLimit, 10 );
+	BUILDING_PROPERTY(int, Type, Type_RESOURCE );
 	BUILDING_PROPERTY(int, BaseFood, 0);
+	BUILDING_PROPERTY(int, BaseExplore, 0);
+	BUILDING_PROPERTY(double, ExploreMult, 1.0);
 	BUILDING_PROPERTY(double, FoodMultiplier, 1.0);
-	BUILDING_PROPERTY(double, HarvestTime, -1.0 );	
+	BUILDING_PROPERTY(double, CooldownTime, -1.0 );	
 
 	// these are just cached for the current focus building
 	int countOnFocusHex = 0;
@@ -72,11 +80,33 @@ public:
 	char hexName[12];
 	float clickBounce;
 
+	enum TerrainType {
+		Terrain_OCEAN,
+		Terrain_GRASSLAND,
+		Terrain_FOREST,
+		Terrain_DESERT,
+		Terrain_MOUNTAIN,
+
+		NUM_TERRAIN
+	};
+
 	// Gameplay stuff
+	uint64_t exploreCountStart;
+	uint64_t exploreCount;
+	TerrainType terrain;
 	int baseFood; // Some tiles naturally produce food
 	int farmCount;
 
-	float harvestWait;
+	// stats (can be recalcuated from buildings)
+	uint64_t stat_foodProduction;
+	uint64_t stat_foodMultiplier;
+	uint64_t stat_totalFoodHarvest;
+	// TODO: Food per second
+
+	uint64_t stat_baseExplore;
+	uint64_t stat_exploreMultiplier;
+	uint64_t stat_totalExplore;
+
 
 	Oryol::Array<Building*> bldgs;
 };
@@ -99,6 +129,7 @@ public:
 
 	void interfaceScreens(Tapnik::UIAssets* uiAssets);
 	void DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets);
+	void DoGameUI_HexResourceIcons(nk_context* ctx, GameHex* hex, Tapnik::UIAssets* uiAssets);
 
 	int boardNdx(int i, int j);
 	GameHex *boardHex(int i, int j);
@@ -106,9 +137,15 @@ public:
 
 	void UpdateGameSystem(float dt);
 	void HarvestHex(GameHex* hex, bool actualClick);
+	void ExploreHex(GameHex* hex, bool actualClick);
 	void UpdateHex(float dt, GameHex* hex);
 	void BuildBuilding(GameHex* hex, BuildingInfo* info);
+	void ActivateBulding(float dt, GameHex* hex, Building* bb);
 	void CountBuildings(GameHex* hex);
+
+	void UpdateHexStats(GameHex* hex);
+
+	void ApplyTerrainEffects(GameHex* hex);
 
 	// Gameplay info
 	Oryol::Array<BuildingInfo> bldgSpecs;

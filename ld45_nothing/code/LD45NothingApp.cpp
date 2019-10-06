@@ -282,6 +282,7 @@ LD45NothingApp::OnRunning() {
 		const ddVec3 Up = { 0.0f, 0.0f, 1.0f };
 		dd::circle(glm::value_ptr(boxCenter), Up, dd::colors::Cornsilk, 2.0f, 20);
 
+#if 0
 		// debug hex ids
 		if (civGame)
 		{
@@ -302,6 +303,7 @@ LD45NothingApp::OnRunning() {
 				}
 			}
 		}
+#endif
     
     if (Input::KeyDown(Key::Tab)) {
         debugMode = !debugMode;

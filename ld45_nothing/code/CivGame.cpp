@@ -18,6 +18,22 @@
 using namespace Tapnik;
 using namespace Oryol;
 
+glm::vec4 colorFromHexCode(const char* hexColor)
+{
+	int r = 0xff;
+	int g = 0xff;
+	int b = 0xff;
+	int a = 0xff;
+	if (strlen(hexColor) == 7) {
+		sscanf(hexColor, "#%02x%02x%02x", &r, &g, &b);
+	}
+	else if (strlen(hexColor) == 9) {
+		sscanf(hexColor, "#%02x%02x%02x%02x", &r, &g, &b, &a);
+	}
+
+	return glm::vec4((float)r / 255.0, (float)g / 255.0, (float)b / 255.0, (float)a / 255.0);
+}
+
 // =========================================================
 //  Building Stuff
 // =========================================================
@@ -58,12 +74,15 @@ CivGame::CivGame() : scene(NULL), uiAssets(NULL), hoverHex( NULL ), focusHex(NUL
 	resFood = 0;
 
 	// Initialize buildings
+
+	// Resource Buildings
+
 	bldgSpecs.Add(BuildingInfo("Field", "+1 Base Food Production on this space.")
 				.withBaseFood(1) );
 
 	bldgSpecs.Add(BuildingInfo("Farmhouse", "A farmer lives the simple life: Harvesting food for you.")
 		.withBaseCost(15)
-		.withHarvestTime(10.0f));
+		.withCooldownTime(10.0f));
 
 	bldgSpecs.Add(
 		BuildingInfo("Grain Silo", "Doubles food production.")
@@ -74,7 +93,34 @@ CivGame::CivGame() : scene(NULL), uiAssets(NULL), hoverHex( NULL ), focusHex(NUL
 
 	bldgSpecs.Add(BuildingInfo("Plow", "Harvest Faster with Mister Plow.")
 		.withBaseCost( 100 )
-		.withHarvestTime(2.0f));
+		.withCooldownTime(2.0f));
+
+	// Exploration Buildings
+
+	bldgSpecs.Add(BuildingInfo("Outpost", "Explores every 8s.")
+		.withBaseCost(100)
+		.withType( Type_EXPLORE)
+		.withCooldownTime(8.0f));
+
+	bldgSpecs.Add(BuildingInfo("Campsite", "Base Explore +1.")
+		.withBaseCost(100)
+		.withBuildLimit(6) 
+		.withType(Type_EXPLORE)
+		.withBaseExplore(1)
+	);
+
+	bldgSpecs.Add(BuildingInfo("Cartogropher", "Explore x2.")
+		.withBaseCost(1000)
+		.withBuildLimit(6)
+		.withType(Type_EXPLORE)
+		.withExploreMult(2.0)
+	);
+
+	/*
+	bldgSpecs.Add(BuildingInfo("Cartographer", "Explore x10")
+		.withBaseCost(1000)
+		.withBuildLimit(2)
+	);*/
 }
 
 int CivGame::boardNdx(int i, int j)
@@ -125,13 +171,50 @@ void CivGame::SetupWithScene(Scene* _scene)
 			float offs = ((i & 0x1) == 0) ? 0.0f : hexHite * 0.5;
 			glm::vec3 hexPos = (tilePos * glm::vec3(hexSize * 2.0f * 0.75f, hexHite, 1.0f)) + glm::vec3( 0.0f, offs, 0.0f );
 
+
 			hex->hexWorldPos = hexPos;
 			hex->pos = hexPos;
 			hex->pos.z = glm::linearRand(-200.0f, -10.0f);
 			hex->sceneObj = hexTile;
-			hexTile->xform = glm::translate(glm::mat4(1.0f), hexPos);			
+			hexTile->xform = glm::translate(glm::mat4(1.0f), hexPos);		
+
+			ApplyTerrainEffects(hex);
 		}
 	}
+}
+
+// Updates visuals when terrain or explore status changes.
+void CivGame::ApplyTerrainEffects(GameHex* hex)
+{
+	glm::vec4 tileTint = glm::vec4(0.3f, 0.3f, 0.4f, 1.0f);
+	if (hex->exploreCount == 0)
+	{
+		// If tile  is explored, show tile
+		switch (hex->terrain) {
+		case GameHex::TerrainType::Terrain_OCEAN:
+			tileTint = colorFromHexCode("#6986e2");
+			break;
+
+		case GameHex::TerrainType::Terrain_GRASSLAND:
+			tileTint = colorFromHexCode("#F2EFBB");
+			break;
+
+		case GameHex::TerrainType::Terrain_FOREST:
+			tileTint = colorFromHexCode("#5AB390");
+			break;
+
+		case GameHex::TerrainType::Terrain_DESERT:
+			tileTint = colorFromHexCode("#F2C641");
+			break;
+
+		case GameHex::TerrainType::Terrain_MOUNTAIN:
+			tileTint = colorFromHexCode("#A6387F");
+			break;
+		}
+	}
+
+	hex->sceneObj->vsParams.tintColor = tileTint;
+
 }
 
 void CivGame::SetupGameBoard()
@@ -150,12 +233,29 @@ void CivGame::SetupGameBoard()
 				// Empty hex
 				board[boardNdx] = NULL;
 			} else {
-				board[boardNdx] = Memory::New<GameHex>(i, j);
+				GameHex *hex = Memory::New<GameHex>(i, j);
+
+				// terrain type (todo)
+				int tndx = (int)(glm::linearRand(0.0f, 1.0f) * (GameHex::TerrainType::NUM_TERRAIN - 1));
+				int explore = (int)(glm::linearRand(0.0f, 1.0f) * 4);
+
+				hex->terrain =(GameHex::TerrainType) tndx;
+
+				hex->exploreCount = 10;
+				for (int i = 0; i < explore; i++)
+				{
+					hex->exploreCount *= 10;
+				}
+				hex->exploreCount += (uint64_t)(glm::linearRand(0.0f, 1.0f) * hex->exploreCount);
+				hex->exploreCountStart = hex->exploreCount;
+
+				board[boardNdx] = hex;
 			}
 		}
 	}
 
 	// Now setup 5 tiles to produce food
+	// TODO: make this fair, and ensure there's at least one on a tile with less than a zillion clicks
 	int tilesLeft = 5;
 	while (tilesLeft > 0) {
 		int index = (int)(glm::linearRand(0.0f, 1.0f) * ((BOARD_SZ * BOARD_SZ)-1) );
@@ -166,6 +266,26 @@ void CivGame::SetupGameBoard()
 		}
 	}
 
+	// Update stats on everything
+	for (int i = 0; i < BOARD_SZ*BOARD_SZ; i++) {
+		GameHex* hex = board[i];
+		if (hex) {
+			UpdateHexStats(hex);
+		}
+		
+	}
+
+}
+
+void CivGame::ActivateBulding(float dt, GameHex* hex, Building* bb)
+{
+	if (hex->exploreCount > 0)
+	{
+		ExploreHex(hex, false);
+	}
+	else if (hex->baseFood > 0) {
+		HarvestHex(hex, false);
+	}
 }
 
 void CivGame::UpdateHex(float dt, GameHex* hex)
@@ -176,10 +296,10 @@ void CivGame::UpdateHex(float dt, GameHex* hex)
 		if (bb->cooldown > -0.1) {
 			bb->cooldown -= dt;
 			if (bb->cooldown <= 0.0) {
-				// cooldown hit, harvest this tile!
-				HarvestHex(hex, false);
-				bb->cooldown = bb->info->HarvestTime;
-				Log::Info("Harvested!\n");
+				// cooldown hit, activate this tile!
+				this->ActivateBulding(dt, hex, bb);
+				bb->cooldown = bb->info->CooldownTime;
+				Log::Info("Activated!\n");
 			}
 		}
 	}
@@ -195,7 +315,7 @@ void CivGame::UpdateGameSystem(float dt)
 	}
 }
 
-void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera *activeCamera )
+void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera* activeCamera)
 {
 	float dt = fixedDt.AsSeconds();
 
@@ -208,6 +328,21 @@ void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera *activeCamera 
 	float RM = uiAssets->fbWidth - 300.0f;
 
 	gameTime += dt;
+
+	// Cheats for dev
+	if (Input::KeyDown(Key::N1)) {
+		resFood += 1000;
+	}
+	else if (Input::KeyDown(Key::N4)) {
+		// Explore everthing
+		for (int i = 0; i < BOARD_SZ * BOARD_SZ; i++) {
+			GameHex* hex = board[i];
+			if (hex) {
+				hex->exploreCount = 0;
+				ApplyTerrainEffects(hex);
+			}
+		}
+	}
 
 	// Handle input
 	float vel = 1.0f * dt;
@@ -232,7 +367,7 @@ void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera *activeCamera 
 
 		glm::vec2 mousePos = Input::MousePosition();
 
-		if (!focusHex)
+		if ((!focusHex) || (focusHex == hoverHex))
 		{
 			// Have they held the mouse down long enough to count as a long press?
 			if ((mouseDown) && (!didTriggerLongPress)) {
@@ -266,7 +401,8 @@ void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera *activeCamera 
 		}
 		else {
 			if ((mousePos.x > 300) && (mousePos.x < RM)) {
-				// We have a focus hex, any click will unfocus it
+
+				// We have a focus hex, any other click will unfocus it
 				if (Input::MouseButtonDown(MouseButton::Left) || Input::MouseButtonDown(MouseButton::Right)) {
 					SetFocusHex(NULL);
 				}
@@ -323,20 +459,20 @@ void CivGame::BuildBuilding(GameHex* hex, BuildingInfo* info)
 {
 	Log::Info("Build %s!\n", info->bldgName.AsCStr() );	
 	if (resFood >= info->BaseCost) {
-		resFood -= info->BaseCost;
-		
-		hex->baseFood += info->BaseFood;
+		resFood -= info->BaseCost;	
 
 		Building* bldg = Memory::New<Building>(info);
 		hex->bldgs.Add(bldg);
-		if (info->HarvestTime >= 0.0f) {
-			bldg->cooldown = info->HarvestTime * glm::linearRand(0.1f, 1.0f);
+		if (info->CooldownTime >= 0.0f) {
+			/// start at a random offset so they don't all fire in sync
+			bldg->cooldown = info->CooldownTime * glm::linearRand(0.1f, 1.0f); 
 		}
 		else {
-			bldg->cooldown = info->HarvestTime;
+			bldg->cooldown = info->CooldownTime;
 		}
 
 		CountBuildings(focusHex);
+		UpdateHexStats(hex);
 	}
 	else {
 		Log::Warn("Build called on ineligable building.");
@@ -347,8 +483,13 @@ void CivGame::BuildBuilding(GameHex* hex, BuildingInfo* info)
 
 void CivGame::HarvestHex(GameHex* hex, bool actualClick )
 {
-	if (hex->baseFood > 0) {
-		resFood += hex->baseFood;
+
+	// Make sure our stats are up to date just in case
+	UpdateHexStats(hex);
+
+	if (hex->stat_totalFoodHarvest > 0) {
+		resFood += hex->stat_totalFoodHarvest; 
+		// TODO: animated food feedback
 	}
 
 	// Always bounce for a real click
@@ -362,11 +503,77 @@ void CivGame::HarvestHex(GameHex* hex, bool actualClick )
 	}
 }
 
+void CivGame::UpdateHexStats(GameHex* hex)
+{
+	// --- Explore Stats
+
+	// Calculate explore amount
+	hex->stat_baseExplore = 1; // base explore amount is 1 from the player exploring
+	for (int i = 0; i < hex->bldgs.Size(); i++) {
+		hex->stat_baseExplore += hex->bldgs[i]->info->BaseExplore;
+	}
+
+	// Multiply by explore multiplier
+	double exploreAmtF = hex->stat_baseExplore;
+	hex->stat_exploreMultiplier = 1.0;
+	for (int i = 0; i < hex->bldgs.Size(); i++) {
+		if (hex->bldgs[i]->info->ExploreMult != 1.0) {
+			exploreAmtF *= hex->bldgs[i]->info->ExploreMult;
+			hex->stat_exploreMultiplier *= hex->bldgs[i]->info->ExploreMult;
+		}
+	}
+	hex->stat_totalExplore = (uint64_t)exploreAmtF;
+
+	// --- Food Stats
+	hex->stat_foodProduction = hex->baseFood;
+	for (int i = 0; i < hex->bldgs.Size(); i++) {
+		hex->stat_foodProduction += hex->bldgs[i]->info->BaseFood;
+	}
+
+	// Multiply by food multiplier
+	double foodProductionF = hex->stat_foodProduction;
+	hex->stat_foodMultiplier = 1.0;
+	for (int i = 0; i < hex->bldgs.Size(); i++) {
+		if (hex->bldgs[i]->info->FoodMultiplier != 1.0) {
+			foodProductionF *= hex->bldgs[i]->info->FoodMultiplier;
+			hex->stat_foodMultiplier *= hex->bldgs[i]->info->FoodMultiplier;
+		}
+	}
+	hex->stat_totalFoodHarvest = (uint64_t)foodProductionF;
+}
+
+void CivGame::ExploreHex(GameHex* hex, bool actualClick)
+{
+	if (hex->exploreCount > 0) {
+		hex->clickBounce = glm::linearRand(0.9f, 1.5f);
+		
+		// Make sure our stats are up to date just in case
+		UpdateHexStats(hex);
+
+		if (hex->exploreCount > hex->stat_totalExplore) {
+			hex->exploreCount -= hex->stat_totalExplore;
+		}
+		else {
+			hex->exploreCount = 0;
+			ApplyTerrainEffects(hex);
+			// HERE: Big reveal, flip hex and stuff.
+			// HERE: Also can nuke all Explore buildings in the tile
+		}
+	}
+	Log::Info("Explore: %zu\n", hex->exploreCount);
+}
+
 void CivGame::ClickForTheGloryOfTheEmpire(GameHex* hex)
 {
 	Log::Info("CLICK!!!\n");
 	if (hex) {
-		HarvestHex(hex, true);
+		// Is tile explored?
+		if (hex->exploreCount > 0) {
+			ExploreHex(hex, true);
+		}
+		else {
+			HarvestHex(hex, true);
+		}
 	}
 }
 
@@ -426,27 +633,21 @@ void CivGame::dynamicUpdate(Oryol::Duration frameDt, Tapnik::Camera * activeCame
 			// Update the transform
 			hex->sceneObj->xform = glm::translate(glm::mat4(1.0f), hex->pos + glm::vec3( 0.0f, 0.0f, cb ) );
 		}
-	}
-	if (focusHex == NULL) {
-		if (hoverHex != closestHex)
-		{
-			if (hoverHex) {
-				hoverHex->hoverBump = 0.0f;
-			}
-			hoverHex = closestHex;
-			if (hoverHex)
-			{
-				hoverHex->hoverBump = 0.2f;
-				// TODO: play click sound
-			}
-		}
-	}
-	else {
-		// If a hex is focused, don't bounce the hovered hex
+	}	
+
+	if (hoverHex != closestHex)
+	{
 		if (hoverHex) {
 			hoverHex->hoverBump = 0.0f;
 		}
+		hoverHex = closestHex;
+		if ((hoverHex) && (hoverHex != focusHex))
+		{
+			hoverHex->hoverBump = 0.2f;
+			// TODO: play click sound
+		}
 	}
+	
 
 
 }
@@ -483,6 +684,109 @@ void CivGame::interfaceScreens(Tapnik::UIAssets* uiAssets)
 	nk_clear(ctx);
 }
 
+// Tries to fit a number into approx 4-5 chars
+void shortNumStr(char* dest, uint64_t num)
+{
+	if (num < 1000) {
+		sprintf(dest, "%zu", num );
+	}
+	else {
+		// round it off
+		double nn = (double)num;
+		if (nn < 1000000.0) {
+			sprintf(dest, "%3.1lfK", nn / 1000.0 );
+		}
+		else {
+			sprintf(dest, "%3.1lfM", nn / 1000000.0);
+		}
+	}
+}
+
+void CivGame::DoGameUI_HexResourceIcons(nk_context* ctx, GameHex* hex, Tapnik::UIAssets *uiAssets )
+{
+	float offs = CalcIconOffset(hex);
+	bool showBig = false;
+	glm::vec2 hp = hex->screenPos + glm::vec2(0.0, offs);
+
+	if ((hex == focusHex) && (offs > 60)) {
+		showBig = true;
+	}
+
+	if (hex->exploreCount > 0) {
+		ctx->style.window.fixed_background.data.color = nk_rgba(0, 0, 0, 0);
+
+		// Still need to explore this hex.
+		hp = hex->screenPos; 
+		if ((hp.x > 0) && (hp.x < uiAssets->fbWidth) &&
+			(hp.y > 0) && (hp.y < uiAssets->fbHeight))
+		{
+			if (hex->exploreCount != hex->exploreCountStart) {
+
+				if (!showBig) {
+					// Started exploring, show a progress.
+					if (nk_begin(ctx, hex->hexName, nk_rect(hp.x - 60, hp.y - 30, 120, 60), NK_WINDOW_NO_SCROLLBAR /*|NK_WINDOW_BORDER*/)) {
+						nk_layout_row_static(ctx, 40, 100, 1);
+
+						ctx->style.text.color = nk_rgb(240, 240, 250);
+						nk_style_set_font(ctx, &(uiAssets->font_30->handle));
+						char buff[20];
+						shortNumStr(buff, hex->exploreCount);
+						nk_label(ctx, buff, NK_TEXT_CENTERED);
+					}
+					nk_end(ctx);
+				}
+				else {
+					if (nk_begin(ctx, hex->hexName, nk_rect(hp.x - 125, hp.y - 30, 250, 60), NK_WINDOW_NO_SCROLLBAR /*| NK_WINDOW_BORDER */)) {
+						nk_layout_row_static(ctx, 40, 220, 1);
+
+						ctx->style.text.color = nk_rgb(240, 240, 250);
+						nk_style_set_font(ctx, &(uiAssets->font_30->handle));
+						char buff[20];
+						sprintf(buff, "%zu", hex->exploreCount);
+						nk_label(ctx, buff, NK_TEXT_CENTERED);
+					}
+					nk_end(ctx);
+				}
+			}
+		}
+	}
+	else if (hex->stat_totalFoodHarvest > 0)
+	{
+		
+		if ((hp.x > 0) && (hp.x < uiAssets->fbWidth) &&
+			(hp.y > 0) && (hp.y < uiAssets->fbHeight))
+		{
+			ctx->style.window.fixed_background.data.color = nk_rgba(0, 0, 0, 100);
+
+			if (!showBig) {
+				// Small resource icons
+				if (nk_begin(ctx, hex->hexName, nk_rect(hp.x - 50, hp.y - 10, 100, 20), NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER)) {
+					nk_layout_row_static(ctx, 10, 100, 1);
+					ctx->style.text.color = nk_rgb(255, 255, 255);
+					nk_style_set_font(ctx, &(uiAssets->font_14->handle));
+
+					char buff[20];
+					sprintf(buff, "F: %zu", hex->stat_totalFoodHarvest );
+					nk_label(ctx, buff, NK_TEXT_ALIGN_CENTERED);
+				}
+				nk_end(ctx);
+			}
+			else {
+				// Big resource icons
+				if (nk_begin(ctx, hex->hexName, nk_rect(hp.x - 100, hp.y - 25, 200, 50), NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER)) {
+					nk_layout_row_static(ctx, 25, 200, 1);
+					ctx->style.text.color = nk_rgb(255, 255, 255);
+					nk_style_set_font(ctx, &(uiAssets->font_14->handle));
+
+					char buff[20];
+					sprintf(buff, "Food: %zu", hex->stat_totalFoodHarvest );
+					nk_label(ctx, buff, NK_TEXT_ALIGN_CENTERED);
+				}
+				nk_end(ctx);
+			}
+		}
+	}
+}
 
 void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 {
@@ -498,52 +802,13 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 	for (int i = 0; i < BOARD_SZ * BOARD_SZ; i++)
 	{
 		GameHex* hex = board[i];
-		if (hex) {			
-			float offs = CalcIconOffset(hex);
-			bool showBig = false;
-			glm::vec2 hp = hex->screenPos + glm::vec2( 0.0, offs );
-
-			if ((hex == focusHex) && (offs > 60)) {
-				showBig = true;
-			}
-
-			if (hex->baseFood > 0)
-			{
-				if ((hp.x > 0) && (hp.x < uiAssets->fbWidth) &&
-					(hp.y > 0) && (hp.y < uiAssets->fbHeight))
-				{
-					if (!showBig) {
-						// Small resource icons
-						if (nk_begin(ctx, hex->hexName, nk_rect(hp.x - 50, hp.y - 10, 100, 20), NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER)) {
-							nk_layout_row_static(ctx, 10, 100, 1);
-							ctx->style.text.color = nk_rgb(255, 255, 255);
-							nk_style_set_font(ctx, &(uiAssets->font_14->handle));
-
-							char buff[20];
-							sprintf(buff, "F: %d [%d]", hex->baseFood, hex->farmCount);
-							nk_label(ctx, buff, NK_TEXT_ALIGN_CENTERED);
-						}
-						nk_end(ctx);
-					}
-					else {
-						// Big resource icons
-						if (nk_begin(ctx, hex->hexName, nk_rect(hp.x - 100, hp.y - 25, 200, 50), NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_BORDER)) {
-							nk_layout_row_static(ctx, 25, 200, 1);
-							ctx->style.text.color = nk_rgb(255, 255, 255);
-							nk_style_set_font(ctx, &(uiAssets->font_14->handle));
-
-							char buff[20];
-							sprintf(buff, "Food: %d Farms: %d", hex->baseFood, hex->farmCount);
-							nk_label(ctx, buff, NK_TEXT_ALIGN_CENTERED);
-						}
-						nk_end(ctx);
-					}
-				}
-			}
+		if (hex) {	
+			DoGameUI_HexResourceIcons(ctx, hex, uiAssets);
 		}
 	}
 
 	// Civ Panel
+	ctx->style.window.fixed_background.data.color = nk_rgba(0, 0, 0, 100);
 	if (nk_begin(ctx, "civ_panel", nk_rect(0, 0, 300, uiAssets->fbHeight), NK_WINDOW_NO_SCROLLBAR ))
 	{
 		nk_layout_row_static(ctx, 30, 300, 1);
@@ -598,9 +863,16 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 			//nk_layout_row_dynamic(ctx, 30, 1);
 			//nk_label(ctx, "Static free space with custom position and custom size:", NK_TEXT_LEFT);
 
+			int currentType = Type_RESOURCE;
+			if ((focusHex) && (focusHex->exploreCount > 0)) {
+				currentType = Type_EXPLORE;
+			}
+
 			for (int i = 0; i < bldgSpecs.Size(); i++)
 			{
 				BuildingInfo& bldg = bldgSpecs[i];
+
+				if (bldg.Type != currentType) continue;
 
 				nk_layout_space_begin(ctx, NK_STATIC, 101 /*height*/, 6 /*numchilds*/);
 				
@@ -630,8 +902,8 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 				nk_label(ctx, buff, NK_TEXT_LEFT);				
 				
 				ctx->style.text.color = nk_rgb(2, 100, 30);
-				nk_layout_space_push(ctx, nk_rect(133, 78, 50, 17));
-				sprintf(buff, "Cost: %zu Food", bldg.BaseCost);
+				nk_layout_space_push(ctx, nk_rect(133, 78, 120, 17));
+				sprintf(buff, "Cost: %zu", bldg.BaseCost);
 				nk_label(ctx, buff, NK_TEXT_LEFT);
 			
 				const char* buyPrompt = "Buy!";
