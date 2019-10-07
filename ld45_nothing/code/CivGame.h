@@ -32,6 +32,7 @@
 enum {
 	Type_EXPLORE,
 	Type_RESOURCE,
+	Type_RESOURCE_OCEAN,
 	
 	Type_ENEMY,
 	Type_STARTING_RES
@@ -117,15 +118,23 @@ public:
 	uint64_t exploreCount;
 	TerrainType terrain;	
 
+	// how much has this been damaged
+	uint64_t damageCount;
+
 	// stats (can be recalcuated from buildings)
 	uint64_t stat_foodProduction;
 	uint64_t stat_foodMultiplier;
 	uint64_t stat_totalFoodHarvest;
+	bool hasPlayerBuiltFood;
 	// TODO: Food per second
 
 	uint64_t stat_baseExplore;
+	uint64_t stat_explorerCount;
 	uint64_t stat_exploreMultiplier;
 	uint64_t stat_totalExplore;
+
+	uint64_t stat_numEnemies;
+	uint64_t stat_totalEnemyStr;
 
 
 	Oryol::Array<Building*> bldgs;

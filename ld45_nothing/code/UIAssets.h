@@ -20,6 +20,7 @@ struct UIAssets {
     
     // Common UI assets
     struct nk_font *font_14;
+	struct nk_font* font_20;
     struct nk_font *font_30;
     
     // large rectangulerish buttons
@@ -30,11 +31,25 @@ struct UIAssets {
     struct nk_image img_btn_large_grey;
 
 	struct nk_image img_panel_bldg_food;
+	struct nk_image img_panel_enemies;
+
+	struct nk_image icon_food;
+	struct nk_image icon_food_big;
+
+	struct nk_image icon_explore;
+	struct nk_image icon_explore_big;
+
+	struct nk_image icon_startfood;
+	struct nk_image icon_startfood_big;
+
+	struct nk_image icon_enemy;
+	struct nk_image icon_enemy_big;
     
     void SetupUI();
     
     bool fontValid = false;
-    Oryol::Buffer ttfData;
+    Oryol::Buffer ttfDataTitleFont;
+	Oryol::Buffer ttfDataBodyFont;
 
     void LoadIcon(const char* url, struct nk_image* img);
 

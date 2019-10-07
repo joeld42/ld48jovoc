@@ -151,7 +151,7 @@ void main() {
     //vec3 cResult = mix( cBaseColor, cDecalColor, cDecal.a * decalTintColor.a );
 	
 	float nDotL = clamp( dot( lightDir.xyz, nrm.xyz ), 0, 1);
-	vec3 lightCol = mix( vec3(0.1,0.12,0.2), vec3(2.0), nDotL );
+	vec3 lightCol = mix( vec3(0.1,0.12,0.2), vec3(1.5), nDotL );
 	
     fragColor = applyShadow( shadowMap, vec4(cBaseColor * lightCol, 1.0), lightProjPos );    	
 }

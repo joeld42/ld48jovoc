@@ -10,26 +10,47 @@ using namespace Tapnik;
 void UIAssets::SetupUI()
 {
     
-    // setup custom fonts
-    IO::Load("gamedata:uiassets/Roboto-Medium.ttf", [this](IO::LoadResult loadResult) {
-        printf("Loaded font.\n");
-        
-        // need to make the data static
-        this->ttfData = std::move(loadResult.Data);
-        NKUI::BeginFontAtlas();
-        this->font_14 = NKUI::AddFont(this->ttfData, 14.0f);
-        this->font_30 = NKUI::AddFont(this->ttfData, 30.0f);
-        NKUI::EndFontAtlas();
-        
-        LoadIcon( "gamedata:uiassets/btn_large_blue.png", &img_btn_large_blue );
-        LoadIcon( "gamedata:uiassets/btn_large_yellow.png", &img_btn_large_yellow );
-        LoadIcon( "gamedata:uiassets/btn_large_green.png", &img_btn_large_green );
-        LoadIcon( "gamedata:uiassets/btn_large_red.png", &img_btn_large_red );
-        LoadIcon( "gamedata:uiassets/btn_large_grey.png", &img_btn_large_grey );
+    // setup custom fonts	
+	// "gamedata:uiassets/Roboto-Medium.ttf"
+    IO::Load("gamedata:uiassets/OLDSH___.TTF", [this](IO::LoadResult loadResult) {
+        printf("Loaded title font.\n");
+		this->ttfDataTitleFont = std::move(loadResult.Data);
 
-		LoadIcon("gamedata:uiassets/panel_bldg_food.png", &img_panel_bldg_food );
-        
-        this->fontValid = true;
+		// TODO: clean up this ugly chaining
+		IO::Load("gamedata:uiassets/Roboto-Medium.ttf", [this](IO::LoadResult loadResult2) {
+			// need to make the data static
+			this->ttfDataBodyFont = std::move(loadResult2.Data);
+			
+			NKUI::BeginFontAtlas();
+			this->font_14 = NKUI::AddFont(this->ttfDataBodyFont, 14.0f);
+			this->font_20 = NKUI::AddFont(this->ttfDataTitleFont, 24.0f);
+			this->font_30 = NKUI::AddFont(this->ttfDataTitleFont, 40.0f); // slightly bigger cause this font seems small
+			NKUI::EndFontAtlas();
+
+			LoadIcon("gamedata:uiassets/btn_large_blue.png", &img_btn_large_blue);
+			LoadIcon("gamedata:uiassets/btn_large_yellow.png", &img_btn_large_yellow);
+			LoadIcon("gamedata:uiassets/btn_large_green.png", &img_btn_large_green);
+			LoadIcon("gamedata:uiassets/btn_large_red.png", &img_btn_large_red);
+			LoadIcon("gamedata:uiassets/btn_large_grey.png", &img_btn_large_grey);
+
+			LoadIcon("gamedata:uiassets/icon-food16.png", &icon_food);
+			LoadIcon("gamedata:uiassets/icon-food.png", &icon_food_big);
+
+			LoadIcon("gamedata:uiassets/icon-startfood16.png", &icon_startfood);
+			LoadIcon("gamedata:uiassets/icon-startfood.png", &icon_startfood_big);
+
+			LoadIcon("gamedata:uiassets/icon-enemy16.png", &icon_enemy);
+			LoadIcon("gamedata:uiassets/icon-enemy.png", &icon_enemy_big);
+
+			//LoadIcon("gamedata:uiassets/icon-food16.png", &icon_explore);
+			//LoadIcon("gamedata:uiassets/icon-food.png", &icon_explore_big);
+
+
+			LoadIcon("gamedata:uiassets/panel_bldg_food.png", &img_panel_bldg_food);
+			LoadIcon("gamedata:uiassets/panel_enemies.png", &img_panel_enemies );
+
+			this->fontValid = true;
+			});
     });
 }
 
