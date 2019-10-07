@@ -49,16 +49,21 @@ public:
 
 	// these are just cached for the current focus building
 	int countOnFocusHex = 0;
+
+	Tapnik::SceneMesh* mesh;
 };
 
 class Building
 {
 public:
-	Building(BuildingInfo* info) :info(info) {}
+	Building(BuildingInfo* info) :info(info), sceneObj(NULL) {}
 	
 	BuildingInfo* info;
-	Tapnik::SceneObject* sceneObj;
+	Tapnik::SceneObject* sceneObj;	
 	float cooldown;
+
+	glm::vec3 localPos;
+	glm::quat localRot;
 };
 
 class GameHex
@@ -125,6 +130,7 @@ public:
 	Tapnik::SceneMesh* BuildHexMesh( float hexSize );
 
 	void SetupGameBoard();
+	void HandleInput(float dt, Tapnik::Camera* activeCamera);
 
 	void fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera* activeCamera);
 	void dynamicUpdate(Oryol::Duration frameDt, Tapnik::Camera* activeCamera);

@@ -259,8 +259,8 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
 		// Swap Y and Z
         for (uint32_t i = 0; i < numPoints; i++) {
             glm::vec3 p( posData->GetDataElement(i*3+0),
-                         posData->GetDataElement(i*3+2),
-                         posData->GetDataElement(i*3+1) );
+                         posData->GetDataElement(i*3+1),
+                         posData->GetDataElement(i*3+2) );
             
             // Grow bbox
             bbox.extend( p );
@@ -270,8 +270,8 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
             
             if (nrmData != NULL) {
                 glm::vec3 nrm( nrmData->GetDataElement(i*3+0),
-                               nrmData->GetDataElement(i*3+2),
-                               nrmData->GetDataElement(i*3+1) );
+                               nrmData->GetDataElement(i*3+1),
+                               nrmData->GetDataElement(i*3+2) );
                 meshVert->m_nrm = nrm;
             }
 
@@ -316,6 +316,7 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
         }
 
 		// HACK: flip triangles
+		/*
 		for (int32 i = 0; i < indexData->GetDataElementCount() / 3; i++) {
 			uint16_t a = meshIndices[i * 3 + 1];
 			uint16_t b = meshIndices[i * 3 + 2];
@@ -323,6 +324,7 @@ bool WriteGeom( LDJamFileMeshInfo *meshInfo,
 			meshIndices[i * 3 + 2] = a;
 			meshIndices[i * 3 + 1] = b;
 		}
+		*/
 
         meshContentSize += sizeof(uint16_t) * indexData->GetDataElementCount();
 

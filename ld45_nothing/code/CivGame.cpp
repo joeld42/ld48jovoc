@@ -13,6 +13,23 @@
 
 #include "par_easings.h"
 
+// Military Rules:
+// - Build Soldiers and Barracks to increase your STR for each hex
+// - Some hexes start with Barbarians on them. You can't build there until you get rid of them.
+// - Barbarian STR is (# of barbarians) ** 2
+// - Click on a barbarian hex to reduce it by the SUM of the STR of all adjacent hexes.
+
+// Science Rules:
+// - The "tech tree" presents 3 (or so) projects you can research.
+// - Each has a SCIENCE COST (high value like 40k) and a REWARD
+// - Reward is a number of dice, e.g 2D6 + D20
+// - You pick a science project to research. All your SCIENCE earned goes towards progress on that.
+// - You may abandon it, but you lose all the science you put towards it.
+// - On reward, your current TECH is multiplied by the total dice roll
+
+// Goal: Get 1 billion wealth + technology, clear all the barbarians, 
+// to build a Space Program and launch a rocket
+
 // NKUI and stb-image for UI stuff
 #include "NKUI/NKUI.h"
 
@@ -42,14 +59,15 @@ glm::vec4 colorFromHexCode(const char* hexColor)
 BuildingInfo::BuildingInfo(Oryol::String _bldgName,
 	Oryol::String _desc) :
 	bldgName( _bldgName ),
-	desc( _desc )
+	desc( _desc ),
+	mesh(NULL)
 {
 }
 
 // =========================================================
 //  GameHex
 // =========================================================
-GameHex::GameHex(int hx, int hy) : hx(hx), hy(hy), bobTime(0.0)
+GameHex::GameHex(int hx, int hy) : hx(hx), hy(hy), bobTime(0.0), sceneObj( NULL) 
 {
 	bobTime = glm::linearRand(0.0f, 10.0f );
 	bobRate = glm::linearRand(0.9f, 1.5f);
@@ -149,6 +167,20 @@ void CivGame::SetupWithScene(Scene* _scene)
 	SceneObject* hexbackObj = scene->FindNamedObject("HexBack");
 	
 	hexBackMesh = hexbackObj?hexbackObj->mesh:NULL;
+
+	// See if we have building meshes
+	for (int i = 0; i < bldgSpecs.Size(); i++) {
+		SceneObject *bbObj = scene->FindNamedObject(bldgSpecs[i].bldgName);
+		if (bbObj) {
+			Log::Info("Found building for %s!\n", bldgSpecs[i].bldgName.AsCStr());
+			bldgSpecs[i].mesh = bbObj->mesh;
+		}
+		else {
+			Log::Info("MISSING building mesh %s!\n", bldgSpecs[i].bldgName.AsCStr());
+			bldgSpecs[i].mesh = NULL;
+		}
+	}
+
 
 	// Remove all of the object instances (but keep the meshes)
 	while (scene->sceneObjs.Size() > 0) {
@@ -345,19 +377,12 @@ void CivGame::UpdateGameSystem(float dt)
 	}
 }
 
-void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera* activeCamera)
+void CivGame::HandleInput(float dt, Tapnik::Camera* activeCamera)
 {
-	float dt = fixedDt.AsSeconds();
-
-	// game update
-	UpdateGameSystem(dt);
-
 	// Update input and feedback
 
 	// Right margin
 	float RM = uiAssets->fbWidth - 300.0f;
-
-	gameTime += dt;
 
 	// Cheats for dev
 	if (Input::KeyDown(Key::N1)) {
@@ -397,6 +422,12 @@ void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera* activeCamera)
 
 		glm::vec2 mousePos = Input::MousePosition();
 
+		if (Input::MouseButtonDown(MouseButton::Left)) {
+			Log::Info("LMB MouseDown..\n");
+		}
+		if (Input::MouseButtonUp(MouseButton::Left)) {
+			Log::Info("LMB MouseUp..\n");
+		}
 		if ((!focusHex) || (focusHex == hoverHex))
 		{
 			// Have they held the mouse down long enough to count as a long press?
@@ -412,11 +443,13 @@ void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera* activeCamera)
 			if ((mousePos.x > 300) && (mousePos.x < RM)) {
 				if (Input::MouseButtonDown(MouseButton::Left)) {
 
+
 					mouseDown = true;
 					didTriggerLongPress = false;
 					mouseDownTime = 0.0f;
 				}
 				else if (Input::MouseButtonUp(MouseButton::Left)) {
+
 					mouseDown = false;
 					if (!didTriggerLongPress) {
 						ClickForTheGloryOfTheEmpire(hoverHex);
@@ -434,12 +467,12 @@ void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera* activeCamera)
 
 				// We have a focus hex, any other click will unfocus it
 				if (Input::MouseButtonDown(MouseButton::Left) || Input::MouseButtonDown(MouseButton::Right)) {
+					Log::Info("Mouse Button Down, but focused.\n");
 					SetFocusHex(NULL);
 				}
 			}
 		}
 	}
-	
 
 	glm::vec3 focusTarget(0.0f);
 	glm::vec2 camRiseTarget(10.0f, 40.0f);
@@ -447,7 +480,7 @@ void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera* activeCamera)
 		focusTarget = focusHex->hexWorldPos;
 		camRiseTarget = glm::vec2(5.0f, 6.0f);
 	}
-	camFocusPos = mix(camFocusPos, focusTarget, 4.0f*dt );
+	camFocusPos = mix(camFocusPos, focusTarget, 4.0f * dt);
 	camRiseDist = mix(camRiseDist, camRiseTarget, 2.0f * dt);
 
 	// Update the screen positions of all the hexes
@@ -464,11 +497,24 @@ void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera* activeCamera)
 				glm::vec2 screenPos = glm::vec2(
 					(((viewportPos.x / viewportPos.w) * 0.5f) + 0.5f) * uiAssets->fbWidth,
 					(1.0f - (((viewportPos.y / viewportPos.w) * 0.5f) + 0.5f)) * uiAssets->fbHeight);
-				
+
 				hex->screenPos = screenPos;
 			}
 		}
 	}
+}
+
+void CivGame::fixedUpdate(Oryol::Duration fixedDt, Tapnik::Camera* activeCamera)
+{
+	float dt = fixedDt.AsSeconds();
+
+	// game update
+	UpdateGameSystem(dt);
+
+	
+	gameTime += dt;
+
+	
 }
 
 void CivGame::CountBuildings(GameHex* hex)
@@ -492,7 +538,7 @@ void CivGame::BuildBuilding(GameHex* hex, BuildingInfo* info)
 		resFood -= info->BaseCost;	
 
 		Building* bldg = Memory::New<Building>(info);
-		hex->bldgs.Add(bldg);
+		
 		if (info->CooldownTime >= 0.0f) {
 			/// start at a random offset so they don't all fire in sync
 			bldg->cooldown = info->CooldownTime * glm::linearRand(0.1f, 1.0f); 
@@ -500,6 +546,40 @@ void CivGame::BuildBuilding(GameHex* hex, BuildingInfo* info)
 		else {
 			bldg->cooldown = info->CooldownTime;
 		}
+
+		// Add the building mesh if it has one
+		if (info->mesh) {
+			bldg->sceneObj = scene->spawnObject(info->mesh);
+		}
+
+		// for now, just retry a few times to minimze overlaps. In the future, do something better
+		bool goodPos = false;
+		int attempts = 0;
+		while (!goodPos) {
+			bldg->localPos = glm::vec3(glm::diskRand(1.4f), glm::linearRand(0.0f, 0.1f));
+
+			// is this position good?
+			goodPos = true;
+			for (int i = 0; i < hex->bldgs.Size(); i++) {
+				float dd = glm::distance(hex->bldgs[i]->localPos, bldg->localPos);
+				Log::Info("local dist is %3.3f\n", dd);
+				if (dd < 0.6f) {
+					goodPos = false;
+					break;
+				}
+			}
+			attempts++;
+			if (attempts > 20) {
+				Log::Info("Couldn't fit building without overlap.\n");
+				break;
+			}
+		}
+
+
+		bldg->localRot = glm::angleAxis(glm::linearRand(0.0f, glm::pi<float>() * 4.0f), glm::vec3(0.0f, 0.0f, 1.0f) );
+
+		// Add this building
+		hex->bldgs.Add(bldg);
 
 		CountBuildings(focusHex);
 		UpdateHexStats(hex);
@@ -650,6 +730,11 @@ void CivGame::dynamicUpdate(Oryol::Duration frameDt, Tapnik::Camera * activeCame
 			float cb = sin(gameTime * 50.0) * hex->clickBounce;
 			hex->clickBounce = glm::max<float>(0.0f, hex->clickBounce - dt*3.0f);
 
+			// If we're focused, tone down the bounce cause it's pretty intense
+			if (focusHex) {
+				cb *= 0.2f;
+			}
+
 			// Update hover dist
 			glm::vec2 hexPos2d = glm::vec2(hex->hexWorldPos.x, hex->hexWorldPos.y);
 			float dd = glm::distance(hexPos2d, groundCursor2D);
@@ -664,9 +749,12 @@ void CivGame::dynamicUpdate(Oryol::Duration frameDt, Tapnik::Camera * activeCame
 			float needFlipAnim = (hex->flipAmountTarg - hex->flipAmount);
 			if (fabs(needFlipAnim) > 0.001f) {
 				float flipDir = needFlipAnim > 0.0f ? 1.0f : -1.0f;
-				hex->flipAmount += dt * flipDir * 1.0f;
+				hex->flipAmount += dt * flipDir * 2.0f;
 				// Don't bound when flipping cause it looks weird
 				cb = 0.0f;
+				
+				// clamp
+				hex->flipAmount = glm::clamp(hex->flipAmount, 0.0f, 1.0f);
 			}
 			else {
 				hex->flipAmount = hex->flipAmountTarg;
@@ -675,13 +763,29 @@ void CivGame::dynamicUpdate(Oryol::Duration frameDt, Tapnik::Camera * activeCame
 			//hex->flipAmount += dt;
 			//hex->flipAmount = fmod(hex->flipAmount, 1.0f);
 
-			glm::quat hexFlip = glm::angleAxis(hex->flipAmount * glm::pi<float>(),hex->flipAxis );
+			float easeFlip = par_easings_in_bounce(hex->flipAmount);
+			glm::quat hexFlip = glm::angleAxis(easeFlip * glm::pi<float>(),hex->flipAxis );
 
 			//glm::mat4x4 hexXform = 
 			glm::mat4x4 hexXform = glm::translate(glm::mat4x4(), hex->pos + glm::vec3(0.0f, 0.0f, cb));
 			hex->sceneObj->xform = hexXform * glm::toMat4(hexFlip);
 			if (hex->hexBackObj) {
 				hex->hexBackObj->xform = hex->sceneObj->xform;
+			}
+
+			// Update any building transforms
+			for (int i = 0; i < hex->bldgs.Size(); i++)
+			{
+				Building* bb = hex->bldgs[i];
+				SceneObject* bbObj = bb->sceneObj;
+				if (bbObj) {
+
+					glm::mat4x4 bldgXform = glm::translate(glm::mat4x4(), bb->localPos);
+					glm::mat4x4 bldgRot = glm::toMat4( bb->localRot );
+
+					// HERE was 
+					bbObj->xform = hex->sceneObj->xform * (bldgXform * bldgRot);
+				}
 			}
 		}
 	}	
@@ -699,7 +803,8 @@ void CivGame::dynamicUpdate(Oryol::Duration frameDt, Tapnik::Camera * activeCame
 		}
 	}
 	
-
+	// Handle Mouse Input
+	HandleInput(dt, activeCamera);
 
 }
 
@@ -778,7 +883,7 @@ void CivGame::DoGameUI_HexResourceIcons(nk_context* ctx, GameHex* hex, Tapnik::U
 					if (nk_begin(ctx, hex->hexName, nk_rect(hp.x - 60, hp.y - 30, 120, 60), NK_WINDOW_NO_SCROLLBAR /*|NK_WINDOW_BORDER*/)) {
 						nk_layout_row_static(ctx, 40, 100, 1);
 
-						ctx->style.text.color = nk_rgb(240, 240, 250);
+						ctx->style.text.color = nk_rgb(40, 40, 50);
 						nk_style_set_font(ctx, &(uiAssets->font_30->handle));
 						char buff[20];
 						shortNumStr(buff, hex->exploreCount);
@@ -790,7 +895,7 @@ void CivGame::DoGameUI_HexResourceIcons(nk_context* ctx, GameHex* hex, Tapnik::U
 					if (nk_begin(ctx, hex->hexName, nk_rect(hp.x - 125, hp.y - 30, 250, 60), NK_WINDOW_NO_SCROLLBAR /*| NK_WINDOW_BORDER */)) {
 						nk_layout_row_static(ctx, 40, 220, 1);
 
-						ctx->style.text.color = nk_rgb(240, 240, 250);
+						ctx->style.text.color = nk_rgb(40, 40, 50);
 						nk_style_set_font(ctx, &(uiAssets->font_30->handle));
 						char buff[20];
 						sprintf(buff, "%zu", hex->exploreCount);

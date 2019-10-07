@@ -88,6 +88,11 @@ LD45NothingApp::OnInit() {
     Dbg::Setup();
 
     Input::Setup();
+	//Input::SetPointerLockHandler([this](const InputEvent & event) -> PointerLockMode::Code {
+	//	
+	//	return PointerLockMode::DontCare;
+	//	});
+	
     
     
     // Initialize SoLoud (automatic back-end selection)
@@ -330,7 +335,7 @@ LD45NothingApp::OnRunning() {
     
     // Do UI
     if ((civGame) && (this->uiAssets->fontValid)) {
-        //this->interfaceScreens( uiAssets );
+       
 		civGame->interfaceScreens(uiAssets);
     }
     
