@@ -17,6 +17,8 @@ using namespace Tapnik;
 Renderizer::Renderizer(  const Oryol::VertexLayout &meshLayout, 
 	Oryol::GfxSetup *gfxSetup, int mainRenderSampleCount )
 {
+	sceneTime = 0.0f;
+
     // Main render setup
     this->passAction.Color[0] = glm::vec4( 0.2, 0.2, 0.2, 1.0 );
 
@@ -190,6 +192,7 @@ void Renderizer::renderScene(Tapnik::Scene* scene, Tapnik::UIAssets* uiAssets)
 		//backgroundFSparams.cameraXform = glm::inverse(camXform);
 		backgroundFSparams.cameraXform = camXform;
 		backgroundFSparams.aspect = uiAssets->fbWidth / uiAssets->fbHeight;
+		backgroundFSparams.aTime = sceneTime;
 	}
 
 	//this->backgroundVSparams.FSTexture[PostProcShader::tex] = mainRenderTarget;

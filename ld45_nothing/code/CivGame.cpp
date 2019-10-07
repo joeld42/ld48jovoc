@@ -509,18 +509,25 @@ void CivGame::HandleInput(float dt, Tapnik::Camera* activeCamera)
 	float RM = uiAssets->fbWidth - 300.0f;
 
 	// Cheats for dev
-	if (Input::KeyDown(Key::N1)) {
-		resFood += 1000;
-	}
-	else if (Input::KeyDown(Key::N4)) {
-		// Explore everthing
-		for (int i = 0; i < BOARD_SZ * BOARD_SZ; i++) {
-			GameHex* hex = board[i];
-			if (hex) {
-				hex->exploreCount = 0;
-				ApplyTerrainEffects(hex);
+	if (cheatsEnabled)
+	{
+		if (Input::KeyDown(Key::N1)) {
+			resFood += 1000;
+		}
+		else if (Input::KeyDown(Key::N4)) {
+			// Explore everthing
+			for (int i = 0; i < BOARD_SZ * BOARD_SZ; i++) {
+				GameHex* hex = board[i];
+				if (hex) {
+					hex->exploreCount = 0;
+					ApplyTerrainEffects(hex);
+				}
 			}
 		}
+	}
+
+	if (Input::KeyDown(Key::N0)) {
+		cheatsEnabled = !cheatsEnabled;
 	}
 
 	// Handle input
@@ -988,7 +995,7 @@ float CivGame::CalcIconOffset(GameHex* hex)
 
 	float d = glm::distance(hex->screenPos, nbr->screenPos);
 
-	return d * 0.3;
+	return d * 0.25;
 }
 
 void CivGame::interfaceScreens(Tapnik::UIAssets* uiAssets)
@@ -1093,7 +1100,7 @@ void CivGame::DoGameUI_HexResourceIcons(nk_context* ctx, GameHex* hex, Tapnik::U
 				struct nk_image icon;
 				if ((hex->exploreCount > 0) && ((hex->stat_totalExplore > 1) || (hex->stat_explorerCount > 0)) ) {
 					// We've started to explore this hex
-					icon = uiAssets->icon_food;
+					icon = uiAssets->icon_explore;
 				}
 				else if (hex->exploreCount == 0) {
 
@@ -1101,11 +1108,17 @@ void CivGame::DoGameUI_HexResourceIcons(nk_context* ctx, GameHex* hex, Tapnik::U
 						icon = uiAssets->icon_enemy;
 					}
 					else {
-						if (hex->hasPlayerBuiltFood) {
-							icon = uiAssets->icon_food;
+						if (hex->stat_foodProduction > 0)
+						{
+							if (hex->hasPlayerBuiltFood) {
+								icon = uiAssets->icon_food;
+							}
+							else {
+								icon = uiAssets->icon_startfood;
+							}
 						}
 						else {
-							icon = uiAssets->icon_startfood;
+							drawIcons = false;
 						}
 					}
 				}
@@ -1138,7 +1151,7 @@ void CivGame::DoGameUI_HexResourceIcons(nk_context* ctx, GameHex* hex, Tapnik::U
 					// Always show explore stats for unexplored hex if we've started it
 					if (hex->exploreCount != hex->exploreCountStart)
 					{
-						icon = uiAssets->icon_food_big;
+						icon = uiAssets->icon_explore_big;
 						sprintf(numText, "%zu", hex->stat_totalExplore);
 						ctx->style.text.color = nkStyleFromHexCode("#68badc").data.color;
 					}
@@ -1328,12 +1341,12 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 			nk_layout_row_static(ctx, 60, 250, 1);
 			nk_label_wrap(ctx, "Click on an unexplored hex to explore it.");
 			nk_label_wrap(ctx, "Click a hex with resources to produce.");
-			nk_label_wrap(ctx, "Click and Hold or Right-Click to build improvements on a hex." );
+			nk_label_wrap(ctx, "Click and Hold or Right-Click to inspect and build improvements on a hex." );
 			//nk_layout_row_end(ctx);
 
 			nk_layout_row_static(ctx, 400, 300, 1);
 			nk_style_set_font(ctx, &(uiAssets->font_30->handle));
-			nk_label(ctx, "TODO: Rocket", NK_TEXT_ALIGN_CENTERED);
+			//nk_label(ctx, "TODO: Rocket", NK_TEXT_ALIGN_CENTERED);
 			//nk_layout_row_end(ctx);
 
 		} else {							
@@ -1341,17 +1354,19 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 			if ((focusHex) && (focusHex->exploreCount==0) && (focusHex->stat_numEnemies > 0)) {
 				
 				// Can't build here, there are enemies. 
-				nk_layout_space_begin(ctx, NK_STATIC, 101 /*height*/, 6 /*numchilds*/);
-
-				nk_layout_space_push(ctx, nk_rect(0, 0, 300, 151));
-				nk_image(ctx, uiAssets->img_panel_enemies);
+				//nk_layout_space_begin(ctx, NK_STATIC, 101 /*height*/, 6 /*numchilds*/);
 
 				ctx->style.text.color = nk_rgb(255, 255, 255);
-				nk_style_set_font(ctx, &(uiAssets->font_30->handle));
-				nk_layout_space_push(ctx, nk_rect(43, 0, 257, 32));
+				nk_style_set_font(ctx, &(uiAssets->font_30->handle));				
 				nk_label(ctx, "Barbarians!", NK_TEXT_LEFT);
 
-				nk_layout_space_end( ctx );
+
+				//nk_layout_space_push(ctx, nk_rect(0, 0, 300, 151));
+				//nk_image(ctx, uiAssets->img_panel_enemies);
+				nk_style_set_font(ctx, &(uiAssets->font_20->handle));
+				nk_label_wrap(ctx, "Unfortunately I ran out of time to finish implementing barbarians." );
+				
+				//nk_layout_space_end( ctx );
 			}
 			else {
 

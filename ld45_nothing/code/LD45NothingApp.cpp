@@ -67,7 +67,7 @@ LD45NothingApp::OnInit() {
     
 	// Don't enable MSAA here because we're doing it in the main render texture pass
 
-	const char* windowTitle = "LD45 Nothing";
+	const char* windowTitle = "Click of Ages (LDJAM 45)";
 	if (OryolArgs.HasArg("--fullscreen")) {
 		gfxSetup = GfxSetup::Fullscreen(1280, 720, windowTitle);
 	} else {
@@ -321,6 +321,12 @@ LD45NothingApp::OnRunning() {
         dd::screenText("Debug Mode", textPos2D, dd::colors::Orange );
     }
 
+	if ((civGame)&&(civGame->cheatsEnabled)) {
+		ddVec3 textPos2D = { 0.0f, 20.0f, 0.0f };
+		textPos2D[0] = uiAssets->fbWidth / 2.0;
+		dd::screenText("Cheats Enabled", textPos2D, dd::colors::Orange);
+	}
+
 	if (Input::KeyDown(Key::Escape)|| Input::KeyDown(Key::Q)) {
 		Log::Info("Request Quit...\n");
 		requestQuit();
@@ -429,6 +435,8 @@ void LD45NothingApp::fixedUpdate( Oryol::Duration fixedDt )
 
 void LD45NothingApp::dynamicUpdate( Oryol::Duration frameDt )
 {
+	renderizer->sceneTime += frameDt.AsSeconds();
+
 	if (civGame) {
 
 		// update the game camera

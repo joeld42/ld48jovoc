@@ -59,6 +59,7 @@ void main() {
 
 uniform fsParams {
     float aspect;
+	float aTime;
 	mat4 cameraXform;
 };
 in vec2 uv;
@@ -176,12 +177,13 @@ vec4 map( in vec3 pos0, float atime )
 	//blobify
 	//float b = 1.0*(sin(pos.x)+sin(pos.y)+pos.z) * (abs(pos.z) - 4.0); 
 	vec2 bp = vec2(pos.xy)*0.3 + pos.zz*0.2;
-	float b = (sin(bp.x)+sin(bp.y)) ;
+	float b = (sin(bp.x)+sin(bp.y+atime*0.1) ) ;
 
 	bp *= mat2(0.8,0.6,-0.6,0.8)*2.1;
 	b += 0.5*(sin(bp.x)+sin(bp.y));
 
 	b = b + (abs(pos.z) - 6.0); 
+	
 
 	res = vec4( smax(res.x, -b, 0.4), 1.0, 0.0, 1.0 );
 	//res = vec4(b, 1.0, 0.0, 1.0 );
@@ -245,35 +247,48 @@ void main() {
     // ray direction and origin
 	vec2 ss = (uv * 2.0) - 1.0;
     vec3 rd = (cameraXform * vec4(normalize( vec3( ss.x * aspect, ss.y, -2) ), 0.0)).xyz;    
-    vec3 ro = (cameraXform * vec4( 0,0,0,1 )).xyz;    
+    vec3 ro = (cameraXform * vec4( 0,0,0,1 )).xyz + 
+				vec3(0,0,10.0f); // raise camera for this scene
 
 
     // sky color (borrowed from iq happy jumping shader)
-    vec3 col = vec3(0.5, 0.8, 0.9) - max(rd.y,0.0)*0.5;
+    //vec3 col = vec3(0.5, 0.8, 0.9) - max(rd.y,0.0)*0.5;
 
-    // sky clouds
+	vec3 col = vec3(0.0, 0.08, 0.1) + max(-rd.z,0.0);
+
+    // sky clouds 
+	// disabled because our camera never points up
+	#if 0
 	{
 		vec2 uv = 1.5*rd.xy/rd.z;
-		float cl  = 1.0*(sin(uv.x)+sin(uv.y)); uv *= mat2(0.8,0.6,-0.6,0.8)*2.1;
-			  cl += 0.5*(sin(uv.x)+sin(uv.y));
-		col += 0.1*(-1.0+2.0*smoothstep(-0.1,0.1,cl-0.4));
+		float cl  = 1.0*(sin(uv.x)+sin(uv.y+aTime)); uv *= mat2(0.8,0.6,-0.6,0.8)*2.1;
+			  cl += 0.5*(sin(uv.x)+sin(uv.y + aTime));
+		col += 0.1*(-1.0+2.0*smoothstep(-0.4,0.4,cl-0.4));
 
 		// sky horizon
 		col = mix( col, vec3(0.5, 0.7, .9), exp(-10.0*max(rd.z,0.0)) );   
 	}
+	#endif
 
 	// floor
 	vec3 floorCol;
 	{
 		vec2 uv = -1.5*rd.xy/rd.z;
-		vec2 floorStripe = smoothstep( vec2(0.95 - (1.0-abs(rd.z))*0.95 ), vec2(0.95), cos( uv ) );
-		floorCol = mix( vec3( 0.2, 0.6, 0.3 ), vec3( 0.8, 0.95, 0.9), max( floorStripe.x, floorStripe.y));
+		
+		// griddy floor
+		//vec2 floorStripe = smoothstep( vec2(0.95 - (1.0-abs(rd.z))*0.95 ), vec2(0.95), cos( uv ) );
+		//floorCol = mix( vec3( 0.2, 0.6, 0.3 ), vec3( 0.8, 0.95, 0.9), max( floorStripe.x, floorStripe.y));
+		//col = mix( floorCol, col, exp(-5.0*max( -rd.z,0.0)) );   
 
-		col = mix( floorCol, col, exp(-5.0*max( -rd.z,0.0)) );   
+		// blobby floor
+		float cl  = 1.0*(sin(uv.x)+sin(uv.y+aTime*0.15)); 
+		uv *= mat2(0.8,0.6,-0.6,0.8)*2.1;
+		cl += 0.5*(sin(uv.x+aTime*0.1)+sin(uv.y));
+		col += 0.1*(-1.0+2.0*smoothstep(-0.4,0.4,cl-0.4));
 	}
 
 	#if 1
-    float time = 0.0;
+    float time = aTime;
     vec4 res = castRay( ro, rd, time );
     if ( res.y > -0.5) {
         float t = res.x;
@@ -289,17 +304,28 @@ void main() {
             // ground mtl
             //col = vec3( res.w );
 
-            col = (nrm + vec3(1.0)) * 0.5;
+            // col = (nrm + vec3(1.0)) * 0.5;
+			col = vec3( 0.3, 0.5, 0.4 );
 			
 			//vec4 hc = HexCoords( pos.xy / HEX_SIZE );
 			//vec3 hexFill = vec3( 0.850, 0.670, 0.603 );
 			//vec3 hexStroke = vec3( 0.9, 0.9, 0.95 );
 			//col = mix( hexFill, hexStroke, smoothstep( 0.48, 0.49, hc.y ) );
 			//col = hc.xyz;
+		
        }
+	   
+	   vec3 lightDir = normalize( vec3( -0.2, 0.3, 1.0 ));
+	   float nDotL = clamp( dot( lightDir.xyz, nrm.xyz ), 0, 1);
+		vec3 lightCol = mix( vec3(0.5,0.4,0.8), vec3(2.5, 2.0, 0.8), nDotL );
+		
+		col = vec3(col * lightCol) + vec3( 0.933, 0.914, 0.765 ) * 0.2;
+
+		// fog color
+		col = mix( col, vec3(1.0f), smoothstep( 25.0f, -40.0f, pos.z ));
 
 	   // Fade in the floor color at MAX_DIST
-		col = mix (col, floorCol, smoothstep(MAX_DIST-50, MAX_DIST, res.x));
+		//col = mix (col, floorCol, smoothstep(MAX_DIST-50, MAX_DIST, res.x));
     }
 	#endif
 

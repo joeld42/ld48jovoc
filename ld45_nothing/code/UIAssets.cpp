@@ -42,12 +42,11 @@ void UIAssets::SetupUI()
 			LoadIcon("gamedata:uiassets/icon-enemy16.png", &icon_enemy);
 			LoadIcon("gamedata:uiassets/icon-enemy.png", &icon_enemy_big);
 
-			//LoadIcon("gamedata:uiassets/icon-food16.png", &icon_explore);
-			//LoadIcon("gamedata:uiassets/icon-food.png", &icon_explore_big);
-
+			LoadIcon("gamedata:uiassets/icon-explore16.png", &icon_explore);
+			LoadIcon("gamedata:uiassets/icon-explore.png", &icon_explore_big);
 
 			LoadIcon("gamedata:uiassets/panel_bldg_food.png", &img_panel_bldg_food);
-			LoadIcon("gamedata:uiassets/panel_enemies.png", &img_panel_enemies );
+			//LoadIcon("gamedata:uiassets/panel_enemies.png", &img_panel_enemies );
 
 			this->fontValid = true;
 			});

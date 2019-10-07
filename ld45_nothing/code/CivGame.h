@@ -184,6 +184,8 @@ public:
 	uint64_t resScience =0;
 	uint64_t resMight =0;
 
+	bool cheatsEnabled = false;
+
 	// UI stuff
 	Tapnik::UIAssets* uiAssets; 
 

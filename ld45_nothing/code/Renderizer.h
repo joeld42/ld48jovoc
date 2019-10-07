@@ -26,6 +26,8 @@ namespace Tapnik
         
 		void testShadowStuff(float shadNear, float shadFar);
 
+		float sceneTime;
+
 		// Background (SDF Skybox) pass
 		Oryol::TextureSetup backgroundRenderSetup;
 		Oryol::Id backgroundRenderTarget;
