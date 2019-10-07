@@ -24,6 +24,8 @@ namespace Tapnik
 		void finishMainPass();
 		void finishRender( Tapnik::UIAssets *uiAssets );
         
+		void testShadowStuff(float shadNear, float shadFar);
+
 		// Background (SDF Skybox) pass
 		Oryol::TextureSetup backgroundRenderSetup;
 		Oryol::Id backgroundRenderTarget;

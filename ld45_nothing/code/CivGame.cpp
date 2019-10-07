@@ -62,6 +62,7 @@ BuildingInfo::BuildingInfo(Oryol::String _bldgName,
 	desc( _desc ),
 	mesh(NULL)
 {
+	ModelName = _bldgName;
 }
 
 // =========================================================
@@ -73,9 +74,6 @@ GameHex::GameHex(int hx, int hy) : hx(hx), hy(hy), bobTime(0.0), sceneObj( NULL)
 	bobRate = glm::linearRand(0.9f, 1.5f);
 	hoverBump = 0.0f;
 	clickBounce = 0.0f;
-	
-	baseFood = 0;
-	farmCount = 0;
 
 	sprintf(hexName, "hex_%d_%d", hx, hy);
 }
@@ -95,44 +93,78 @@ CivGame::CivGame() : scene(NULL), uiAssets(NULL), hoverHex( NULL ), focusHex(NUL
 	// Initialize buildings
 
 	// Resource Buildings
-
+	glm::vec4 startFoodColor = colorFromHexCode("#65b617");
+	glm::vec4 farmColor = colorFromHexCode("#C6D93B");
+	glm::vec4 exploreColor = colorFromHexCode("#04BFBF");
+	glm::vec4 mineralColor = colorFromHexCode("#F2B705");
+	glm::vec4 barbarianColor = colorFromHexCode("#F23D4C");
 	bldgSpecs.Add(BuildingInfo("Field", "+1 Base Food Production on this space.")
+				.withModelName( "cube_sm")
+				.withTintColor( farmColor )
 				.withBaseFood(1) );
 
-	bldgSpecs.Add(BuildingInfo("Farmhouse", "A farmer lives the simple life: Harvesting food for you.")
+	bldgSpecs.Add(BuildingInfo("Farmer", "A farmer lives the simple life: Harvesting food for you.")
+		.withModelName("meeple")
+		.withTintColor(farmColor)
 		.withBaseCost(15)
 		.withCooldownTime(10.0f));
 
 	bldgSpecs.Add(
 		BuildingInfo("Grain Silo", "Doubles food production.")
+		.withModelName("cube_big")
+		.withTintColor(farmColor)
 		.withBaseCost( 500 )
 		.withFoodMultiplier( 2.0)
 		.withBuildLimit(2) 
 	);
 
 	bldgSpecs.Add(BuildingInfo("Plow", "Harvest Faster with Mister Plow.")
+		.withModelName("cube_sm")
+		.withTintColor(farmColor)
 		.withBaseCost( 100 )
 		.withCooldownTime(2.0f));
 
 	// Exploration Buildings
 
-	bldgSpecs.Add(BuildingInfo("Outpost", "Explores every 8s.")
+	bldgSpecs.Add(BuildingInfo("Scout", "Explores every 8s.")
+		.withModelName("meeple")
+		.withTintColor(exploreColor)
 		.withBaseCost(100)
 		.withType( Type_EXPLORE)
 		.withCooldownTime(8.0f));
 
-	bldgSpecs.Add(BuildingInfo("Campsite", "Base Explore +1.")
+	bldgSpecs.Add(BuildingInfo("Outpost", "Base Explore +1.")
+		.withModelName("cube_sm")
+		.withTintColor(exploreColor)
 		.withBaseCost(100)
 		.withBuildLimit(6) 
 		.withType(Type_EXPLORE)
 		.withBaseExplore(1)
 	);
 
-	bldgSpecs.Add(BuildingInfo("Cartogropher", "Explore x2.")
+	bldgSpecs.Add(BuildingInfo("Base Camp", "Explore x2.")
+		.withModelName("cube_big")
+		.withTintColor(exploreColor)
 		.withBaseCost(1000)
 		.withBuildLimit(6)
 		.withType(Type_EXPLORE)
 		.withExploreMult(2.0)
+	);
+
+	// NPC Buildings
+	bndx_barbarian = bldgSpecs.Size();
+	bldgSpecs.Add(BuildingInfo("Barbarian", "Enemy Barbarian.")
+		.withModelName("meeple")
+		.withTintColor(barbarianColor)
+		.withType(Type_ENEMY)
+	);
+
+	bndx_startfood = bldgSpecs.Size();
+	bldgSpecs.Add(BuildingInfo("Food", "Food you found on the ground.")
+			.withModelName("cube_big")
+			.withTintColor(startFoodColor)
+			.withType(Type_STARTING_RES )
+			.withBaseFood(1)
 	);
 
 	/*
@@ -170,13 +202,15 @@ void CivGame::SetupWithScene(Scene* _scene)
 
 	// See if we have building meshes
 	for (int i = 0; i < bldgSpecs.Size(); i++) {
-		SceneObject *bbObj = scene->FindNamedObject(bldgSpecs[i].bldgName);
+		SceneObject *bbObj = scene->FindNamedObject(bldgSpecs[i].ModelName);
 		if (bbObj) {
 			Log::Info("Found building for %s!\n", bldgSpecs[i].bldgName.AsCStr());
 			bldgSpecs[i].mesh = bbObj->mesh;
 		}
 		else {
-			Log::Info("MISSING building mesh %s!\n", bldgSpecs[i].bldgName.AsCStr());
+			Log::Info("MISSING model mesh '%s' for building '%s'!\n", 
+				bldgSpecs[i].ModelName.AsCStr(),
+				bldgSpecs[i].bldgName.AsCStr());
 			bldgSpecs[i].mesh = NULL;
 		}
 	}
@@ -316,14 +350,25 @@ void CivGame::SetupGameBoard()
 		}
 	}
 
+	// Add some enemies
+	for (int i = 0; i < BOARD_SZ * BOARD_SZ; i++) {
+		GameHex* hex = board[i];
+		if (hex) {
+			int numEnemies = (int)(glm::linearRand(1.0f, 5.0f));
+			for (int i = 0; i < numEnemies; i++) {
+				BuildBuilding(hex, &bldgSpecs[bndx_barbarian]);
+			}
+		}
+	}
+
 	// Now setup 5 tiles to produce food
 	// TODO: make this fair, and ensure there's at least one on a tile with less than a zillion clicks
 	int tilesLeft = 5;
 	while (tilesLeft > 0) {
 		int index = (int)(glm::linearRand(0.0f, 1.0f) * ((BOARD_SZ * BOARD_SZ)-1) );
 		GameHex* hex = board[index];
-		if ((hex) && (hex->baseFood==0)) {
-			hex->baseFood = 1;
+		if (hex) {
+			BuildBuilding(hex, &bldgSpecs[bndx_startfood]);
 			tilesLeft--;
 		}
 	}
@@ -345,7 +390,7 @@ void CivGame::ActivateBulding(float dt, GameHex* hex, Building* bb)
 	{
 		ExploreHex(hex, false);
 	}
-	else if (hex->baseFood > 0) {
+	else if (hex->stat_totalFoodHarvest > 0) {
 		HarvestHex(hex, false);
 	}
 }
@@ -534,61 +579,61 @@ void CivGame::CountBuildings(GameHex* hex)
 void CivGame::BuildBuilding(GameHex* hex, BuildingInfo* info)
 {
 	Log::Info("Build %s!\n", info->bldgName.AsCStr() );	
-	if (resFood >= info->BaseCost) {
-		resFood -= info->BaseCost;	
 
-		Building* bldg = Memory::New<Building>(info);
+	if ((info->Type != Type_ENEMY) && (info->Type != Type_STARTING_RES))
+	{
+		if (resFood >= info->BaseCost) {
+			resFood -= info->BaseCost;
+		}
+	}
+
+	Building* bldg = Memory::New<Building>(info);
 		
-		if (info->CooldownTime >= 0.0f) {
-			/// start at a random offset so they don't all fire in sync
-			bldg->cooldown = info->CooldownTime * glm::linearRand(0.1f, 1.0f); 
-		}
-		else {
-			bldg->cooldown = info->CooldownTime;
-		}
+	if (info->CooldownTime >= 0.0f) {
+		/// start at a random offset so they don't all fire in sync
+		bldg->cooldown = info->CooldownTime * glm::linearRand(0.1f, 1.0f); 
+	}
+	else {
+		bldg->cooldown = info->CooldownTime;
+	}
 
-		// Add the building mesh if it has one
-		if (info->mesh) {
-			bldg->sceneObj = scene->spawnObject(info->mesh);
-		}
+	// Add the building mesh if it has one
+	if (info->mesh) {
+		bldg->sceneObj = scene->spawnObject(info->mesh);
+		bldg->sceneObj->vsParams.tintColor = info->TintColor;
+	}
 
-		// for now, just retry a few times to minimze overlaps. In the future, do something better
-		bool goodPos = false;
-		int attempts = 0;
-		while (!goodPos) {
-			bldg->localPos = glm::vec3(glm::diskRand(1.4f), glm::linearRand(0.0f, 0.1f));
+	// for now, just retry a few times to minimze overlaps. In the future, do something better
+	bool goodPos = false;
+	int attempts = 0;
+	while (!goodPos) {
+		bldg->localPos = glm::vec3(glm::diskRand(1.4f), glm::linearRand(0.0f, 0.1f));
 
-			// is this position good?
-			goodPos = true;
-			for (int i = 0; i < hex->bldgs.Size(); i++) {
-				float dd = glm::distance(hex->bldgs[i]->localPos, bldg->localPos);
-				Log::Info("local dist is %3.3f\n", dd);
-				if (dd < 0.6f) {
-					goodPos = false;
-					break;
-				}
-			}
-			attempts++;
-			if (attempts > 20) {
-				Log::Info("Couldn't fit building without overlap.\n");
+		// is this position good?
+		goodPos = true;
+		for (int i = 0; i < hex->bldgs.Size(); i++) {
+			float dd = glm::distance(hex->bldgs[i]->localPos, bldg->localPos);
+			Log::Info("local dist is %3.3f\n", dd);
+			if (dd < 0.6f) {
+				goodPos = false;
 				break;
 			}
 		}
-
-
-		bldg->localRot = glm::angleAxis(glm::linearRand(0.0f, glm::pi<float>() * 4.0f), glm::vec3(0.0f, 0.0f, 1.0f) );
-
-		// Add this building
-		hex->bldgs.Add(bldg);
-
-		CountBuildings(focusHex);
-		UpdateHexStats(hex);
+		attempts++;
+		if (attempts > 20) {
+			Log::Info("Couldn't fit building without overlap.\n");
+			break;
+		}
 	}
-	else {
-		Log::Warn("Build called on ineligable building.");
-	}
-	//resFood -= 10;
-	//focusHex->farmCount += 1;
+
+
+	bldg->localRot = glm::angleAxis(glm::linearRand(0.0f, glm::pi<float>() * 4.0f), glm::vec3(0.0f, 0.0f, 1.0f) );
+
+	// Add this building
+	hex->bldgs.Add(bldg);
+
+	CountBuildings(focusHex);
+	UpdateHexStats(hex);
 }
 
 void CivGame::HarvestHex(GameHex* hex, bool actualClick )
@@ -635,7 +680,7 @@ void CivGame::UpdateHexStats(GameHex* hex)
 	hex->stat_totalExplore = (uint64_t)exploreAmtF;
 
 	// --- Food Stats
-	hex->stat_foodProduction = hex->baseFood;
+	hex->stat_foodProduction = 0;
 	for (int i = 0; i < hex->bldgs.Size(); i++) {
 		hex->stat_foodProduction += hex->bldgs[i]->info->BaseFood;
 	}
@@ -667,7 +712,18 @@ void CivGame::ExploreHex(GameHex* hex, bool actualClick)
 			hex->exploreCount = 0;
 			ApplyTerrainEffects(hex);
 			// HERE: Big reveal, flip hex and stuff.
-			// HERE: Also can nuke all Explore buildings in the tile
+			
+			// Also can nuke all Explore buildings in the tile
+			for (int i = hex->bldgs.Size() - 1; i >= 0; i--) {
+				if (hex->bldgs[i]->info->Type == Type_EXPLORE) {
+
+					Building *bb = hex->bldgs[i];
+					scene->destroyObject(bb->sceneObj);
+					Memory::Free(bb);
+
+					hex->bldgs.EraseSwapBack(i);
+				}
+			}
 		}
 	}
 	Log::Info("Explore: %zu\n", hex->exploreCount);
@@ -768,6 +824,7 @@ void CivGame::dynamicUpdate(Oryol::Duration frameDt, Tapnik::Camera * activeCame
 
 			//glm::mat4x4 hexXform = 
 			glm::mat4x4 hexXform = glm::translate(glm::mat4x4(), hex->pos + glm::vec3(0.0f, 0.0f, cb));
+
 			hex->sceneObj->xform = hexXform * glm::toMat4(hexFlip);
 			if (hex->hexBackObj) {
 				hex->hexBackObj->xform = hex->sceneObj->xform;
@@ -780,11 +837,22 @@ void CivGame::dynamicUpdate(Oryol::Duration frameDt, Tapnik::Camera * activeCame
 				SceneObject* bbObj = bb->sceneObj;
 				if (bbObj) {
 
-					glm::mat4x4 bldgXform = glm::translate(glm::mat4x4(), bb->localPos);
-					glm::mat4x4 bldgRot = glm::toMat4( bb->localRot );
+					bool isExplore = (bb->info->Type == Type_EXPLORE);
+					glm::vec3 offs(0.0f);
+					if (isExplore) {
+						offs.z = 0.38f;
+					}
 
-					// HERE was 
-					bbObj->xform = hex->sceneObj->xform * (bldgXform * bldgRot);
+					glm::mat4x4 bldgXform = glm::translate(glm::mat4x4(), bb->localPos + offs);
+					glm::mat4x4 bldgRot = glm::toMat4(bb->localRot);					
+					
+					if (!isExplore) {
+						bbObj->xform = hex->sceneObj->xform * (bldgXform * bldgRot);
+					}
+					else {
+						// Apply the xform without the flip
+						bbObj->xform = hexXform * (bldgXform * bldgRot);
+					}
 				}
 			}
 		}
@@ -1009,6 +1077,18 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 			nk_label(ctx, "TODO: Help Text", 
 				NK_TEXT_ALIGN_CENTERED);
 
+			/*
+			char buff[30];
+			sprintf(buff, "Shadow Near (%3.2f)", shadNear);
+			nk_label(ctx, buff, NK_TEXT_LEFT);
+			nk_slider_float(ctx, 0, &shadNear, 10.0f, 0.0001f);
+			
+			sprintf(buff, "Shadow Far (%3.2f)", shadFar);
+			nk_label(ctx, buff, NK_TEXT_LEFT);
+			nk_slider_float(ctx, 0, &shadFar, 100.0f, 1.f);
+			*/
+
+
 			nk_label_wrap(ctx, 
 				"Click on a hex to gather resources from it. "
 				"Click and Hold or Right-Click to build improvements on it." );
@@ -1019,6 +1099,7 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 			//nk_layout_row_dynamic(ctx, 30, 1);
 			//nk_label(ctx, "Static free space with custom position and custom size:", NK_TEXT_LEFT);
 
+			// This also filters out enemy type buildings
 			int currentType = Type_RESOURCE;
 			if ((focusHex) && (focusHex->exploreCount > 0)) {
 				currentType = Type_EXPLORE;

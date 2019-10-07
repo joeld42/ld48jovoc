@@ -22,8 +22,20 @@ void
 Camera::Setup(const glm::vec3 pos, float fov, int dispWidth, int dispHeight, float near, float far) {
     this->Pos = pos;
     this->Model = glm::translate(glm::mat4(), pos);
-    this->UpdateProj(fov, dispWidth, dispHeight, near, far);
-    
+	this->UpdateProj(fov, dispWidth, dispHeight, near, far);
+}
+
+void Camera::SetupShadow(const glm::vec3 pos, float hite, int dispWidth, int dispHeight, float shadNear, float shadFar) {
+	this->Pos = pos;
+	this->Model = glm::translate(glm::mat4(), pos);
+
+	//this->UpdateProj(20.0f, dispWidth, dispHeight, near, far);
+
+	// Doesn't work ??
+	//this->Proj = glm::perspectiveFov( 20.0f, float(dispWidth), float(dispHeight), near, far);
+	this->Proj = glm::ortho(-hite, hite, -hite, hite, shadNear, shadFar);
+	
+
 }
 
 
@@ -67,6 +79,7 @@ Camera::MoveCrappy( const glm::vec3& move ) {
     this->Model = m;
     this->Pos = glm::vec3(this->Model[3].x, this->Model[3].y, this->Model[3].z);
     this->updateViewProjFrustum();
+
 }
 
 Ray

@@ -16,7 +16,8 @@ CRUNCH_TOOL = 'c:/Toolkits/bin/crunch_x64'
 #BLENDER_EXPORT_SCRIPT = 'export_scene.py'
 #-b srcart/forest.blend -P script/export_scene.py -- ld33_export.cfg
 
-LDJAM_TOOL = 'c:/oprojects/fips-deploy/ld45_nothing/osx-xcode-debug/ldjamtool'
+#LDJAM_TOOL = '/oprojects/fips-deploy/ld45_nothing/osx-xcode-debug/ldjamtool'
+LDJAM_TOOL = 'C:/oprojects/fips-deploy/ld45_nothing/win64-vstudio-debug/ldjamtool.exe'
 
 #'./assets/TestLevelSF.ogex ./gamedata/TestLevelSF.ldjam'
 
@@ -30,6 +31,7 @@ TEXTURES = {
     'ground.png' : 'DXT5',
     'hex_back.png' : 'DXT5',
     'building_trims.png' : 'DXT5',
+    'grain.png' : 'DXT5'
 }
 
 OGEX_FILES = {

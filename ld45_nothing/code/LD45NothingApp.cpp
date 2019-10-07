@@ -440,12 +440,16 @@ void LD45NothingApp::dynamicUpdate( Oryol::Duration frameDt )
 
 		gameCamera.UpdateModel(lookAt);
 
-		civGame->dynamicUpdate(frameDt, activeCamera);
+		civGame->dynamicUpdate(frameDt, activeCamera);		
 	}
 }
 
 void LD45NothingApp::finalizeTransforms( glm::mat4 matViewProj )
 {
+	//if (civGame) {
+//		renderizer->testShadowStuff(civGame->shadNear, civGame->shadFar);
+	//}
+
 	glm::mat4 shadowMVP = renderizer->shadowCamera.ViewProj;
     gameScene->finalizeTransforms( matViewProj, shadowMVP );
 }

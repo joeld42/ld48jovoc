@@ -23,9 +23,18 @@
 	T name = default; \
 	BuildingInfo with##name##( T _##name## ) { ##name## = _##name##; return *this; }
 
+// Same but no default
+#define BUILDING_PROPERTY_ND( T, name ) \
+	T name; \
+	BuildingInfo with##name##( T _##name## ) { ##name## = _##name##; return *this; }
+
+
 enum {
 	Type_EXPLORE,
-	Type_RESOURCE
+	Type_RESOURCE,
+	
+	Type_ENEMY,
+	Type_STARTING_RES
 };
 
 class BuildingInfo
@@ -36,6 +45,9 @@ public:
 
 	Oryol::String bldgName;
 	Oryol::String desc;
+
+	BUILDING_PROPERTY_ND(Oryol::String, ModelName );
+	BUILDING_PROPERTY(glm::vec4, TintColor, glm::vec4(1.0f) );
 
 	BUILDING_PROPERTY(uint64_t, BaseCost, 10);
 	BUILDING_PROPERTY(double, CostMultiplier, 1.15 );
@@ -103,9 +115,7 @@ public:
 	// Gameplay stuff
 	uint64_t exploreCountStart;
 	uint64_t exploreCount;
-	TerrainType terrain;
-	int baseFood; // Some tiles naturally produce food
-	int farmCount;
+	TerrainType terrain;	
 
 	// stats (can be recalcuated from buildings)
 	uint64_t stat_foodProduction;
@@ -167,6 +177,12 @@ public:
 
 	// UI stuff
 	Tapnik::UIAssets* uiAssets; 
+
+	float shadNear = 1.0f;
+	float shadFar = 100.0f;
+
+	int bndx_barbarian = 0;
+	int bndx_startfood = 0;
 
 	Tapnik::Scene* scene;
 	Oryol::Id testTex;

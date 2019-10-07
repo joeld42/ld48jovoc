@@ -18,6 +18,10 @@ class Camera {
 public:
     /// initialize camera attributes
     void Setup(const glm::vec3 pos, float fov, int dispWidth, int dispHeight, float near, float far);
+
+
+	void SetupShadow(const glm::vec3 pos, float hite, int dispWidth, int dispHite, float shadNear, float shadFar );
+
     /// update projection matrix (call when display size changes)
     void UpdateProj(float fov, int dispWidth, int dispHeight, float near, float far);
     /// directly set the model matrix

@@ -27,13 +27,16 @@ Renderizer::Renderizer(  const Oryol::VertexLayout &meshLayout,
     shadowCamera = {};
 
     shadowCamera.Setup(glm::vec3(0.0, 0.0, 25.0), glm::radians(45.0f),
-                    shadowMapSize, shadowMapSize, 1.0f, 100.0f);
-    
+                    shadowMapSize, shadowMapSize, 10.0f, 60.0f);
+   
+
     // Doesn't quite work
-//    shadowCamera.SetupShadow(glm::vec3(0.0, 0.0, 25.0), 20.0f, shadowMapSize, shadowMapSize, 1.0f, 100.0f );
+    //shadowCamera.SetupShadow(glm::vec3(0.0, 0.0, 25.0), 20.0f, shadowMapSize, shadowMapSize, 1.0f, 100.0f );
     
-    shadowCamera.Pos = glm::vec3( 11.22, -29.90, 34.06 );
+	shadowCamera.Pos = glm::vec3(9.22, -29.90, 34.06) * 0.9f;
+    //shadowCamera.Pos = glm::vec3( 11.22, -29.90, 34.06 );
     shadowCamera.Rot = glm::vec2( 0.28, 0.68 );
+	
     
     // This applies the pos/rot
     shadowCamera.MoveRotate( glm::vec3(0.0f), glm::vec2(0.0f));
@@ -145,6 +148,22 @@ Renderizer::Renderizer(  const Oryol::VertexLayout &meshLayout,
 		this->bgquadDrawState.Pipeline = Gfx::CreateResource(psBGQuad);
 	}
 
+}
+
+void Renderizer::testShadowStuff(float shadNear, float shadFar)
+{
+	shadowCamera.Setup(glm::vec3(0.0, 0.0, 25.0), glm::radians(45.0f),
+		shadowMapSize, shadowMapSize, shadNear, shadFar );
+
+	//shadowCamera.SetupShadow(glm::vec3(0.0, 0.0, 25.0), 20.0f, shadowMapSize, shadowMapSize, shadNear, shadFar );
+
+	shadowCamera.Pos = glm::vec3(9.22, -29.90, 34.06) *0.9f;
+	shadowCamera.Rot = glm::vec2(0.28, 0.68);
+
+	// This applies the pos/rot
+	shadowCamera.MoveRotate(glm::vec3(0.0f), glm::vec2(0.0f));
+
+	
 }
 
 void Renderizer::renderScene(Tapnik::Scene* scene, Tapnik::UIAssets* uiAssets)
