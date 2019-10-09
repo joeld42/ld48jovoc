@@ -188,6 +188,25 @@ CivGame::CivGame() : scene(NULL), uiAssets(NULL), hoverHex( NULL ), focusHex(NUL
 		.withExploreMult(2.0)
 	);
 
+	// Military Buildings
+	bldgSpecs.Add(BuildingInfo("Soldier", "Might +1")
+		.withModelName("meeple")
+		.withTintColor(militaryColor)
+		.withBaseMilitary(1)
+		.withBaseCost(2000)
+		.withBuildLimit(3)
+		.withType(Type_RESOURCE)
+	);
+
+	bldgSpecs.Add(BuildingInfo("Fort", "Might +12")
+		.withModelName("cube_big")
+		.withTintColor(militaryColor)
+		.withBaseMilitary(12)
+		.withBaseCost(25000)
+		.withBuildLimit(1)
+		.withType(Type_RESOURCE)
+	);
+
 	// NPC Buildings
 	bndx_barbarian = bldgSpecs.Size();
 	bldgSpecs.Add(BuildingInfo("Barbarian", "Enemy Barbarian.")
@@ -454,14 +473,8 @@ void CivGame::SetupGameBoard()
 	}
 
 	// Update stats on everything
-	for (int i = 0; i < BOARD_SZ*BOARD_SZ; i++) {
-		GameHex* hex = board[i];
-		if (hex) {
-			UpdateHexStats(hex);
-		}
-		
-	}
-
+	UpdateAllHexStats();
+	
 }
 
 void CivGame::ActivateBulding(float dt, GameHex* hex, Building* bb)
@@ -720,14 +733,38 @@ void CivGame::BuildBuilding(GameHex* hex, BuildingInfo* info)
 	hex->bldgs.Add(bldg);
 
 	CountBuildings(focusHex);
-	UpdateHexStats(hex);
+	UpdateAllHexStats();
+}
+
+void CivGame::AttackHex(GameHex* hex, bool actualClick)
+{
+	UpdateAllHexStats();
+	Log::Info("Attack hex\n");
+
+	// See how much damage we do
+	uint64_t damage = hex->stat_surroundingMilitary;
+	if (damage == 0) {
+		// Didn't do anything, play the plonk sound
+		sfx->sfxErrBloop.Play();
+	}
+	else {
+		Log::Info("Did %d damage, hp %d/%d\n", damage, hex->damageCount, hex->stat_totalEnemyStr);
+		// TODO: Play some attacky sound
+		hex->damageCount += damage;
+		// Did this get all the enemies??
+		if (hex->damageCount > hex->stat_totalEnemyStr) {
+			// Yay! nuke them.
+			RemoveAllBuildingsOfType(hex, Type_ENEMY );
+			UpdateAllHexStats();
+		}
+	}
 }
 
 void CivGame::HarvestHex(GameHex* hex, bool actualClick )
 {
 
 	// Make sure our stats are up to date just in case
-	UpdateHexStats(hex);
+	UpdateAllHexStats();
 
 	if (hex->stat_totalFoodHarvest > 0) {
 		resFood += hex->stat_totalFoodHarvest; 
@@ -748,7 +785,43 @@ void CivGame::HarvestHex(GameHex* hex, bool actualClick )
 	}
 }
 
-void CivGame::UpdateHexStats(GameHex* hex)
+void CivGame::UpdateAllHexStats()
+{
+	for (int i = 0; i < BOARD_SZ * BOARD_SZ; i++) {
+		GameHex* hex = board[i];
+		if (hex) {
+			UpdateOneHexStats(hex);
+		}
+	}
+	// now the individual hexes are up to date, calculate the surround-based ones
+	for (int i = 0; i < BOARD_SZ * BOARD_SZ; i++) {
+		GameHex* hex = board[i];
+		if (hex) {
+			UpdateOneHexSurroundStats(hex);
+		}
+	}
+}
+
+void CivGame::UpdateOneHexSurroundStats(GameHex* hex)
+{
+	// Military Strength
+	int adjX[] = {  0, -1, -1, 0, 1,  1 };
+	int adjY[] = { -1, -1,  0, 1, 0, -1 };
+	hex->stat_surroundingMilitary = 0;
+	for (int i = 0; i < 6; i++) {
+		int ii = hex->hx + adjX[i];
+		int jj = hex->hy + adjY[i];
+		GameHex* nbrHex = boardHex(ii, jj);
+		if (nbrHex) {
+			hex->stat_surroundingMilitary += nbrHex->stat_totalMilitary;
+		}
+	}
+
+}
+
+// NOTE: this doesn't update stats which rely on neighbors since
+// we have to update all hexes first and then we can apply neighbors
+void CivGame::UpdateOneHexStats(GameHex* hex)
 {
 	// --- Explore Stats
 
@@ -795,6 +868,13 @@ void CivGame::UpdateHexStats(GameHex* hex)
 	}
 	hex->stat_totalFoodHarvest = (uint64_t)foodProductionF;
 
+	// -- Military stats
+	hex->stat_baseMilitary = 0;
+	for (int i = 0; i < hex->bldgs.Size(); i++) {
+		hex->stat_baseMilitary += hex->bldgs[i]->info->BaseMilitary;
+	}
+	// no multipliers on military yet
+	hex->stat_totalMilitary = hex->stat_baseMilitary;
 
 	// --- Enemy and combat stats
 	hex->stat_numEnemies = 0;
@@ -813,7 +893,7 @@ void CivGame::ExploreHex(GameHex* hex, bool actualClick)
 		hex->clickBounce = glm::linearRand(0.9f, 1.5f);
 		
 		// Make sure our stats are up to date just in case
-		UpdateHexStats(hex);
+		UpdateAllHexStats();
 
 		if (hex->exploreCount > hex->stat_totalExplore) {
 			hex->exploreCount -= hex->stat_totalExplore;
@@ -831,19 +911,24 @@ void CivGame::ExploreHex(GameHex* hex, bool actualClick)
 			}
 			
 			// Also can nuke all Explore buildings in the tile
-			for (int i = hex->bldgs.Size() - 1; i >= 0; i--) {
-				if (hex->bldgs[i]->info->Type == Type_EXPLORE) {
-
-					Building *bb = hex->bldgs[i];
-					scene->destroyObject(bb->sceneObj);
-					Memory::Free(bb);
-
-					hex->bldgs.EraseSwapBack(i);
-				}
-			}
+			RemoveAllBuildingsOfType(hex, Type_EXPLORE);
 		}
 	}
 	Log::Info("Explore: %zu\n", hex->exploreCount);
+}
+
+void CivGame::RemoveAllBuildingsOfType(GameHex *hex, int type)
+{
+	for (int i = hex->bldgs.Size() - 1; i >= 0; i--) {
+		if (hex->bldgs[i]->info->Type == type ) {
+
+			Building* bb = hex->bldgs[i];
+			scene->destroyObject(bb->sceneObj);
+			Memory::Free(bb);
+
+			hex->bldgs.EraseSwapBack(i);
+		}
+	}
 }
 
 void CivGame::ClickForTheGloryOfTheEmpire(GameHex* hex)
@@ -853,6 +938,9 @@ void CivGame::ClickForTheGloryOfTheEmpire(GameHex* hex)
 		// Is tile explored?
 		if (hex->exploreCount > 0) {
 			ExploreHex(hex, true);
+		}
+		else if (hex->stat_numEnemies > 0) {
+			AttackHex(hex, true);
 		}
 		else {
 			HarvestHex(hex, true);
@@ -1005,7 +1093,7 @@ float CivGame::CalcIconOffset(GameHex* hex)
 	// should have a neigbhor on at least one side top or bottom
 	// but just in case
 	if (!nbr) return 0.0f;
-
+	
 	float d = glm::distance(hex->screenPos, nbr->screenPos);
 
 	return d * 0.25;
@@ -1051,7 +1139,7 @@ void CivGame::DoGameUI_HexResourceIcons(nk_context* ctx, GameHex* hex, Tapnik::U
 	bool showBig = false;
 	glm::vec2 hp = hex->screenPos + glm::vec2(0.0, offs);
 
-	if ((hex == focusHex) && (offs > 60)) {
+	if ((hex == focusHex) && (offs > 50)) {
 		showBig = true;
 	}
 
@@ -1174,8 +1262,9 @@ void CivGame::DoGameUI_HexResourceIcons(nk_context* ctx, GameHex* hex, Tapnik::U
 				}
 				else {
 					if (hex->stat_totalEnemyStr > 0) {
+						uint64_t hpRemain = hex->stat_totalEnemyStr - hex->damageCount;
 						icon = uiAssets->icon_enemy_big;
-						sprintf(numText, "%zu", hex->stat_totalEnemyStr);
+						sprintf(numText, "%zu", hpRemain );
 						ctx->style.text.color = nkStyleFromHexCode("#F23D4C").data.color;
 					}
 					else {
@@ -1520,16 +1609,21 @@ Tapnik::SceneMesh* CivGame::BuildHexMesh( float hexSize )
 	static bool didWriteMesh = false;
 	if (!didWriteMesh) {
 		FILE* fp = fopen("c:\\oprojects\\ld45_nothing\\hex_dump.obj", "wt");
-		for (int i = 0; i < numCapVerts; i++) {
-			fprintf(fp, "v %f %f %f\n", verts[i].m_pos[0], verts[i].m_pos[2], verts[i].m_pos[1]);
+		if (!fp) {
+			Log::Warn("Can't open mesh file!\n");
 		}
+		else {
+			for (int i = 0; i < numCapVerts; i++) {
+				fprintf(fp, "v %f %f %f\n", verts[i].m_pos[0], verts[i].m_pos[2], verts[i].m_pos[1]);
+			}
 
-		for (int i = 0; i < numCapTris; i++) {
-			fprintf(fp, "f %d %d %d\n", indexes[i * 3 + 0] + 1, indexes[i * 3 + 1] + 1, indexes[i * 3 + 2] + 1);
+			for (int i = 0; i < numCapTris; i++) {
+				fprintf(fp, "f %d %d %d\n", indexes[i * 3 + 0] + 1, indexes[i * 3 + 1] + 1, indexes[i * 3 + 2] + 1);
+			}
+			fclose(fp);
+			didWriteMesh = true;
+			Log::Info("Wrote OBJ hex\n");
 		}
-		fclose(fp);
-		didWriteMesh = true;
-		Log::Info("Wrote OBJ hex\n");
 	}
 #endif
 

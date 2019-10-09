@@ -99,59 +99,8 @@ LD45NothingApp::OnInit() {
 	sfx.Init();
 	sfx.LoadAllSounds();
     
-#if 0
-	IO::Load("gamedata:sfx/UI_Click_Distinct_mono.wav", [this](IO::LoadResult loadResult) {
-		this->sfxClickData = std::move(loadResult.Data);
-		sfxClick.loadMem(sfxClickData.Data(), sfxClickData.Size(), true, false);
-		printf("SFX Click loaded...\n");
-		});
 
-    IO::Load("gamedata:sfx/WHOOSH_Air_Slow_RR9_mono.wav", [this](IO::LoadResult loadResult) {
-        this->sfxWhooshData = std::move(loadResult.Data);
-        sfxWhoosh.loadMem(sfxWhooshData.Data(), sfxWhooshData.Size(), true, false );
-        printf("SFX Click loaded...\n");
-    });
-    
-    IO::Load("gamedata:irongame.ogg", [this](IO::LoadResult loadResult) {
-        this->musicData = std::move(loadResult.Data);
-        music.loadMem(musicData.Data(), musicData.Size(), true, false );
-        music.setLooping(true);
 
-		//soloud.play( music );
-		musicPlaying = 0;
-    });
-#endif
-
-    /*
-    Input::SetPointerLockHandler([this](const InputEvent& event) -> PointerLockMode::Code {
-        if (event.Button == MouseButton::Left) {
-            if (event.Type == InputEvent::MouseButtonDown) {
-                //this->pointerLock = true;
-                return PointerLockMode::Enable;
-            }
-            else if (event.Type == InputEvent::MouseButtonUp) {
-                //this->pointerLock = false;
-                return PointerLockMode::Disable;
-            }
-        }
-        return PointerLockMode::DontCare;
-    });
-     */
-    
-    /*
-     Input::SetMousePointerLockHandler([](const Mouse::Event& event) -> Mouse::PointerLockMode {
-     // switch pointer-lock on/off on left-mouse-button
-     if ((event.Button == Mouse::LMB) || (event.Button == Mouse::RMB)) {
-     if (event.Type == Mouse::Event::ButtonDown) {
-     return Mouse::PointerLockModeEnable;
-     }
-     else if (event.Type == Mouse::Event::ButtonUp) {
-     return Mouse::PointerLockModeDisable;
-     }
-     }
-     return Mouse::PointerLockModeDontCare;
-     });
-     */
     
     // Setup UI
     NKUI::Setup();

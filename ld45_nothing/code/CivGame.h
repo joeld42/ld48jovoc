@@ -61,6 +61,7 @@ public:
 	BUILDING_PROPERTY(double, ExploreMult, 1.0);
 	BUILDING_PROPERTY(double, FoodMultiplier, 1.0);
 	BUILDING_PROPERTY(double, CooldownTime, -1.0 );	
+	BUILDING_PROPERTY(int, BaseMilitary, 0);
 
 	// these are just cached for the current focus building
 	int countOnFocusHex = 0;
@@ -135,6 +136,10 @@ public:
 	uint64_t stat_exploreMultiplier;
 	uint64_t stat_totalExplore;
 
+	uint64_t stat_baseMilitary;
+	uint64_t stat_surroundingMilitary;
+	uint64_t stat_totalMilitary;
+
 	uint64_t stat_numEnemies;
 	uint64_t stat_totalEnemyStr;
 
@@ -170,12 +175,18 @@ public:
 	void UpdateGameSystem(float dt);
 	void HarvestHex(GameHex* hex, bool actualClick);
 	void ExploreHex(GameHex* hex, bool actualClick);
+	void AttackHex(GameHex* hex, bool actualClick);
+		
+
 	void UpdateHex(float dt, GameHex* hex);
 	void BuildBuilding(GameHex* hex, BuildingInfo* info);
 	void ActivateBulding(float dt, GameHex* hex, Building* bb);
 	void CountBuildings(GameHex* hex);
+	void RemoveAllBuildingsOfType( GameHex *hex, int type);
 
-	void UpdateHexStats(GameHex* hex);
+	void UpdateOneHexStats(GameHex* hex);
+	void UpdateOneHexSurroundStats(GameHex* hex);
+	void UpdateAllHexStats();
 
 	void ApplyTerrainEffects(GameHex* hex);
 
