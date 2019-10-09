@@ -10,6 +10,7 @@
 #include "SceneObject.h"
 #include "LDJamFile.h"
 #include "Camera.h"
+#include "Sounds.h"
 
 #include "par_easings.h"
 
@@ -527,7 +528,7 @@ void CivGame::HandleInput(float dt, Tapnik::Camera* activeCamera)
 	}
 
 	if (Input::KeyDown(Key::N0)) {
-		cheatsEnabled = !cheatsEnabled;
+		cheatsEnabled = !cheatsEnabled;	
 	}
 
 	// Handle input
@@ -737,6 +738,9 @@ void CivGame::HarvestHex(GameHex* hex, bool actualClick )
 	if (actualClick)
 	{
 		hex->clickBounce = glm::linearRand(0.9f, 1.5f);
+		if (hex->stat_totalFoodHarvest <= 0) {
+			sfx->sfxErrBloop.Play(); // Let them know this didn't work
+		}
 	}
 	else {
 		// Bounce (a little less) for an auto-click.
@@ -817,7 +821,14 @@ void CivGame::ExploreHex(GameHex* hex, bool actualClick)
 		else {
 			hex->exploreCount = 0;
 			ApplyTerrainEffects(hex);
+
 			// HERE: Big reveal, flip hex and stuff.
+			if (hex->stat_totalEnemyStr == 0) {
+				sfx->sfxWhoosh.Play();
+			}
+			else {
+				sfx->sfxStomp.Play();
+			}
 			
 			// Also can nuke all Explore buildings in the tile
 			for (int i = hex->bldgs.Size() - 1; i >= 0; i--) {
@@ -973,7 +984,9 @@ void CivGame::dynamicUpdate(Oryol::Duration frameDt, Tapnik::Camera * activeCame
 		if ((hoverHex) && (hoverHex != focusHex))
 		{
 			hoverHex->hoverBump = 0.2f;
-			// TODO: play click sound
+			//play click sound
+			// TODO: don't play when camera is moving
+			sfx->sfxClick.Play();
 		}
 	}
 	

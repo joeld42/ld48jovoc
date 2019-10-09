@@ -72,6 +72,9 @@ private:
 	Tapnik::Camera* activeCamera;
 	int activeCameraIndex;
     
+	// Audio Stuff
+	SoundMaker sfx;
+
     // Gameplay stuff
     Oryol::TimePoint startTimePoint;
     Oryol::TimePoint lastTimePoint;
@@ -94,14 +97,7 @@ private:
 	Tapnik::Renderizer* renderizer;
     
     Tapnik::UIAssets *uiAssets;
-    SoLoud::Soloud soloud;
     
-    // TODO: wrap up all this 
-    Oryol::Buffer sfxJumpData;
-    SoLoud::Wav sfxJump;
-    
-    int musicPlaying = 0;
-    Oryol::Buffer musicData;
-    SoLoud::WavStream music;
+  
 };
 #endif

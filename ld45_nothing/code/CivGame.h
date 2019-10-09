@@ -13,6 +13,8 @@
 #include "UIAssets.h"
 #include "Ray.h"
 
+#include "Sounds.h"
+
 // NKUI and stb-image for UI stuff
 #include "NKUI/NKUI.h"
 
@@ -177,6 +179,9 @@ public:
 
 	void ApplyTerrainEffects(GameHex* hex);
 
+	// Audio
+	SoundMaker* sfx = NULL;
+	
 	// Gameplay info
 	Oryol::Array<BuildingInfo> bldgSpecs;
 	uint64_t resFood = 0;

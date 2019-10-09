@@ -6,6 +6,7 @@ fips_begin_app(ld45nothing windowed)
 	          #SceneController.cpp SceneController.h 
 	          #GameScene.cpp GameScene.h
 	          #TitleScene.cpp TitleScene.h
+	          Sounds.h Sounds.cpp
 	          CivGame.h CivGame.cpp
 	          Renderizer.h Renderizer.cpp
 	          Camera.h Camera.cpp

@@ -19,6 +19,8 @@
 #include "soloud_wav.h"
 #include "soloud_wavstream.h"
 
+#include "Sounds.h"
+
 #include "Assets/Gfx/ShapeBuilder.h"
 
 #include "glm/gtc/type_ptr.hpp"
@@ -94,14 +96,20 @@ LD45NothingApp::OnInit() {
 	//	});
 	
     
+	sfx.Init();
+	sfx.LoadAllSounds();
     
-    // Initialize SoLoud (automatic back-end selection)
-    soloud.init();
-    
-    IO::Load("gamedata:jump.wav", [this](IO::LoadResult loadResult) {
-        this->sfxJumpData = std::move(loadResult.Data);
-        sfxJump.loadMem(sfxJumpData.Data(), sfxJumpData.Size(), true, false );
-        printf("SFX Jump loaded...\n");
+#if 0
+	IO::Load("gamedata:sfx/UI_Click_Distinct_mono.wav", [this](IO::LoadResult loadResult) {
+		this->sfxClickData = std::move(loadResult.Data);
+		sfxClick.loadMem(sfxClickData.Data(), sfxClickData.Size(), true, false);
+		printf("SFX Click loaded...\n");
+		});
+
+    IO::Load("gamedata:sfx/WHOOSH_Air_Slow_RR9_mono.wav", [this](IO::LoadResult loadResult) {
+        this->sfxWhooshData = std::move(loadResult.Data);
+        sfxWhoosh.loadMem(sfxWhooshData.Data(), sfxWhooshData.Size(), true, false );
+        printf("SFX Click loaded...\n");
     });
     
     IO::Load("gamedata:irongame.ogg", [this](IO::LoadResult loadResult) {
@@ -112,6 +120,8 @@ LD45NothingApp::OnInit() {
 		//soloud.play( music );
 		musicPlaying = 0;
     });
+#endif
+
     /*
     Input::SetPointerLockHandler([this](const InputEvent& event) -> PointerLockMode::Code {
         if (event.Button == MouseButton::Left) {
@@ -490,6 +500,7 @@ LD45NothingApp::StartGame()
 	civGame = Memory::New<CivGame>();
 	civGame->uiAssets = uiAssets;
 	civGame->SetupWithScene(gameScene);
+	civGame->sfx = &sfx;
 }
 
 void LD45NothingApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
@@ -542,11 +553,12 @@ void LD45NothingApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
             nextCamera();
         }
         
-        if (nk_button_label(ctx, "SFX Jump")) {
-            printf("Button 2 pressed...\n");
-            soloud.play( sfxJump );
-        }
+       // if (nk_button_label(ctx, "SFX Jump")) {
+         //   printf("Button 2 pressed...\n");
+         //   soloud.play( sfxJump );
+        //}
         
+		/*
         nk_layout_row_dynamic( ctx, 50, 1);
         if (nk_checkbox_label(ctx, "Music", &musicPlaying ) ) {        
             printf("Music Toggled: %s\n", musicPlaying?"ON":"OFF");
@@ -556,6 +568,7 @@ void LD45NothingApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
                 soloud.play( music );
             }
         }
+		*/
         
     }
     nk_end(ctx);
