@@ -12,7 +12,7 @@
 #include "SceneObject.h"
 #include "UIAssets.h"
 #include "Ray.h"
-
+#include "HexTileBuilder.h"
 #include "Sounds.h"
 
 // NKUI and stb-image for UI stuff
@@ -153,8 +153,6 @@ public:
 	CivGame();
 	void SetupWithScene(Tapnik::Scene* scene);
 
-	Tapnik::SceneMesh* BuildHexMesh( float hexSize );
-
 	void SetupGameBoard();
 	void HandleInput(float dt, Tapnik::Camera* activeCamera);
 
@@ -190,6 +188,9 @@ public:
 
 	void ApplyTerrainEffects(GameHex* hex);
 
+	// Builder for hex meshes
+	HexTileBuilder* hexBuilder;
+
 	// Audio
 	SoundMaker* sfx = NULL;
 	
@@ -212,7 +213,6 @@ public:
 	int bndx_startfood = 0;
 
 	Tapnik::Scene* scene;
-	Oryol::Id testTex;
 	Tapnik::SceneMesh* hexBackMesh;
 
 	GameHex *board[BOARD_SZ*BOARD_SZ];

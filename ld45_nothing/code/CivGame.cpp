@@ -11,6 +11,7 @@
 #include "LDJamFile.h"
 #include "Camera.h"
 #include "Sounds.h"
+#include "HexTileBuilder.h"
 
 #include "par_easings.h"
 
@@ -115,6 +116,11 @@ CivGame::CivGame() : scene(NULL), uiAssets(NULL), hoverHex( NULL ), focusHex(NUL
 
 	resFood = 0;
 
+
+	// Initialize Builder
+	// TODO: Might want to have multiple to build hexes in background
+	hexBuilder = Memory::New<HexTileBuilder>();
+
 	// Initialize buildings
 
 	// Resource Buildings
@@ -123,7 +129,7 @@ CivGame::CivGame() : scene(NULL), uiAssets(NULL), hoverHex( NULL ), focusHex(NUL
 	glm::vec4 exploreColor = colorFromHexCode("#68badc");
 	glm::vec4 mineralColor = colorFromHexCode("#F2B705");
 	glm::vec4 barbarianColor = colorFromHexCode("#F23D4C"); 
-	glm::vec4 militaryColor = colorFromHexCode("#b80404"); 
+	glm::vec4 militaryColor = colorFromHexCode("#9B73FF"); 
 	glm::vec4 rocketColor = colorFromHexCode("#9a26c0"); 
 	glm::vec4 scienceColor = colorFromHexCode("#483bec");
 
@@ -249,7 +255,7 @@ void CivGame::SetupWithScene(Scene* _scene)
 	Log::Info("CivGame::SetupWithScene\n");
 
 	SceneObject* groundObj = scene->FindNamedObject("Grid");
-	testTex = groundObj->mesh->texture;
+	hexBuilder->testTex = groundObj->mesh->texture;
 
 	// Hang on to the hex back object
 	SceneObject* hexbackObj = scene->FindNamedObject("HexBack");
@@ -294,7 +300,7 @@ void CivGame::SetupWithScene(Scene* _scene)
 			GameHex* hex = board[boardNdx];
 			if (!hex) continue;
 
-			SceneMesh* hexMesh = BuildHexMesh(hexSize * 0.96);
+			SceneMesh* hexMesh = hexBuilder->BuildHexMesh( scene, hexSize * 0.96);
 			SceneObject* hexTile = scene->spawnObject(hexMesh);
 			glm::vec3 tilePos = glm::vec3(float(i) - gridhalf, float(j) - gridhalf, 0.0f);
 			float offs = ((i & 0x1) == 0) ? 0.0f : hexHite * 0.5;
@@ -1423,6 +1429,9 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 			}
 
 			// TODO: Show terrain modifiers
+			ctx->style.text.color = nk_rgb(255, 255, 255);
+			nk_style_set_font(ctx, &(uiAssets->font_20->handle));
+			nk_labelf(ctx, NK_TEXT_ALIGN_CENTERED, "%d/%d", focusHex->bldgs.Size(), 12);
 		}
 
 		if (!focusHex) {
@@ -1498,7 +1507,7 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 					nk_style_set_font(ctx, &(uiAssets->font_14->handle));
 					nk_layout_space_push(ctx, nk_rect(105, 38, 183, 47));
 					nk_label_wrap(ctx, bldg.desc.AsCStr());
-
+					
 					char buff[32];
 					nk_layout_space_push(ctx, nk_rect(163, 0, 90, 16));
 					if (bldg.countOnFocusHex == 0) {
@@ -1527,6 +1536,10 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 						buyPrompt = "Built Limit";
 						canBuild = false;
 					}
+					else if (focusHex->bldgs.Size() >= 12) {
+						buyPrompt = "Full";
+						canBuild = false;
+					}
 
 					if (canBuild) {
 						uiAssets->buttonStyleNormal(ctx);
@@ -1548,89 +1561,6 @@ void CivGame::DoGameUI_Gameplay(nk_context* ctx, Tapnik::UIAssets* uiAssets)
 	nk_end(ctx);
 }
 
-Tapnik::SceneMesh* CivGame::BuildHexMesh( float hexSize )
-{
-	int numCapVerts = 7; // six + center
-	int numCapTris = 6;
 
-	size_t vertBufferSize = sizeof(LDJamFileVertex) * numCapVerts;	
-	size_t indexBufferSize = sizeof(uint16_t) * numCapTris * 3;
-	size_t geomBufferSize = vertBufferSize + indexBufferSize;
-	
-	
-	float r = 2.0f;
-	float s3 = (sqrt(3.0)*r) / 2.0;
-	float r2 = r / 2.0f;
-	uint8_t *geomBuffer = (uint8_t*)Memory::Alloc(geomBufferSize);
-	LDJamFileVertex* verts = (LDJamFileVertex*)geomBuffer;
-	verts[0].m_pos = glm::vec3(0.0f, 0.0f, 0.0f);
-	
-	verts[1].m_pos = glm::vec3(r, 0.0f, 0.0f);
-	verts[2].m_pos = glm::vec3(r2, s3, 0.0f);
-	verts[3].m_pos = glm::vec3( -r2, s3, 0.0f);
-	verts[4].m_pos = glm::vec3(-r, 0.0f, 0.0f);
-	verts[5].m_pos = glm::vec3(-r2, -s3, 0.0f);
-	verts[6].m_pos = glm::vec3(r2,-s3, 0.0f);
-
-	for (int i = 0; i < numCapVerts; i++) {
-		glm::vec2 st = glm::vec2(verts[i].m_pos) * glm::vec2(0.25f, -0.25f);
-		verts[i].m_nrm = glm::vec3(0.f, 0.f, 1.f);
-		verts[i].m_st0 = st + glm::vec2( 0.5f, 0.5f);
-
-		verts[i].m_pos *= hexSize/2.0;
-	}
-
-	uint16_t* indexes = (uint16_t*)(geomBuffer + vertBufferSize);
-	indexes[0] = 0;
-	indexes[1] = 1;
-	indexes[2] = 2;
-
-	indexes[3] = 0;
-	indexes[4] = 2;
-	indexes[5] = 3;
-
-	indexes[6] = 0;
-	indexes[7] = 3;
-	indexes[8] = 4;
-
-	indexes[9] = 0;
-	indexes[10] = 4;
-	indexes[11] = 5;
-
-	indexes[12] = 0;
-	indexes[13] = 5;
-	indexes[14] = 6;
-
-	indexes[15] = 0;
-	indexes[16] = 6;
-	indexes[17] = 1;
-
-#if 1
-	static bool didWriteMesh = false;
-	if (!didWriteMesh) {
-		FILE* fp = fopen("c:\\oprojects\\ld45_nothing\\hex_dump.obj", "wt");
-		if (!fp) {
-			Log::Warn("Can't open mesh file!\n");
-		}
-		else {
-			for (int i = 0; i < numCapVerts; i++) {
-				fprintf(fp, "v %f %f %f\n", verts[i].m_pos[0], verts[i].m_pos[2], verts[i].m_pos[1]);
-			}
-
-			for (int i = 0; i < numCapTris; i++) {
-				fprintf(fp, "f %d %d %d\n", indexes[i * 3 + 0] + 1, indexes[i * 3 + 1] + 1, indexes[i * 3 + 2] + 1);
-			}
-			fclose(fp);
-			didWriteMesh = true;
-			Log::Info("Wrote OBJ hex\n");
-		}
-	}
-#endif
-
-	SceneMesh* hexMesh = scene->BuildMesh("Hex_MESH", testTex, geomBuffer,
-		numCapVerts, numCapTris * 3);
-
-	return hexMesh;
-}
 
 
