@@ -12,7 +12,8 @@ fips_begin_app(ld45nothing windowed)
 	          Renderizer.h Renderizer.cpp
 	          Camera.h Camera.cpp
 	          Ray.h Ray.cpp
-	          UIAssets.h UIAssets.cpp	          
+	          UIAssets.h UIAssets.cpp
+	          open-simplex-noise.h open-simplex-noise.c
 	          DebugDraw.cpp DebugDraw.h debug_draw_impl.h	          
 	          stb_image.h
 	          par_easings.h

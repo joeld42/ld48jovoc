@@ -7,6 +7,8 @@
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtc/random.hpp"
 
+#include "open-simplex-noise.h"
+
 #include "SceneObject.h"
 #include "LDJamFile.h"
 
@@ -15,6 +17,9 @@
 using namespace Oryol;
 using namespace Tapnik;
 
+
+osn_context* HexTileBuilder::noiseCtx = NULL;
+
 // TODO: figure out the exact bounds of this from
 // our max subdivision level
 #define SCRATCH_BUFF_SZ (1024*1024*2)
@@ -22,7 +27,9 @@ using namespace Tapnik;
 
 #define NBR_INVALID  (0xFFFF)
 
-HexTileBuilder::HexTileBuilder() : scratchBuffer( NULL )
+#define TILE_RES (128)
+
+HexTileBuilder::HexTileBuilder() : scratchBuffer( NULL ), _terrain( NULL)
 {
 }
 
@@ -32,6 +39,18 @@ void HexTileBuilder::_SetupScratchBuffer()
 		scratchBuffer = (uint8_t*)Memory::Alloc(SCRATCH_BUFF_SZ);
 		nbrTable = (uint16_t*)Memory::Alloc(NBR_TABLE_SZ * sizeof(uint16_t));
 	 }
+
+	if (noiseCtx == NULL) {
+		open_simplex_noise( 1234, &noiseCtx);
+	}
+
+	if (_terrain == NULL)
+	{
+		size_t terrainSz = TILE_RES * TILE_RES * sizeof(TerrainInfo);
+		_terrain = (TerrainInfo*)Memory::Alloc(terrainSz);
+	}
+
+
 }
 
 // build the base mesh into the scratch buffer
@@ -264,6 +283,43 @@ MeshData HexTileBuilder::_SubdivideMesh(MeshData origMesh)
 	return compactedMesh;
 }
 
+void HexTileBuilder::_ApplyHeight(MeshData& mesh)
+{
+	for (int i = 0; i < mesh.numVerts; i++)
+	{
+		glm::vec2 st = mesh.verts[i].m_st0;
+		int uu = st.x * TILE_RES;
+		int vv = st.y * TILE_RES;
+		float h = _terrain[vv * TILE_RES + uu].height;
+		mesh.verts[i].m_pos.z = h * 0.2f;
+	}
+}
+
+void HexTileBuilder::_CalcNormals(MeshData& mesh)
+{
+	for (int i = 0; i < mesh.numVerts; i++) {
+		mesh.verts[i].m_nrm = glm::vec3(0.0f);
+	}
+
+	for (int i = 0; i < mesh.numTris; i++) {
+		uint16_t ndxA = mesh.indexes[i * 3 + 0];
+		uint16_t ndxB = mesh.indexes[i * 3 + 1];
+		uint16_t ndxC = mesh.indexes[i * 3 + 2];
+
+		glm::vec3 edge1 = mesh.verts[ndxB].m_pos - mesh.verts[ndxA].m_pos;
+		glm::vec3 edge2 = mesh.verts[ndxC].m_pos - mesh.verts[ndxA].m_pos;
+		
+		glm::vec3 faceNorm = glm::normalize( glm::cross(edge1, edge2) );
+		mesh.verts[ndxA].m_nrm += faceNorm;
+		mesh.verts[ndxB].m_nrm += faceNorm;
+		mesh.verts[ndxC].m_nrm += faceNorm;
+	}
+
+	for (int i = 0; i < mesh.numVerts; i++) {
+		mesh.verts[i].m_nrm = glm::normalize(mesh.verts[i].m_nrm);
+	}
+}
+
 void HexTileBuilder::_DumpOBJFile(const char* filename, MeshData mesh)
 {
 	FILE* fp = fopen( filename , "wt");
@@ -286,13 +342,20 @@ void HexTileBuilder::_DumpOBJFile(const char* filename, MeshData mesh)
 Tapnik::SceneMesh* HexTileBuilder::BuildHexMesh( Tapnik::Scene *scene, float hexSize)
 {
 	_SetupScratchBuffer();
-	MeshData baseMesh = _BuildBaseMesh( hexSize );
 
+	_GenerateTerrain();
+
+	MeshData baseMesh = _BuildBaseMesh( hexSize );
+	
 	MeshData subdMesh = baseMesh;
 	for (int i = 0; i < 3; i++)
 	{
 		subdMesh = _SubdivideMesh(subdMesh);
+		_ApplyHeight(subdMesh);
 	}
+
+	_CalcNormals(subdMesh);
+
 	// Copy the final mesh into the geomBuffer
 	uint8_t *geomBuffer = (uint8_t*)Memory::Alloc(subdMesh.meshDataSize);
 	Memory::Copy( subdMesh.meshData, geomBuffer, subdMesh.meshDataSize);
@@ -306,9 +369,97 @@ Tapnik::SceneMesh* HexTileBuilder::BuildHexMesh( Tapnik::Scene *scene, float hex
 	}
 #endif
 
+	// Build the texture maps for this hex
+	_BuildTextures();
 
-	SceneMesh* hexMesh = scene->BuildMesh("Hex_MESH", testTex, subdMesh.meshData,
+	SceneMesh* hexMesh = scene->BuildMesh("Hex_MESH", texTileAlbedo, subdMesh.meshData,
 		subdMesh.numVerts, subdMesh.numTris * 3);
 
 	return hexMesh;
+}
+
+// cosine based palette, 4 vec3 params
+glm::vec3 palette(float t, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d)
+{
+	return a + b * cos(6.28318f * (c * t + d));
+}
+
+float HexDist( glm::vec2 p) {
+	p = glm::abs(p);
+
+	float c = glm::dot(p, glm::normalize(glm::vec2(1, 1.73)));
+	c = glm::max(c, p.x);
+
+	return c;
+}
+
+
+TerrainInfo HexTileBuilder::_EvalTerrain(glm::vec2 uv, float hexId )
+{
+	TerrainInfo res = {};
+
+	float t = open_simplex_noise3( noiseCtx, uv.x * 6.0, uv.y * 6.0, hexId );
+
+	glm::vec2 uvNorm = (uv * 2.0f) + glm::vec2(-1.0f);
+	float hd = HexDist( uvNorm );
+	glm::vec3 color = palette( hd, glm::vec3(0.5f, 0.5f, 0.5f),
+		glm::vec3(0.5f, 0.5f, 0.5f),
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 0.33f, 0.67f ));
+
+	res.height = t;
+
+	float edge = glm::smoothstep(0.41f, 0.42f, hd);
+	res.albedo = glm::mix(glm::vec4(color.r, color.g, color.b, 1.0), glm::vec4(1.0f), edge);
+	//res.albedo = glm::mix(glm::vec4(color.r, color.g, color.b, 1.0), glm::vec4(1.0f), fabs( t ));
+	
+	// TODO::
+
+	return res;
+}
+
+void HexTileBuilder::_GenerateTerrain()
+{
+	float cellId = glm::linearRand(0.0f, 100.0f);
+
+	for (int j = 0; j < TILE_RES; j++) {
+		float jj = (float)j / (float)TILE_RES;
+		for (int i = 0; i < TILE_RES; i++) {
+
+			float ii = (float)i / (float)TILE_RES;
+
+			int ndx = (j * TILE_RES) + i;
+			_terrain[ndx] = _EvalTerrain(glm::vec2(ii, jj), cellId );
+		}
+	}
+}
+
+void HexTileBuilder::_BuildTextures()
+{
+	const int texDataSize = TILE_RES * TILE_RES * PixelFormat::ByteSize(PixelFormat::RGBA8);
+	uint32_t* texData = (uint32_t*)Memory::Alloc(texDataSize);
+
+	for (int j = 0; j < TILE_RES; j++) {
+		for (int i = 0; i < TILE_RES; i++) {
+			int ndx = (j * TILE_RES) + i;
+			TerrainInfo nfo = _terrain[ndx];
+
+			int r = nfo.albedo.r * 255;
+			int g = nfo.albedo.g * 255;
+			int b = nfo.albedo.b * 255;
+			uint32_t c = 0xFF000000 | (r << 16) | (g << 8) | b;
+			texData[ndx] = c;
+		}
+	}
+
+	auto texSetup = TextureSetup::FromPixelData2D( TILE_RES, TILE_RES, 1, PixelFormat::RGBA8);
+	texSetup.Sampler.MinFilter = TextureFilterMode::Linear;
+	texSetup.Sampler.MagFilter = TextureFilterMode::Linear;
+	texSetup.Sampler.WrapU = TextureWrapMode::ClampToEdge;
+	texSetup.Sampler.WrapV = TextureWrapMode::ClampToEdge;
+	texSetup.ImageData.Sizes[0][0] = texDataSize;
+	texTileAlbedo = Gfx::CreateResource(texSetup, texData, texDataSize);
+
+	// TODO: Reuse this for other texture
+	Memory::Free(texData);
 }

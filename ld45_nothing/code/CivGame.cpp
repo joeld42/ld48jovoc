@@ -255,7 +255,6 @@ void CivGame::SetupWithScene(Scene* _scene)
 	Log::Info("CivGame::SetupWithScene\n");
 
 	SceneObject* groundObj = scene->FindNamedObject("Grid");
-	hexBuilder->testTex = groundObj->mesh->texture;
 
 	// Hang on to the hex back object
 	SceneObject* hexbackObj = scene->FindNamedObject("HexBack");
@@ -365,6 +364,9 @@ void CivGame::ApplyTerrainEffects(GameHex* hex)
 		// Unexplored, flip it over
 		hex->flipAmountTarg = 1.0f;
 	}
+
+	// DBG: Don't tint for now
+	tileTint = glm::vec4(1.0f);
 
 	hex->sceneObj->vsParams.tintColor = tileTint;
 

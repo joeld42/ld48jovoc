@@ -45,10 +45,9 @@ void SoundMaker::LoadAllSounds()
 		music.loadMem(musicData.Data(), musicData.Size(), true, false);
 		music.setLooping(true);
 
-		int hmusic = soloud.play( music );
-		soloud.setVolume(hmusic, 0.3f);
-
-		musicPlaying = 1;
+		//int hmusic = soloud.play( music );
+		//soloud.setVolume(hmusic, 0.3f);
+		//musicPlaying = 1;
 		});
 
 }
