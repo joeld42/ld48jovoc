@@ -20,6 +20,10 @@ void UIAssets::SetupUI()
         this->font_14 = NKUI::AddFont(this->ttfData, 14.0f);
         this->font_30 = NKUI::AddFont(this->ttfData, 30.0f);
         NKUI::EndFontAtlas();
+
+		LoadIcon("gamedata:uiassets/top_graphic.png", &img_top_graphic);
+		LoadIcon("gamedata:uiassets/item_icons.png", &img_item_icons );
+		LoadIcon("gamedata:uiassets/shrine_icons.png", &img_shrine_icons);
         
         LoadIcon( "gamedata:uiassets/btn_large_blue.png", &img_btn_large_blue );
         LoadIcon( "gamedata:uiassets/btn_large_yellow.png", &img_btn_large_yellow );
@@ -84,3 +88,12 @@ void UIAssets::LoadIcon(const char* url, struct nk_image* img) {
     });
 }
 
+void UIAssets::storeDefaultStyle(nk_context* ctx)
+{
+	defaultStyle = ctx->style;
+}
+
+void UIAssets::restoreDefaultStyle(nk_context* ctx)
+{
+	ctx->style = defaultStyle;
+}

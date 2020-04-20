@@ -28,6 +28,33 @@ using namespace Tapnik;
 
 extern void dbgPrintMatrix( const char *label, glm::mat4 m );
 
+
+void GroundTriangle::GroundBarycentric(glm::vec3 p, float& u, float& v, float& w)
+{
+	// TODO: store these when we create the groundTri
+	glm::vec2 v0 = glm::vec2(b.x - a.x, b.y - a.y);
+	glm::vec2 v1 = glm::vec2(c.x - a.x, c.y - a.y);
+	
+	glm::vec2 v2 = glm::vec2(p.x - a.x, p.y - a.y);
+	float d00 = glm::dot(v0, v0);
+	float d01 = glm::dot(v0, v1);
+	float d11 = glm::dot(v1, v1);
+	float d20 = glm::dot(v2, v0);
+	float d21 = glm::dot(v2, v1);
+
+	float denom = d00 * d11 - d01 * d01;
+	if (fabs(denom) < 0.001f) {
+		u = 100.0f;
+		v = 101.0f;
+		w = 102.0f;
+	}
+	else {
+		v = (d11 * d20 - d01 * d21) / denom;
+		w = (d00 * d21 - d01 * d20) / denom;
+		u = 1.0f - v - w;
+	}
+}
+
 SceneObject *makeObject( SceneMesh *mesh )
 {
     //SceneObject *object = new SceneObject();
@@ -144,57 +171,79 @@ void Scene::LoadScene( Oryol::StringAtom sceneName, Scene::LoadCompleteFunc load
     StringBuilder strBuilder;
     strBuilder.Format( 4096, "gamedata:%s.ldjam", sceneName.AsCStr() );
     Log::Info("fetch scene %s", strBuilder.GetString().AsCStr() );
-    IO::Load(strBuilder.GetString(), [this,sceneName,loadComplete](IO::LoadResult loadResult) {
-        
-        Log::Info("Loadresult scene %s size is %d\n", sceneName.AsCStr(), loadResult.Data.Size() );
-        sceneBuff = std::move(loadResult.Data);
-        
-        LDJamFileHeader *fileHeader = (LDJamFileHeader*)sceneBuff.Data();
-        Log::Info("Loaded chunks, loadresult sz %d, fileVer %d numChunks is %d \n", loadResult.Data.Size(), fileHeader->m_fileVersion, fileHeader->m_numChunks );
-        
-        if (fileHeader->m_fileVersion != LDJAMFILE_VERSION) {
-            Log::Error("ldjam file version is stale! expected version %d, got %d!\n",
-                       LDJAMFILE_VERSION, fileHeader->m_fileVersion );
-        }
-        
-        LDJamFileMeshInfo *meshInfos = (LDJamFileMeshInfo *)(sceneBuff.Data() + sizeof(LDJamFileHeader));
-        
-        
-        for (size_t i=0; i < fileHeader->m_numChunks; i++) {
-            
+	IO::Load(strBuilder.GetString(), [this, sceneName, loadComplete](IO::LoadResult loadResult) {
+
+		Log::Info("Loadresult scene %s size is %d\n", sceneName.AsCStr(), loadResult.Data.Size());
+		sceneBuff = std::move(loadResult.Data);
+
+		LDJamFileHeader* fileHeader = (LDJamFileHeader*)sceneBuff.Data();
+		Log::Info("Loaded chunks, loadresult sz %d, fileVer %d numChunks is %d \n", loadResult.Data.Size(), fileHeader->m_fileVersion, fileHeader->m_numChunks);
+
+		if (fileHeader->m_fileVersion != LDJAMFILE_VERSION) {
+			Log::Error("ldjam file version is stale! expected version %d, got %d!\n",
+				LDJAMFILE_VERSION, fileHeader->m_fileVersion);
+		}
+
+		LDJamFileMeshInfo* meshInfos = (LDJamFileMeshInfo*)(sceneBuff.Data() + sizeof(LDJamFileHeader));
+
+
+		for (size_t i = 0; i < fileHeader->m_numChunks; i++) {
+
 			SceneMesh* mesh = Memory::New<SceneMesh>();
-            LDJamFileMeshInfo *meshInfo = meshInfos + i;
-            
-            mesh->bboxMin = meshInfo->m_bboxMin;
-            mesh->bboxMax = meshInfo->m_bboxMax;
-            
-            // For now, everything is loaded, TODO load the contents part
-            // when needed
-            LDJamFileMeshContent *meshContent = (LDJamFileMeshContent*)( sceneBuff.Data() + meshInfo->m_contentOffset );
-            LDJamFileVertex *meshVertData = (LDJamFileVertex *)(sceneBuff.Data() + meshInfo->m_contentOffset + sizeof(LDJamFileMeshContent) );
-            
-//            printf("Chunk %zu -- %s sz %f %f %f -- %f numtris %d\n", i, chunkInfo->m_name,
-//                   chunkInfo->m_bboxMin.x, chunkInfo->m_bboxMin.y, chunkInfo->m_bboxMin.z,
-//                   glm::length( chunkInfo->m_bboxMin ), chunkContent->m_triIndices/3 );
-            
-            
-            auto meshSetup = MeshSetup::FromData();
-            meshSetup.NumVertices = meshContent->m_numVerts;
-            meshSetup.NumIndices = meshContent->m_triIndices;
-            
-            meshSetup.IndicesType = IndexType::Index16;
-            meshSetup.Layout = meshLayout;
-            
-            int numVerts = meshContent->m_numVerts;
-            meshSetup.AddPrimitiveGroup({0, meshContent->m_triIndices });
-            meshSetup.VertexDataOffset = 0;
-            meshSetup.IndexDataOffset = sizeof(LDJamFileVertex) * numVerts;
-            
-            mesh->meshName = String( meshInfo->m_name );
-            
-            size_t meshDataSize = (sizeof(LDJamFileVertex) * numVerts) + (sizeof(uint16_t) * meshContent->m_triIndices);
-            mesh->mesh = Gfx::CreateResource(meshSetup, meshVertData, meshDataSize );
-            
+			LDJamFileMeshInfo* meshInfo = meshInfos + i;
+
+			mesh->bboxMin = meshInfo->m_bboxMin;
+			mesh->bboxMax = meshInfo->m_bboxMax;
+
+			// For now, everything is loaded, TODO load the contents part
+			// when needed
+			LDJamFileMeshContent* meshContent = (LDJamFileMeshContent*)(sceneBuff.Data() + meshInfo->m_contentOffset);
+			LDJamFileVertex * meshVertData = (LDJamFileVertex*)(sceneBuff.Data() + meshInfo->m_contentOffset + sizeof(LDJamFileMeshContent));
+
+			//            printf("Chunk %zu -- %s sz %f %f %f -- %f numtris %d\n", i, chunkInfo->m_name,
+			//                   chunkInfo->m_bboxMin.x, chunkInfo->m_bboxMin.y, chunkInfo->m_bboxMin.z,
+			//                   glm::length( chunkInfo->m_bboxMin ), chunkContent->m_triIndices/3 );
+
+
+			auto meshSetup = MeshSetup::FromData();
+			meshSetup.NumVertices = meshContent->m_numVerts;
+			meshSetup.NumIndices = meshContent->m_triIndices;
+
+			meshSetup.IndicesType = IndexType::Index16;
+			meshSetup.Layout = meshLayout;
+
+			int numVerts = meshContent->m_numVerts;
+			meshSetup.AddPrimitiveGroup({ 0, meshContent->m_triIndices });
+			meshSetup.VertexDataOffset = 0;
+			meshSetup.IndexDataOffset = sizeof(LDJamFileVertex) * numVerts;
+
+			mesh->meshName = String(meshInfo->m_name);
+
+			size_t meshDataSize = (sizeof(LDJamFileVertex) * numVerts) + (sizeof(uint16_t) * meshContent->m_triIndices);
+			mesh->mesh = Gfx::CreateResource(meshSetup, meshVertData, meshDataSize);
+
+			// If this is the special ground mesh, build the ground tris
+
+			if (mesh->meshName == "ground_mesh")
+			{
+				Log::Info("Mesh name is %s\n", mesh->meshName.AsCStr());
+				LDJamFileVertex* vertData = meshVertData;
+				uint16_t* indexData = (uint16_t*) ((uint8_t*)meshVertData + meshSetup.IndexDataOffset);
+
+				// Add some ground triangles
+				for (int ti = 0; ti < meshContent->m_triIndices/3; ti++) {
+					GroundTriangle gtri;
+					int ndxA = indexData[ti * 3 + 0];
+					int ndxB = indexData[ti * 3 + 1];
+					int ndxC = indexData[ti * 3 + 2];
+					gtri.a = vertData[ndxA].m_pos;
+					gtri.b = vertData[ndxB].m_pos;
+					gtri.c = vertData[ndxC].m_pos;
+					mesh->groundTris.Add(gtri);
+				}
+
+				Log::Info("Added ground mesh, %d tris\n", mesh->groundTris.Size());
+			}
             
             
             // Assign texture if there is one
@@ -505,7 +554,7 @@ void Tapnik::dbgDrawBBox( SceneObject *obj, float *color )
 
 void Tapnik::dbgPrintMatrix( const char *label, glm::mat4 m )
 {
-    printf("mat4 %10s| %3.2f %3.2f %3.2f %3.2f\n"
+    Log::Info("mat4 %10s| %3.2f %3.2f %3.2f %3.2f\n"
            "               | %3.2f %3.2f %3.2f %3.2f\n"
            "               | %3.2f %3.2f %3.2f %3.2f\n"
            "               | %3.2f %3.2f %3.2f %3.2f\n",

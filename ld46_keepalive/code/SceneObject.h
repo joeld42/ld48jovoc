@@ -25,6 +25,13 @@ public:
     glm::mat4x4 mat;
     int index;
 };
+
+struct GroundTriangle
+{
+	glm::vec3 a, b, c;
+
+	void GroundBarycentric(glm::vec3 p, float& u, float& v, float& w);
+};
     
 class SceneMesh
 {
@@ -38,6 +45,8 @@ public:
     
     glm::vec3 bboxMin;
     glm::vec3 bboxMax;
+
+	Oryol::Array<GroundTriangle> groundTris;
     
     bool ready = false;
 };

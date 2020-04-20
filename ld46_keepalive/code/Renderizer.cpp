@@ -37,7 +37,7 @@ Renderizer::Renderizer(  const Oryol::VertexLayout &meshLayout,
     
 	shadowCamera.Pos = glm::vec3(9.22, -29.90, 34.06) * 0.9f;
     //shadowCamera.Pos = glm::vec3( 11.22, -29.90, 34.06 );
-    shadowCamera.Rot = glm::vec2( 0.28, 0.68 );
+    shadowCamera.Rot = glm::vec2( -0.28, 0.68 );
 	
     
     // This applies the pos/rot
@@ -254,12 +254,14 @@ void Renderizer::finishMainPass()
 	Gfx::BeginPass(this->passAction);
 
 	// Draw the post-processes quad
-	postProcFSparams.size = glm::vec2(1.0f, 1.0f);
-	postProcFSparams.offs = glm::vec2(0.0, 0.0);
+	postProcVSparams.size = glm::vec2(1.0f, 1.0f);
+	postProcVSparams.offs = glm::vec2(0.0, 0.0);
+	
 	this->postProcDrawState.FSTexture[PostProcShader::tex] = mainRenderTarget;
 	this->postProcDrawState.FSTexture[PostProcShader::depthTex] = gbuffRenderTarget;
 	Gfx::ApplyDrawState(this->postProcDrawState);
-	Gfx::ApplyUniformBlock(this->postProcFSparams);
+	Gfx::ApplyUniformBlock(this->postProcVSparams);
+	Gfx::ApplyUniformBlock(this->postProcFSParams2);
 	Gfx::Draw();
 }
 

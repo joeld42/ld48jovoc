@@ -32,7 +32,9 @@
 #include "GameSettings.h"
 #include "DebugDraw.h"
 #include "UIAssets.h"
+#include "Sounds.h"
 
+class FireGame;
 
 class LD46KeepAliveApp : public Oryol::App {
     
@@ -60,10 +62,15 @@ private:
     glm::mat4 displayProj;
     float angleX = 0.0f;
     float angleY = 0.0f;
+
+	FireGame* game;
     
 	GameSettings cfg;
     Oryol::GfxSetup gfxSetup;
     Oryol::PassAction passAction;
+
+	// Audio Stuff
+	SoundMaker sfx;
         
     // Debug mode stuff
     bool debugMode;

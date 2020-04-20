@@ -64,7 +64,8 @@ namespace Tapnik
 		
 		// Post draw (color grade, etc)
 		Oryol::DrawState postProcDrawState;
-		PostProcShader::vsParams postProcFSparams;
+		PostProcShader::vsParams postProcVSparams;
+		PostProcShader::fsParams postProcFSParams2;
 
         
     };

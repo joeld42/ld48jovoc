@@ -42,6 +42,8 @@
 // NKUI and stb-image for UI stuff
 #include "NKUI/NKUI.h"
 
+#include "FireGame.h"
+
 using namespace Oryol;
 using namespace Tapnik;
 
@@ -95,25 +97,10 @@ LD46KeepAliveApp::OnInit() {
 
     Input::Setup();
     
-    
-    // Initialize SoLoud (automatic back-end selection)
-    soloud.init();
-    
-    IO::Load("gamedata:jump.wav", [this](IO::LoadResult loadResult) {
-        this->sfxJumpData = std::move(loadResult.Data);
-        sfxJump.loadMem(sfxJumpData.Data(), sfxJumpData.Size(), true, false );
-        printf("SFX Jump loaded...\n");
-    });
-    
-    IO::Load("gamedata:irongame.ogg", [this](IO::LoadResult loadResult) {
-        this->musicData = std::move(loadResult.Data);
-        music.loadMem(musicData.Data(), musicData.Size(), true, false );
-        music.setLooping(true);
+	sfx.Init(&cfg);
+	sfx.LoadAllSounds();
+	
 
-		//soloud.play( music );
-		//soloud.setVolume(hmusic, settings->musicVolume);
-		musicPlaying = 0;
-    });
     /*
     Input::SetPointerLockHandler([this](const InputEvent& event) -> PointerLockMode::Code {
         if (event.Button == MouseButton::Left) {
@@ -157,13 +144,14 @@ LD46KeepAliveApp::OnInit() {
     dbgCamera = {};
     dbgCamera.Setup(glm::vec3(0.0, 0.0, 25.0), glm::radians(45.0f),
                     uiAssets->fbWidth,
-                    uiAssets->fbHeight, 0.01f, 100.0f);
+                    uiAssets->fbHeight, 0.01f, 5000.0f);
     
     // Load the scenes
     gameScene = Memory::New<Scene>();
     gameScene->Setup( &gfxSetup, cfg.renderPassMultisample );
     
-    gameScene->LoadScene( "TEST_StuffB",[this](bool success) {
+	//gameScene->LoadScene("TEST_StuffB", [this](bool success) {
+    gameScene->LoadScene( "ld46keepalive",[this](bool success) {
         onSceneLoaded();
     });
     
@@ -210,6 +198,10 @@ LD46KeepAliveApp::OnInit() {
     
     this->lastTimePoint = Clock::Now();
     this->startTimePoint = this->lastTimePoint;
+
+	// Make the game scene
+	game = Memory::New<FireGame>();
+	game->sfx = &sfx;
     
     return App::OnInit();
 }
@@ -247,6 +239,10 @@ LD46KeepAliveApp::OnRunning() {
         leftoverTime -= frameDt;
     }
     
+
+	if (Input::KeyDown(Key::J)) {
+		dbgPrintMatrix("dbgCamera", dbgCamera.Model );
+	}
     //this->lateUpdate();
         
     // === Finalize Transforms
@@ -286,7 +282,7 @@ LD46KeepAliveApp::OnRunning() {
         dd::screenText("Debug Mode", textPos2D, dd::colors::Orange );
     }
 
-	if (Input::KeyDown(Key::Escape)|| Input::KeyDown(Key::Q)) {
+	if (Input::KeyDown(Key::Escape)) {
 		Log::Info("Request Quit...\n");
 		requestQuit();
 	}
@@ -300,7 +296,8 @@ LD46KeepAliveApp::OnRunning() {
     
     // Do UI
     if (this->uiAssets->fontValid) {
-        this->interfaceScreens( uiAssets );
+        //this->interfaceScreens( uiAssets );
+		game->interfaceScreens(uiAssets);
     }
     
     Dbg::DrawTextBuffer();
@@ -373,16 +370,27 @@ LD46KeepAliveApp::handleInputDebug() {
 // =======================================================================================
 void LD46KeepAliveApp::onSceneLoaded()
 {
-    SceneCamera cam = gameScene->findNamedCamera( "MonkeyCam" );
+	
+
+    SceneCamera cam = gameScene->findNamedCamera( "GameCamera" );
     if (cam.index >=0) {
         activeCameraIndex = cam.index;
     }
     gameCamera.UpdateModel( cam.mat );
-    gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 0.01f, 100.0f);
+    gameCamera.UpdateProj(glm::radians(45.0f), uiAssets->fbWidth, uiAssets->fbHeight, 0.01f, 5000.0f);
+
+	game->_gameCamera = &gameCamera;
+	game->Setup(gameScene);
 }
 void LD46KeepAliveApp::fixedUpdate( Oryol::Duration fixedDt )
 {
-    
+	if (!debugMode)
+	{
+		game->fixedUpdate(fixedDt);
+
+		// HACK: get the flameAmt to the shader
+		renderizer->postProcFSParams2.flameAmt = game->_flameAmt;
+	}
 }
 
 void LD46KeepAliveApp::dynamicUpdate( Oryol::Duration frameDt )
@@ -419,8 +427,10 @@ void LD46KeepAliveApp::nextCamera()
 
 void LD46KeepAliveApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
 {
-    // Draw UI Layer
+	return;
+	    // Draw UI Layer
     nk_context* ctx = NKUI::NewFrame();
+	
     
     //ctx->style.button.normal.data.color = nk_rgb( 20, 80, 20 );
     //ctx->style.button.hover.data.color = nk_rgb( 100, 150, 100 );
@@ -488,7 +498,7 @@ void LD46KeepAliveApp::interfaceScreens( Tapnik::UIAssets *uiAssets )
     NKUI::Draw();
     
     // Note: clear happens in draw, extra clear is to workaround a bug, need to upgrade nuklear in NKUI to get the fix
-    nk_clear(ctx);
+    //nk_clear(ctx);
 }
 
 

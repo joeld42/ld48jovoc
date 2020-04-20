@@ -131,7 +131,7 @@ void main() {
 		// sky horizon
 		col = mix( col, vec3(0.5, 0.7, .9), exp(-10.0*max(rd.z,0.0)) );   
 	}
-
+	#if 0
 	// floor
 	{
 		vec2 uv = -1.5*rd.xy/rd.z;
@@ -140,8 +140,9 @@ void main() {
 
 		col = mix( floorCol, col, exp(-10.0*max( -rd.z,0.0)) );   
 	}
+	#endif
 
-	#if 1
+	#if 0
     float time = 0.0;
     vec4 res = castRay( ro, rd, time );
     if ( res.y > -0.5) {

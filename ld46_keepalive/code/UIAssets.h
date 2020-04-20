@@ -28,6 +28,11 @@ struct UIAssets {
     struct nk_image img_btn_large_green;
     struct nk_image img_btn_large_red;
     struct nk_image img_btn_large_grey;
+
+	// keep alive images
+	struct nk_image img_top_graphic;
+	struct nk_image img_item_icons;
+	struct nk_image img_shrine_icons;
     
     void SetupUI();
     
@@ -39,6 +44,10 @@ struct UIAssets {
     void buttonStyleNormal( nk_context* ctx );
     void buttonStyleCancel( nk_context* ctx );
     void buttonStyleDisabled( nk_context* ctx );
+
+	void storeDefaultStyle(nk_context* ctx);
+	void restoreDefaultStyle(nk_context* ctx);
+	struct nk_style defaultStyle;
 };
     
 } // Namespace Tapnik
