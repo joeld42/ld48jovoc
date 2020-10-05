@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Loop Game</title>
+</head>
+<body>
+	<h1>Strange Loop</h1>
+	<img src="docs/strange_loop.png" width="600"><br>
+	<p>
+		Strange Loop is a puzzle game. The goal of the game is to create one continous loop that wraps
+		around the whole shape. The touches every cell, but might not touch every corner dot. There are
+		hints marked on the board, using those hints and some logical deduction, you can solve the whole loop!
+	</p>
+	<p>
+		This is inspired by games like <a href="https://www.puzzle-loop.com/">Puzzle Loop</a> aka Slitherlink or <a href="https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/loopy.html">Loopy</a>. Check out these games for more hints and strategies! 
+	</p>
+	<hr>
+
+	<h1>About</h1>
+	<p>
+		Strange Loop was created for LudumDare 47 over the course of 72 hours, by Joel Davis (joeld42@gmail.com).
+		<br>
+		It was built using the <a href="https://github.com/floooh/oryol">Oryol Engine</a> and my 
+		<a href="https://github.com/joeld42/darkstar">terrible basecode.</a> Follow 
+		<a href="https://twitter.com/joeld42">@joeld42</a> on Twitter for more jam games and updates!
+
+	</p>
+	<h1>How To Play</h1>
+	<p>
+		When you start the game, some cells are marked with symbols. 
+		<ul>
+			<li>A blank cell is unlabeled, and gives you no clues for the puzzle.</li>
+			<li>A cell with a CIRCLED X means none of the edges are part of the loop (but the corners may be)</li>
+			<li>A cell with one square has exactly one edge that is part of the loop</li>
+			<li>A cell with two square has exactly two edges that is part of the loop</li>
+			<li>A cell with three square has exactly three edges that is part of the loop</li>
+		</ul>
+		You may mark some edges with a red X, this is not required to solve it but it can help you keep track
+		of which edges you know are empty. Some edges start out marked as part of the loop or as X'd out, these
+		marking can't be modifed.
+	
+	<h2>Controls</h2>
+	<ul>
+		<li>Drag the puzzle to rotate it</li>
+		<li>Click on an edge to cycle it between BLANK, MARKED, and X'd OUT</li>		
+		<li>Shift-Click on a marked edge to make it blank</li>		
+		<li>Shift-Click on a blank edge to make it X'd out</li>		
+		<li>Press the "Check" button when you think you've solved the puzzle.</li>
+	</ul>
+	<h2>Cheat Codes</h2>
+	<ul>
+		<li>Press 0 to enable cheat codes.</li>
+		<li>Press 'D' to toggle overlay display of the solution</li>
+		<li>Press 'B' to fill in the edges with the correct solution</li>
+	</ul>	
+	</p>
+	<h2>Strategy</h2>
+	<p>It can be hard to figure out where to put the line. Here's an example:</p>
+		<br><img src="docs/logic1.png" width="300"><br>
+	<p> Here, we see two cells with three marks next to each other. Since these can't
+	form a closed loop (since the whole solution is a single loop), we know the open edge
+	can't be between them, so they must make an S or a backwards S shape. Since we can see
+	one marked edge on the top of the S, we can tell it's not a backwards S and can fill
+	in the shape.</p>
+	<p>
+		Next, since we've marked the top of the S and there is cell with one mark there, 
+		we can mark the other three edges on the one cell as open. That only leaves one
+		direction for the loop to continue from the top of the S, so we extend it.
+	</p>
+	<p>Now just keep doing that until you've solved the whole puzzle!</p>
+		<br><img src="docs/logic2.png" width="300"><br>
+	<p></p>
+</body>
+</html>
